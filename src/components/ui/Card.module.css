@@ -1,0 +1,25 @@
+.card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 18px 20px;
+}
+.header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+.title {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+}
+.subtitle {
+  font-size: 13px;
+  color: var(--muted);
+}
+.flush {
+  padding: 0;
+}

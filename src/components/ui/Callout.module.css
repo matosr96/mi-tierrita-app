@@ -1,0 +1,34 @@
+.callout {
+  border-radius: var(--radius);
+  padding: 14px 18px;
+  border: 1px solid var(--line);
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+}
+.good {
+  background: var(--sprout-soft);
+  border-color: var(--sprout);
+}
+.warn {
+  background: var(--amber-soft);
+  border-color: var(--amber);
+}
+.bad {
+  background: var(--clay-soft);
+  border-color: var(--clay);
+}
+.neutral {
+  background: var(--surface-2);
+}
+.body {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+}
+.title {
+  font-family: var(--font-heading);
+  font-size: 20px;
+  font-weight: 600;
+}

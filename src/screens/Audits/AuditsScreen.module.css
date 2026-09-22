@@ -1,0 +1,37 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+.filters {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 14px;
+  align-items: end;
+}
+.filterActions {
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-end;
+}
+.mono {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 13px;
+  color: var(--ink);
+  word-break: break-all;
+}
+.user {
+  font-weight: 600;
+  color: var(--ink);
+}
+.date {
+  white-space: nowrap;
+  color: var(--ink-2);
+}
+.pager {
+  padding: 4px 16px 14px;
+}
+.note {
+  font-size: 13px;
+  color: var(--muted);
+}

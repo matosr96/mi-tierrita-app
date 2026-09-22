@@ -1,0 +1,32 @@
+.wrap {
+  overflow-x: auto;
+}
+.table th,
+.table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--line);
+  text-align: left;
+  vertical-align: middle;
+}
+.table th {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink-2);
+  white-space: nowrap;
+}
+.table tbody tr:last-child td {
+  border-bottom: none;
+}
+.clickable tbody tr {
+  cursor: pointer;
+}
+.clickable tbody tr:hover {
+  background: var(--surface-2);
+}
+.right {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+.center {
+  text-align: center;
+}

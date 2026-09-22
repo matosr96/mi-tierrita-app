@@ -1,0 +1,97 @@
+.grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.5fr) minmax(280px, 1fr);
+  gap: 18px;
+  align-items: start;
+}
+.gridEven {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+  align-items: start;
+}
+.strong {
+  font-weight: 600;
+  color: var(--ink);
+}
+.chartNote {
+  border-top: 1px solid var(--line);
+  margin-top: 14px;
+  padding-top: 12px;
+  font-size: 14px;
+  color: var(--ink-2);
+}
+.cardLink {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--link);
+  text-decoration: none;
+  white-space: nowrap;
+}
+.cardLink:hover {
+  text-decoration: underline;
+}
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  background: var(--surface-2);
+  border-radius: var(--radius-sm);
+}
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.dotBad {
+  background: var(--clay);
+}
+.dotWarn {
+  background: var(--amber);
+}
+.itemText {
+  flex: 1;
+  min-width: 0;
+  font-size: 14.5px;
+}
+.itemLink {
+  font-size: 12.5px;
+  font-weight: 600;
+  padding: 2px 9px;
+  border-radius: 999px;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.itemLinkBad {
+  background: var(--clay-soft);
+  color: var(--clay-fg);
+}
+.itemLinkWarn {
+  background: var(--amber-soft);
+  color: var(--amber-fg);
+}
+.allGood {
+  font-size: 14.5px;
+  color: var(--leaf);
+}
+.blockError {
+  font-size: 13.5px;
+  color: var(--clay-fg);
+  margin-top: 8px;
+}
+@media (max-width: 1000px) {
+  .grid,
+  .gridEven {
+    grid-template-columns: 1fr;
+  }
+}

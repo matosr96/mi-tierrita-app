@@ -1,0 +1,83 @@
+/* Variables de diseño compartidas (documento 02, sección 6). Ningún componente usa un color suelto. */
+:root {
+  --forest: #1b4332;
+  --forest-fg: #1b4332;
+  --on-forest: #f1f7f2;
+  --leaf: #2d6a4f;
+  --sprout: #95d5b2;
+  --sprout-soft: #e3f2e8;
+  --ground: #f3f5f2;
+  --surface: #ffffff;
+  --surface-2: #eef2ee;
+  --ink: #1e2a24;
+  --ink-2: #4c5b53;
+  --muted: #7a877f;
+  --line: #d6ddd7;
+  --link: #2d6a4f;
+  --amber: #b7791f;
+  --amber-fg: #8a5a12;
+  --amber-soft: #f7ecd6;
+  --clay: #a63d40;
+  --clay-fg: #a63d40;
+  --clay-soft: #f6e1e1;
+  --sidebar: #14291f;
+  --sidebar-line: rgba(255, 255, 255, 0.08);
+  --sidebar-ink: #d9e5dd;
+  --sidebar-muted: #8fa397;
+  --sidebar-active: rgba(149, 213, 178, 0.14);
+  --radius: 10px;
+  --radius-sm: 6px;
+  --shadow: 0 1px 2px rgba(20, 40, 30, 0.06), 0 8px 24px -12px rgba(20, 40, 30, 0.18);
+  --font-body: "Source Sans 3", system-ui, "Segoe UI", Arial, sans-serif;
+  --font-heading: "Lora", Georgia, serif;
+  --sidebar-width: 248px;
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --forest-fg: #b7e4c7;
+    --leaf: #52b788;
+    --sprout-soft: #1f3a2c;
+    --ground: #111815;
+    --surface: #182019;
+    --surface-2: #1f2a23;
+    --ink: #e6ede8;
+    --ink-2: #b9c6be;
+    --muted: #84948a;
+    --line: #2e3b33;
+    --link: #95d5b2;
+    --amber: #e6b35a;
+    --amber-fg: #e6b35a;
+    --amber-soft: #3a2e14;
+    --clay: #f09a9c;
+    --clay-fg: #f09a9c;
+    --clay-soft: #3c1f20;
+    --sidebar: #0e1a14;
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 8px 24px -12px rgba(0, 0, 0, 0.6);
+    color-scheme: dark;
+  }
+}
+
+:root[data-theme="dark"] {
+  --forest-fg: #b7e4c7;
+  --leaf: #52b788;
+  --sprout-soft: #1f3a2c;
+  --ground: #111815;
+  --surface: #182019;
+  --surface-2: #1f2a23;
+  --ink: #e6ede8;
+  --ink-2: #b9c6be;
+  --muted: #84948a;
+  --line: #2e3b33;
+  --link: #95d5b2;
+  --amber: #e6b35a;
+  --amber-fg: #e6b35a;
+  --amber-soft: #3a2e14;
+  --clay: #f09a9c;
+  --clay-fg: #f09a9c;
+  --clay-soft: #3c1f20;
+  --sidebar: #0e1a14;
+  --shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 8px 24px -12px rgba(0, 0, 0, 0.6);
+  color-scheme: dark;
+}

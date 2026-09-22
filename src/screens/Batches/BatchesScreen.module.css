@@ -1,0 +1,57 @@
+.filters {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.filtersLabel {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink-2);
+}
+.grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.7fr) minmax(260px, 1fr);
+  gap: 18px;
+  align-items: start;
+}
+.product {
+  font-weight: 600;
+  color: var(--ink);
+}
+.lot {
+  font-variant-numeric: tabular-nums;
+  color: var(--ink-2);
+}
+.tableNote {
+  padding-top: 12px;
+  font-size: 13px;
+  color: var(--muted);
+}
+.sideNote {
+  border-top: 1px solid var(--line);
+  margin-top: 14px;
+  padding-top: 12px;
+  font-size: 14px;
+  color: var(--ink-2);
+}
+.pickProduct {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--line);
+}
+.pickSummary {
+  font-size: 13.5px;
+  color: var(--muted);
+}
+.formError {
+  font-size: 13.5px;
+  color: var(--clay-fg);
+}
+@media (max-width: 1000px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+}
