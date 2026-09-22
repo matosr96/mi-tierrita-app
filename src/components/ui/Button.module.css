@@ -3,13 +3,15 @@
   align-items: center;
   justify-content: center;
   gap: 8px;
-  padding: 9px 16px;
+  height: 38px;
+  padding: 0 16px;
   border-radius: var(--radius-sm);
   border: 1px solid transparent;
-  font-weight: 600;
+  font-size: 13px;
+  font-weight: 500;
   cursor: pointer;
   white-space: nowrap;
-  transition: background 0.15s, border-color 0.15s, opacity 0.15s;
+  transition: background 0.13s, border-color 0.13s, opacity 0.13s;
 }
 .button:disabled {
   opacity: 0.55;
@@ -17,7 +19,7 @@
 }
 .primary {
   background: var(--forest);
-  color: var(--on-forest);
+  color: #ffffff;
 }
 .primary:hover:not(:disabled) {
   background: var(--leaf);
@@ -25,40 +27,46 @@
 .secondary {
   background: var(--surface);
   color: var(--ink);
-  border-color: var(--line);
+  border-color: var(--line-strong);
+  font-weight: 400;
+  padding: 0 14px;
 }
 .secondary:hover:not(:disabled) {
-  background: var(--surface-2);
+  background: var(--hover);
 }
 .ghost {
   background: transparent;
   color: var(--ink-2);
+  font-weight: 400;
 }
 .ghost:hover:not(:disabled) {
-  background: var(--surface-2);
+  background: var(--hover);
 }
 .danger {
-  background: var(--clay-soft);
-  color: var(--clay-fg);
-  border-color: transparent;
+  background: var(--bad-tag-bg);
+  color: var(--bad-tag-fg);
+  font-weight: 600;
 }
 .danger:hover:not(:disabled) {
-  filter: brightness(0.96);
+  filter: brightness(0.97);
 }
 .accent {
   background: var(--sprout);
-  color: var(--forest-fg);
+  color: var(--forest);
+  font-weight: 600;
 }
 .accent:hover:not(:disabled) {
-  filter: brightness(0.96);
+  filter: brightness(0.97);
 }
 .sm {
-  padding: 5px 10px;
-  font-size: 13px;
+  height: 30px;
+  padding: 0 10px;
+  font-size: 12.5px;
 }
 .lg {
-  padding: 12px 20px;
-  font-size: 16px;
+  height: 46px;
+  padding: 0 20px;
+  font-size: 15px;
 }
 .block {
   width: 100%;

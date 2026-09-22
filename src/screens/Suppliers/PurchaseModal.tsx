@@ -1,31 +1,36 @@
 import { useState, type FormEvent } from "react";
 import { useProducts } from "@/hooks/products";
-import { useRegisterPurchase } from "@/hooks/suppliers";
+import { useRegisterPurchase, useSuppliers } from "@/hooks/suppliers";
 import { fieldErrors } from "@/lib/errors";
 import { dateOnly, int, money, todayIso } from "@/lib/format";
 import { Button, Callout, EmptyState, ErrorState, Field, FieldRow, Input, Loading, Modal, Select } from "@/components/ui";
 import type { Product, ProductBatch, Supplier } from "@/types/api";
 import styles from "./SuppliersScreen.module.css";
 
-type Props = { supplier: Supplier; onClose: () => void };
+/** Con `supplier` fijo (botón de la fila) o `null` (botón del encabezado: se elige en el formulario). */
+type Props = { supplier: Supplier | null; onClose: () => void };
 
-type FormState = { productId: number | null; quantity: string; unitCost: string; expiresAt: string };
-const EMPTY_FORM: FormState = { productId: null, quantity: "", unitCost: "", expiresAt: "" };
+type FormState = { supplierId: number | null; productId: number | null; quantity: string; unitCost: string; expiresAt: string };
 
 /** CU-13 Registrar compra: crea un lote asociado al proveedor y sube el stock del producto. */
 export const PurchaseModal = ({ supplier, onClose }: Props) => {
+  const pickSupplier = supplier === null;
   const products = useProducts({ limit: 100, active: true });
+  const suppliers = useSuppliers({ limit: 100, active: true });
   const register = useRegisterPurchase();
+  const emptyForm: FormState = { supplierId: supplier?.id ?? null, productId: null, quantity: "", unitCost: "", expiresAt: "" };
   const [filter, setFilter] = useState("");
-  const [form, setForm] = useState<FormState>(EMPTY_FORM);
+  const [form, setForm] = useState<FormState>(emptyForm);
   const [localErrors, setLocalErrors] = useState<Record<string, string>>({});
   const [created, setCreated] = useState<ProductBatch | null>(null);
 
   const list: Product[] = products.data?.items ?? [];
+  const supplierList: Supplier[] = suppliers.data?.items ?? [];
   const term = filter.trim().toLowerCase();
   const filtered = term ? list.filter((p) => p.name.toLowerCase().includes(term) || p.sku.toLowerCase().includes(term)) : list;
   const selected = list.find((p) => p.id === form.productId) ?? null;
   const options = selected && !filtered.includes(selected) ? [selected, ...filtered] : filtered;
+  const chosenSupplier = supplier ?? supplierList.find((s) => s.id === form.supplierId) ?? null;
 
   const apiErrors = register.error ? fieldErrors(register.error) : {};
   const errs = { ...apiErrors, ...localErrors };
@@ -39,7 +44,7 @@ export const PurchaseModal = ({ supplier, onClose }: Props) => {
 
   const startAnother = () => {
     setCreated(null);
-    setForm(EMPTY_FORM);
+    setForm({ ...emptyForm, supplierId: form.supplierId });
     setLocalErrors({});
     setFilter("");
     register.reset();
@@ -50,15 +55,16 @@ export const PurchaseModal = ({ supplier, onClose }: Props) => {
     const next: Record<string, string> = {};
     const quantity = Number(form.quantity);
     const unitCost = Number(form.unitCost);
+    if (form.supplierId === null) next.supplierId = "Seleccione un proveedor.";
     if (form.productId === null) next.productId = "Seleccione un producto.";
     if (!form.quantity || !Number.isInteger(quantity) || quantity <= 0) next.quantity = "Ingrese una cantidad entera mayor que cero.";
     if (form.unitCost === "" || !Number.isFinite(unitCost) || unitCost < 0) next.unitCost = "Ingrese un costo unitario válido.";
     if (!form.expiresAt) next.expiresAt = "Ingrese la fecha de vencimiento.";
     else if (form.expiresAt < todayIso()) next.expiresAt = "La fecha de vencimiento debe ser futura.";
     setLocalErrors(next);
-    if (Object.keys(next).length > 0 || form.productId === null) return;
+    if (Object.keys(next).length > 0 || form.productId === null || form.supplierId === null) return;
     try {
-      const batch = await register.mutateAsync({ supplierId: supplier.id, productId: form.productId, quantity, unitCost, expiresAt: form.expiresAt });
+      const batch = await register.mutateAsync({ supplierId: form.supplierId, productId: form.productId, quantity, unitCost, expiresAt: form.expiresAt });
       setCreated(batch);
     } catch {
       /* el error queda en la mutación y se pinta en el formulario */
@@ -70,7 +76,7 @@ export const PurchaseModal = ({ supplier, onClose }: Props) => {
       <Modal
         open
         title="Compra registrada"
-        description={`Proveedor: ${supplier.name}`}
+        description={`Proveedor: ${created.supplierName ?? chosenSupplier?.name ?? "—"}`}
         onClose={onClose}
         footer={
           <>
@@ -106,35 +112,53 @@ export const PurchaseModal = ({ supplier, onClose }: Props) => {
     );
   }
 
+  const loading = products.isPending || (pickSupplier && suppliers.isPending);
+  const failed = products.isError ? products : pickSupplier && suppliers.isError ? suppliers : null;
+
   return (
     <Modal
       open
       title="Registrar compra"
-      description={`Proveedor: ${supplier.name}. La compra crea un lote con su fecha de vencimiento.`}
+      description={supplier ? `Proveedor: ${supplier.name}. La compra crea un lote con su fecha de vencimiento.` : "La compra crea un lote con su fecha de vencimiento y sube el stock del producto."}
       onClose={onClose}
       footer={
         <>
           <Button variant="secondary" onClick={onClose} disabled={register.isPending}>
             Cancelar
           </Button>
-          <Button type="submit" form="purchase-form" loading={register.isPending} disabled={products.isPending || list.length === 0}>
+          <Button type="submit" form="purchase-form" loading={register.isPending} disabled={loading || list.length === 0 || (pickSupplier && supplierList.length === 0)}>
             Registrar compra
           </Button>
         </>
       }
     >
-      {products.isPending ? (
-        <Loading text="Cargando productos…" inline />
-      ) : products.isError ? (
-        <ErrorState error={products.error} onRetry={() => products.refetch()} />
+      {loading ? (
+        <Loading text="Cargando…" inline />
+      ) : failed ? (
+        <ErrorState error={failed.error} onRetry={() => failed.refetch()} />
       ) : list.length === 0 ? (
         <EmptyState title="No hay productos activos" text="Registre primero el producto en Inventario para poder comprarlo." />
+      ) : pickSupplier && supplierList.length === 0 ? (
+        <EmptyState title="No hay proveedores activos" text="Registre primero el proveedor para poder asociarle la compra." />
       ) : (
         <form id="purchase-form" className={styles.form} onSubmit={submit} noValidate>
           {general ? <Callout tone="bad">{general}</Callout> : null}
+          {pickSupplier ? (
+            <Field label="Proveedor" htmlFor="purchase-supplier" error={errs.supplierId}>
+              <Select id="purchase-supplier" value={form.supplierId ?? ""} onChange={(e) => setForm((f) => ({ ...f, supplierId: e.target.value ? Number(e.target.value) : null }))} invalid={Boolean(errs.supplierId)} autoFocus>
+                <option value="">Seleccione…</option>
+                {supplierList.map((s) => (
+                  <option key={s.id} value={s.id}>
+                    {s.name}
+                    {s.taxId ? ` · ${s.taxId}` : ""}
+                  </option>
+                ))}
+              </Select>
+            </Field>
+          ) : null}
           <div className={styles.productList}>
             <Field label="Buscar producto" htmlFor="purchase-filter" hint={`${int(options.length)} de ${int(list.length)} productos activos`}>
-              <Input id="purchase-filter" placeholder="Nombre o SKU" value={filter} onChange={(e) => setFilter(e.target.value)} autoFocus />
+              <Input id="purchase-filter" placeholder="Nombre o SKU" value={filter} onChange={(e) => setFilter(e.target.value)} autoFocus={!pickSupplier} />
             </Field>
             <Field label="Producto" htmlFor="purchase-product" error={errs.productId}>
               <Select id="purchase-product" value={form.productId ?? ""} onChange={(e) => pickProduct(e.target.value)} invalid={Boolean(errs.productId)}>

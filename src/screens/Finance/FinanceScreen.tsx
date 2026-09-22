@@ -1,10 +1,8 @@
 import { useMemo, useState } from "react";
-import { useNavigate, useParams, useSearchParams } from "react-router-dom";
+import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { useScenario, useScenarios } from "@/hooks/financial";
 import type { ScenarioDetail } from "@/types/api";
-import { PageHeader } from "@/components/layout/AppShell";
-import { Button, EmptyState, ErrorState, Loading, QueryState, Select, Tabs, type TabOption } from "@/components/ui";
-import { dateTime } from "@/lib/format";
+import { Button, EmptyState, ErrorState, Loading, QueryState, Tabs, type TabOption } from "@/components/ui";
 import { DecisionPanel } from "./DecisionPanel";
 import { AssumptionsPanel } from "./AssumptionsPanel";
 import { ScenariosPanel } from "./ScenariosPanel";
@@ -15,11 +13,18 @@ import styles from "./FinanceScreen.module.css";
 export type FinanceTab = "panel" | "supuestos" | "escenarios" | "flujo";
 
 const TAB_OPTIONS: TabOption<FinanceTab>[] = [
-  { value: "panel", label: "Panel de decisión" },
+  { value: "panel", label: "Panel" },
   { value: "supuestos", label: "Datos y supuestos" },
-  { value: "escenarios", label: "Escenarios y sensibilidad" },
+  { value: "escenarios", label: "Escenarios" },
   { value: "flujo", label: "Flujo y amortización" },
 ];
+
+/** Título y subtítulo de cada vista del lienzo (el Panel usa el nombre del escenario). */
+const TAB_META: Record<Exclude<FinanceTab, "panel">, { title: string; subtitle: string }> = {
+  supuestos: { title: "Datos del caso y supuestos", subtitle: "Cada campo indica su origen. Un cambio recalcula todos los indicadores y queda registrado con su usuario." },
+  escenarios: { title: "Escenarios y sensibilidad", subtitle: "Qué alternativa conviene y cuánto margen de error tolera antes de dejar de convenir." },
+  flujo: { title: "Flujo de caja y amortización", subtitle: "Detalle año por año de la ampliación y mes por mes del crédito." },
+};
 
 const isTab = (v: string | undefined): v is FinanceTab => v === "panel" || v === "supuestos" || v === "escenarios" || v === "flujo";
 
@@ -49,58 +54,89 @@ export const FinanceScreen = () => {
     setSearchParams({ escenario: String(id) });
   };
 
-  const emptyAction = (
-    <Button onClick={openNew}>
-      Nuevo escenario
-    </Button>
-  );
+  const presets = useMemo(() => [...items].sort((a, b) => a.createdAt.localeCompare(b.createdAt)).map((s) => ({ value: String(s.id), label: s.name })), [items]);
+
+  const titleRow = () => {
+    if (!selected) return null;
+    const meta = tab === "panel" ? null : TAB_META[tab];
+    const selector = (
+      <div className={styles.presets}>
+        <Tabs options={presets} value={String(selectedId)} onChange={(v) => selectScenario(Number(v))} />
+      </div>
+    );
+    if (tab === "panel") {
+      return (
+        <div className={styles.titleRow}>
+          <h1 className={styles.titlePanel}>{selected.name}</h1>
+          {selector}
+          <Link to="/reportes" className={styles.reportLink}>
+            Reporte
+          </Link>
+        </div>
+      );
+    }
+    return (
+      <div className={[styles.titleRow, styles.titleRowTop].join(" ")}>
+        <div className={styles.titleText}>
+          <h1 className={styles.title}>{meta?.title}</h1>
+          <div className={styles.subtitle}>{meta?.subtitle}</div>
+        </div>
+        {selector}
+        {tab === "supuestos" ? (
+          <>
+            <Button variant="secondary" onClick={openDuplicate} disabled={!detail.data}>
+              Nuevo escenario a partir de este
+            </Button>
+            <Button onClick={openNew}>Nuevo escenario</Button>
+          </>
+        ) : tab === "escenarios" ? (
+          <>
+            <Button variant="secondary" onClick={openDuplicate} disabled={!detail.data}>
+              Duplicar escenario
+            </Button>
+            <Button onClick={openNew}>Nuevo escenario</Button>
+          </>
+        ) : null}
+      </div>
+    );
+  };
 
   const body = () => {
     if (scenarios.isPending) return <Loading text="Cargando escenarios…" />;
     if (scenarios.isError) return <ErrorState error={scenarios.error} onRetry={() => scenarios.refetch()} />;
     if (items.length === 0 || selectedId === null) {
-      return <EmptyState title="Todavía no hay escenarios" text="Cree el primer escenario con la inversión, el crédito y el aumento de ventas esperado. La API calcula todos los indicadores." action={emptyAction} />;
+      return (
+        <EmptyState
+          title="Todavía no hay escenarios"
+          text="Cree el primer escenario con la inversión, el crédito y el aumento de ventas esperado. La API calcula todos los indicadores."
+          action={<Button onClick={openNew}>Nuevo escenario</Button>}
+        />
+      );
     }
     return (
-      <QueryState query={detail} empty={null}>
-        {(scenario) => {
-          switch (tab) {
-            case "panel":
-              return <DecisionPanel scenario={scenario} onOpenAssumptions={() => goTab("supuestos")} />;
-            case "supuestos":
-              return <AssumptionsPanel scenario={scenario} onDuplicate={openDuplicate} />;
-            case "escenarios":
-              return <ScenariosPanel scenario={scenario} scenarios={items} onNew={openNew} onDuplicate={openDuplicate} />;
-            case "flujo":
-              return <CashFlowPanel scenario={scenario} />;
-          }
-        }}
-      </QueryState>
+      <>
+        {titleRow()}
+        <QueryState query={detail} empty={null}>
+          {(scenario) => {
+            switch (tab) {
+              case "panel":
+                return <DecisionPanel scenario={scenario} onOpenAssumptions={() => goTab("supuestos")} onNew={openNew} />;
+              case "supuestos":
+                return <AssumptionsPanel scenario={scenario} />;
+              case "escenarios":
+                return <ScenariosPanel scenario={scenario} scenarios={items} />;
+              case "flujo":
+                return <CashFlowPanel scenario={scenario} />;
+            }
+          }}
+        </QueryState>
+      </>
     );
   };
 
   return (
-    <div className={styles.page}>
-      <PageHeader title="Finanzas y crédito" subtitle="¿Conviene ampliar el local con crédito? Indicadores calculados por la API a partir de los supuestos de cada escenario." actions={items.length > 0 ? emptyAction : undefined} />
-      <div className={styles.toolbar}>
-        <Tabs options={TAB_OPTIONS} value={tab} onChange={goTab} />
-        {items.length > 0 && selectedId !== null ? (
-          <div className={styles.selector}>
-            <Select aria-label="Escenario" value={String(selectedId)} onChange={(e) => selectScenario(Number(e.target.value))}>
-              {items.map((s) => (
-                <option key={s.id} value={s.id}>
-                  {s.name}
-                </option>
-              ))}
-            </Select>
-            {selected ? (
-              <span className={styles.selectorMeta}>
-                {selected.username} · {dateTime(selected.createdAt)}
-              </span>
-            ) : null}
-          </div>
-        ) : null}
-      </div>
+    <div className={[styles.page, tab === "panel" ? "" : styles.pageWide].join(" ")}>
+      <Tabs options={TAB_OPTIONS} value={tab} onChange={goTab} />
       {body()}
       {modal.open ? <ScenarioFormModal prefill={modal.prefill} onClose={closeModal} onCreated={onCreated} /> : null}
     </div>

@@ -1,3 +1,24 @@
+/* Lotes y vencimientos: aviso FEFO, fila de ventana, rejilla 1,9fr/1fr y mosaico de distribución del lienzo. */
+.alert {
+  background: var(--bad-soft);
+  border: 1px solid var(--bad-line);
+  border-radius: 9px;
+  padding: 11px 15px;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  font-size: 12.5px;
+  color: var(--bad-tag-fg);
+  line-height: 1.5;
+}
+.alertWarn {
+  background: var(--warn-soft);
+  border-color: var(--warn-line);
+  color: var(--warn-tag-fg);
+}
+.alertIcon {
+  flex-shrink: 0;
+}
 .filters {
   display: flex;
   align-items: center;
@@ -5,14 +26,14 @@
   flex-wrap: wrap;
 }
 .filtersLabel {
-  font-size: 13px;
+  font-size: 12.5px;
   font-weight: 600;
   color: var(--ink-2);
 }
 .grid {
   display: grid;
-  grid-template-columns: minmax(0, 1.7fr) minmax(260px, 1fr);
-  gap: 18px;
+  grid-template-columns: minmax(0, 1.9fr) minmax(0, 1fr);
+  gap: 12px;
   align-items: start;
 }
 .product {
@@ -20,20 +41,53 @@
   color: var(--ink);
 }
 .lot {
-  font-variant-numeric: tabular-nums;
   color: var(--ink-2);
+  white-space: nowrap;
 }
 .tableNote {
-  padding-top: 12px;
-  font-size: 13px;
+  padding-top: 9px;
+  font-size: 12.5px;
   color: var(--muted);
 }
-.sideNote {
-  border-top: 1px solid var(--line);
-  margin-top: 14px;
-  padding-top: 12px;
-  font-size: 14px;
+.tiles {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(0, 1fr);
+  gap: 10px;
+  padding: 8px 0 12px;
+}
+.tile {
+  border-radius: 8px;
+  padding: 10px 6px 11px;
+  text-align: center;
+  background: color-mix(in srgb, var(--tile) 8%, transparent);
+}
+.tileBad {
+  --tile: var(--bad);
+}
+.tileWarn {
+  --tile: var(--warn);
+}
+.tileMuted {
+  --tile: var(--muted);
+}
+.tileLabel {
+  font-size: 11.5px;
   color: var(--ink-2);
+  white-space: nowrap;
+}
+.tileValue {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--tile);
+  margin-top: 4px;
+  line-height: 1.1;
+}
+.note {
+  font-size: 12.5px;
+  color: var(--ink-2);
+  border-top: 1px solid var(--line-soft);
+  padding-top: 9px;
 }
 .pickProduct {
   display: flex;
@@ -43,12 +97,12 @@
   border-bottom: 1px solid var(--line);
 }
 .pickSummary {
-  font-size: 13.5px;
+  font-size: 12.5px;
   color: var(--muted);
 }
 .formError {
-  font-size: 13.5px;
-  color: var(--clay-fg);
+  font-size: 12.5px;
+  color: var(--bad-tag-fg);
 }
 @media (max-width: 1000px) {
   .grid {

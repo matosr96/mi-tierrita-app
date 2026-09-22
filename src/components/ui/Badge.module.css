@@ -1,25 +1,25 @@
 .badge {
   display: inline-block;
-  padding: 2px 9px;
-  border-radius: 999px;
-  font-size: 12.5px;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 11px;
   font-weight: 600;
   line-height: 1.5;
   white-space: nowrap;
 }
 .neutral {
-  background: var(--surface-2);
+  background: var(--surface-3);
   color: var(--ink-2);
 }
 .good {
   background: var(--sprout-soft);
-  color: var(--forest-fg);
+  color: var(--good);
 }
 .warn {
-  background: var(--amber-soft);
-  color: var(--amber-fg);
+  background: var(--warn-tag-bg);
+  color: var(--warn-tag-fg);
 }
 .bad {
-  background: var(--clay-soft);
-  color: var(--clay-fg);
+  background: var(--bad-tag-bg);
+  color: var(--bad-tag-fg);
 }

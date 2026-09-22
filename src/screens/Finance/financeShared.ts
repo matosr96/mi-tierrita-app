@@ -1,4 +1,4 @@
-import type { Assumptions, ScenarioIndicators, SensitivityVariable } from "@/types/api";
+import type { Assumptions, Range, ScenarioSummary } from "@/types/api";
 import { int, money, pct, times } from "@/lib/format";
 
 /** Vocabulario y ayudas de presentación del módulo de finanzas (capítulo 5 del TCC). */
@@ -62,20 +62,6 @@ export const TORNADO_LABELS: Record<string, string> = {
   creditRateEA: "Tasa del crédito",
 };
 
-export const SENSITIVITY_LABELS: Record<SensitivityVariable, string> = {
-  salesIncrease: "Aumento de ventas",
-  inventoryTurnover: "Rotación del inventario",
-  tmar: "TMAR",
-};
-
-export const SENSITIVITY_OPTIONS: { value: SensitivityVariable; label: string }[] = [
-  { value: "salesIncrease", label: SENSITIVITY_LABELS.salesIncrease },
-  { value: "inventoryTurnover", label: SENSITIVITY_LABELS.inventoryTurnover },
-  { value: "tmar", label: SENSITIVITY_LABELS.tmar },
-];
-
-export const formatSensitivityX = (variable: SensitivityVariable): ((v: number) => string) => (variable === "inventoryTurnover" ? times : pct);
-
 /**
  * Única derivación permitida en el cliente: el valor de la variable donde el VPN cruza cero,
  * por interpolación lineal entre los dos puntos vecinos que devuelve la API. Se rotula "aprox.".
@@ -95,14 +81,54 @@ export const breakEven = (points: { value: number; npv: number }[]): number | nu
   return null;
 };
 
-export type ScenarioStatus = { label: "Recomendado" | "Viable" | "Descartado"; tone: "good" | "neutral" | "bad" };
+const round2 = (v: number): number => Math.round(v * 100) / 100;
 
-/** Lectura del estado a partir de los indicadores que devuelve la API (no calcula nada). */
-export const scenarioStatus = (ind: ScenarioIndicators): ScenarioStatus => {
-  if (ind.npv > 0 && ind.coverageIncremental !== null && ind.coverageIncremental >= 1) return { label: "Recomendado", tone: "good" };
-  if (ind.npv > 0) return { label: "Viable", tone: "neutral" };
-  return { label: "Descartado", tone: "bad" };
-};
+/** Rango del lienzo (10 % a 32 %, paso 1 %) ampliado si el caso base queda por fuera. */
+export const salesRange = (base: number): Range => ({
+  from: Math.min(0.1, Math.max(0.01, round2(base - 0.1))),
+  to: Math.max(0.32, round2(base + 0.12)),
+  step: 0.01,
+});
+
+/** Diferencia en puntos porcentuales entre el caso base y el equilibrio (solo texto). */
+export const marginPoints = (current: number, be: number): number => (current - be) * 100;
+
+const pointsFormat = (decimals: number) => new Intl.NumberFormat("es-CO", { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
+
+/** "1,84" o "1,8": valor absoluto en puntos porcentuales con los decimales pedidos. */
+export const formatPoints = (points: number, decimals = 2): string => pointsFormat(decimals).format(Math.abs(points));
 
 /** Diferencia en puntos porcentuales entre dos fracciones, con dos decimales (solo texto). */
-export const pointsBetween = (a: number, b: number): string => new Intl.NumberFormat("es-CO", { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(Math.abs(a - b) * 100);
+export const pointsBetween = (a: number, b: number): string => formatPoints((a - b) * 100, 2);
+
+/** "+$ 585.259", "−$ 19.500.000" o "$ 0": diferencia con signo tipográfico. */
+export const signedText = (value: number, format: (v: number) => string): string => (value < 0 ? `−${format(Math.abs(value))}` : value > 0 ? `+${format(value)}` : format(0));
+
+/** Letra de columna del lienzo (A, B, C…). */
+export const letterOf = (index: number): string => String.fromCharCode(65 + index);
+
+export type ScenarioStatus = { label: "Recomendado" | "Viable" | "Evaluar" | "Descartado"; tone: "good" | "neutral" | "warn" | "bad" };
+
+/**
+ * Lectura del estado de cada escenario a partir de los indicadores que devuelve la API (no calcula nada):
+ * VPN ≤ 0 → Descartado; VPN > 0 sin cubrir la cuota → Evaluar; VPN > 0 y cobertura ≥ 1 → Viable;
+ * entre los viables, el de mayor VPN del inversionista → Recomendado.
+ */
+export const scenarioStatuses = (list: ScenarioSummary[]): Map<number, ScenarioStatus> => {
+  const map = new Map<number, ScenarioStatus>();
+  let best: ScenarioSummary | null = null;
+  for (const s of list) {
+    const { npv, coverageIncremental: cov } = s.indicators;
+    if (npv <= 0) map.set(s.id, { label: "Descartado", tone: "bad" });
+    else if (cov === null || cov < 1) map.set(s.id, { label: "Evaluar", tone: "warn" });
+    else {
+      map.set(s.id, { label: "Viable", tone: "neutral" });
+      if (!best || s.indicators.investorNpv > best.indicators.investorNpv) best = s;
+    }
+  }
+  if (best) map.set((best as ScenarioSummary).id, { label: "Recomendado", tone: "good" });
+  return map;
+};
+
+/** Igualdad tolerante para ubicar el caso base dentro de una rejilla de la API. */
+export const sameValue = (a: number, b: number): boolean => Math.abs(a - b) < 1e-6;

@@ -1,48 +1,79 @@
+/* Ventas: lienzo "Ventas" (historial) y "Punto de venta" (SecVentas). El <main> del lienzo separa bloques 12px. */
 .screen {
   display: flex;
   flex-direction: column;
-  gap: 18px;
+  gap: 12px;
+  flex-grow: 1;
+  min-height: 0;
 }
 
-/* Punto de venta: búsqueda + carrito a la izquierda, cliente + resumen a la derecha. */
+/* Rejilla 1.6fr / 1fr del lienzo. */
 .layout {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 360px;
-  gap: 18px;
+  grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
+  gap: 12px;
+  flex-grow: 1;
+  min-height: 0;
   align-items: start;
 }
 .column {
   display: flex;
   flex-direction: column;
-  gap: 18px;
+  gap: 12px;
   min-width: 0;
+  min-height: 0;
 }
-.side {
-  position: sticky;
-  top: 76px;
+.grow {
+  flex-grow: 1;
 }
-.searchBar {
-  position: relative;
+.sideColumn {
+  align-self: stretch;
 }
-.searchBar input {
-  padding-right: 120px;
+
+/* ---------- Punto de venta ---------- */
+.searchBox {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--surface);
+  border: 1px solid var(--line-strong);
+  border-radius: 9px;
+  height: 46px;
+  padding: 0 14px;
+}
+.searchBox:focus-within {
+  border-color: var(--leaf);
+  box-shadow: 0 0 0 3px var(--sprout-soft);
+}
+.searchIcon {
+  flex-shrink: 0;
+  color: var(--muted);
+}
+.searchInput {
+  flex-grow: 1;
+  min-width: 0;
+  border: none;
+  background: transparent;
+  font-size: 14px;
+  font-family: inherit;
+  color: var(--ink);
+  padding: 0;
+  outline: none;
+}
+.searchInput::placeholder {
+  color: var(--muted);
 }
 .searchCount {
-  position: absolute;
-  right: 14px;
-  top: 50%;
-  transform: translateY(-50%);
-  font-size: 13px;
+  font-size: 11.5px;
   color: var(--muted);
-  pointer-events: none;
+  white-space: nowrap;
 }
-.qty {
-  width: 84px;
-  margin-left: auto;
-}
-.qty input {
-  padding: 5px 8px;
-  text-align: right;
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
 }
 .mono {
   font-variant-numeric: tabular-nums;
@@ -50,92 +81,162 @@
 .stockCell {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
   justify-content: flex-end;
 }
-.customerCard {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
+.addBtn {
+  padding: 0 14px;
+  font-size: 13px;
 }
-.balanceBox {
-  background: var(--surface-2);
-  border: 1px solid var(--line);
-  border-radius: var(--radius-sm);
-  padding: 12px 14px;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
+.qty {
+  width: 72px;
+  margin-left: auto;
 }
-.balanceRow {
-  display: flex;
-  justify-content: space-between;
-  gap: 12px;
-  font-size: 14px;
-  color: var(--ink-2);
-}
-.balanceRow strong {
-  color: var(--ink);
-  font-variant-numeric: tabular-nums;
-}
-.balanceMain {
-  border-top: 1px solid var(--line);
-  padding-top: 6px;
-  margin-top: 2px;
-}
-.balanceMain strong {
-  color: var(--leaf);
-  font-size: 16px;
+.qty input {
+  height: 30px;
+  padding: 0 8px;
+  font-size: 12.5px;
+  text-align: right;
 }
 
-/* Tarjeta oscura de resumen (referencia 16). */
-.summary {
-  background: var(--forest);
-  color: var(--on-forest);
-  border-radius: var(--radius);
-  padding: 18px 20px;
+/* Tarjeta Cliente: etiquetas 12,5px y controles de 40px como en el lienzo. */
+.customerFields {
   display: flex;
   flex-direction: column;
+  gap: 11px;
+}
+.customerFields label {
+  font-size: 12.5px;
+}
+.customerFields select {
+  height: 40px;
+  padding: 0 11px;
+  font-size: 13px;
+}
+
+/* Caja amarilla de cupo. */
+.creditBox {
+  background: var(--warn-soft);
+  border: 1px solid var(--warn-line);
+  border-radius: 8px;
+  padding: 11px 12px;
+}
+.creditRow {
+  display: flex;
+  justify-content: space-between;
   gap: 10px;
+  font-size: 12px;
+  color: var(--warn-tag-fg);
+}
+.creditRow + .creditRow {
+  margin-top: 4px;
+}
+.creditRow strong {
+  color: var(--warn-tag-fg);
+  font-variant-numeric: tabular-nums;
+}
+.creditMain {
+  padding-top: 6px;
+  border-top: 1px solid var(--warn-line);
+}
+.creditWarning {
+  font-size: 11.5px;
+  color: var(--bad-tag-fg);
+  margin-top: 8px;
+  line-height: 1.5;
+}
+.creditOverdue {
+  font-size: 11.5px;
+  color: var(--warn-tag-fg);
+  margin-top: 8px;
+  line-height: 1.5;
+}
+
+/* Panel verde oscuro de resumen (colores del lienzo sobre la marca, fijos como en Signin). */
+.summary {
+  background: var(--forest);
+  border-radius: var(--radius);
+  padding: 16px 18px;
+  margin-top: auto;
 }
 .summaryRow {
   display: flex;
   justify-content: space-between;
   gap: 12px;
-  font-size: 14px;
-  color: var(--sidebar-ink);
+  font-size: 12.5px;
+  color: #c6dacd;
 }
-.summaryRow strong {
-  color: var(--on-forest);
-  font-variant-numeric: tabular-nums;
+.summaryRow + .summaryRow {
+  margin-top: 5px;
 }
 .summaryTotal {
   display: flex;
   justify-content: space-between;
   align-items: baseline;
   gap: 12px;
-  border-top: 1px solid var(--sidebar-line);
-  padding-top: 12px;
-  margin-top: 4px;
+  margin-top: 11px;
+  padding-top: 11px;
+  border-top: 1px solid var(--leaf);
+}
+.summaryTotal span {
+  font-size: 13px;
+  color: #e8f0ea;
 }
 .summaryTotal strong {
   font-family: var(--font-heading);
-  font-size: 30px;
+  font-size: 27px;
   font-weight: 600;
-  color: var(--on-forest);
+  color: #ffffff;
   font-variant-numeric: tabular-nums;
 }
+.confirmBtn {
+  margin-top: 14px;
+  border-radius: 8px;
+}
 .summaryNote {
-  font-size: 12.5px;
-  color: var(--sidebar-muted);
+  font-size: 11px;
+  color: #9fbda9;
+  margin-top: 9px;
   text-align: center;
 }
+.summaryError {
+  margin-top: 12px;
+}
 .errorDetails {
-  font-size: 13.5px;
+  font-size: 12.5px;
   color: var(--ink-2);
 }
 
-/* Fichas de datos (detalle de venta y modal de éxito). */
+/* ---------- Historial ---------- */
+.filters {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 12px;
+}
+.cardNote {
+  font-size: 12.5px;
+  color: var(--ink-2);
+  border-top: 1px solid var(--line-soft);
+  padding-top: 9px;
+  margin-top: 10px;
+  line-height: 1.55;
+}
+.chartCard {
+  align-self: start;
+}
+.emptyActions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+/* ---------- Fichas (detalle y modal de éxito) ---------- */
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
 .factGrid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
@@ -147,19 +248,20 @@
   gap: 2px;
 }
 .factLabel {
-  font-size: 12.5px;
-  color: var(--muted);
+  font-size: 11.5px;
+  color: var(--ink-2);
 }
 .factValue {
   font-weight: 600;
   color: var(--ink);
+  font-variant-numeric: tabular-nums;
 }
 .total {
   display: flex;
   justify-content: space-between;
   align-items: baseline;
-  border-top: 1px solid var(--line);
-  padding-top: 12px;
+  border-top: 1px solid var(--line-strong);
+  padding-top: 11px;
 }
 .total strong {
   font-family: var(--font-heading);
@@ -167,24 +269,9 @@
   color: var(--forest-fg);
   font-variant-numeric: tabular-nums;
 }
-.section {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-/* Historial. */
-.filters {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
-  gap: 12px;
-}
 
 @media (max-width: 1080px) {
   .layout {
     grid-template-columns: 1fr;
-  }
-  .side {
-    position: static;
   }
 }

@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import { useProducts } from "@/hooks/products";
 import { useCustomerBalance, useCustomers } from "@/hooks/customers";
 import { useRegisterSale } from "@/hooks/sales";
+import { PageHeader } from "@/components/layout/AppShell";
 import { Badge, Button, Callout, Card, DataTable, EmptyState, ErrorState, Field, Input, Loading, Modal, QueryState, Select, type Column } from "@/components/ui";
 import { int, money } from "@/lib/format";
 import type { ApiError } from "@/lib/errors";
@@ -28,10 +29,18 @@ const errorDetails = (err: ApiError, cart: CartLine[]): string | null => {
   return null;
 };
 
-const stockBadge = (stock: number) => (stock <= 0 ? <Badge tone="bad">sin stock</Badge> : stock < 5 ? <Badge tone="warn">bajo</Badge> : null);
+/** Etiqueta de disponibilidad del lienzo: "bajo" en rojo junto a la cantidad. */
+const stockTag = (stock: number) => (stock <= 0 ? <Badge tone="bad">sin stock</Badge> : stock < 5 ? <Badge tone="bad">bajo</Badge> : null);
 
-/** CU-09: el servidor congela precios, calcula el total y descuenta stock por FEFO; aquí solo se arma el pedido. */
-export const PointOfSale = () => {
+const SearchIcon = () => (
+  <svg className={styles.searchIcon} width="18" height="18" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+    <circle cx="8.8" cy="8.8" r="6" stroke="currentColor" strokeWidth="1.7" />
+    <line x1="13.2" y1="13.2" x2="17.5" y2="17.5" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" />
+  </svg>
+);
+
+/** CU-09 (lienzo "Punto de venta"): el servidor congela precios, calcula el total y descuenta stock por FEFO; aquí solo se arma el pedido. */
+export const PointOfSale = ({ tabs }: { tabs: ReactNode }) => {
   const [search, setSearch] = useState("");
   const debouncedSearch = useDebounced(search.trim());
   const [cart, setCart] = useState<CartLine[]>([]);
@@ -44,8 +53,8 @@ export const PointOfSale = () => {
   const balance = useCustomerBalance(customerId);
   const registerSale = useRegisterSale();
 
+  /** Única suma del cliente: vista previa estimada del carrito (el total real lo devuelve la API). */
   const estimated = cart.reduce((sum, l) => sum + l.quantity * l.product.salePrice, 0);
-  const units = cart.reduce((sum, l) => sum + l.quantity, 0);
   const creditNeedsCustomer = paymentType === "CREDIT" && customerId === null;
   const creditExceeded = paymentType === "CREDIT" && balance.data !== undefined && estimated > balance.data.availableCredit;
   const canConfirm = cart.length > 0 && !creditNeedsCustomer && !registerSale.isPending;
@@ -92,11 +101,11 @@ export const PointOfSale = () => {
       render: (p) => (
         <span className={styles.stockCell}>
           {int(p.stock)}
-          {stockBadge(p.stock)}
+          {stockTag(p.stock)}
         </span>
       ),
     },
-    { key: "price", header: "Precio venta", align: "right", render: (p) => money(p.salePrice) },
+    { key: "price", header: "Precio", align: "right", render: (p) => money(p.salePrice) },
     {
       key: "add",
       header: "",
@@ -105,8 +114,8 @@ export const PointOfSale = () => {
       render: (p) => {
         const inCart = cart.find((l) => l.product.id === p.id);
         return (
-          <Button variant="secondary" size="sm" disabled={p.stock <= 0 || (inCart !== undefined && inCart.quantity >= p.stock)} onClick={() => addToCart(p)}>
-            {inCart ? "Agregar +1" : "Agregar"}
+          <Button variant="secondary" size="sm" className={styles.addBtn} disabled={p.stock <= 0 || (inCart !== undefined && inCart.quantity >= p.stock)} onClick={() => addToCart(p)}>
+            Agregar
           </Button>
         );
       },
@@ -119,7 +128,7 @@ export const PointOfSale = () => {
       key: "qty",
       header: "Cant.",
       align: "right",
-      width: "110px",
+      width: "90px",
       render: (l) => (
         <div className={styles.qty}>
           <Input type="number" min={1} max={l.product.stock} step={1} value={l.quantity} aria-label={`Cantidad de ${l.product.name}`} onChange={(e) => setQuantity(l.product.id, e.target.value)} />
@@ -127,14 +136,14 @@ export const PointOfSale = () => {
       ),
     },
     { key: "price", header: "Precio", align: "right", render: (l) => money(l.product.salePrice) },
-    { key: "subtotal", header: "Subtotal", align: "right", render: (l) => <strong>{money(l.quantity * l.product.salePrice)}</strong> },
+    { key: "subtotal", header: "Subtotal", align: "right", render: (l) => money(l.quantity * l.product.salePrice) },
     {
       key: "remove",
       header: "",
       align: "right",
       width: "1%",
       render: (l) => (
-        <Button variant="ghost" size="sm" onClick={() => removeLine(l.product.id)}>
+        <Button variant="ghost" size="sm" onClick={() => removeLine(l.product.id)} aria-label={`Quitar ${l.product.name}`}>
           Quitar
         </Button>
       ),
@@ -146,133 +155,133 @@ export const PointOfSale = () => {
     { key: "name", header: "Producto", render: (l) => l.productName },
     { key: "qty", header: "Cant.", align: "right", render: (l) => int(l.quantity) },
     { key: "price", header: "Precio", align: "right", render: (l) => money(l.unitPrice) },
-    { key: "total", header: "Total", align: "right", render: (l) => money(l.lineTotal) },
+    { key: "total", header: "Subtotal", align: "right", render: (l) => money(l.lineTotal) },
   ];
 
-  const selectedCustomer = customers.data?.items.find((c) => c.id === customerId);
+  const resultsCount = products.data ? (products.data.count === 1 ? "1 resultado" : `${int(products.data.count)} resultados`) : null;
+  const errorText = registerSale.error ? errorDetails(registerSale.error, cart) : null;
 
   return (
-    <div className={styles.layout}>
-      <div className={styles.column}>
-        <div className={styles.searchBar}>
-          <Input type="search" placeholder="Buscar producto por nombre o código" value={search} onChange={(e) => setSearch(e.target.value)} aria-label="Buscar producto" autoFocus />
-          {products.data ? <span className={styles.searchCount}>{products.data.count === 1 ? "1 resultado" : `${int(products.data.count)} resultados`}</span> : null}
+    <>
+      <PageHeader title="Punto de venta" subtitle="Los productos descuentan del inventario al confirmar." actions={tabs} />
+
+      <div className={styles.layout}>
+        <div className={styles.column}>
+          <div className={styles.searchBox}>
+            <SearchIcon />
+            <label htmlFor="pos-search" className={styles.srOnly}>
+              Buscar producto
+            </label>
+            <input id="pos-search" type="text" className={styles.searchInput} placeholder="Buscar producto por nombre o código" value={search} onChange={(e) => setSearch(e.target.value)} autoFocus />
+            {resultsCount ? <span className={styles.searchCount}>{resultsCount}</span> : null}
+          </div>
+
+          <Card title="Resultados" subtitle="Toque un producto para agregarlo">
+            <QueryState
+              query={products}
+              isEmpty={(page) => page.items.length === 0}
+              empty={<EmptyState title="Sin productos" text={debouncedSearch ? `Ningún producto activo coincide con “${debouncedSearch}”.` : "No hay productos activos en el inventario."} />}
+            >
+              {(page) => <DataTable columns={resultColumns} rows={page.items} rowKey={(p) => p.id} />}
+            </QueryState>
+          </Card>
+
+          <Card title="Carrito" subtitle={cart.length === 0 ? "Sin productos" : `${int(cart.length)} ${cart.length === 1 ? "producto" : "productos"}`} className={styles.grow}>
+            {cart.length === 0 ? (
+              <EmptyState title="El carrito está vacío" text="Busque un producto arriba y agréguelo para empezar la venta." />
+            ) : (
+              <DataTable columns={cartColumns} rows={cart} rowKey={(l) => l.product.id} />
+            )}
+          </Card>
         </div>
 
-        <Card title="Resultados" subtitle="Toque Agregar para llevar el producto al carrito" flush>
-          <QueryState
-            query={products}
-            isEmpty={(page) => page.items.length === 0}
-            empty={<EmptyState title="Sin productos" text={debouncedSearch ? `Ningún producto activo coincide con “${debouncedSearch}”.` : "No hay productos activos en el inventario."} />}
-          >
-            {(page) => <DataTable columns={resultColumns} rows={page.items} rowKey={(p) => p.id} />}
-          </QueryState>
-        </Card>
+        <div className={[styles.column, styles.sideColumn].join(" ")}>
+          <Card title="Cliente">
+            <div className={styles.customerFields}>
+              <Field label="Cliente" htmlFor="pos-customer">
+                {customers.isPending ? (
+                  <Loading inline text="Cargando clientes…" />
+                ) : customers.isError ? (
+                  <ErrorState error={customers.error} onRetry={() => customers.refetch()} />
+                ) : (
+                  <Select id="pos-customer" value={customerId ?? ""} onChange={(e) => selectCustomer(e.target.value)}>
+                    <option value="">Consumidor final</option>
+                    {customers.data.items.map((c) => (
+                      <option key={c.id} value={c.id}>
+                        {c.name}
+                      </option>
+                    ))}
+                  </Select>
+                )}
+              </Field>
 
-        <Card title="Carrito" subtitle={cart.length === 0 ? "Vacío" : `${int(cart.length)} ${cart.length === 1 ? "producto" : "productos"} · ${int(units)} unidades`} flush>
-          {cart.length === 0 ? (
-            <EmptyState title="El carrito está vacío" text="Busque un producto arriba y agréguelo para empezar la venta." />
-          ) : (
-            <DataTable columns={cartColumns} rows={cart} rowKey={(l) => l.product.id} />
-          )}
-        </Card>
-      </div>
-
-      <div className={[styles.column, styles.side].join(" ")}>
-        <Card title="Cliente">
-          <div className={styles.customerCard}>
-            <Field label="Cliente" htmlFor="pos-customer" hint={customerId === null ? "Venta de mostrador: sin cliente ni crédito." : undefined}>
-              {customers.isPending ? (
-                <Loading inline text="Cargando clientes…" />
-              ) : customers.isError ? (
-                <ErrorState error={customers.error} onRetry={() => customers.refetch()} />
-              ) : (
-                <Select id="pos-customer" value={customerId ?? ""} onChange={(e) => selectCustomer(e.target.value)}>
-                  <option value="">Venta de mostrador</option>
-                  {customers.data.items.map((c) => (
-                    <option key={c.id} value={c.id}>
-                      {c.name} · {c.documentId}
-                    </option>
-                  ))}
-                </Select>
-              )}
-            </Field>
-
-            {customerId !== null ? (
-              balance.isPending ? (
-                <Loading inline text="Consultando cartera…" />
-              ) : balance.isError ? (
-                <ErrorState error={balance.error} onRetry={() => balance.refetch()} />
-              ) : (
-                <div className={styles.balanceBox}>
-                  <div className={styles.balanceRow}>
-                    <span>Cupo autorizado</span>
-                    <strong>{money(balance.data.creditLimit)}</strong>
-                  </div>
-                  <div className={styles.balanceRow}>
-                    <span>Saldo actual</span>
-                    <strong>{money(balance.data.balance)}</strong>
-                  </div>
-                  <div className={[styles.balanceRow, styles.balanceMain].join(" ")}>
-                    <span>Disponible</span>
-                    <strong>{money(balance.data.availableCredit)}</strong>
-                  </div>
-                  {balance.data.overdue ? (
-                    <div className={styles.balanceRow}>
-                      <span>Cartera vencida</span>
-                      <Badge tone="bad">{int(balance.data.overdueDays)} días</Badge>
+              {customerId !== null ? (
+                balance.isPending ? (
+                  <Loading inline text="Consultando cartera…" />
+                ) : balance.isError ? (
+                  <ErrorState error={balance.error} onRetry={() => balance.refetch()} />
+                ) : (
+                  <div className={styles.creditBox}>
+                    <div className={styles.creditRow}>
+                      <span>Cupo autorizado</span>
+                      <strong>{money(balance.data.creditLimit)}</strong>
                     </div>
-                  ) : null}
-                </div>
-              )
+                    <div className={styles.creditRow}>
+                      <span>Saldo actual</span>
+                      <strong>{money(balance.data.balance)}</strong>
+                    </div>
+                    <div className={[styles.creditRow, styles.creditMain].join(" ")}>
+                      <span>Disponible</span>
+                      <strong>{money(balance.data.availableCredit)}</strong>
+                    </div>
+                    {creditExceeded ? (
+                      <div className={styles.creditWarning}>
+                        Esta venta supera el cupo disponible en {money(estimated - balance.data.availableCredit)}. Cobre de contado o pida autorización al administrador.
+                      </div>
+                    ) : balance.data.overdue ? (
+                      <div className={styles.creditOverdue}>Cartera vencida: {int(balance.data.overdueDays)} días sin abonar.</div>
+                    ) : null}
+                  </div>
+                )
+              ) : null}
+
+              <Field label="Forma de pago" htmlFor="pos-payment" hint={creditNeedsCustomer ? "Para vender a crédito seleccione un cliente." : undefined}>
+                <Select id="pos-payment" value={paymentType} onChange={(e) => setPaymentType(e.target.value as PaymentType)}>
+                  <option value="CASH">{PAYMENT_LABELS.CASH}</option>
+                  <option value="CREDIT" disabled={customerId === null}>
+                    {PAYMENT_LABELS.CREDIT}
+                  </option>
+                </Select>
+              </Field>
+            </div>
+          </Card>
+
+          <div className={styles.summary}>
+            <div className={styles.summaryRow}>
+              <span>Subtotal</span>
+              <span>{money(estimated)}</span>
+            </div>
+            <div className={styles.summaryRow}>
+              <span>Forma de pago</span>
+              <span>{PAYMENT_LABELS[paymentType]}</span>
+            </div>
+            <div className={styles.summaryTotal}>
+              <span>Total</span>
+              <strong>{money(estimated)}</strong>
+            </div>
+            {registerSale.error ? (
+              <div className={styles.summaryError}>
+                <Callout tone="bad">
+                  <strong>{registerSale.error.message}</strong>
+                  {errorText ? <span className={styles.errorDetails}>{errorText}</span> : null}
+                </Callout>
+              </div>
             ) : null}
-
-            {creditExceeded && balance.data ? (
-              <Callout tone="warn">
-                El subtotal estimado supera el cupo disponible en {money(estimated - balance.data.availableCredit)}. El servidor rechazará la venta a crédito: cobre de contado o pida al administrador ampliar el cupo.
-              </Callout>
-            ) : null}
-
-            <Field label="Forma de pago" htmlFor="pos-payment" hint={creditNeedsCustomer ? "Para vender a crédito seleccione un cliente." : undefined}>
-              <Select id="pos-payment" value={paymentType} onChange={(e) => setPaymentType(e.target.value as PaymentType)}>
-                <option value="CASH">{PAYMENT_LABELS.CASH}</option>
-                <option value="CREDIT" disabled={customerId === null}>
-                  {PAYMENT_LABELS.CREDIT}
-                </option>
-              </Select>
-            </Field>
+            <Button variant="accent" size="lg" block className={styles.confirmBtn} loading={registerSale.isPending} disabled={!canConfirm} onClick={confirm}>
+              Confirmar venta
+            </Button>
+            <div className={styles.summaryNote}>Total estimado: el definitivo lo calcula el servidor al confirmar.</div>
           </div>
-        </Card>
-
-        <div className={styles.summary}>
-          <div className={styles.summaryRow}>
-            <span>Cliente</span>
-            <strong>{selectedCustomer?.name ?? "Mostrador"}</strong>
-          </div>
-          <div className={styles.summaryRow}>
-            <span>Forma de pago</span>
-            <strong>{PAYMENT_LABELS[paymentType]}</strong>
-          </div>
-          <div className={styles.summaryRow}>
-            <span>Unidades</span>
-            <strong>{int(units)}</strong>
-          </div>
-          <div className={styles.summaryTotal}>
-            <span>Subtotal estimado</span>
-            <strong>{money(estimated)}</strong>
-          </div>
-          <p className={styles.summaryNote}>Estimado: el total lo calcula el servidor con los precios vigentes al confirmar.</p>
-
-          {registerSale.error ? (
-            <Callout tone="bad">
-              <strong>{registerSale.error.message}</strong>
-              {errorDetails(registerSale.error, cart) ? <span className={styles.errorDetails}>{errorDetails(registerSale.error, cart)}</span> : null}
-            </Callout>
-          ) : null}
-
-          <Button variant="accent" size="lg" block loading={registerSale.isPending} disabled={!canConfirm} onClick={confirm}>
-            Confirmar venta
-          </Button>
         </div>
       </div>
 
@@ -293,7 +302,7 @@ export const PointOfSale = () => {
             <div className={styles.factGrid}>
               <div className={styles.fact}>
                 <span className={styles.factLabel}>Cliente</span>
-                <span className={styles.factValue}>{result.customerName ?? "Mostrador"}</span>
+                <span className={styles.factValue}>{result.customerName ?? "Consumidor final"}</span>
               </div>
               <div className={styles.fact}>
                 <span className={styles.factLabel}>Forma de pago</span>
@@ -312,6 +321,6 @@ export const PointOfSale = () => {
           </div>
         ) : null}
       </Modal>
-    </div>
+    </>
   );
 };

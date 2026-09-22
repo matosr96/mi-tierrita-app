@@ -6,11 +6,13 @@
   gap: 8px;
   padding: 40px 20px;
   text-align: center;
-  color: var(--muted);
+  color: var(--ink-2);
+  font-size: 13.5px;
 }
 .title {
   font-family: var(--font-heading);
-  font-size: 17px;
+  font-size: 18px;
+  font-weight: 600;
   color: var(--ink);
 }
 .spinner {

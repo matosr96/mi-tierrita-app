@@ -9,6 +9,6 @@
   gap: 10px;
 }
 .error {
-  font-size: 13.5px;
-  color: var(--clay-fg);
+  font-size: 12.5px;
+  color: var(--bad-tag-fg);
 }

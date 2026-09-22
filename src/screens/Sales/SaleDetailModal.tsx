@@ -13,7 +13,7 @@ const lineColumns: Column<SaleLine>[] = [
   { key: "name", header: "Producto", render: (l) => l.productName },
   { key: "qty", header: "Cant.", align: "right", render: (l) => int(l.quantity) },
   { key: "price", header: "Precio", align: "right", render: (l) => money(l.unitPrice) },
-  { key: "total", header: "Total", align: "right", render: (l) => money(l.lineTotal) },
+  { key: "total", header: "Subtotal", align: "right", render: (l) => money(l.lineTotal) },
 ];
 
 /** Detalle de una venta (CU-10) y anulación con confirmación (RF-03.4, solo ADMIN). */
@@ -72,10 +72,10 @@ export const SaleDetailModal = ({ id, onClose }: { id: number | null; onClose: (
               </div>
               <div className={styles.fact}>
                 <span className={styles.factLabel}>Cliente</span>
-                <span className={styles.factValue}>{s.customerName ?? "Mostrador"}</span>
+                <span className={styles.factValue}>{s.customerName ?? "Consumidor final"}</span>
               </div>
               <div className={styles.fact}>
-                <span className={styles.factLabel}>Vendedor</span>
+                <span className={styles.factLabel}>Registró</span>
                 <span className={styles.factValue}>{s.username}</span>
               </div>
               <div className={styles.fact}>

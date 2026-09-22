@@ -10,7 +10,7 @@ import styles from "./InventoryScreen.module.css";
 type Props = { product: Product | null; canRegister: boolean; onClose: () => void };
 
 const columns: Column<ProductBatch>[] = [
-  { key: "lot", header: "Lote", render: (b) => <span className={styles.mono}>#{b.id}</span> },
+  { key: "lot", header: "Lote", render: (b) => <span className={styles.code}>#{b.id}</span> },
   { key: "supplier", header: "Proveedor", render: (b) => b.supplierName ?? <span className="muted">—</span> },
   { key: "expires", header: "Vence", render: (b) => dateOnly(b.expiresAt) },
   { key: "days", header: "Días", align: "center", render: (b) => <ExpiryBadge batch={b} /> },

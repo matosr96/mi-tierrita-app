@@ -1,31 +1,113 @@
+/* Clientes y cartera: lienzos "Clientes" (ADMIN) y "SecClientes" (SALES). Bloques separados 12px. */
 .screen {
   display: flex;
   flex-direction: column;
-  gap: 18px;
+  gap: 12px;
+  flex-grow: 1;
+  min-height: 0;
 }
+
+/* Aviso verde suave de la secretaria. */
+.banner {
+  background: var(--good-soft);
+  border: 1px solid var(--good-line);
+  border-radius: 9px;
+  padding: 10px 14px;
+  font-size: 12.5px;
+  color: var(--forest-fg);
+}
+
+/* Búsqueda y chips en la cabecera de la tarjeta. */
 .toolbar {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 12px;
+  gap: 10px;
   flex-wrap: wrap;
-  margin-bottom: 14px;
-  padding: 18px 20px 0;
 }
 .search {
-  flex: 1;
-  min-width: 220px;
-  max-width: 380px;
+  width: 240px;
+  max-width: 100%;
+}
+.search input {
+  height: 34px;
+  padding: 0 11px;
+  font-size: 12.5px;
 }
 .mono {
   font-variant-numeric: tabular-nums;
 }
+.strong {
+  font-weight: 600;
+  color: var(--ink);
+}
+.negative {
+  color: var(--bad);
+}
+.cardNote {
+  font-size: 12.5px;
+  color: var(--ink-2);
+  border-top: 1px solid var(--line-soft);
+  padding-top: 10px;
+  margin-top: 10px;
+  line-height: 1.55;
+}
+.emptyActions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
 
-/* Detalle del cliente. */
+/* ---------- Detalle del cliente ---------- */
 .section {
   display: flex;
   flex-direction: column;
   gap: 14px;
+}
+.tagsRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.balanceBox {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  padding: 13px 15px;
+}
+.balanceItem {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.balanceLabel {
+  font-size: 11.5px;
+  color: var(--ink-2);
+}
+.balanceValue {
+  font-family: var(--font-heading);
+  font-size: 24px;
+  font-weight: 600;
+  line-height: 1.15;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.balanceWarn {
+  color: var(--warn);
+}
+.balanceBad {
+  color: var(--bad);
+}
+.balanceGood {
+  color: var(--good);
 }
 .factGrid {
   display: grid;
@@ -38,54 +120,16 @@
   gap: 2px;
 }
 .factLabel {
-  font-size: 12.5px;
-  color: var(--muted);
+  font-size: 11.5px;
+  color: var(--ink-2);
 }
 .factValue {
   font-weight: 600;
   color: var(--ink);
   font-variant-numeric: tabular-nums;
 }
-.balanceBox {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 12px;
-  background: var(--surface-2);
-  border: 1px solid var(--line);
-  border-radius: var(--radius-sm);
-  padding: 14px 16px;
-}
-.balanceItem {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-.balanceLabel {
-  font-size: 12.5px;
-  color: var(--ink-2);
-}
-.balanceValue {
-  font-family: var(--font-heading);
-  font-size: 22px;
-  font-weight: 600;
-  color: var(--ink);
-  font-variant-numeric: tabular-nums;
-}
-.balanceWarn {
-  color: var(--amber-fg);
-}
-.balanceBad {
-  color: var(--clay-fg);
-}
-.balanceGood {
-  color: var(--leaf);
-}
-.overdueRow {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  flex-wrap: wrap;
-}
+
+/* Formulario de abono (en el detalle y en el modal "Registrar abono"). */
 .paymentForm {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
@@ -93,10 +137,25 @@
   align-items: start;
 }
 .paymentForm > button {
-  margin-top: 27px;
+  margin-top: 25px;
 }
 .paymentResult {
   margin-top: 12px;
+}
+.paymentBox {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  font-size: 12.5px;
+  color: var(--ink-2);
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  padding: 10px 12px;
+}
+.paymentBox strong {
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
 }
 .form {
   display: flex;
@@ -113,5 +172,8 @@
   }
   .paymentForm > button {
     margin-top: 0;
+  }
+  .search {
+    width: 100%;
   }
 }

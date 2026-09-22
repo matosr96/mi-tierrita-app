@@ -1,35 +1,60 @@
+/* Proveedores: lienzo Proveedores.dc.html (Administrador) y BodProveedores.dc.html (Bodega). */
 .page {
   display: flex;
   flex-direction: column;
-  gap: 18px;
+  gap: 12px;
 }
+
+/* Aviso de consulta del lienzo de Bodega: fondo verde suave, borde verde claro, texto bosque. */
+.info {
+  background: var(--good-soft);
+  border: 1px solid var(--good-line);
+  border-radius: 9px;
+  padding: 10px 14px;
+  font-size: 12.5px;
+  color: var(--forest-fg);
+}
+
+/* Directorio 1,5fr + panel lateral 1fr, como en el lienzo del Administrador. */
+.grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
+  gap: 12px;
+  align-items: start;
+}
+@media (max-width: 1000px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+}
+
 .toolbar {
   display: flex;
   align-items: center;
   justify-content: space-between;
   flex-wrap: wrap;
-  gap: 12px;
-  padding: 16px 20px;
-  border-bottom: 1px solid var(--line);
+  gap: 10px;
+  margin-bottom: 11px;
 }
 .search {
-  max-width: 320px;
-}
-.count {
-  font-size: 13px;
-  color: var(--muted);
-  padding: 10px 20px 0;
+  max-width: 260px;
+  height: 34px;
+  font-size: 12.5px;
 }
 .pager {
-  padding: 4px 16px 14px;
+  padding-top: 8px;
 }
+
 .name {
   font-weight: 600;
   color: var(--ink);
 }
+.secondary {
+  color: var(--ink-2);
+}
 .mono {
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-  font-size: 13px;
+  font-size: 12.5px;
   color: var(--ink-2);
 }
 .actions {
@@ -38,6 +63,18 @@
   gap: 6px;
   flex-wrap: wrap;
 }
+.cardLink {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--link);
+  text-decoration: none;
+  white-space: nowrap;
+}
+.cardLink:hover {
+  text-decoration: underline;
+}
+
+/* formularios de los modales */
 .form {
   display: flex;
   flex-direction: column;
@@ -53,7 +90,7 @@
   justify-content: space-between;
   gap: 12px;
   flex-wrap: wrap;
-  font-size: 13px;
+  font-size: 12.5px;
   color: var(--muted);
 }
 .summary {
@@ -68,7 +105,7 @@
   gap: 2px;
 }
 .summaryLabel {
-  font-size: 12.5px;
+  font-size: 12px;
   color: var(--muted);
 }
 .summaryValue {

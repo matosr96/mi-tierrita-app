@@ -19,10 +19,16 @@ HTTP; solo usa hooks. Un hook por operación (`src/hooks/<entidad>/useX.ts`), un
 
 1. **Toda pantalla contempla sus tres estados**: cargando, vacío (con llamada a la acción) y con datos.
    Usar `QueryState` / `Loading` / `EmptyState` / `ErrorState` de `@/components/ui`.
-2. **Ningún color suelto**: solo variables de `src/styles/theme.css` (`--forest`, `--leaf`, `--sprout`,
-   `--sprout-soft`, `--ground`, `--surface`, `--surface-2`, `--ink`, `--ink-2`, `--muted`, `--line`,
-   `--amber`, `--amber-fg`, `--amber-soft`, `--clay`, `--clay-fg`, `--clay-soft`, `--radius`, `--radius-sm`,
-   `--shadow`, `--font-heading`, `--font-body`). Tema claro y oscuro salen solos de ahí.
+2. **Ningún color suelto**: solo variables de `src/styles/theme.css`, que son los valores exactos del
+   lienzo de diseño "Vistas del módulo de evaluación — Mi Tierrita" (https://claude.ai/artifact/Vui7YHNx51ThJHF1U3GHZV,
+   una vista `.dc.html` por captura). Fondo de la app `--app-bg` #132E24; panel `--ground` #F4F3ED; tarjetas
+   `--surface` #FFF con borde `--line` #DEDDD3 y radio `--radius` 11px; fondo suave `--surface-2` #FAFAF6;
+   gris de chips/círculos `--surface-3` #EFEDE4; segmentado `--segment-bg` #E7E8E0; bordes de inputs
+   `--line-strong` #C9CCC2; texto `--ink` #17201B, `--ink-2` #4A554E, `--muted` #78837B; semánticos `--good`
+   #12795A, `--warn` #A16207, `--bad` #B02A2E con sus `-soft`, `-line`, `-tag-bg`, `-tag-fg`; naranja de
+   acento `--accent` #C2410C; marca `--forest`, `--leaf`, `--sprout`, `--sprout-soft`. Tipografía: `--font-heading`
+   IBM Plex Serif (títulos y cifras grandes), `--font-body` IBM Plex Sans 13px. Cuando el lienzo usa un hex,
+   usar la variable equivalente; los SVG de iconos pueden llevar `currentColor`.
 3. **Estilos encapsulados**: cada pantalla/componente tiene su `X.module.css`; nada de CSS global nuevo.
 4. **El frontend no calcula**: totales, saldos e indicadores se muestran tal como los devuelve la API.
    Lo único que suma el cliente es una vista previa del carrito, marcada como estimada.
@@ -46,10 +52,11 @@ HTTP; solo usa hooks. Un hook por operación (`src/hooks/<entidad>/useX.ts`), un
 hint, tone neutral|good|warn|bad) y `StatGrid` · `Badge` (tone) · `DataTable<T>` (columns[{key, header,
 align, render, width}], rows, rowKey, onRowClick, footer) · `Loading`, `EmptyState`, `ErrorState`,
 `QueryState` · `Pagination` (page, onPage) · `Modal` (open, title, description, onClose, footer, wide) ·
-`Tabs` y `Chips` · `Callout` (tone, title, aside) · `Toasts`. Gráficos SVG en `@/components/charts`:
+`Tabs` (segmentado gris #E7E8E0 con pestaña activa blanca) y `Chips` (píldoras; activa verde bosque) ·
+`Callout` (veredicto: tone good|warn|bad con ícono circular, title serif 26px, aside a la derecha) · `Toasts`. Gráficos SVG en `@/components/charts`:
 `HBarChart`, `VBarChart` ({label, value, alt}[], format), `LineChart` (points, formatX, formatY, marker,
-highlightX), `TornadoChart` (data[{label, low, high}], base, format). Encabezado de página: `PageHeader`
-de `@/components/layout/AppShell`.
+highlightX), `TornadoChart` (data[{label, low, high}], base, format). Encabezado de página: `PageHeader` (h1 serif 21px + subtítulo 13px + acciones) y `BrandMark` de
+`@/components/layout/AppShell`. Botones: `primary` 38px verde bosque, `secondary` blanco con borde #C9CCC2.
 
 ## Hooks disponibles (`@/hooks/<entidad>`)
 

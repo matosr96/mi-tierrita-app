@@ -3,24 +3,25 @@ import { useReceivablesReport } from "@/hooks/reports";
 import { StatCard, StatGrid } from "@/components/ui";
 import { int, moneyCompact } from "@/lib/format";
 
-/** Indicadores de cartera del administrador (CU-20). GET /reports/receivables no está permitido para SALES. */
+/** Indicadores de cartera del lienzo "Clientes" (ADMIN, CU-20). GET /reports/receivables no está permitido para SALES. */
 export const AdminStats = () => {
   const active = useCustomers({ active: true, limit: 1 });
   const report = useReceivablesReport();
   const r = report.data;
   const pending = report.isPending ? "…" : "—";
+  const unavailable = report.isError ? "No disponible" : undefined;
 
   return (
     <StatGrid>
-      <StatCard label="Clientes activos" value={active.data ? int(active.data.count) : active.isPending ? "…" : "—"} hint="habilitados para comprar" />
-      <StatCard label="Cartera total" value={r ? moneyCompact(r.totalBalance) : pending} hint={r ? `${int(r.customersWithBalance)} ${r.customersWithBalance === 1 ? "cliente" : "clientes"} con crédito` : report.isError ? "No disponible" : undefined} />
+      <StatCard label="Cartera total" value={r ? moneyCompact(r.totalBalance) : pending} hint={r ? `${int(r.customersWithBalance)} ${r.customersWithBalance === 1 ? "cliente" : "clientes"} con crédito` : unavailable} />
       <StatCard
         label="Cartera vencida"
         tone={r && r.overdueBalance > 0 ? "bad" : "neutral"}
         value={r ? moneyCompact(r.overdueBalance) : pending}
-        hint={r ? `${int(r.overdueCustomers)} ${r.overdueCustomers === 1 ? "cliente" : "clientes"} · más de ${int(r.overdueDays)} días sin abonar` : report.isError ? "No disponible" : undefined}
+        hint={r ? `más de ${int(r.overdueDays)} días sin abonar` : unavailable}
       />
-      <StatCard label="Clientes con saldo" tone={r && r.customersWithBalance > 0 ? "warn" : "neutral"} value={r ? int(r.customersWithBalance) : pending} hint="deben algo a la fecha" />
+      <StatCard label="Clientes activos" value={active.data ? int(active.data.count) : active.isPending ? "…" : "—"} hint="habilitados para comprar" />
+      <StatCard label="Con cartera vencida" tone={r && r.overdueCustomers > 0 ? "bad" : "neutral"} value={r ? int(r.overdueCustomers) : pending} hint={r ? "requieren gestión de cobro" : unavailable} />
     </StatGrid>
   );
 };

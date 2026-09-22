@@ -1,19 +1,66 @@
+/* Reportes: lienzo Reportes.dc.html (tarjetas por reporte + vista previa tipo documento). */
 .page {
   display: flex;
   flex-direction: column;
-  gap: 18px;
+  gap: 14px;
 }
-.panel {
+
+/* ---------- tarjetas por reporte ---------- */
+.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 14px;
+}
+.reportCard {
+  padding: 16px 18px;
+  border-radius: 10px;
+}
+.cardHead {
   display: flex;
-  flex-direction: column;
-  gap: 18px;
+  gap: 11px;
+  align-items: flex-start;
+}
+.cardIcon {
+  flex-shrink: 0;
+  color: var(--forest-fg);
+}
+.cardIconMuted {
+  flex-shrink: 0;
+  color: var(--ink-2);
+}
+.cardBody {
+  flex-grow: 1;
+  min-width: 0;
+}
+.cardBody h2 {
+  font-size: 15px;
+  font-weight: 600;
+}
+.cardText {
+  font-size: 12.5px;
+  color: var(--ink-2);
+  margin-top: 4px;
+  line-height: 1.55;
+}
+.cardActions {
+  display: flex;
+  gap: 9px;
+  margin-top: 14px;
+  flex-wrap: wrap;
+}
+
+/* ---------- vista previa ---------- */
+.preview {
+  border-radius: 10px;
+  padding: 16px 18px;
 }
 .filters {
   display: flex;
   align-items: flex-end;
   justify-content: space-between;
   flex-wrap: wrap;
-  gap: 14px;
+  gap: 12px;
+  margin-bottom: 12px;
 }
 .filterGroup {
   display: flex;
@@ -22,10 +69,10 @@
   gap: 12px;
 }
 .dateField {
-  min-width: 170px;
+  min-width: 160px;
 }
 .filterLabel {
-  font-size: 13px;
+  font-size: 12.5px;
   color: var(--ink-2);
   font-weight: 600;
   margin-right: 4px;
@@ -36,52 +83,165 @@
   flex-wrap: wrap;
   gap: 10px;
 }
-.twoCols {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 18px;
+.filterHint {
+  font-size: 12.5px;
+  color: var(--muted);
 }
-.aggGrid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 12px;
+
+/* documento: fondo suave, borde fino, radio 8, encabezado con línea bosque de 2px */
+.paper {
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 26px 34px;
 }
-.agg {
+@media (max-width: 700px) {
+  .paper {
+    padding: 18px 16px;
+  }
+}
+.paperHead {
+  border-bottom: 2px solid var(--forest);
+  padding-bottom: 12px;
+}
+.paperHead h3 {
+  font-size: 19px;
+  font-weight: 600;
+}
+.paperMeta {
+  font-size: 12.5px;
+  color: var(--ink-2);
+  margin-top: 4px;
+}
+.paperBody {
+  display: flex;
+  gap: 26px;
+  margin-top: 16px;
+}
+@media (max-width: 900px) {
+  .paperBody {
+    flex-direction: column;
+  }
+  .paperAside {
+    width: auto !important;
+  }
+}
+.paperMain {
+  flex-grow: 1;
+  min-width: 0;
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 16px;
 }
-.aggLabel {
-  font-size: 12.5px;
-  color: var(--muted);
+.paperAside {
+  width: 232px;
+  flex-shrink: 0;
 }
-.aggValue {
-  font-family: var(--font-heading);
-  font-size: 22px;
+.sectionLabel {
+  font-size: 12px;
   font-weight: 600;
+  color: var(--ink-2);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.summary {
+  font-size: 13px;
+  line-height: 1.65;
+  margin: 7px 0 0 0;
   color: var(--ink);
+}
+.summary + .summary {
+  margin-top: 9px;
+}
+.params {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px 20px;
+  margin-top: 7px;
+  font-size: 12px;
+}
+@media (max-width: 600px) {
+  .params {
+    grid-template-columns: 1fr;
+  }
+}
+.param {
+  display: flex;
+  gap: 8px;
+}
+.paramLabel {
+  color: var(--ink-2);
+  flex-grow: 1;
+}
+.paramValue {
   font-variant-numeric: tabular-nums;
+  color: var(--ink);
 }
-.warnCard {
-  border-color: var(--amber);
+.indicators {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  margin-top: 8px;
 }
-.warnCard .aggValue {
-  color: var(--amber-fg);
+.indicator {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 12.5px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--line);
 }
-.badCard {
-  border-color: var(--clay);
+.indicator:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
 }
-.badCard .aggValue {
-  color: var(--clay-fg);
+.indicatorLabel {
+  color: var(--ink-2);
+}
+.indicator strong {
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  color: var(--ink);
+}
+.indicatorGood strong {
+  color: var(--good);
+}
+.indicatorWarn strong {
+  color: var(--warn);
+}
+.indicatorBad strong {
+  color: var(--bad);
+}
+.note {
+  background: var(--warn-soft);
+  border-radius: 6px;
+  padding: 9px 11px;
+  margin-top: 12px;
+  font-size: 11.5px;
+  color: var(--warn-tag-fg);
+  line-height: 1.5;
+}
+.block {
+  min-width: 0;
+}
+.blockHead {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  margin-bottom: 7px;
+}
+.blockHint {
+  font-size: 12px;
+  color: var(--muted);
 }
 .chartNote {
-  font-size: 12.5px;
+  font-size: 12px;
   color: var(--muted);
-  margin-top: 8px;
+  margin-top: 6px;
 }
 .mono {
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-  font-size: 13px;
+  font-size: 12px;
   color: var(--ink-2);
 }
 .name {
@@ -90,8 +250,5 @@
 }
 .footRow td {
   font-weight: 600;
-  background: var(--surface-2);
-}
-.pager {
-  padding-top: 4px;
+  background: var(--surface-3);
 }

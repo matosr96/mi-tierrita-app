@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
 import { useAudits } from "@/hooks/audits";
 import { useUsers } from "@/hooks/users";
-import { dateTime } from "@/lib/format";
+import { dateTime, int } from "@/lib/format";
 import { PageHeader } from "@/components/layout/AppShell";
-import { Badge, Button, Card, DataTable, EmptyState, Field, Input, Pagination, QueryState, Select, type Column } from "@/components/ui";
+import { Button, Card, DataTable, EmptyState, Field, Input, Pagination, QueryState, Select, type Column } from "@/components/ui";
 import type { Audit, AuditQuery } from "@/types/api";
+import { AuditMethodBadge } from "./AuditMethodBadge";
 import styles from "./AuditsScreen.module.css";
 
 const PAGE_SIZE = 25;
@@ -18,25 +19,12 @@ const useDebounced = <T,>(value: T, ms: number): T => {
   return debounced;
 };
 
-const methodTone = (method: string): "good" | "warn" | "bad" | "neutral" => {
-  switch (method.toUpperCase()) {
-    case "POST":
-      return "good";
-    case "PUT":
-    case "PATCH":
-      return "warn";
-    case "DELETE":
-      return "bad";
-    default:
-      return "neutral";
-  }
-};
-
+/** Mismas columnas que la tarjeta «Registro de actividad» de Usuarios y roles. */
 const columns: Column<Audit>[] = [
-  { key: "createdAt", header: "Fecha", width: "180px", render: (a) => <span className={styles.date}>{dateTime(a.createdAt)}</span> },
-  { key: "username", header: "Usuario", width: "160px", render: (a) => <span className={styles.user}>{a.username}</span> },
-  { key: "method", header: "Método", width: "110px", render: (a) => <Badge tone={methodTone(a.method)}>{a.method.toUpperCase()}</Badge> },
-  { key: "resource", header: "Recurso", render: (a) => <span className={styles.mono}>{a.resource}</span> },
+  { key: "createdAt", header: "Fecha y hora", width: "180px", render: (a) => <span className={styles.date}>{dateTime(a.createdAt)}</span> },
+  { key: "username", header: "Usuario", align: "left", width: "160px", render: (a) => <span className={styles.user}>{a.username}</span> },
+  { key: "resource", header: "Recurso", align: "left", render: (a) => <span className={styles.mono}>{a.resource}</span> },
+  { key: "method", header: "Método", align: "left", width: "110px", render: (a) => <AuditMethodBadge method={a.method} /> },
 ];
 
 /** CU-18 Auditoría de escrituras (solo ADMIN). */
@@ -73,7 +61,7 @@ export const AuditsScreen = () => {
     <div className={styles.page}>
       <PageHeader title="Auditoría" subtitle="Registro de escrituras: quién hizo qué, cuándo y sobre qué recurso." />
 
-      <Card>
+      <Card title="Filtros" subtitle="Por usuario, recurso o rango de fechas" className={styles.card}>
         <div className={styles.filters}>
           <Field label="Usuario" htmlFor="audit-user">
             <Select
@@ -137,7 +125,7 @@ export const AuditsScreen = () => {
         </div>
       </Card>
 
-      <Card title="Escrituras registradas" subtitle="Solo se auditan POST, PUT y DELETE; las consultas no dejan rastro." flush>
+      <Card title="Registro de actividad" subtitle={query.data ? `${int(query.data.count)} escrituras · solo se auditan POST, PUT y DELETE` : "Solo se auditan POST, PUT y DELETE; las consultas no dejan rastro"} className={styles.card}>
         <QueryState
           query={query}
           isEmpty={(data) => data.items.length === 0}

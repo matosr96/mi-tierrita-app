@@ -9,43 +9,43 @@
   fill: var(--muted);
 }
 .value {
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 600;
   fill: var(--ink);
 }
 .axis {
-  stroke: var(--line);
+  stroke: var(--line-strong);
 }
 .bar {
-  fill: var(--leaf);
+  fill: var(--good);
 }
 .barAlt {
-  fill: var(--clay);
+  fill: var(--accent);
 }
 .line {
   fill: none;
-  stroke: var(--leaf);
+  stroke: var(--forest);
   stroke-width: 2;
 }
 .dot {
   fill: var(--surface);
-  stroke: var(--leaf);
+  stroke: var(--forest);
   stroke-width: 2;
 }
 .zero {
-  stroke: var(--muted);
+  stroke: var(--muted-2);
   stroke-dasharray: 3 3;
 }
 .negativeArea {
-  fill: var(--clay-soft);
+  fill: var(--bad-soft);
 }
 .marker {
-  stroke: var(--clay);
+  stroke: var(--bad);
   stroke-dasharray: 4 3;
 }
 .tornadoLow {
   fill: var(--sprout);
 }
 .tornadoHigh {
-  fill: var(--leaf);
+  fill: var(--good);
 }

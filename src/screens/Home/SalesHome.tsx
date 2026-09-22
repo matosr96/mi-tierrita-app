@@ -1,86 +1,92 @@
-import { Link } from "react-router-dom";
-import { Card, DataTable, EmptyState, QueryState, StatGrid, type Column } from "@/components/ui";
+import { useNavigate } from "react-router-dom";
+import { PageHeader } from "@/components/layout/AppShell";
+import { Button, Card, DataTable, EmptyState, QueryState, StatGrid, type Column } from "@/components/ui";
 import { useCustomers } from "@/hooks/customers";
 import { useSalesReport } from "@/hooks/reports";
-import { int, money, moneyCompact, todayIso } from "@/lib/format";
-import type { Customer, SalesReportProductRow } from "@/types/api";
+import { useSales } from "@/hooks/sales";
+import { int, longToday, money, moneyCompact, todayIso } from "@/lib/format";
+import type { Customer, Sale, User } from "@/types/api";
 import { QueryStat } from "./QueryStat";
+import { AttentionList, type AttentionItem } from "./AttentionList";
+import { greetingFor, timeOnly } from "./homeDates";
 import styles from "./HomeScreen.module.css";
 
-const productColumns: Column<SalesReportProductRow>[] = [
-  { key: "product", header: "Producto", render: (r) => <span className={styles.strong}>{r.productName}</span> },
-  { key: "sku", header: "SKU", render: (r) => <span className="muted">{r.sku}</span> },
-  { key: "units", header: "Unidades", align: "right", render: (r) => int(r.units) },
-  { key: "total", header: "Total", align: "right", render: (r) => money(r.total) },
+const PAYMENT_LABELS = { CASH: "Contado", CREDIT: "Crédito" } as const;
+
+const saleColumns: Column<Sale>[] = [
+  { key: "time", header: "Hora", render: (s) => <span className={styles.time}>{timeOnly(s.createdAt)}</span> },
+  { key: "customer", header: "Cliente", align: "left", render: (s) => s.customerName ?? "Consumidor final" },
+  { key: "payment", header: "Pago", align: "left", render: (s) => PAYMENT_LABELS[s.paymentType] },
+  { key: "total", header: "Total", align: "right", render: (s) => money(s.total) },
 ];
 
-const customerColumns: Column<Customer>[] = [
-  { key: "name", header: "Cliente", render: (c) => <span className={styles.strong}>{c.name}</span> },
-  { key: "balance", header: "Saldo", align: "right", render: (c) => money(c.balance) },
-  { key: "available", header: "Cupo disponible", align: "right", render: (c) => <span className={c.availableCredit <= 0 ? "negative" : ""}>{money(c.availableCredit)}</span> },
-];
+/** Pendientes de cobro: clientes con saldo; los que agotaron el cupo van primero. */
+const pendingItems = (customers: Customer[]): AttentionItem[] =>
+  customers.map((c) =>
+    c.availableCredit <= 0
+      ? { key: `credit-${c.id}`, tone: "bad", text: `${c.name} agotó su cupo de crédito (saldo ${money(c.balance)})`, to: "/clientes", tag: "Consultar" }
+      : { key: `balance-${c.id}`, tone: "warn", text: `${c.name} tiene ${money(c.balance)} pendientes de pago`, to: "/clientes", tag: "Cobrar" },
+  );
 
-/** Inicio de la secretaria: lo vendido hoy y los clientes con saldo. */
-export const SalesHome = () => {
+/** Inicio de la secretaria (SecInicio del lienzo): lo vendido hoy, pendientes de cobro y sus últimas ventas. */
+export const SalesHome = ({ user }: { user: User }) => {
+  const navigate = useNavigate();
   const today = todayIso();
   const sales = useSalesReport({ from: today, to: today, groupBy: "product" });
   const customers = useCustomers({ withBalance: true, limit: 5 });
+  const recent = useSales({ from: today, to: today, userId: user.id, limit: 5 });
+  const subtitle = sales.data ? `${longToday()} · ${int(sales.data.salesCount)} ${sales.data.salesCount === 1 ? "venta registrada" : "ventas registradas"} hoy` : longToday();
 
   return (
     <>
+      <PageHeader
+        title={greetingFor(user.firstName)}
+        subtitle={subtitle}
+        actions={
+          <>
+            <Button variant="secondary" onClick={() => navigate("/clientes")}>
+              Registrar abono
+            </Button>
+            <Button onClick={() => navigate("/ventas/nueva")}>Nueva venta</Button>
+          </>
+        }
+      />
+
       <StatGrid>
-        <QueryStat query={sales} label="Vendido hoy" value={(r) => moneyCompact(r.total)} hint={(r) => `${int(r.salesCount)} ${r.salesCount === 1 ? "venta" : "ventas"}`} />
-        <QueryStat query={sales} label="Contado" value={(r) => moneyCompact(r.cashTotal)} hint={() => "hoy"} />
-        <QueryStat query={sales} label="Crédito" value={(r) => moneyCompact(r.creditTotal)} hint={() => "hoy"} tone={(r) => (r.creditTotal > 0 ? "warn" : "neutral")} />
-        <QueryStat query={customers} label="Clientes con saldo" value={(p) => int(p.count)} hint={() => "con cartera pendiente"} />
+        <QueryStat query={sales} label="Vendido hoy" value={(r) => moneyCompact(r.total)} hint={(r) => `${int(r.salesCount)} ${r.salesCount === 1 ? "ticket" : "tickets"}`} />
+        <QueryStat query={sales} label="Contado hoy" value={(r) => moneyCompact(r.cashTotal)} hint={() => "recibido en caja"} />
+        <QueryStat query={sales} label="Crédito hoy" value={(r) => moneyCompact(r.creditTotal)} hint={() => "por cobrar"} tone={(r) => (r.creditTotal > 0 ? "warn" : "neutral")} />
+        <QueryStat query={customers} label="Clientes con saldo" value={(p) => int(p.count)} hint={() => "con cartera pendiente"} tone={(p) => (p.count > 0 ? "warn" : "neutral")} />
       </StatGrid>
 
       <div className={styles.gridEven}>
-        <Card
-          title="Vendido hoy por producto"
-          actions={
-            <Link to="/ventas" className={styles.cardLink}>
-              Ver ventas
-            </Link>
-          }
-        >
+        <Card title="Pendientes de hoy">
+          <QueryState query={customers} isEmpty={(p) => p.items.length === 0} empty={<EmptyState title="Sin pendientes" text="Ningún cliente tiene saldo por cobrar." />}>
+            {(page) => (
+              <>
+                <AttentionList items={pendingItems(page.items)} boxed />
+                {page.count > page.items.length ? <p className={styles.note}>Y {int(page.count - page.items.length)} clientes más con saldo en Clientes y cartera.</p> : null}
+              </>
+            )}
+          </QueryState>
+        </Card>
+
+        <Card title="Últimas ventas" subtitle="Registradas por usted hoy">
           <QueryState
-            query={sales}
-            isEmpty={(r) => r.rows.length === 0}
+            query={recent}
+            isEmpty={(p) => p.items.length === 0}
             empty={
               <EmptyState
-                title="Aún no hay ventas hoy"
+                title="Aún no ha registrado ventas hoy"
                 action={
-                  <Link to="/ventas/nueva" className={styles.cardLink}>
+                  <Button size="sm" onClick={() => navigate("/ventas/nueva")}>
                     Registrar una venta
-                  </Link>
+                  </Button>
                 }
               />
             }
           >
-            {(report) => {
-              const rows = report.rows.filter((r): r is SalesReportProductRow => "productId" in r);
-              const top = [...rows].sort((a, b) => b.total - a.total).slice(0, 8);
-              return <DataTable columns={productColumns} rows={top} rowKey={(r) => r.productId} />;
-            }}
-          </QueryState>
-        </Card>
-
-        <Card
-          title="Clientes con saldo"
-          actions={
-            <Link to="/clientes" className={styles.cardLink}>
-              Ver cartera
-            </Link>
-          }
-        >
-          <QueryState query={customers} isEmpty={(p) => p.items.length === 0} empty={<EmptyState title="Ningún cliente tiene saldo pendiente" />}>
-            {(page) => (
-              <>
-                <DataTable columns={customerColumns} rows={page.items} rowKey={(c) => c.id} />
-                {page.count > page.items.length ? <p className={styles.chartNote}>Se muestran {int(page.items.length)} de {int(page.count)} clientes con saldo.</p> : null}
-              </>
-            )}
+            {(page) => <DataTable columns={saleColumns} rows={page.items} rowKey={(s) => s.id} onRowClick={() => navigate("/ventas/historial")} />}
           </QueryState>
         </Card>
       </div>

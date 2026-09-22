@@ -1,29 +1,59 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { useUsers } from "@/hooks/users";
+import { useAudits } from "@/hooks/audits";
 import { ROLE_LABELS, useSessionStore } from "@/stores/session";
-import { NAV_GROUPS, type NavItem } from "@/router/navigation";
-import { dateOnly } from "@/lib/format";
+import { NAV_GROUPS, rolesFor, type NavItem } from "@/router/navigation";
+import { dateTime, int } from "@/lib/format";
 import { PageHeader } from "@/components/layout/AppShell";
 import { Badge, Button, Card, DataTable, EmptyState, Pagination, QueryState, type Column } from "@/components/ui";
-import type { Role, User } from "@/types/api";
+import type { Audit, Role, User } from "@/types/api";
+import { AuditMethodBadge } from "@/screens/Audits/AuditMethodBadge";
 import { UserFormModal } from "./UserFormModal";
 import { ChangePasswordModal } from "./ChangePasswordModal";
 import styles from "./UsersScreen.module.css";
 
 const ROLES: Role[] = ["ADMIN", "SALES", "WAREHOUSE"];
-const ROLE_TONE: Record<Role, "good" | "neutral" | "warn"> = { ADMIN: "good", SALES: "neutral", WAREHOUSE: "warn" };
 
 /** Módulos del menú (sin Inicio) para la matriz de permisos por rol. */
 const MODULES: NavItem[] = NAV_GROUPS.flatMap((g) => g.items).filter((i) => i.path !== "/");
 
+/**
+ * Módulos que el rol ve solo en consulta (lienzo, documento 06): la Secretaria consulta Inventario sin
+ * registrar lotes ni productos; Bodega consulta Proveedores sin crearlos ni editarlos.
+ */
+const CONSULT: Record<string, Role[]> = { "/inventario": ["SALES"], "/proveedores": ["WAREHOUSE"] };
+
+type Access = "full" | "consult" | "none";
+const accessFor = (module: NavItem, role: Role): Access => (!rolesFor(module.path).includes(role) ? "none" : (CONSULT[module.path]?.includes(role) ?? false) ? "consult" : "full");
+
+const AccessMark = ({ access }: { access: Access }) =>
+  access === "full" ? (
+    <span className={styles.full} title="Acceso completo">
+      ✓
+    </span>
+  ) : access === "consult" ? (
+    <span className={styles.consult} title="Consulta">
+      ○
+    </span>
+  ) : (
+    <span className={styles.none} title="Sin acceso">
+      —
+    </span>
+  );
+
 const permissionColumns: Column<NavItem>[] = [
   { key: "module", header: "Módulo", render: (m) => m.label },
-  ...ROLES.map<Column<NavItem>>((role) => ({
-    key: role,
-    header: ROLE_LABELS[role],
-    align: "center",
-    render: (m) => (m.roles.includes(role) ? <span className={styles.yes}>Sí</span> : <span className={styles.no}>No</span>),
-  })),
+  ...ROLES.map<Column<NavItem>>((role) => ({ key: role, header: ROLE_LABELS[role], align: "center", render: (m) => <AccessMark access={accessFor(m, role)} /> })),
+];
+
+const ACTIVITY_LIMIT = 5;
+
+const activityColumns: Column<Audit>[] = [
+  { key: "createdAt", header: "Fecha y hora", render: (a) => <span className={styles.date}>{dateTime(a.createdAt)}</span> },
+  { key: "username", header: "Usuario", align: "left", render: (a) => <span className={styles.name}>{a.username}</span> },
+  { key: "resource", header: "Recurso", align: "left", render: (a) => <span className={styles.mono}>{a.resource}</span> },
+  { key: "method", header: "Método", align: "left", render: (a) => <AuditMethodBadge method={a.method} /> },
 ];
 
 /** CU-03 Usuarios y roles (solo ADMIN) y CU-04 cambio de contraseña propia. */
@@ -33,11 +63,12 @@ export const UsersScreen = () => {
   const [showForm, setShowForm] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const query = useUsers({ page, limit: 20 });
+  const activity = useAudits({ limit: ACTIVITY_LIMIT });
 
   const columns: Column<User>[] = [
     {
       key: "name",
-      header: "Nombre",
+      header: "Persona",
       render: (u) => (
         <span className={styles.name}>
           {u.firstName} {u.lastName}
@@ -45,10 +76,9 @@ export const UsersScreen = () => {
         </span>
       ),
     },
-    { key: "username", header: "Usuario", render: (u) => <span className={styles.mono}>{u.username}</span> },
-    { key: "role", header: "Rol", render: (u) => <Badge tone={ROLE_TONE[u.role]}>{ROLE_LABELS[u.role]}</Badge> },
-    { key: "active", header: "Estado", render: (u) => <Badge tone={u.active ? "good" : "neutral"}>{u.active ? "Activo" : "Inactivo"}</Badge> },
-    { key: "createdAt", header: "Creado", render: (u) => dateOnly(u.createdAt) },
+    { key: "username", header: "Usuario", align: "left", render: (u) => <span className={styles.username}>{u.username}</span> },
+    { key: "role", header: "Rol", align: "left", render: (u) => ROLE_LABELS[u.role] },
+    { key: "active", header: "Estado", align: "left", render: (u) => <Badge tone={u.active ? "good" : "neutral"}>{u.active ? "Activa" : "Inactiva"}</Badge> },
   ];
 
   return (
@@ -67,7 +97,7 @@ export const UsersScreen = () => {
       />
 
       <div className={styles.grid}>
-        <Card title="Cuentas" flush>
+        <Card title="Cuentas" subtitle={query.data ? `${int(query.data.count)} cuentas` : undefined} className={styles.card}>
           <QueryState
             query={query}
             isEmpty={(data) => data.items.length === 0}
@@ -84,12 +114,36 @@ export const UsersScreen = () => {
           </QueryState>
         </Card>
 
-        <Card title="Módulos por rol" subtitle="Lo que ve cada rol en el menú" flush>
+        <Card title="Módulos por rol" subtitle="Lo que puede usar cada rol" className={styles.card}>
           <DataTable columns={permissionColumns} rows={MODULES} rowKey={(m) => m.path} />
+          <div className={styles.legend}>
+            <span>
+              <span className={styles.full}>✓</span> acceso completo
+            </span>
+            <span>
+              <span className={styles.consult}>○</span> consulta
+            </span>
+            <span>
+              <span className={styles.none}>—</span> sin acceso
+            </span>
+          </div>
         </Card>
       </div>
 
-      <p className={styles.note}>La API aún no permite editar ni desactivar usuarios: por ahora solo se crean cuentas y cada persona cambia su propia contraseña.</p>
+      <Card
+        title="Registro de actividad"
+        subtitle={`Últimas ${int(ACTIVITY_LIMIT)} escrituras`}
+        className={styles.card}
+        actions={
+          <Link to="/auditoria" className={styles.cardLink}>
+            Ver toda la auditoría
+          </Link>
+        }
+      >
+        <QueryState query={activity} isEmpty={(data) => data.items.length === 0} empty={<EmptyState title="Sin actividad registrada" text="Las escrituras aparecerán aquí a medida que el equipo use el sistema." />}>
+          {(data) => <DataTable columns={activityColumns} rows={data.items} rowKey={(a) => a.id} />}
+        </QueryState>
+      </Card>
 
       {showForm ? <UserFormModal onClose={() => setShowForm(false)} /> : null}
       {showPassword ? <ChangePasswordModal onClose={() => setShowPassword(false)} /> : null}

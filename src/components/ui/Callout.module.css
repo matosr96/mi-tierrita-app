@@ -1,22 +1,22 @@
 .callout {
   border-radius: var(--radius);
-  padding: 14px 18px;
+  padding: 16px 20px;
   border: 1px solid var(--line);
   display: flex;
-  gap: 14px;
-  align-items: flex-start;
+  gap: 16px;
+  align-items: center;
 }
 .good {
-  background: var(--sprout-soft);
-  border-color: var(--sprout);
+  background: var(--good-soft);
+  border-color: var(--good-line);
 }
 .warn {
-  background: var(--amber-soft);
-  border-color: var(--amber);
+  background: var(--warn-soft);
+  border-color: var(--warn-line);
 }
 .bad {
-  background: var(--clay-soft);
-  border-color: var(--clay);
+  background: var(--bad-soft);
+  border-color: var(--bad-line);
 }
 .neutral {
   background: var(--surface-2);
@@ -24,11 +24,18 @@
 .body {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 3px;
   flex: 1;
+  font-size: 13.5px;
+  color: var(--ink-2);
 }
 .title {
   font-family: var(--font-heading);
-  font-size: 20px;
+  font-size: 26px;
   font-weight: 600;
+  line-height: 1.15;
+  color: var(--ink);
+}
+.mark {
+  flex-shrink: 0;
 }

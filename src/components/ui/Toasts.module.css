@@ -10,8 +10,8 @@
 .toast {
   padding: 10px 14px;
   border-radius: var(--radius-sm);
-  box-shadow: var(--shadow);
-  font-size: 14px;
+  box-shadow: var(--shadow-panel);
+  font-size: 13px;
   max-width: 360px;
   border: 1px solid var(--line);
   background: var(--surface);
@@ -19,11 +19,11 @@
   cursor: pointer;
 }
 .success {
-  border-left: 4px solid var(--leaf);
+  border-left: 4px solid var(--good);
 }
 .error {
-  border-left: 4px solid var(--clay);
+  border-left: 4px solid var(--bad);
 }
 .info {
-  border-left: 4px solid var(--amber);
+  border-left: 4px solid var(--warn);
 }

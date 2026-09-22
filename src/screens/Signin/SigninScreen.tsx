@@ -2,9 +2,18 @@ import { useState, type FormEvent } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useSignin } from "@/hooks/session";
 import { Button, Field, Input } from "@/components/ui";
+import { BrandMark } from "@/components/layout/AppShell";
 import styles from "./SigninScreen.module.css";
 
-/** CU-01 Iniciar sesión. */
+const Eye = ({ off }: { off: boolean }) => (
+  <svg width="21" height="21" viewBox="0 0 24 20" fill="none" aria-hidden="true">
+    <path d="M1.8 10 C 4.9 5.2 8.5 3 12 3 C 15.5 3 19.1 5.2 22.2 10 C 19.1 14.8 15.5 17 12 17 C 8.5 17 4.9 14.8 1.8 10 Z" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round" />
+    <circle cx="12" cy="10" r="3.1" stroke="currentColor" strokeWidth="1.6" />
+    {off ? <line x1="3.4" y1="1.6" x2="20.6" y2="18.4" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" /> : null}
+  </svg>
+);
+
+/** CU-01 Iniciar sesión, fiel a la vista "Iniciar sesión" del lienzo. */
 export const SigninScreen = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -25,19 +34,19 @@ export const SigninScreen = () => {
     <div className={styles.page}>
       <aside className={styles.hero}>
         <div className={styles.brand}>
-          <span className={styles.logo}>
-            <svg width="24" height="24" viewBox="0 0 32 32">
-              <path d="M16 25V14M16 14c-4 0-7-3-7-7 4 0 7 3 7 7zm0 0c4 0 7-3 7-7-4 0-7 3-7 7z" fill="none" stroke="#1B4332" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-          </span>
+          <BrandMark size={52} />
           <div>
             <div className={styles.brandName}>Mi Tierrita</div>
-            <div className={styles.brandSub}>Agropecuaria · Sahagún</div>
+            <div className={styles.brandSub}>AGROPECUARIA · SAHAGÚN</div>
           </div>
         </div>
         <div className={styles.heroBody}>
-          <h1>Sistema de información gerencial</h1>
-          <p>Inventario con lotes y vencimientos, punto de venta, cartera, proveedores y evaluación de la ampliación del negocio, con los supuestos a la vista.</p>
+          <h1>
+            Evaluación de
+            <br />
+            inversiones
+          </h1>
+          <p>Calcula si una inversión financiada con crédito crea valor y si el negocio puede pagar la cuota, con los supuestos a la vista.</p>
         </div>
         <div className={styles.heroFoot}>
           Inventario · Lotes y vencimientos · Ventas
@@ -49,17 +58,17 @@ export const SigninScreen = () => {
         <form className={styles.form} onSubmit={submit}>
           <h2>Iniciar sesión</h2>
           <Field label="Usuario" htmlFor="username">
-            <Input id="username" autoComplete="username" value={username} onChange={(e) => setUsername(e.target.value)} required autoFocus />
+            <Input id="username" className={styles.input} autoComplete="username" value={username} onChange={(e) => setUsername(e.target.value)} required autoFocus />
           </Field>
           <Field label="Contraseña" htmlFor="password" error={signin.error?.message}>
-            <div style={{ position: "relative" }}>
-              <Input id="password" type={showPassword ? "text" : "password"} autoComplete="current-password" value={password} onChange={(e) => setPassword(e.target.value)} required invalid={signin.isError} />
-              <button type="button" onClick={() => setShowPassword((v) => !v)} style={{ position: "absolute", right: 8, top: 7, border: "none", background: "transparent", cursor: "pointer", color: "var(--muted)" }} aria-label="Mostrar contraseña">
-                {showPassword ? "Ocultar" : "Ver"}
+            <div className={[styles.passwordWrap, signin.isError ? styles.passwordWrapError : ""].join(" ")}>
+              <input id="password" type={showPassword ? "text" : "password"} autoComplete="current-password" value={password} onChange={(e) => setPassword(e.target.value)} required />
+              <button type="button" className={styles.eye} onClick={() => setShowPassword((v) => !v)} aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}>
+                <Eye off={showPassword} />
               </button>
             </div>
           </Field>
-          <Button type="submit" block loading={signin.isPending}>
+          <Button type="submit" size="lg" block loading={signin.isPending}>
             Entrar
           </Button>
           <p className={styles.help}>¿Olvidó su contraseña? Pídale al administrador que la restablezca desde Usuarios y roles.</p>

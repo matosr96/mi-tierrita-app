@@ -1,12 +1,16 @@
+/* Auditoría: sin lienzo propio; sigue la tarjeta «Registro de actividad» de Usuarios.dc.html ampliada. */
 .page {
   display: flex;
   flex-direction: column;
-  gap: 18px;
+  gap: 14px;
+}
+.card {
+  border-radius: 10px;
 }
 .filters {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: 14px;
+  gap: 12px;
   align-items: end;
 }
 .filterActions {
@@ -14,24 +18,20 @@
   align-items: flex-end;
   justify-content: flex-end;
 }
-.mono {
-  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-  font-size: 13px;
-  color: var(--ink);
-  word-break: break-all;
+.date {
+  white-space: nowrap;
+  color: var(--ink-2);
 }
 .user {
   font-weight: 600;
   color: var(--ink);
 }
-.date {
-  white-space: nowrap;
-  color: var(--ink-2);
+.mono {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 12px;
+  color: var(--ink);
+  word-break: break-all;
 }
 .pager {
-  padding: 4px 16px 14px;
-}
-.note {
-  font-size: 13px;
-  color: var(--muted);
+  padding-top: 8px;
 }

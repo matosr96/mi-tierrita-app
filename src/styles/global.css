@@ -14,11 +14,12 @@ body,
 
 body {
   margin: 0;
-  background: var(--ground);
+  background: var(--app-bg);
   color: var(--ink);
   font-family: var(--font-body);
-  font-size: 15px;
-  line-height: 1.45;
+  font-size: 13px;
+  line-height: 1.5;
+  font-variant-numeric: tabular-nums;
   -webkit-font-smoothing: antialiased;
 }
 
@@ -33,16 +34,16 @@ h4 {
 }
 
 h1 {
-  font-size: 26px;
-  line-height: 1.2;
+  font-size: 21px;
+  line-height: 1.25;
 }
 
 h2 {
-  font-size: 18px;
+  font-size: 14px;
 }
 
 h3 {
-  font-size: 16px;
+  font-size: 13px;
 }
 
 p {
@@ -51,6 +52,10 @@ p {
 
 a {
   color: var(--link);
+}
+
+a:hover {
+  color: var(--forest-fg);
 }
 
 button,
@@ -76,11 +81,11 @@ table {
 }
 
 .positive {
-  color: var(--leaf);
+  color: var(--good);
 }
 
 .negative {
-  color: var(--clay-fg);
+  color: var(--bad);
 }
 
 .sr-only {

@@ -1,11 +1,14 @@
-import { useState, type ReactNode } from "react";
+import { useState } from "react";
 import { PageHeader } from "@/components/layout/AppShell";
-import { Button, Callout, Card, Chips, DataTable, EmptyState, QueryState, StatCard, StatGrid, type Column } from "@/components/ui";
-import { VBarChart } from "@/components/charts";
+import { Button, Card, Chips, DataTable, EmptyState, QueryState, type Column } from "@/components/ui";
 import { useExpiringBatches } from "@/hooks/batches";
 import { dateOnly, int, money } from "@/lib/format";
+import { useSessionStore } from "@/stores/session";
 import type { ProductBatch } from "@/types/api";
 import { ExpiryBadge } from "./ExpiryBadge";
+import { AdminBatchStats } from "./AdminBatchStats";
+import { WindowBatchStats } from "./WindowBatchStats";
+import { DistributionCard } from "./DistributionCard";
 import { RegisterBatchModal } from "./RegisterBatchModal";
 import styles from "./BatchesScreen.module.css";
 
@@ -13,65 +16,64 @@ const WINDOWS = [7, 15, 30, 60, 90].map((d) => ({ value: d, label: `${d} días` 
 
 const columns: Column<ProductBatch>[] = [
   { key: "product", header: "Producto", render: (b) => <span className={styles.product}>{b.productName}</span> },
-  { key: "supplier", header: "Proveedor", render: (b) => b.supplierName ?? <span className="muted">—</span> },
-  { key: "lot", header: "Lote #", render: (b) => <span className={styles.lot}>#{b.id}</span> },
-  { key: "expires", header: "Vence", render: (b) => dateOnly(b.expiresAt) },
-  { key: "days", header: "Días", align: "center", render: (b) => <ExpiryBadge batch={b} /> },
-  { key: "remaining", header: "Restante", align: "right", render: (b) => `${int(b.quantityRemaining)} / ${int(b.quantity)}` },
-  { key: "cost", header: "Costo unitario", align: "right", render: (b) => money(b.unitCost) },
-  { key: "value", header: "Valor restante", align: "right", render: (b) => money(b.quantityRemaining * b.unitCost) },
+  { key: "supplier", header: "Proveedor", align: "left", render: (b) => b.supplierName ?? <span className="muted">—</span> },
+  { key: "lot", header: "Lote", align: "left", render: (b) => <span className={styles.lot}>#{b.id}</span> },
+  { key: "expires", header: "Vence", align: "left", render: (b) => dateOnly(b.expiresAt) },
+  { key: "days", header: "Restan", align: "left", render: (b) => <ExpiryBadge batch={b} /> },
+  { key: "remaining", header: "Cant.", align: "right", render: (b) => `${int(b.quantityRemaining)} / ${int(b.quantity)}` },
+  { key: "cost", header: "Costo unit.", align: "right", render: (b) => money(b.unitCost) },
 ];
+
+const AlertIcon = () => (
+  <svg className={styles.alertIcon} width="17" height="17" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+    <circle cx="8" cy="8" r="6.6" stroke="currentColor" strokeWidth="1.5" />
+    <line x1="8" y1="4.8" x2="8" y2="8.8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+    <circle cx="8" cy="11.3" r="0.9" fill="currentColor" />
+  </svg>
+);
 
 /** CU-07 Lotes y vencimientos: control FEFO, el más próximo a vencer sale primero. */
 export const BatchesScreen = () => {
+  const isAdmin = useSessionStore((s) => s.user?.role === "ADMIN");
   const [days, setDays] = useState(30);
   const [registerOpen, setRegisterOpen] = useState(false);
   const query = useExpiringBatches({ days, limit: 100 });
 
   const items = query.data?.items ?? [];
-  const expired = items.filter((b) => b.expired);
-  const upcoming = items.filter((b) => !b.expired);
-  const units = items.reduce((sum, b) => sum + b.quantityRemaining, 0);
-  const partial = query.data !== undefined && query.data.count > items.length;
-  const stat = (value: ReactNode): ReactNode => (query.isPending ? "…" : query.isError ? "—" : value);
-  const windowHint = partial ? `en esta ventana (primeros ${int(items.length)} de ${int(query.data?.count)})` : "en esta ventana";
-
-  const buckets = [
-    { label: "Vencidos", value: expired.length, alt: true },
-    { label: "0–7 días", value: upcoming.filter((b) => b.daysToExpire <= 7).length },
-    ...(days > 7 ? [{ label: "8–30 días", value: upcoming.filter((b) => b.daysToExpire > 7 && b.daysToExpire <= 30).length }] : []),
-    ...(days > 30 ? [{ label: `31–${days} días`, value: upcoming.filter((b) => b.daysToExpire > 30).length }] : []),
-  ];
+  const expired = items.filter((b) => b.expired).length;
+  const upcoming = items.length - expired;
 
   return (
     <>
       <PageHeader
         title="Lotes y vencimientos"
-        subtitle="Primero en vencer, primero en salir."
+        subtitle={isAdmin ? "Control FEFO: primero en vencer, primero en salir." : "Primero en vencer, primero en salir."}
         actions={<Button onClick={() => setRegisterOpen(true)}>Registrar lote</Button>}
       />
 
-      {query.data !== undefined && expired.length > 0 ? (
-        <Callout tone="bad">
-          <strong>
-            {int(expired.length)} {expired.length === 1 ? "lote vencido" : "lotes vencidos"} en bodega.
-          </strong>{" "}
-          Retírelos del estante y regístrelos con el administrador.
-        </Callout>
-      ) : query.data !== undefined && upcoming.length > 0 ? (
-        <Callout tone="warn">
-          <strong>
-            {int(upcoming.length)} {upcoming.length === 1 ? "lote vence" : "lotes vencen"} dentro de {days} días.
-          </strong>{" "}
-          Aplique FEFO: póngalos al frente del estante para que salgan primero.
-        </Callout>
+      {query.data !== undefined && expired > 0 ? (
+        <div className={styles.alert} role="status">
+          <AlertIcon />
+          <span>
+            <strong>
+              {int(expired)} {expired === 1 ? "lote vencido" : "lotes vencidos"} en bodega.
+            </strong>{" "}
+            {isAdmin ? "Retírelos del estante: una venta nunca los descuenta." : "Retírelos del estante y avise al administrador."}
+          </span>
+        </div>
+      ) : query.data !== undefined && upcoming > 0 ? (
+        <div className={[styles.alert, days > 30 ? styles.alertWarn : ""].join(" ")} role="status">
+          <AlertIcon />
+          <span>
+            <strong>
+              {int(upcoming)} {upcoming === 1 ? "lote vence" : "lotes vencen"} dentro de {days} días.
+            </strong>{" "}
+            {isAdmin ? "Aplique FEFO: primero en vencer, primero en salir." : "Póngalos al frente del estante para que salgan primero."}
+          </span>
+        </div>
       ) : null}
 
-      <StatGrid>
-        <StatCard label="Lotes vencidos" value={stat(int(expired.length))} hint={windowHint} tone={expired.length > 0 ? "bad" : "neutral"} />
-        <StatCard label={`Por vencer en ${days} días`} value={stat(int(upcoming.length))} hint={windowHint} tone={upcoming.length > 0 ? "warn" : "neutral"} />
-        <StatCard label="Unidades comprometidas" value={stat(int(units))} hint={`restantes ${windowHint}`} />
-      </StatGrid>
+      {isAdmin ? <AdminBatchStats days={days} /> : <WindowBatchStats days={days} query={query} />}
 
       <div className={styles.filters}>
         <span className={styles.filtersLabel}>Ventana</span>
@@ -79,7 +81,7 @@ export const BatchesScreen = () => {
       </div>
 
       <div className={styles.grid}>
-        <Card title="Lotes por orden de vencimiento" subtitle="El más próximo a vencer sale primero">
+        <Card title="Lotes por orden de vencimiento" subtitle={isAdmin ? "El más próximo a vencer sale primero" : "El más próximo sale primero"}>
           <QueryState
             query={query}
             isEmpty={(page) => page.items.length === 0}
@@ -108,20 +110,15 @@ export const BatchesScreen = () => {
           </QueryState>
         </Card>
 
-        <Card title="Distribución" subtitle="Lotes por urgencia">
-          {query.isPending ? (
-            <p className="muted">Cargando…</p>
-          ) : query.isError ? (
-            <p className="muted">No disponible.</p>
-          ) : items.length === 0 ? (
-            <p className="muted">Sin lotes en la ventana seleccionada.</p>
-          ) : (
-            <>
-              <VBarChart data={buckets} format={int} />
-              <p className={styles.sideNote}>El orden de entrada no coincide con el de vencimiento: por eso se ordena por fecha de vencimiento y no por llegada.</p>
-            </>
-          )}
-        </Card>
+        <DistributionCard
+          days={days}
+          query={query}
+          note={
+            isAdmin
+              ? "FEFO es más apropiado que FIFO en productos con vencimiento: el orden de entrada no coincide con el de vencimiento."
+              : "El orden de entrada no coincide con el de vencimiento: por eso se ordena por fecha de vencimiento y no por llegada."
+          }
+        />
       </div>
 
       <RegisterBatchModal open={registerOpen} onClose={() => setRegisterOpen(false)} />

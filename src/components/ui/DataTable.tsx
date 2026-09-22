@@ -5,14 +5,16 @@ export type Column<T> = { key: string; header: ReactNode; align?: "left" | "righ
 
 type Props<T> = { columns: Column<T>[]; rows: T[]; rowKey: (row: T) => string | number; onRowClick?: (row: T) => void; footer?: ReactNode };
 
-/** Tabla genérica: no sabe de qué entidad son las filas; la pantalla le pasa columnas y datos. */
+const cls = (align: Column<unknown>["align"]) => (align === "right" ? styles.right : align === "center" ? styles.center : align === "left" ? styles.left : "");
+
+/** Tabla del lienzo: numérica a la derecha, primera columna a la izquierda, cabecera 11,5px. */
 export const DataTable = <T,>({ columns, rows, rowKey, onRowClick, footer }: Props<T>) => (
   <div className={styles.wrap}>
     <table className={[styles.table, onRowClick ? styles.clickable : ""].join(" ")}>
       <thead>
         <tr>
           {columns.map((c) => (
-            <th key={c.key} className={c.align === "right" ? styles.right : c.align === "center" ? styles.center : ""} style={c.width ? { width: c.width } : undefined}>
+            <th key={c.key} className={cls(c.align)} style={c.width ? { width: c.width } : undefined}>
               {c.header}
             </th>
           ))}
@@ -22,7 +24,7 @@ export const DataTable = <T,>({ columns, rows, rowKey, onRowClick, footer }: Pro
         {rows.map((row) => (
           <tr key={rowKey(row)} onClick={onRowClick ? () => onRowClick(row) : undefined}>
             {columns.map((c) => (
-              <td key={c.key} className={c.align === "right" ? styles.right : c.align === "center" ? styles.center : ""}>
+              <td key={c.key} className={cls(c.align)}>
                 {c.render(row)}
               </td>
             ))}
