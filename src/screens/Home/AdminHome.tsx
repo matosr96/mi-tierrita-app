@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router-dom";
-import { PageHeader } from "@/components/layout/AppShell";
+import { HeroHeader } from "@/components/layout/HeroHeader";
+import { MonthRing } from "./MonthRing";
 import { Button, Card, EmptyState, QueryState, StatGrid } from "@/components/ui";
 import { HBarChart } from "@/components/charts";
 import { useInventoryReport, useReceivablesReport, useSalesReport } from "@/hooks/reports";
@@ -24,8 +25,10 @@ export const AdminHome = ({ user }: { user: User }) => {
 
   return (
     <>
-      <PageHeader
+      <HeroHeader
+        eyebrow="Panel de administración"
         title={greetingFor(user.firstName)}
+        aside={<MonthRing />}
         subtitle={monthCloseLine()}
         actions={
           <>

@@ -1,10 +1,21 @@
 .callout {
+  position: relative;
+  overflow: hidden;
   border-radius: var(--radius);
-  padding: 16px 20px;
+  padding: 20px 22px;
   border: 1px solid var(--line);
   display: flex;
-  gap: 16px;
+  gap: 18px;
   align-items: center;
+}
+.callout::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(105deg, transparent 30%, rgba(255, 255, 255, 0.35) 50%, transparent 70%);
+  transform: translateX(-100%);
+  animation: sheen 1.6s var(--ease-in-out) 0.5s backwards;
+  pointer-events: none;
 }
 .good {
   background: var(--good-soft);
@@ -24,18 +35,44 @@
 .body {
   display: flex;
   flex-direction: column;
-  gap: 3px;
+  gap: 4px;
   flex: 1;
   font-size: 13.5px;
   color: var(--ink-2);
 }
 .title {
   font-family: var(--font-heading);
-  font-size: 26px;
-  font-weight: 600;
-  line-height: 1.15;
+  font-size: clamp(24px, 2.4vw, 32px);
+  font-weight: 300;
+  line-height: 1.08;
+  letter-spacing: -0.045em;
   color: var(--ink);
 }
 .mark {
   flex-shrink: 0;
+  animation: markIn 0.7s var(--ease-spring) backwards;
+}
+.check {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 0;
+  animation: draw 0.8s var(--ease-out) 0.35s backwards;
+}
+@keyframes markIn {
+  from {
+    transform: scale(0.4) rotate(-30deg);
+    opacity: 0;
+  }
+}
+@keyframes draw {
+  from {
+    stroke-dashoffset: 1;
+  }
+}
+@keyframes sheen {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(100%);
+  }
 }

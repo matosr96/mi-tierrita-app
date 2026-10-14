@@ -177,6 +177,7 @@ const Dial = ({ label, value, pos, min, max }: { label: string; value: string; p
       <strong className={styles.dialValue}>{value}</strong>
     </div>
     <div className={styles.track} role="img" aria-label={`${label}: ${value}`}>
+      <span className={styles.trackFill} style={{ width: `${pos * 100}%` }} />
       <span className={styles.thumb} style={{ left: `${pos * 100}%` }} />
     </div>
     <div className={styles.dialRange}>

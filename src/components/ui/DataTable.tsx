@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import type { CSSProperties, ReactNode } from "react";
 import styles from "./DataTable.module.css";
 
 export type Column<T> = { key: string; header: ReactNode; align?: "left" | "right" | "center"; render: (row: T) => ReactNode; width?: string };
@@ -7,7 +7,7 @@ type Props<T> = { columns: Column<T>[]; rows: T[]; rowKey: (row: T) => string | 
 
 const cls = (align: Column<unknown>["align"]) => (align === "right" ? styles.right : align === "center" ? styles.center : align === "left" ? styles.left : "");
 
-/** Tabla del lienzo: numérica a la derecha, primera columna a la izquierda, cabecera 11,5px. */
+/** Tabla: numérica a la derecha, primera columna a la izquierda, cabecera en mono; las filas entran escalonadas. */
 export const DataTable = <T,>({ columns, rows, rowKey, onRowClick, footer }: Props<T>) => (
   <div className={styles.wrap}>
     <table className={[styles.table, onRowClick ? styles.clickable : ""].join(" ")}>
@@ -21,8 +21,8 @@ export const DataTable = <T,>({ columns, rows, rowKey, onRowClick, footer }: Pro
         </tr>
       </thead>
       <tbody>
-        {rows.map((row) => (
-          <tr key={rowKey(row)} onClick={onRowClick ? () => onRowClick(row) : undefined}>
+        {rows.map((row, i) => (
+          <tr key={rowKey(row)} onClick={onRowClick ? () => onRowClick(row) : undefined} style={{ "--row": Math.min(i, 14) } as CSSProperties}>
             {columns.map((c) => (
               <td key={c.key} className={cls(c.align)}>
                 {c.render(row)}

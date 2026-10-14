@@ -23,7 +23,9 @@ export const Modal = ({ open, title, description, onClose, children, footer, wid
             {description ? <p className={styles.desc}>{description}</p> : null}
           </div>
           <button type="button" className={styles.close} onClick={onClose} aria-label="Cerrar">
-            ×
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+              <path d="M2.5 2.5 L11.5 11.5 M11.5 2.5 L2.5 11.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+            </svg>
           </button>
         </div>
         {children}

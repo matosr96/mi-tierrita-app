@@ -2,10 +2,26 @@
 .notice {
   background: var(--good-soft);
   border: 1px solid color-mix(in srgb, var(--good-line) 55%, var(--surface));
-  border-radius: 9px;
   padding: 10px 14px;
   font-size: 12.5px;
   color: var(--leaf);
+  position: relative;
+  overflow: hidden;
+  border-radius: 12px;
+  padding-left: 18px;
+  animation: noticeIn 0.8s var(--ease-out) backwards;
+}
+.notice::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: currentColor;
+  opacity: 0.7;
+  transform-origin: top;
+  animation: barIn 0.9s var(--ease-in-out) 0.3s backwards;
 }
 .toolbar {
   display: flex;
@@ -53,9 +69,6 @@
   font-size: 12px;
   color: var(--link);
   cursor: pointer;
-}
-.rowLink:hover {
-  text-decoration: underline;
 }
 .rowLinkDanger {
   color: var(--bad-tag-fg);
@@ -144,4 +157,45 @@
     flex-direction: column;
     align-items: flex-start;
   }
+}
+
+@keyframes noticeIn {
+  from {
+    opacity: 0;
+    transform: translateX(-16px);
+    clip-path: inset(0 100% 0 0 round 12px);
+  }
+  to {
+    clip-path: inset(0 0 0 0 round 12px);
+  }
+}
+@keyframes barIn {
+  from {
+    transform: scaleY(0);
+  }
+}
+
+/* Subrayado que se dibuja al pasar el cursor. */
+.rowLink {
+  position: relative;
+  text-decoration: none;
+}
+.rowLink::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -2px;
+  height: 1px;
+  background: currentColor;
+  transform: scaleX(0);
+  transform-origin: right;
+  transition: transform 0.45s var(--ease-out);
+}
+.rowLink:hover {
+  text-decoration: none;
+}
+.rowLink:hover::after {
+  transform: scaleX(1);
+  transform-origin: left;
 }

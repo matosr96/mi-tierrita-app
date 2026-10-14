@@ -11,10 +11,26 @@
 .banner {
   background: var(--good-soft);
   border: 1px solid var(--good-line);
-  border-radius: 9px;
   padding: 10px 14px;
   font-size: 12.5px;
   color: var(--forest-fg);
+  position: relative;
+  overflow: hidden;
+  border-radius: 12px;
+  padding-left: 18px;
+  animation: noticeIn 0.8s var(--ease-out) backwards;
+}
+.banner::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: currentColor;
+  opacity: 0.7;
+  transform-origin: top;
+  animation: barIn 0.9s var(--ease-in-out) 0.3s backwards;
 }
 
 /* Búsqueda y chips en la cabecera de la tarjeta. */
@@ -92,7 +108,8 @@
 .balanceValue {
   font-family: var(--font-heading);
   font-size: 24px;
-  font-weight: 600;
+  font-weight: 400;
+  letter-spacing: -0.035em;
   line-height: 1.15;
   color: var(--ink);
   font-variant-numeric: tabular-nums;
@@ -175,5 +192,21 @@
   }
   .search {
     width: 100%;
+  }
+}
+
+@keyframes noticeIn {
+  from {
+    opacity: 0;
+    transform: translateX(-16px);
+    clip-path: inset(0 100% 0 0 round 12px);
+  }
+  to {
+    clip-path: inset(0 0 0 0 round 12px);
+  }
+}
+@keyframes barIn {
+  from {
+    transform: scaleY(0);
   }
 }

@@ -1,7 +1,7 @@
 import { greeting, int, longToday } from "@/lib/format";
 
-/** "Buenos días, Nombre" según la hora. */
-export const greetingFor = (firstName: string): string => `${greeting()}, ${firstName}`;
+/** "Buenos días,\n*Nombre.*" según la hora: el nombre va en serif cursiva en la portada. */
+export const greetingFor = (firstName: string): string => `${greeting()},\n*${firstName}.*`;
 
 /** "Martes 22 de septiembre · cierre de septiembre en 8 días": dato de calendario, no de la API. */
 export const monthCloseLine = (): string => {

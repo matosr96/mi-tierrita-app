@@ -2,7 +2,6 @@
 .alert {
   background: var(--bad-soft);
   border: 1px solid var(--bad-line);
-  border-radius: 9px;
   padding: 11px 15px;
   display: flex;
   gap: 10px;
@@ -10,6 +9,23 @@
   font-size: 12.5px;
   color: var(--bad-tag-fg);
   line-height: 1.5;
+  position: relative;
+  overflow: hidden;
+  border-radius: 12px;
+  padding-left: 18px;
+  animation: noticeIn 0.8s var(--ease-out) backwards;
+}
+.alert::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: currentColor;
+  opacity: 0.7;
+  transform-origin: top;
+  animation: barIn 0.9s var(--ease-in-out) 0.3s backwards;
 }
 .alertWarn {
   background: var(--warn-soft);
@@ -57,10 +73,32 @@
   padding: 8px 0 12px;
 }
 .tile {
-  border-radius: 8px;
-  padding: 10px 6px 11px;
+  border-radius: 12px;
+  padding: 14px 8px 15px;
   text-align: center;
   background: color-mix(in srgb, var(--tile) 8%, transparent);
+  border: 1px solid color-mix(in srgb, var(--tile) 18%, transparent);
+  animation: tileIn 0.8s var(--ease-spring) backwards;
+  transition: transform 0.45s var(--ease-out), background 0.3s ease;
+}
+.tile:nth-child(2) {
+  animation-delay: 0.08s;
+}
+.tile:nth-child(3) {
+  animation-delay: 0.16s;
+}
+.tile:nth-child(n + 4) {
+  animation-delay: 0.24s;
+}
+.tile:hover {
+  transform: translateY(-3px);
+  background: color-mix(in srgb, var(--tile) 14%, transparent);
+}
+@keyframes tileIn {
+  from {
+    opacity: 0;
+    transform: scale(0.85) translateY(10px);
+  }
 }
 .tileBad {
   --tile: var(--bad);
@@ -72,13 +110,17 @@
   --tile: var(--muted);
 }
 .tileLabel {
-  font-size: 11.5px;
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
   color: var(--ink-2);
   white-space: nowrap;
 }
 .tileValue {
-  font-size: 20px;
-  font-weight: 600;
+  font-size: 30px;
+  font-weight: 300;
+  letter-spacing: -0.04em;
   color: var(--tile);
   margin-top: 4px;
   line-height: 1.1;
@@ -107,5 +149,21 @@
 @media (max-width: 1000px) {
   .grid {
     grid-template-columns: 1fr;
+  }
+}
+
+@keyframes noticeIn {
+  from {
+    opacity: 0;
+    transform: translateX(-16px);
+    clip-path: inset(0 100% 0 0 round 12px);
+  }
+  to {
+    clip-path: inset(0 0 0 0 round 12px);
+  }
+}
+@keyframes barIn {
+  from {
+    transform: scaleY(0);
   }
 }

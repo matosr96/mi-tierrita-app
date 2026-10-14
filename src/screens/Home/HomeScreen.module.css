@@ -44,25 +44,63 @@
   gap: 10px;
   margin-top: 1px;
 }
+.list > li {
+  animation: itemIn 0.7s var(--ease-out) backwards;
+}
+.list > li:nth-child(2) {
+  animation-delay: 0.08s;
+}
+.list > li:nth-child(3) {
+  animation-delay: 0.16s;
+}
+.list > li:nth-child(4) {
+  animation-delay: 0.24s;
+}
+.list > li:nth-child(n + 5) {
+  animation-delay: 0.32s;
+}
 .item {
+  position: relative;
   display: flex;
   gap: 10px;
   align-items: center;
   text-decoration: none;
   color: inherit;
   font-size: 12.5px;
+  padding: 8px 6px;
+  margin: 0 -6px;
+  border-radius: 10px;
+  transition: background 0.3s ease, padding 0.4s var(--ease-out);
+}
+.item::after {
+  content: "→";
+  font-size: 13px;
+  color: var(--ink);
+  opacity: 0;
+  transform: translateX(-8px);
+  transition: opacity 0.3s ease, transform 0.4s var(--ease-out);
+}
+.item:hover {
+  background: var(--surface-2);
+  padding-left: 12px;
+}
+.item:hover::after {
+  opacity: 1;
+  transform: none;
 }
 .item:hover {
   color: inherit;
 }
 .itemBoxed {
   gap: 11px;
+  margin: 0;
   background: var(--surface-2);
-  border-radius: 8px;
-  padding: 11px 13px;
+  border: 1px solid var(--line-soft);
+  padding: 12px 14px;
 }
 .itemBoxed:hover {
   background: var(--surface-3);
+  padding-left: 18px;
 }
 .dot {
   width: 8px;
@@ -72,6 +110,7 @@
 }
 .dotBad {
   background: var(--bad);
+  animation: pulse 1.8s var(--ease-out) infinite;
 }
 .dotWarn {
   background: var(--warn);
@@ -92,55 +131,203 @@
   color: var(--bad-tag-fg);
   margin-top: 8px;
 }
-/* Tarjeta verde "Decisión abierta": los tonos claros derivan del blanco sobre el verde bosque del lienzo. */
+/* Tarjeta "Decisión abierta": superficie oscura con curvas de nivel y cifras en lima. */
 .decision {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
   display: block;
   text-decoration: none;
-  color: inherit;
-  background: var(--forest);
+  color: var(--dark-ink);
+  background: var(--app-bg);
   border-radius: var(--radius);
-  padding: 15px 17px;
-  --decision-label: color-mix(in srgb, var(--on-forest) 60%, var(--forest));
-  --decision-text: color-mix(in srgb, var(--on-forest) 76%, var(--forest));
+  padding: 18px 20px 20px;
+  border: 1px solid var(--dark-line);
+  transition: transform 0.6s var(--ease-out), box-shadow 0.6s var(--ease-out);
 }
 .decision:hover {
-  color: inherit;
+  color: var(--dark-ink);
+  transform: translateY(-3px);
+  box-shadow: 0 26px 50px -26px rgba(4, 12, 8, 0.8);
+}
+.decisionTopo {
+  position: absolute;
+  z-index: -1;
+  right: -260px;
+  top: -230px;
+  width: 640px;
+  height: 640px;
+  opacity: 0.8;
+}
+.decision::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(100deg, var(--app-bg) 35%, transparent);
 }
 .decisionLabel {
-  font-size: 11.5px;
-  color: var(--decision-label);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--dark-ink-2);
+}
+.decisionLabel::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--sprout);
+  box-shadow: 0 0 10px var(--sprout);
 }
 .decisionTitle {
   font-family: var(--font-heading);
-  font-size: 17px;
-  font-weight: 600;
-  color: var(--on-forest);
-  margin-top: 3px;
+  font-size: 24px;
+  font-weight: 300;
+  letter-spacing: -0.045em;
+  color: var(--dark-ink);
+  margin-top: 12px;
 }
 .decisionText {
   font-size: 12.5px;
-  color: var(--decision-text);
-  margin-top: 7px;
-  line-height: 1.5;
+  color: var(--dark-ink-2);
+  margin-top: 8px;
+  line-height: 1.55;
+  max-width: 46ch;
 }
 .decisionMetrics {
   display: flex;
-  gap: 16px;
-  margin-top: 11px;
+  gap: 26px;
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px solid var(--dark-line);
 }
 .metricLabel {
   display: block;
-  font-size: 10.5px;
-  color: var(--decision-label);
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--dark-muted);
+  margin-bottom: 4px;
 }
 .metricValue {
-  font-size: 15px;
-  font-weight: 600;
-  color: var(--on-forest);
+  font-size: 22px;
+  font-weight: 300;
+  letter-spacing: -0.04em;
+  color: var(--dark-ink);
 }
 .metricGood {
   color: var(--sprout);
 }
+.decisionArrow {
+  position: absolute;
+  right: 18px;
+  bottom: 18px;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid var(--dark-line);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--dark-ink);
+  transition: transform 0.5s var(--ease-spring), background 0.3s ease, color 0.3s ease;
+}
+.decision:hover .decisionArrow {
+  transform: rotate(-45deg);
+  background: var(--sprout);
+  color: var(--sprout-ink);
+}
+
+/* ---------- avance del mes (portada) ---------- */
+.monthRing {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+.monthRing svg {
+  transform: rotate(-90deg);
+  flex-shrink: 0;
+}
+.ringTrack {
+  fill: none;
+  stroke: var(--dark-line);
+  stroke-width: 3;
+}
+.ringFill {
+  fill: none;
+  stroke: var(--sprout);
+  stroke-width: 3;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 1.8s var(--ease-in-out);
+  filter: drop-shadow(0 0 6px rgba(185, 236, 111, 0.5));
+}
+.ringCenter {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 104px;
+  height: 104px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: 30px;
+  font-weight: 300;
+  letter-spacing: -0.04em;
+  line-height: 1;
+  color: var(--dark-ink);
+}
+.ringCenter > span:last-child {
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--dark-muted);
+  margin-top: 4px;
+}
+.ringText {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  font-size: 12px;
+  color: var(--dark-ink-2);
+}
+.ringText strong {
+  font-size: 17px;
+  font-weight: 400;
+  letter-spacing: -0.03em;
+  color: var(--dark-ink);
+}
+.ringLabel {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--sprout);
+}
+
+@keyframes itemIn {
+  from {
+    opacity: 0;
+    transform: translateX(-12px);
+  }
+}
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 var(--bad-line);
+  }
+  100% {
+    box-shadow: 0 0 0 7px transparent;
+  }
+}
+
 @media (max-width: 1000px) {
   .grid,
   .gridEven {

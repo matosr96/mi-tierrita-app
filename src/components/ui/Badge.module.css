@@ -1,25 +1,49 @@
 .badge {
-  display: inline-block;
-  padding: 2px 8px;
-  border-radius: 4px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 2px 9px 2px 8px;
+  border-radius: 999px;
   font-size: 11px;
-  font-weight: 600;
-  line-height: 1.5;
+  font-weight: 500;
+  line-height: 1.6;
   white-space: nowrap;
+  border: 1px solid transparent;
+}
+.dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: currentColor;
+  flex-shrink: 0;
 }
 .neutral {
   background: var(--surface-3);
   color: var(--ink-2);
 }
 .good {
-  background: var(--sprout-soft);
+  background: var(--good-soft);
+  border-color: var(--good-line);
   color: var(--good);
 }
 .warn {
   background: var(--warn-tag-bg);
+  border-color: var(--warn-line);
   color: var(--warn-tag-fg);
 }
 .bad {
   background: var(--bad-tag-bg);
+  border-color: var(--bad-line);
   color: var(--bad-tag-fg);
+}
+.bad .dot {
+  animation: pulse 1.8s var(--ease-out) infinite;
+}
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 currentColor;
+  }
+  100% {
+    box-shadow: 0 0 0 5px transparent;
+  }
 }

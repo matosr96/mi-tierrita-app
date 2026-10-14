@@ -34,20 +34,26 @@
 .searchBox {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
   background: var(--surface);
   border: 1px solid var(--line-strong);
-  border-radius: 9px;
-  height: 46px;
-  padding: 0 14px;
+  border-radius: 999px;
+  height: 50px;
+  padding: 0 20px;
+  transition: border-color 0.25s ease, box-shadow 0.4s var(--ease-out);
 }
 .searchBox:focus-within {
-  border-color: var(--leaf);
-  box-shadow: 0 0 0 3px var(--sprout-soft);
+  border-color: var(--ink);
+  box-shadow: 0 0 0 5px var(--sprout-soft), 0 18px 40px -24px rgba(0, 0, 0, 0.35);
+}
+.searchBox:focus-within .searchIcon {
+  color: var(--ink);
+  transform: scale(1.1) rotate(-8deg);
 }
 .searchIcon {
   flex-shrink: 0;
   color: var(--muted);
+  transition: transform 0.4s var(--ease-spring), color 0.25s ease;
 }
 .searchInput {
   flex-grow: 1;
@@ -64,7 +70,10 @@
   color: var(--muted);
 }
 .searchCount {
-  font-size: 11.5px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
   color: var(--muted);
   white-space: nowrap;
 }
@@ -154,49 +163,84 @@
 
 /* Panel verde oscuro de resumen (colores del lienzo sobre la marca, fijos como en Signin). */
 .summary {
-  background: var(--forest);
-  border-radius: var(--radius);
-  padding: 16px 18px;
+  /* Ticket siempre oscuro, en ambos temas. */
+  --btn-invert: var(--app-bg);
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  background: var(--app-bg);
+  color: var(--dark-ink);
+  border-radius: calc(var(--radius) + 4px);
+  padding: 20px 20px 18px;
   margin-top: auto;
+  box-shadow: 0 30px 60px -30px rgba(4, 12, 8, 0.7);
+}
+.summary::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: radial-gradient(70% 60% at 100% 0%, rgba(185, 236, 111, 0.12), transparent 70%),
+    radial-gradient(60% 70% at 0% 100%, rgba(45, 106, 79, 0.4), transparent 70%);
+}
+.summaryHead {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--dark-muted);
+  padding-bottom: 12px;
+  margin-bottom: 12px;
+  border-bottom: 1px dashed var(--dark-line);
+}
+.summaryHead span:last-child {
+  color: var(--sprout);
 }
 .summaryRow {
   display: flex;
   justify-content: space-between;
   gap: 12px;
   font-size: 12.5px;
-  color: #c6dacd;
+  color: var(--dark-ink-2);
 }
 .summaryRow + .summaryRow {
-  margin-top: 5px;
+  margin-top: 6px;
 }
 .summaryTotal {
   display: flex;
   justify-content: space-between;
   align-items: baseline;
   gap: 12px;
-  margin-top: 11px;
-  padding-top: 11px;
-  border-top: 1px solid var(--leaf);
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px dashed var(--dark-line);
 }
-.summaryTotal span {
-  font-size: 13px;
-  color: #e8f0ea;
+.summaryTotal > span {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--dark-ink-2);
 }
 .summaryTotal strong {
   font-family: var(--font-heading);
-  font-size: 27px;
-  font-weight: 600;
-  color: #ffffff;
+  font-size: 38px;
+  font-weight: 300;
+  letter-spacing: -0.05em;
+  line-height: 1;
+  color: var(--dark-ink);
   font-variant-numeric: tabular-nums;
 }
 .confirmBtn {
-  margin-top: 14px;
-  border-radius: 8px;
+  margin-top: 18px;
 }
 .summaryNote {
   font-size: 11px;
-  color: #9fbda9;
-  margin-top: 9px;
+  color: var(--dark-muted);
+  margin-top: 10px;
   text-align: center;
 }
 .summaryError {

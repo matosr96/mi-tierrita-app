@@ -1,0 +1,84 @@
+/* ---------- Reveal ---------- */
+.reveal {
+  transition: opacity 0.9s var(--ease-out), transform 0.9s var(--ease-out), filter 0.9s var(--ease-out);
+  transition-delay: var(--delay, 0ms);
+}
+.rise {
+  opacity: 0;
+  transform: translateY(26px);
+  filter: blur(6px);
+}
+.fade {
+  opacity: 0;
+}
+.blur {
+  opacity: 0;
+  filter: blur(14px);
+}
+.scale {
+  opacity: 0;
+  transform: scale(0.96);
+}
+.in {
+  opacity: 1;
+  transform: none;
+  filter: none;
+}
+
+/* ---------- SplitText ---------- */
+.split {
+  display: inline;
+}
+.mask {
+  display: inline-block;
+  overflow: hidden;
+  vertical-align: top;
+  padding-bottom: 0.1em;
+  margin-bottom: -0.1em;
+}
+.word {
+  display: inline-block;
+  animation: wordUp 1s var(--ease-out) backwards;
+  animation-delay: var(--delay, 0ms);
+}
+.serif {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-weight: 400;
+  letter-spacing: -0.01em;
+  padding-right: 0.04em;
+  color: var(--serif-color, inherit);
+}
+@keyframes wordUp {
+  from {
+    transform: translateY(110%) rotate(3deg);
+    opacity: 0;
+  }
+  40% {
+    opacity: 1;
+  }
+}
+
+/* ---------- Odometer ---------- */
+.odometer {
+  display: inline-flex;
+  align-items: baseline;
+  white-space: nowrap;
+}
+.digit {
+  display: inline-block;
+  height: 1.12em;
+  line-height: 1.12em;
+  overflow: hidden;
+  vertical-align: bottom;
+}
+.strip {
+  display: flex;
+  flex-direction: column;
+  transition: transform 1.1s var(--ease-out);
+  transition-delay: var(--delay, 0ms);
+}
+.strip > span {
+  height: 1.12em;
+  line-height: 1.12em;
+}

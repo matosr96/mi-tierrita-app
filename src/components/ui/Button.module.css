@@ -1,38 +1,90 @@
 .button {
+  position: relative;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
   height: 38px;
-  padding: 0 16px;
-  border-radius: var(--radius-sm);
+  padding: 0 17px;
+  border-radius: 999px;
   border: 1px solid transparent;
   font-size: 13px;
   font-weight: 500;
+  letter-spacing: -0.01em;
   cursor: pointer;
   white-space: nowrap;
-  transition: background 0.13s, border-color 0.13s, opacity 0.13s;
+  overflow: hidden;
+  isolation: isolate;
+  transition: background 0.3s var(--ease-out), border-color 0.3s var(--ease-out), color 0.3s var(--ease-out), box-shadow 0.3s var(--ease-out),
+    transform 0.2s var(--ease-out), opacity 0.2s;
+}
+.button:active:not(:disabled) {
+  transform: scale(0.97);
 }
 .button:disabled {
-  opacity: 0.55;
+  opacity: 0.5;
   cursor: not-allowed;
 }
+.loading:disabled {
+  opacity: 0.85;
+}
+
+/* Rótulo que rueda */
+.roll {
+  position: relative;
+  display: inline-flex;
+  flex-direction: column;
+  height: 1.3em;
+  line-height: 1.3em;
+  overflow: hidden;
+}
+.roll > span {
+  display: block;
+  transition: transform 0.5s var(--ease-out);
+}
+.button:hover:not(:disabled) .roll > span {
+  transform: translateY(-100%);
+}
+
+/* Relleno que sube desde abajo al pasar el cursor */
+.primary::before,
+.secondary::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  transform: translateY(101%);
+  transition: transform 0.5s var(--ease-out);
+}
+.button:hover:not(:disabled)::before {
+  transform: translateY(0);
+}
+
 .primary {
   background: var(--forest);
-  color: #ffffff;
+  color: var(--on-forest);
+}
+.primary::before {
+  background: var(--sprout);
 }
 .primary:hover:not(:disabled) {
-  background: var(--leaf);
+  color: var(--sprout-ink);
+  box-shadow: 0 10px 30px -10px var(--sprout);
 }
 .secondary {
   background: var(--surface);
   color: var(--ink);
   border-color: var(--line-strong);
   font-weight: 400;
-  padding: 0 14px;
+  padding: 0 15px;
+}
+.secondary::before {
+  background: var(--ink);
 }
 .secondary:hover:not(:disabled) {
-  background: var(--hover);
+  color: var(--btn-invert, var(--surface));
+  border-color: var(--ink);
 }
 .ghost {
   background: transparent;
@@ -41,33 +93,47 @@
 }
 .ghost:hover:not(:disabled) {
   background: var(--hover);
+  color: var(--ink);
 }
 .danger {
   background: var(--bad-tag-bg);
   color: var(--bad-tag-fg);
-  font-weight: 600;
 }
 .danger:hover:not(:disabled) {
-  filter: brightness(0.97);
+  background: var(--bad);
+  color: var(--surface);
 }
 .accent {
   background: var(--sprout);
-  color: var(--forest);
+  color: var(--sprout-ink);
   font-weight: 600;
 }
 .accent:hover:not(:disabled) {
-  filter: brightness(0.97);
+  box-shadow: 0 10px 30px -8px var(--sprout);
 }
 .sm {
   height: 30px;
-  padding: 0 10px;
+  padding: 0 12px;
   font-size: 12.5px;
 }
 .lg {
-  height: 46px;
-  padding: 0 20px;
-  font-size: 15px;
+  height: 48px;
+  padding: 0 24px;
+  font-size: 14.5px;
 }
 .block {
   width: 100%;
+}
+.spinner {
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  border: 1.5px solid currentColor;
+  border-right-color: transparent;
+  animation: spin 0.7s linear infinite;
+}
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
 }

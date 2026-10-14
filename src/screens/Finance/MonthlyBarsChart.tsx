@@ -1,3 +1,4 @@
+import type { CSSProperties } from "react";
 import styles from "./FinanceScreen.module.css";
 
 type Props = { generates: number; installment: number; generatesLabel: string; installmentLabel: string; differenceLabel: string };
@@ -10,15 +11,15 @@ export const MonthlyBarsChart = ({ generates, installment, generatesLabel, insta
   return (
     <svg className={styles.svg} viewBox="0 0 330 168" height="168" role="img" aria-label="Flujo mensual que genera la ampliación frente a la cuota del crédito">
       <line x1="20" y1="130" x2="316" y2="130" className={styles.axis} strokeWidth="1" />
-      <rect x="66" y={130 - hGen} width="70" height={hGen} rx="4" className={styles.fillGood} />
-      <text x="101" y={124 - hGen} textAnchor="middle" fontSize="12.5" fontWeight="600" className={styles.textInk}>
+      <rect x="66" y={130 - hGen} width="70" height={hGen} rx="4" className={[styles.fillGood, styles.growY].join(" ")} />
+      <text x="101" y={124 - hGen} textAnchor="middle" fontSize="12.5" fontWeight="600" className={[styles.textInk, styles.labelIn].join(" ")}>
         {generatesLabel}
       </text>
       <text x="101" y="148" textAnchor="middle" fontSize="12" className={styles.textInk2}>
         Genera
       </text>
-      <rect x="190" y={130 - hCuo} width="70" height={hCuo} rx="4" className={styles.fillAccent} />
-      <text x="225" y={124 - hCuo} textAnchor="middle" fontSize="12.5" fontWeight="600" className={styles.textInk}>
+      <rect x="190" y={130 - hCuo} width="70" height={hCuo} rx="4" className={[styles.fillAccent, styles.growY].join(" ")} style={{ "--i": 2 } as CSSProperties} />
+      <text x="225" y={124 - hCuo} textAnchor="middle" fontSize="12.5" fontWeight="600" className={[styles.textInk, styles.labelIn].join(" ")} style={{ "--i": 2 } as CSSProperties}>
         {installmentLabel}
       </text>
       <text x="225" y="148" textAnchor="middle" fontSize="12" className={styles.textInk2}>

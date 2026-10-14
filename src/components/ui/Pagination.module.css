@@ -3,8 +3,11 @@
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  padding: 12px 4px 0;
-  font-size: 12px;
+  padding: 14px 4px 0;
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
   color: var(--muted);
 }
 .buttons {

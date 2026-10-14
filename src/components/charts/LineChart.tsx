@@ -1,3 +1,4 @@
+import type { CSSProperties } from "react";
 import styles from "./charts.module.css";
 
 export type LinePoint = { x: number; y: number };
@@ -11,7 +12,7 @@ type Props = {
   highlightX?: number | undefined;
 };
 
-/** Línea simple con eje cero, área negativa sombreada y marcador opcional. */
+/** Línea con eje cero, área negativa sombreada y marcador opcional; el trazo se dibuja y los puntos aparecen a su paso. */
 export const LineChart = ({ points, formatX, formatY, marker, highlightX }: Props) => {
   const width = 520;
   const height = 240;
@@ -50,9 +51,9 @@ export const LineChart = ({ points, formatX, formatY, marker, highlightX }: Prop
           </text>
         </g>
       ) : null}
-      <path d={path} className={styles.line} />
-      {points.map((p) => (
-        <circle key={p.x} cx={sx(p.x)} cy={sy(p.y)} r={p.x === highlightX ? 5 : 3.5} className={styles.dot} />
+      <path d={path} className={styles.line} pathLength={1} />
+      {points.map((p, i) => (
+        <circle key={p.x} style={{ "--i": i / Math.max(points.length - 1, 1) } as CSSProperties} cx={sx(p.x)} cy={sy(p.y)} r={p.x === highlightX ? 5 : 3.5} className={styles.dot} />
       ))}
       {points.map((p) => (
         <text key={`x${p.x}`} x={sx(p.x)} y={height - pad.bottom + 16} textAnchor="middle" className={styles.label}>

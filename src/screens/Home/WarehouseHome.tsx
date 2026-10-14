@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { PageHeader } from "@/components/layout/AppShell";
+import { HeroHeader } from "@/components/layout/HeroHeader";
+import { MonthRing } from "./MonthRing";
 import { Button, Card, DataTable, EmptyState, QueryState, StatGrid, type Column } from "@/components/ui";
 import { useExpiringBatches } from "@/hooks/batches";
 import { useProducts } from "@/hooks/products";
@@ -56,8 +57,10 @@ export const WarehouseHome = ({ user }: { user: User }) => {
 
   return (
     <>
-      <PageHeader
+      <HeroHeader
+        eyebrow="Bodega y vencimientos"
         title={greetingFor(user.firstName)}
+        aside={<MonthRing />}
         subtitle={subtitle}
         actions={
           <>

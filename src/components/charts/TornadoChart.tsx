@@ -1,3 +1,4 @@
+import type { CSSProperties } from "react";
 import styles from "./charts.module.css";
 
 export type TornadoDatum = { label: string; low: number; high: number };
@@ -12,14 +13,14 @@ export const TornadoChart = ({ data, base, format }: { data: TornadoDatum[]; bas
   const cx = labelW + (width - labelW - 20) / 2;
   const scale = (width - labelW - 20) / 2 / maxDev;
   return (
-    <svg className={styles.svg} viewBox={`0 0 ${width} ${height}`} role="img">
+    <svg className={[styles.svg, styles.tornado].join(" ")} viewBox={`0 0 ${width} ${height}`} role="img">
       <line x1={cx} x2={cx} y1={0} y2={data.length * rowH} className={styles.axis} />
       {data.map((d, i) => {
         const y = i * rowH + 4;
         const lo = (d.low - base) * scale;
         const hi = (d.high - base) * scale;
         return (
-          <g key={d.label}>
+          <g key={d.label} style={{ "--i": i, "--cx": `${cx}px` } as CSSProperties}>
             <text x={labelW - 8} y={y + 13} textAnchor="end" className={styles.label}>
               {d.label}
             </text>

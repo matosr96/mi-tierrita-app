@@ -1,0 +1,130 @@
+.root {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: var(--app-bg);
+  color: var(--dark-ink);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 28px clamp(20px, 4vw, 48px);
+  overflow: hidden;
+}
+.root::before {
+  content: "";
+  position: absolute;
+  inset: -20%;
+  background: radial-gradient(40% 50% at 70% 60%, rgba(185, 236, 111, 0.14), transparent 70%),
+    radial-gradient(35% 40% at 20% 30%, rgba(45, 106, 79, 0.35), transparent 70%);
+  animation: drift 6s var(--ease-in-out) infinite alternate;
+  pointer-events: none;
+}
+.leaving {
+  animation: curtain 0.9s var(--ease-in-out) forwards;
+}
+.top,
+.bottom {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--dark-ink-2);
+}
+.top {
+  animation: fadeIn 0.6s var(--ease-out) both;
+}
+.center {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  font-size: clamp(30px, 5vw, 64px);
+  font-weight: 300;
+  letter-spacing: -0.04em;
+  line-height: 1.04;
+}
+.center em {
+  color: var(--sprout);
+}
+.line {
+  display: block;
+  overflow: hidden;
+  padding-bottom: 0.08em;
+}
+.line > * {
+  display: inline-block;
+  animation: rise 0.9s var(--ease-out) both;
+}
+.line:nth-child(2) > * {
+  animation-delay: 0.12s;
+}
+.count {
+  font-family: var(--font-mono);
+  font-size: clamp(44px, 8vw, 96px);
+  letter-spacing: -0.04em;
+  line-height: 1;
+  color: var(--dark-ink);
+  min-width: 3.2ch;
+}
+.bar {
+  flex: 1;
+  height: 1px;
+  background: var(--dark-line);
+  position: relative;
+  overflow: hidden;
+}
+.bar > span {
+  position: absolute;
+  inset: 0;
+  background: var(--sprout);
+  transform-origin: left;
+}
+.meta {
+  white-space: nowrap;
+}
+.leaving .top,
+.leaving .center,
+.leaving .bottom {
+  animation: lift 0.6s var(--ease-in-out) forwards;
+}
+
+@keyframes rise {
+  from {
+    transform: translateY(105%);
+  }
+}
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+}
+@keyframes lift {
+  to {
+    opacity: 0;
+    transform: translateY(-30px);
+  }
+}
+@keyframes curtain {
+  from {
+    clip-path: inset(0 0 0 0);
+  }
+  to {
+    clip-path: inset(0 0 100% 0);
+  }
+}
+@keyframes drift {
+  to {
+    transform: translate3d(-4%, 3%, 0) scale(1.08);
+  }
+}
+
+@media (max-width: 560px) {
+  .meta,
+  .top span:last-child {
+    display: none;
+  }
+}

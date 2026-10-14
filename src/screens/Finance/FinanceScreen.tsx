@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { useScenario, useScenarios } from "@/hooks/financial";
 import type { ScenarioDetail } from "@/types/api";
+import { SplitText } from "@/components/motion";
 import { Button, EmptyState, ErrorState, Loading, QueryState, Tabs, type TabOption } from "@/components/ui";
 import { DecisionPanel } from "./DecisionPanel";
 import { AssumptionsPanel } from "./AssumptionsPanel";
@@ -67,7 +68,9 @@ export const FinanceScreen = () => {
     if (tab === "panel") {
       return (
         <div className={styles.titleRow}>
-          <h1 className={styles.titlePanel}>{selected.name}</h1>
+          <h1 className={styles.titlePanel}>
+            <SplitText key={selected.name} text={selected.name} />
+          </h1>
           {selector}
           <Link to="/reportes" className={styles.reportLink}>
             Reporte
@@ -78,7 +81,9 @@ export const FinanceScreen = () => {
     return (
       <div className={[styles.titleRow, styles.titleRowTop].join(" ")}>
         <div className={styles.titleText}>
-          <h1 className={styles.title}>{meta?.title}</h1>
+          <h1 className={styles.title}>
+            <SplitText key={tab} text={meta?.title ?? ""} />
+          </h1>
           <div className={styles.subtitle}>{meta?.subtitle}</div>
         </div>
         {selector}

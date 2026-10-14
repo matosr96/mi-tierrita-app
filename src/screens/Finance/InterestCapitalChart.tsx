@@ -1,3 +1,4 @@
+import type { CSSProperties } from "react";
 import styles from "./FinanceScreen.module.css";
 
 export type YearSplit = { year: number; interest: number; principal: number };
@@ -32,20 +33,20 @@ export const InterestCapitalChart = ({ years, format, caption }: Props) => {
         const yCap = BASE - hCap;
         const cx = x + barW / 2;
         return (
-          <g key={y.year}>
-            {hInt > 0 ? <rect x={x} y={yInt} width={barW} height={Math.max(hInt - 2, 0)} rx="3" className={styles.fillAccent} /> : null}
-            {hCap > 0 ? <rect x={x} y={yCap} width={barW} height={hCap} rx="3" className={styles.fillGood} /> : null}
+          <g key={y.year} style={{ "--i": i } as CSSProperties}>
+            {hInt > 0 ? <rect x={x} y={yInt} width={barW} height={Math.max(hInt - 2, 0)} rx="3" className={[styles.fillAccent, styles.stackTop].join(" ")} /> : null}
+            {hCap > 0 ? <rect x={x} y={yCap} width={barW} height={hCap} rx="3" className={[styles.fillGood, styles.growY].join(" ")} /> : null}
             {hInt >= 18 ? (
-              <text x={cx} y={yInt + hInt / 2 + 4} textAnchor="middle" fontSize="11.5" fontWeight="600" className={styles.textOnDark}>
+              <text x={cx} y={yInt + hInt / 2 + 4} textAnchor="middle" fontSize="11.5" fontWeight="600" className={[styles.textOnDark, styles.labelIn].join(" ")}>
                 {format(y.interest)}
               </text>
             ) : (
-              <text x={x + barW + 4} y={yInt + 8} fontSize="11" fontWeight="600" className={styles.textAccent}>
+              <text x={x + barW + 4} y={yInt + 8} fontSize="11" fontWeight="600" className={[styles.textAccent, styles.labelIn].join(" ")}>
                 {format(y.interest)}
               </text>
             )}
             {hCap >= 18 ? (
-              <text x={cx} y={yCap + hCap / 2 + 4} textAnchor="middle" fontSize="11.5" fontWeight="600" className={styles.textOnDark}>
+              <text x={cx} y={yCap + hCap / 2 + 4} textAnchor="middle" fontSize="11.5" fontWeight="600" className={[styles.textOnDark, styles.labelIn].join(" ")}>
                 {format(y.principal)}
               </text>
             ) : null}

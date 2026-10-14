@@ -1,54 +1,86 @@
 .backdrop {
   position: fixed;
   inset: 0;
-  background: rgba(19, 46, 36, 0.45);
+  background: rgba(4, 12, 8, 0.42);
+  backdrop-filter: blur(10px) saturate(1.2);
+  -webkit-backdrop-filter: blur(10px) saturate(1.2);
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 16px;
   z-index: 50;
+  animation: fade 0.35s ease backwards;
 }
 .dialog {
   background: var(--surface);
   border: 1px solid var(--line);
-  border-radius: 14px;
-  box-shadow: var(--shadow-panel);
+  border-radius: 20px;
+  box-shadow: 0 40px 100px -30px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(255, 255, 255, 0.04);
   width: 100%;
-  max-width: 560px;
+  max-width: 580px;
   max-height: calc(100vh - 32px);
   overflow: auto;
-  padding: 22px 24px;
+  padding: 26px 28px;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 18px;
+  animation: dialogIn 0.6s var(--ease-out) backwards;
 }
 .wide {
-  max-width: 860px;
+  max-width: 880px;
 }
 .head {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
   gap: 12px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--line);
 }
 .head h2 {
-  font-size: 18px;
+  font-size: 22px;
+  font-weight: 400;
+  letter-spacing: -0.035em;
 }
 .desc {
   color: var(--ink-2);
   font-size: 13px;
-  margin-top: 4px;
+  margin-top: 6px;
 }
 .close {
-  border: none;
-  background: transparent;
-  font-size: 20px;
+  width: 34px;
+  height: 34px;
+  flex-shrink: 0;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  background: var(--surface);
   cursor: pointer;
-  color: var(--muted);
-  line-height: 1;
+  color: var(--ink-2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.45s var(--ease-spring), background 0.25s ease, color 0.25s ease;
+}
+.close:hover {
+  transform: rotate(90deg);
+  background: var(--ink);
+  color: var(--surface);
 }
 .footer {
   display: flex;
   justify-content: flex-end;
   gap: 10px;
+  padding-top: 4px;
+}
+@keyframes fade {
+  from {
+    opacity: 0;
+  }
+}
+@keyframes dialogIn {
+  from {
+    opacity: 0;
+    transform: translateY(24px) scale(0.97);
+    filter: blur(6px);
+  }
 }

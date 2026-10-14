@@ -4,6 +4,7 @@ import { useCustomerBalance, useCustomers } from "@/hooks/customers";
 import { useRegisterSale } from "@/hooks/sales";
 import { PageHeader } from "@/components/layout/AppShell";
 import { Badge, Button, Callout, Card, DataTable, EmptyState, ErrorState, Field, Input, Loading, Modal, QueryState, Select, type Column } from "@/components/ui";
+import { Odometer } from "@/components/motion";
 import { int, money } from "@/lib/format";
 import type { ApiError } from "@/lib/errors";
 import type { PaymentType, Product, SaleDetail, SaleLine } from "@/types/api";
@@ -257,6 +258,10 @@ export const PointOfSale = ({ tabs }: { tabs: ReactNode }) => {
           </Card>
 
           <div className={styles.summary}>
+            <div className={styles.summaryHead}>
+              <span>Resumen de la venta</span>
+              <span>{int(cart.reduce((n, l) => n + l.quantity, 0))} uds.</span>
+            </div>
             <div className={styles.summaryRow}>
               <span>Subtotal</span>
               <span>{money(estimated)}</span>
@@ -267,7 +272,9 @@ export const PointOfSale = ({ tabs }: { tabs: ReactNode }) => {
             </div>
             <div className={styles.summaryTotal}>
               <span>Total</span>
-              <strong>{money(estimated)}</strong>
+              <strong>
+                <Odometer value={money(estimated)} />
+              </strong>
             </div>
             {registerSale.error ? (
               <div className={styles.summaryError}>

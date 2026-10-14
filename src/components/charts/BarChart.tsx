@@ -1,8 +1,9 @@
+import type { CSSProperties } from "react";
 import styles from "./charts.module.css";
 
 export type BarDatum = { label: string; value: number; alt?: boolean };
 
-/** Barras horizontales con etiqueta y valor formateado. */
+/** Barras horizontales con etiqueta y valor formateado; crecen desde la izquierda una tras otra. */
 export const HBarChart = ({ data, format }: { data: BarDatum[]; format: (v: number) => string }) => {
   const max = Math.max(...data.map((d) => Math.abs(d.value)), 1);
   const rowH = 26;
@@ -10,12 +11,12 @@ export const HBarChart = ({ data, format }: { data: BarDatum[]; format: (v: numb
   const width = 520;
   const height = data.length * rowH + 8;
   return (
-    <svg className={styles.svg} viewBox={`0 0 ${width} ${height}`} role="img">
+    <svg className={[styles.svg, styles.hbars].join(" ")} viewBox={`0 0 ${width} ${height}`} role="img">
       {data.map((d, i) => {
         const y = i * rowH + 4;
         const w = (Math.abs(d.value) / max) * (width - labelW - 90);
         return (
-          <g key={d.label}>
+          <g key={d.label} style={{ "--i": i } as CSSProperties}>
             <text x={labelW - 8} y={y + 15} textAnchor="end" className={styles.label}>
               {d.label}
             </text>
@@ -30,7 +31,7 @@ export const HBarChart = ({ data, format }: { data: BarDatum[]; format: (v: numb
   );
 };
 
-/** Barras verticales (por categoría, por mes). */
+/** Barras verticales (por categoría, por mes); suben desde el eje una tras otra. */
 export const VBarChart = ({ data, format }: { data: BarDatum[]; format: (v: number) => string }) => {
   const max = Math.max(...data.map((d) => Math.abs(d.value)), 1);
   const width = 520;
@@ -39,14 +40,14 @@ export const VBarChart = ({ data, format }: { data: BarDatum[]; format: (v: numb
   const slot = (width - pad.left - pad.right) / Math.max(data.length, 1);
   const barW = Math.min(slot * 0.55, 60);
   return (
-    <svg className={styles.svg} viewBox={`0 0 ${width} ${height}`} role="img">
+    <svg className={[styles.svg, styles.vbars].join(" ")} viewBox={`0 0 ${width} ${height}`} role="img">
       <line x1={pad.left} x2={width - pad.right} y1={height - pad.bottom} y2={height - pad.bottom} className={styles.axis} />
       {data.map((d, i) => {
         const h = (Math.abs(d.value) / max) * (height - pad.top - pad.bottom);
         const x = pad.left + slot * i + (slot - barW) / 2;
         const y = height - pad.bottom - h;
         return (
-          <g key={d.label}>
+          <g key={d.label} style={{ "--i": i } as CSSProperties}>
             <rect x={x} y={y} width={barW} height={h} rx={2} className={d.alt ? styles.barAlt : styles.bar} />
             <text x={x + barW / 2} y={y - 6} textAnchor="middle" className={styles.value}>
               {format(d.value)}

@@ -1,11 +1,12 @@
 import { Link } from "react-router-dom";
+import { Odometer, TopoField } from "@/components/motion";
 import { dateOnly, moneyCompact, pct } from "@/lib/format";
 import type { Page, ScenarioSummary } from "@/types/api";
 import styles from "./HomeScreen.module.css";
 
 type QueryLike = { data: Page<ScenarioSummary> | undefined; isPending: boolean; isError: boolean };
 
-/** Tarjeta verde "Decisión abierta": el último escenario financiero con su VPN y rentabilidad, o la invitación a crear uno. */
+/** Tarjeta oscura "Decisión abierta": el último escenario financiero con su VPN y rentabilidad, o la invitación a crear uno. */
 export const DecisionCard = ({ query }: { query: QueryLike }) => {
   if (query.isPending) {
     return (
@@ -25,9 +26,18 @@ export const DecisionCard = ({ query }: { query: QueryLike }) => {
     );
   }
   const scenario = query.data?.items[0];
+  const decor = (
+    <>
+      <TopoField className={styles.decisionTopo} rings={11} signal={5} seed={3.1} />
+      <span className={styles.decisionArrow} aria-hidden="true">
+        →
+      </span>
+    </>
+  );
   if (!scenario) {
     return (
       <Link to="/finanzas" className={styles.decision}>
+        {decor}
         <div className={styles.decisionLabel}>Decisión abierta</div>
         <div className={styles.decisionTitle}>Sin escenarios evaluados</div>
         <div className={styles.decisionText}>Cree el primer escenario para evaluar la ampliación del local con VPN y rentabilidad.</div>
@@ -40,6 +50,7 @@ export const DecisionCard = ({ query }: { query: QueryLike }) => {
   const ind = scenario.indicators;
   return (
     <Link to={`/finanzas?escenario=${scenario.id}`} className={styles.decision}>
+      {decor}
       <div className={styles.decisionLabel}>Decisión abierta</div>
       <div className={styles.decisionTitle}>{scenario.name}</div>
       <div className={styles.decisionText}>
@@ -48,11 +59,15 @@ export const DecisionCard = ({ query }: { query: QueryLike }) => {
       <div className={styles.decisionMetrics}>
         <span>
           <span className={styles.metricLabel}>VPN</span>
-          <strong className={[styles.metricValue, styles.metricGood].join(" ")}>{moneyCompact(ind.npv)}</strong>
+          <strong className={[styles.metricValue, ind.npv >= 0 ? styles.metricGood : ""].join(" ")}>
+            <Odometer value={moneyCompact(ind.npv)} />
+          </strong>
         </span>
         <span>
           <span className={styles.metricLabel}>Rentabilidad</span>
-          <strong className={styles.metricValue}>{pct(ind.irr)}</strong>
+          <strong className={styles.metricValue}>
+            <Odometer value={pct(ind.irr)} />
+          </strong>
         </span>
       </div>
     </Link>

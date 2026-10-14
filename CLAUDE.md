@@ -2,8 +2,9 @@
 
 SPA de Mi Tierrita SIG (React 19 + TypeScript + Vite, TanStack Query, Zustand, React Router 7, Axios,
 CSS modules con variables de tema). Consume la API de `../mi-tierrita-api` (`VITE_API_URL`, por defecto
-`http://localhost:4300/api/v1`). El diseño canónico son los documentos 02 (arquitectura), 07 (diseño) y 09
-(infraestructura) del TCC y las capturas de `~/Desktop/TCC Ingenieria Economica/2 Capturas de las vistas`.
+`http://localhost:4300/api/v1`). La estructura de pantallas sale de los documentos 02 (arquitectura), 07 (diseño) y 09
+(infraestructura) del TCC; el estilo visual ya no calca el lienzo original sino la dirección cinematográfica
+descrita en la regla 2.
 
 ## Comandos
 
@@ -19,16 +20,17 @@ HTTP; solo usa hooks. Un hook por operación (`src/hooks/<entidad>/useX.ts`), un
 
 1. **Toda pantalla contempla sus tres estados**: cargando, vacío (con llamada a la acción) y con datos.
    Usar `QueryState` / `Loading` / `EmptyState` / `ErrorState` de `@/components/ui`.
-2. **Ningún color suelto**: solo variables de `src/styles/theme.css`, que son los valores exactos del
-   lienzo de diseño "Vistas del módulo de evaluación — Mi Tierrita" (https://claude.ai/artifact/Vui7YHNx51ThJHF1U3GHZV,
-   una vista `.dc.html` por captura). Fondo de la app `--app-bg` #132E24; panel `--ground` #F4F3ED; tarjetas
-   `--surface` #FFF con borde `--line` #DEDDD3 y radio `--radius` 11px; fondo suave `--surface-2` #FAFAF6;
-   gris de chips/círculos `--surface-3` #EFEDE4; segmentado `--segment-bg` #E7E8E0; bordes de inputs
-   `--line-strong` #C9CCC2; texto `--ink` #17201B, `--ink-2` #4A554E, `--muted` #78837B; semánticos `--good`
-   #12795A, `--warn` #A16207, `--bad` #B02A2E con sus `-soft`, `-line`, `-tag-bg`, `-tag-fg`; naranja de
-   acento `--accent` #C2410C; marca `--forest`, `--leaf`, `--sprout`, `--sprout-soft`. Tipografía: `--font-heading`
-   IBM Plex Serif (títulos y cifras grandes), `--font-body` IBM Plex Sans 13px. Cuando el lienzo usa un hex,
-   usar la variable equivalente; los SVG de iconos pueden llevar `currentColor`.
+2. **Ningún color suelto**: solo variables de `src/styles/theme.css`. Dirección visual "cinematográfica"
+   (referencia: reel de landings de @marcelodesignx, octubre de 2026): shell `--app-bg` verde casi negro
+   #07110C, panel de papel `--ground` #F2F1EB, tarjetas `--surface` con borde `--line` y radio `--radius`
+   14px, acento lima `--sprout` #B9EC6F (texto encima `--sprout-ink`), marca `--forest`/`--leaf`, semánticos
+   `--good`/`--warn`/`--bad` con sus `-soft`, `-line`, `-tag-bg`, `-tag-fg`; superficies siempre oscuras
+   (menú, login, toasts) con `--dark-*`. Tipografía: `--font-heading`/`--font-body` Geist (titulares en
+   peso 300 con tracking negativo), `--font-serif` Instrument Serif solo para acentos en cursiva (`<em>` o
+   `*así*` en `SplitText`), `--font-mono` Geist Mono para microetiquetas en mayúsculas. Movimiento:
+   `--ease-out`, `--ease-in-out`, `--ease-spring`; las entradas usan `animation-fill-mode: backwards`
+   (nunca `both`/`forwards` en contenedores: un `transform` retenido rompe los modales `position: fixed`).
+   `global.css` anula todo con `prefers-reduced-motion`. Los SVG de iconos pueden llevar `currentColor`.
 3. **Estilos encapsulados**: cada pantalla/componente tiene su `X.module.css`; nada de CSS global nuevo.
 4. **El frontend no calcula**: totales, saldos e indicadores se muestran tal como los devuelve la API.
    Lo único que suma el cliente es una vista previa del carrito, marcada como estimada.
@@ -52,11 +54,22 @@ HTTP; solo usa hooks. Un hook por operación (`src/hooks/<entidad>/useX.ts`), un
 hint, tone neutral|good|warn|bad) y `StatGrid` · `Badge` (tone) · `DataTable<T>` (columns[{key, header,
 align, render, width}], rows, rowKey, onRowClick, footer) · `Loading`, `EmptyState`, `ErrorState`,
 `QueryState` · `Pagination` (page, onPage) · `Modal` (open, title, description, onClose, footer, wide) ·
-`Tabs` (segmentado gris #E7E8E0 con pestaña activa blanca) y `Chips` (píldoras; activa verde bosque) ·
-`Callout` (veredicto: tone good|warn|bad con ícono circular, title serif 26px, aside a la derecha) · `Toasts`. Gráficos SVG en `@/components/charts`:
+`Tabs` (segmentado con píldora que se desliza) y `Chips` (píldoras; activa verde bosque) ·
+`Callout` (veredicto: tone good|warn|bad con ícono que se dibuja, title 32px ligero, aside a la derecha) · `Toasts`.
+`StatCard` pasa los valores de texto con dígitos por `Odometer`; `DataTable` escalona la entrada de filas.
+Movimiento en `@/components/motion`: `Reveal` (aparece al entrar en pantalla), `SplitText` (titular por
+palabras; `*x*` serif cursiva, `\n` salto), `Odometer` (rodillos por dígito), `Preloader` (intro 0→100 %,
+una vez por sesión), `TopoField` (curvas de nivel animadas para superficies oscuras), `trackSpotlight`
+(brillo que sigue al cursor; ya lo usan `Card` y `StatCard`), `useInView`. En `@/components/layout`:
+`HeroHeader` (portada oscura de Inicio: eyebrow, titular, subtítulo, acciones y `aside`) y `CommandPalette`
+(⌘K / Ctrl+K, montada en el shell). El shell revela al hacer scroll todo `section` o `[data-reveal-item]`
+que monta fuera de la vista, y las `NavLink` usan View Transitions (`view-transition-name: page`).
+Superficies oscuras dentro del panel claro (héroe, ticket del punto de venta, tarjeta de decisión)
+reutilizan el kit redefiniendo `--ink`, `--surface`, `--line`… y `--btn-invert` en su contenedor. Gráficos SVG en `@/components/charts`:
 `HBarChart`, `VBarChart` ({label, value, alt}[], format), `LineChart` (points, formatX, formatY, marker,
-highlightX), `TornadoChart` (data[{label, low, high}], base, format). Encabezado de página: `PageHeader` (h1 serif 21px + subtítulo 13px + acciones) y `BrandMark` de
-`@/components/layout/AppShell`. Botones: `primary` 38px verde bosque, `secondary` blanco con borde #C9CCC2.
+highlightX), `TornadoChart` (data[{label, low, high}], base, format). Encabezado de página: `PageHeader` (microetiqueta numerada según la ruta + h1 con `SplitText` + subtítulo +
+acciones) y `BrandMark` de `@/components/layout/AppShell`. Botones en píldora con rótulo que rueda al pasar
+el cursor: `primary` verde bosque que se rellena de lima, `secondary` con borde que se rellena de tinta.
 
 ## Hooks disponibles (`@/hooks/<entidad>`)
 

@@ -1,35 +1,42 @@
 /*
- * Variables de diseño compartidas: valores exactos del lienzo "Vistas del módulo de evaluación"
- * (documento 02, sección 6). Ningún componente usa un color suelto.
+ * Variables de diseño compartidas. Dirección visual "cinematográfica": shell en verde bosque casi negro,
+ * panel de papel cálido, acento lima, titulares editoriales (Geist ligera + Instrument Serif en cursiva)
+ * y microetiquetas en mono. Ningún componente usa un color suelto.
  */
 :root {
   /* marca */
-  --forest: #1b4332;
+  --forest: #0f2a1f;
   --leaf: #2d6a4f;
-  --sprout: #95d5b2;
-  --sprout-soft: #e0efe5;
-  --forest-fg: #1b4332;
+  --sprout: #b9ec6f;
+  --sprout-ink: #0b1a12;
+  --sprout-soft: #edf6dc;
+  --forest-fg: #0f2a1f;
   --on-forest: #ffffff;
   /* fondos y bordes */
-  --app-bg: #132e24;
-  --ground: #f4f3ed;
+  --app-bg: #07110c;
+  --ground: #f2f1eb;
   --surface: #ffffff;
-  --surface-2: #fafaf6;
-  --surface-3: #efede4;
-  --segment-bg: #e7e8e0;
-  --line: #dedddc;
-  --line-soft: #efede4;
-  --line-strong: #c9ccc2;
-  --hover: #f1f2ee;
+  --surface-2: #f8f7f2;
+  --surface-3: #ecebe3;
+  --segment-bg: #e6e5dc;
+  --line: #e2e0d6;
+  --line-soft: #eceae2;
+  --line-strong: #cbc9bd;
+  --hover: #f1f0ea;
+  --glass: rgba(255, 255, 255, 0.72);
+  --spot: rgba(15, 42, 31, 0.045);
+  --spot-border: rgba(15, 42, 31, 0.35);
+  --skeleton: #ebeae3;
+  --skeleton-shine: rgba(255, 255, 255, 0.75);
   /* texto */
-  --ink: #17201b;
-  --ink-2: #4a554e;
-  --muted: #78837b;
-  --muted-2: #9aa49c;
+  --ink: #0d1411;
+  --ink-2: #48514c;
+  --muted: #7d8681;
+  --muted-2: #a2a9a4;
   --link: #2d6a4f;
   /* semánticos */
   --good: #12795a;
-  --good-soft: #edf6f0;
+  --good-soft: #eef6ef;
   --good-line: #a8d5bc;
   --warn: #a16207;
   --warn-soft: #fff8e8;
@@ -42,64 +49,91 @@
   --bad-tag-bg: #f6e1e1;
   --bad-tag-fg: #8a2226;
   --accent: #c2410c;
-  /* barra lateral */
-  --nav-ink: #93ad9d;
-  --nav-muted: #5c7d6b;
+  /* barra lateral y superficies oscuras (siempre oscuras, en ambos temas) */
+  --nav-ink: #9fb3a7;
+  --nav-muted: #56695e;
   --nav-exit: #7e9b8a;
-  --nav-line: rgba(255, 255, 255, 0.09);
-  --nav-hover: rgba(255, 255, 255, 0.065);
-  --nav-active: rgba(255, 255, 255, 0.1);
-  --nav-active-rail: rgba(255, 255, 255, 0.13);
-  --nav-badge-bg: rgba(226, 124, 70, 0.18);
+  --nav-line: rgba(255, 255, 255, 0.07);
+  --nav-hover: rgba(255, 255, 255, 0.045);
+  --nav-active: rgba(185, 236, 111, 0.09);
+  --nav-active-rail: rgba(185, 236, 111, 0.12);
+  --nav-badge-bg: rgba(226, 124, 70, 0.16);
   --nav-badge-fg: #efa985;
   --nav-badge-dot: #e27c46;
   --nav-brand: #f4faf6;
+  --dark-ink: #eef3ef;
+  --dark-ink-2: #a9b8af;
+  --dark-muted: #62756a;
+  --dark-line: rgba(255, 255, 255, 0.1);
+  --dark-glass: rgba(14, 26, 20, 0.55);
+  --dark-surface: rgba(10, 20, 15, 0.88);
+  --dark-bad: #f09a9c;
+  --dark-warn: #e6b35a;
   /* geometría y tipografía */
-  --radius: 11px;
-  --radius-sm: 7px;
-  --radius-panel: 15px;
-  --shadow: 0 1px 3px rgba(20, 40, 30, 0.14);
-  --shadow-panel: 0 2px 14px rgba(0, 0, 0, 0.14);
-  --font-body: "IBM Plex Sans", system-ui, sans-serif;
-  --font-heading: "IBM Plex Serif", Georgia, serif;
-  --nav-width: 236px;
+  --radius: 14px;
+  --radius-sm: 9px;
+  --radius-panel: 22px;
+  --shadow: 0 1px 2px rgba(10, 20, 15, 0.06), 0 1px 1px rgba(10, 20, 15, 0.04);
+  --shadow-lift: 0 18px 40px -18px rgba(10, 24, 17, 0.28), 0 2px 6px rgba(10, 24, 17, 0.06);
+  --shadow-panel: 0 30px 80px -20px rgba(0, 0, 0, 0.55);
+  --font-body: "Geist", "Inter", system-ui, sans-serif;
+  --font-heading: "Geist", "Inter", system-ui, sans-serif;
+  --font-serif: "Instrument Serif", "IBM Plex Serif", Georgia, serif;
+  --font-mono: "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  --nav-width: 248px;
   --nav-rail: 76px;
+  /* movimiento */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out: cubic-bezier(0.76, 0, 0.24, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --dur-fast: 0.2s;
+  --dur: 0.45s;
+  --dur-slow: 0.9s;
+  --stagger: 70ms;
   color-scheme: light;
 }
 
-/* Tema oscuro (documento 02): mismas variables, activado con data-theme="dark". */
+/* Tema oscuro: mismas variables, activado con data-theme="dark". */
 :root[data-theme="dark"] {
-  --sprout-soft: #1f3a2c;
-  --forest-fg: #b7e4c7;
-  --app-bg: #0b1a13;
-  --ground: #111815;
-  --surface: #182019;
-  --surface-2: #1c2620;
-  --surface-3: #22302a;
-  --segment-bg: #22302a;
-  --line: #2e3b33;
-  --line-soft: #26332c;
-  --line-strong: #3a4a40;
-  --hover: #1f2a23;
-  --ink: #e6ede8;
-  --ink-2: #b9c6be;
-  --muted: #84948a;
-  --muted-2: #6f7f75;
-  --link: #95d5b2;
-  --good: #6fcf9a;
-  --good-soft: #163526;
-  --good-line: #2f6a4c;
+  --sprout-soft: #1c2c14;
+  --forest: #b9ec6f;
+  --on-forest: #0b1a12;
+  --forest-fg: #c9f28d;
+  --app-bg: #040906;
+  --ground: #0a100d;
+  --surface: #0f1713;
+  --surface-2: #131c17;
+  --surface-3: #18231d;
+  --segment-bg: #141e18;
+  --line: #1f2b25;
+  --line-soft: #19231e;
+  --line-strong: #2c3a32;
+  --hover: #16201b;
+  --glass: rgba(12, 19, 15, 0.7);
+  --spot: rgba(185, 236, 111, 0.06);
+  --spot-border: rgba(185, 236, 111, 0.45);
+  --skeleton: #16201b;
+  --skeleton-shine: rgba(185, 236, 111, 0.06);
+  --ink: #eaf0ec;
+  --ink-2: #b2c0b8;
+  --muted: #7c8c83;
+  --muted-2: #5d6c64;
+  --link: #b9ec6f;
+  --good: #7ed6a4;
+  --good-soft: #10261a;
+  --good-line: #2b5a41;
   --warn: #e6b35a;
-  --warn-soft: #3a2e14;
-  --warn-line: #6e5a25;
-  --warn-tag-bg: #3a2e14;
+  --warn-soft: #2a2110;
+  --warn-line: #5e4b1f;
+  --warn-tag-bg: #2e2412;
   --warn-tag-fg: #e6b35a;
   --bad: #f09a9c;
-  --bad-soft: #3c1f20;
-  --bad-line: #6e3a3c;
-  --bad-tag-bg: #3c1f20;
+  --bad-soft: #2c1617;
+  --bad-line: #5e3234;
+  --bad-tag-bg: #331a1b;
   --bad-tag-fg: #f09a9c;
-  --shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
-  --shadow-panel: 0 2px 14px rgba(0, 0, 0, 0.6);
+  --shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+  --shadow-lift: 0 20px 44px -18px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(185, 236, 111, 0.06);
+  --shadow-panel: 0 30px 80px -20px rgba(0, 0, 0, 0.9);
   color-scheme: dark;
 }

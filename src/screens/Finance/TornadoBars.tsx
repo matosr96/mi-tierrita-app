@@ -1,3 +1,4 @@
+import type { CSSProperties } from "react";
 import styles from "./FinanceScreen.module.css";
 
 export type TornadoRow = { label: string; low: number; high: number; amplitude: number };
@@ -28,7 +29,7 @@ export const TornadoBars = ({ rows, base, baseLabel }: Props) => {
         const fill = i < 2 ? styles.fillGood : i < 5 ? styles.fillLeaf : styles.fillMuted2;
         const flat = r.amplitude === 0 || w < 1;
         return (
-          <g key={r.label}>
+          <g key={r.label} style={{ "--i": i } as CSSProperties}>
             {flat ? (
               <>
                 <line x1={CX} y1={y - 4} x2={CX} y2={y + 12} className={styles.markMuted2} strokeWidth="3" />
@@ -37,7 +38,7 @@ export const TornadoBars = ({ rows, base, baseLabel }: Props) => {
                 </text>
               </>
             ) : (
-              <rect x={x} y={y} width={w} height="16" rx="3" className={fill} />
+              <rect x={x} y={y} width={w} height="16" rx="3" className={[fill, styles.growCenter].join(" ")} style={{ "--cx": `${CX}px` } as CSSProperties} />
             )}
             <text x="190" y={y + 12} textAnchor="end" fontSize="12" className={styles.textInk}>
               {r.label}

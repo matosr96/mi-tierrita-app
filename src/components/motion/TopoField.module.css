@@ -1,0 +1,38 @@
+.topo {
+  display: block;
+  pointer-events: none;
+}
+.ringGroup {
+  transform-origin: 500px 500px;
+  animation: orbit calc(80s + var(--k) * 6s) linear infinite;
+}
+.ringGroup:nth-child(even) {
+  animation-direction: reverse;
+}
+.ring {
+  fill: none;
+  stroke: var(--topo-stroke, rgba(185, 236, 111, 0.17));
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 0;
+  animation: draw 2.6s var(--ease-in-out) backwards;
+  animation-delay: calc(var(--k) * 60ms + 200ms);
+}
+.ringHot {
+  stroke: var(--topo-hot, rgba(185, 236, 111, 0.45));
+}
+.signal {
+  fill: var(--sprout);
+  filter: drop-shadow(0 0 8px var(--sprout));
+}
+@keyframes orbit {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@keyframes draw {
+  from {
+    stroke-dashoffset: 1;
+  }
+}

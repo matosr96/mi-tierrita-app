@@ -94,6 +94,30 @@
   border: 1px solid var(--line);
   border-radius: 8px;
   padding: 26px 34px;
+  box-shadow: 0 1px 0 var(--line), 0 30px 60px -40px rgba(10, 24, 17, 0.45);
+  transform-origin: top center;
+  animation: paperIn 1s var(--ease-out) backwards;
+}
+.paper > * {
+  animation: paperLine 0.8s var(--ease-out) backwards;
+}
+.paper > :nth-child(2) {
+  animation-delay: 0.25s;
+}
+.paper > :nth-child(n + 3) {
+  animation-delay: 0.4s;
+}
+@keyframes paperIn {
+  from {
+    opacity: 0;
+    transform: perspective(1400px) rotateX(8deg) translateY(40px);
+  }
+}
+@keyframes paperLine {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
 }
 @media (max-width: 700px) {
   .paper {
@@ -101,7 +125,7 @@
   }
 }
 .paperHead {
-  border-bottom: 2px solid var(--forest);
+  border-bottom: 2px solid var(--ink);
   padding-bottom: 12px;
 }
 .paperHead h3 {
