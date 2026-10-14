@@ -16,6 +16,10 @@
   inset: 0;
   pointer-events: none;
 }
+.shader {
+  position: absolute;
+  inset: 0;
+}
 .topo {
   position: absolute;
   top: 50%;

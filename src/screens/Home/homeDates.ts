@@ -17,3 +17,20 @@ export const monthName = (): string => new Date().toLocaleDateString("es-CO", { 
 
 /** Hora "10:42" de una marca de tiempo ISO, como en la columna Hora del lienzo. */
 export const timeOnly = (iso: string): string => new Date(iso).toLocaleTimeString("es-CO", { hour: "2-digit", minute: "2-digit" });
+
+/**
+ * Titular de la portada que responde "¿está todo bien?": todo en orden o cuántas cosas piden atención.
+ * Mientras carga, el saludo de siempre.
+ */
+export const statusTitle = (count: number | null, firstName: string): string => {
+  if (count === null) return greetingFor(firstName);
+  if (count === 0) return `Todo en orden,\n*${firstName}.*`;
+  if (count === 1) return "Una cosa requiere\n*su atención hoy.*";
+  return `${int(count)} cosas requieren\n*su atención hoy.*`;
+};
+
+/** "Buenas noches, Ana · martes 13 de octubre · cierre de octubre en 18 días". */
+export const statusSubtitle = (firstName: string): string => `${greeting()}, ${firstName} · ${monthCloseLine()}`;
+
+/** Lleva la vista hasta el bloque de pendientes. */
+export const scrollToPending = () => document.getElementById("pendientes")?.scrollIntoView({ behavior: "smooth", block: "center" });

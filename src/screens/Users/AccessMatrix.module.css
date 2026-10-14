@@ -1,0 +1,312 @@
+/* Matriz de permisos sobre superficie siempre oscura: celdas-baldosa que se encienden en diagonal. */
+.panel {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  color: var(--dark-ink);
+  background: var(--app-bg);
+  border: 1px solid var(--dark-line);
+  border-radius: calc(var(--radius) + 4px);
+  padding: 20px 20px 18px;
+  box-shadow: 0 30px 60px -36px color-mix(in srgb, var(--app-bg) 80%, transparent);
+  animation: panelIn 0.8s var(--ease-out) backwards;
+  animation-delay: 0.1s;
+}
+.topo {
+  position: absolute;
+  z-index: -1;
+  right: -320px;
+  bottom: -380px;
+  width: 760px;
+  height: 760px;
+  opacity: 0.35;
+  pointer-events: none;
+}
+.panel::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: radial-gradient(70% 60% at 0% 0%, color-mix(in srgb, var(--sprout) 8%, transparent), transparent 70%);
+}
+
+.head {
+  margin-bottom: 16px;
+}
+.label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--dark-ink-2);
+}
+.label::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--sprout);
+  box-shadow: 0 0 10px var(--sprout);
+}
+.title {
+  font-family: var(--font-heading);
+  font-size: 26px;
+  font-weight: 300;
+  letter-spacing: -0.045em;
+  line-height: 1.1;
+  margin-top: 10px;
+  color: var(--dark-ink);
+}
+.title em {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-weight: 400;
+  letter-spacing: -0.01em;
+  color: var(--sprout);
+}
+
+.scroller {
+  overflow-x: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--dark-line) transparent;
+}
+.grid {
+  --tpl: minmax(150px, 1.5fr) repeat(var(--cols), minmax(76px, 1fr));
+  min-width: 420px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.row {
+  display: grid;
+  grid-template-columns: var(--tpl);
+  gap: 4px;
+  border-radius: 10px;
+  transition: background 0.25s ease;
+}
+.hotRow {
+  background: color-mix(in srgb, var(--dark-ink) 4%, transparent);
+}
+
+/* Encabezados */
+.colHead {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--dark-muted);
+  padding: 4px 6px 10px;
+}
+.corner {
+  display: flex;
+  align-items: flex-end;
+  padding-left: 10px;
+}
+.roleHead {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  text-align: center;
+  border-radius: 10px 10px 0 0;
+  transition: color 0.25s ease, background 0.25s ease;
+  animation: fadeDown 0.6s var(--ease-out) backwards;
+  animation-delay: calc(var(--c) * 80ms + 200ms);
+}
+.roleName {
+  color: var(--dark-ink-2);
+  transition: color 0.25s ease;
+}
+.roleCount {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 9.5px;
+  letter-spacing: 0.08em;
+  color: var(--dark-muted);
+}
+.mine .roleName {
+  color: var(--sprout);
+}
+.mineTag {
+  padding: 1px 6px;
+  border-radius: 99px;
+  font-size: 8.5px;
+  color: var(--sprout-ink);
+  background: var(--sprout);
+}
+.hotCol {
+  background: color-mix(in srgb, var(--dark-ink) 4%, transparent);
+}
+.hotCol .roleName {
+  color: var(--dark-ink);
+}
+
+.module {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  padding: 0 10px;
+  font-size: 13px;
+  color: var(--dark-ink-2);
+  transition: color 0.25s ease;
+}
+.hotRow .module {
+  color: var(--dark-ink);
+}
+.icon {
+  flex: none;
+  width: 17px;
+  height: 17px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  opacity: 0.75;
+}
+
+/* Celdas */
+.cell {
+  display: grid;
+  place-items: center;
+  height: 44px;
+  border-radius: 10px;
+  outline: none;
+  cursor: default;
+  transition: background 0.25s ease;
+}
+.hot {
+  background: color-mix(in srgb, var(--dark-ink) 4%, transparent);
+}
+.tile {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 30px;
+  border-radius: 8px;
+  transition: transform 0.4s var(--ease-spring), box-shadow 0.3s ease, background 0.3s ease;
+}
+.cell .tile {
+  animation: tileIn 0.6s var(--ease-spring) backwards;
+  animation-delay: calc((var(--r) + var(--c)) * 45ms + 300ms);
+}
+.focus .tile,
+.cell:focus-visible .tile {
+  transform: scale(1.18);
+}
+.cell:focus-visible .tile {
+  box-shadow: 0 0 0 2px var(--sprout);
+}
+
+.full .tile {
+  background: linear-gradient(150deg, var(--sprout), color-mix(in srgb, var(--sprout) 60%, var(--leaf)));
+  color: var(--sprout-ink);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--sprout) 40%, transparent), 0 6px 18px -8px var(--sprout);
+}
+.focus.full .tile {
+  box-shadow: 0 0 0 1px var(--sprout), 0 0 24px -2px var(--sprout);
+}
+.consult .tile {
+  color: var(--sprout);
+  background: color-mix(in srgb, var(--sprout) 10%, transparent);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--sprout) 45%, transparent);
+}
+.none .tile {
+  background: repeating-linear-gradient(135deg, color-mix(in srgb, var(--dark-ink) 5%, transparent) 0 2px, transparent 2px 6px);
+  box-shadow: inset 0 0 0 1px var(--dark-line);
+}
+.glyph {
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.glyph path {
+  stroke-dasharray: 1;
+  animation: draw 0.6s var(--ease-out) backwards;
+  animation-delay: calc((var(--r, 0) + var(--c, 0)) * 45ms + 600ms);
+}
+.consult .glyph {
+  stroke-width: 1.5;
+}
+.pupil {
+  fill: currentColor;
+  stroke: none;
+}
+.dot {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--dark-muted);
+}
+
+/* Leyenda */
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 18px;
+  list-style: none;
+  margin: 16px 0 0;
+  padding: 14px 0 0;
+  border-top: 1px dashed var(--dark-line);
+}
+.legendItem {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--dark-ink-2);
+}
+.legendTile {
+  width: 24px;
+  height: 20px;
+  border-radius: 6px;
+}
+.legendTile .glyph {
+  width: 13px;
+  height: 13px;
+}
+
+@keyframes panelIn {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+}
+@keyframes fadeDown {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+}
+@keyframes tileIn {
+  from {
+    opacity: 0;
+    transform: scale(0.4);
+  }
+}
+@keyframes draw {
+  from {
+    stroke-dashoffset: 1;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .panel,
+  .roleHead,
+  .cell .tile,
+  .glyph path {
+    animation: none;
+  }
+}

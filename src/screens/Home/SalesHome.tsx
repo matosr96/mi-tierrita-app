@@ -1,15 +1,16 @@
 import { useNavigate } from "react-router-dom";
 import { HeroHeader } from "@/components/layout/HeroHeader";
-import { MonthRing } from "./MonthRing";
 import { Button, Card, DataTable, EmptyState, QueryState, StatGrid, type Column } from "@/components/ui";
 import { useCustomers } from "@/hooks/customers";
 import { useSalesReport } from "@/hooks/reports";
 import { useSales } from "@/hooks/sales";
 import { int, longToday, money, moneyCompact, todayIso } from "@/lib/format";
-import type { Customer, Sale, User } from "@/types/api";
+import type { Sale, User } from "@/types/api";
 import { QueryStat } from "./QueryStat";
-import { AttentionList, type AttentionItem } from "./AttentionList";
-import { greetingFor, timeOnly } from "./homeDates";
+import { AttentionList } from "./AttentionList";
+import { scrollToPending, statusTitle, timeOnly } from "./homeDates";
+import { pendingItems } from "./attention";
+import { StatusAside } from "./StatusAside";
 import styles from "./HomeScreen.module.css";
 
 const PAYMENT_LABELS = { CASH: "Contado", CREDIT: "Crédito" } as const;
@@ -21,14 +22,6 @@ const saleColumns: Column<Sale>[] = [
   { key: "total", header: "Total", align: "right", render: (s) => money(s.total) },
 ];
 
-/** Pendientes de cobro: clientes con saldo; los que agotaron el cupo van primero. */
-const pendingItems = (customers: Customer[]): AttentionItem[] =>
-  customers.map((c) =>
-    c.availableCredit <= 0
-      ? { key: `credit-${c.id}`, tone: "bad", text: `${c.name} agotó su cupo de crédito (saldo ${money(c.balance)})`, to: "/clientes", tag: "Consultar" }
-      : { key: `balance-${c.id}`, tone: "warn", text: `${c.name} tiene ${money(c.balance)} pendientes de pago`, to: "/clientes", tag: "Cobrar" },
-  );
-
 /** Inicio de la secretaria (SecInicio del lienzo): lo vendido hoy, pendientes de cobro y sus últimas ventas. */
 export const SalesHome = ({ user }: { user: User }) => {
   const navigate = useNavigate();
@@ -36,14 +29,15 @@ export const SalesHome = ({ user }: { user: User }) => {
   const sales = useSalesReport({ from: today, to: today, groupBy: "product" });
   const customers = useCustomers({ withBalance: true, limit: 5 });
   const recent = useSales({ from: today, to: today, userId: user.id, limit: 5 });
+  const attention = customers.isPending ? null : pendingItems(customers.data?.items ?? []);
   const subtitle = sales.data ? `${longToday()} · ${int(sales.data.salesCount)} ${sales.data.salesCount === 1 ? "venta registrada" : "ventas registradas"} hoy` : longToday();
 
   return (
     <>
       <HeroHeader
         eyebrow="Caja y cartera"
-        title={greetingFor(user.firstName)}
-        aside={<MonthRing />}
+        title={statusTitle(attention === null ? null : (customers.data?.count ?? 0), user.firstName)}
+        aside={<StatusAside items={attention} total={customers.data?.count} onSeeAll={scrollToPending} />}
         subtitle={subtitle}
         actions={
           <>
@@ -63,6 +57,7 @@ export const SalesHome = ({ user }: { user: User }) => {
       </StatGrid>
 
       <div className={styles.gridEven}>
+        <div id="pendientes">
         <Card title="Pendientes de hoy">
           <QueryState query={customers} isEmpty={(p) => p.items.length === 0} empty={<EmptyState title="Sin pendientes" text="Ningún cliente tiene saldo por cobrar." />}>
             {(page) => (
@@ -73,6 +68,7 @@ export const SalesHome = ({ user }: { user: User }) => {
             )}
           </QueryState>
         </Card>
+        </div>
 
         <Card title="Últimas ventas" subtitle="Registradas por usted hoy">
           <QueryState

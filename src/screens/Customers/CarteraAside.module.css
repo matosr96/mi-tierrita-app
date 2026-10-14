@@ -1,0 +1,292 @@
+/* Tarjeta de cartera: siempre oscura, cifra estrella en matriz de puntos y barras de mayores saldos. */
+.aside {
+  --ink: var(--dark-ink);
+  --ink-2: var(--dark-ink-2);
+  --muted: var(--dark-muted);
+  --line: var(--dark-line);
+  --line-soft: var(--dark-line);
+  --surface: var(--dark-glass);
+  --btn-invert: var(--app-bg);
+  position: sticky;
+  top: 16px;
+  align-self: start;
+  overflow: hidden;
+  isolation: isolate;
+  display: flex;
+  flex-direction: column;
+  padding: 22px 22px 20px;
+  color: var(--dark-ink);
+  background: var(--app-bg);
+  border: 1px solid var(--dark-line);
+  border-radius: var(--radius);
+  animation: asideIn 0.9s var(--ease-out) backwards;
+}
+.topo {
+  position: absolute;
+  z-index: -1;
+  right: -260px;
+  top: -300px;
+  width: 640px;
+  height: 640px;
+  opacity: 0.5;
+}
+.aside::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: radial-gradient(circle at 80% 10%, transparent 15%, var(--app-bg) 70%);
+  pointer-events: none;
+}
+
+.label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--dark-ink-2);
+}
+.label::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--sprout);
+  box-shadow: 0 0 10px var(--sprout);
+}
+.title {
+  margin-top: 12px;
+  font-family: var(--font-heading);
+  font-size: 24px;
+  font-weight: 300;
+  letter-spacing: -0.045em;
+  line-height: 1.1;
+  color: var(--dark-ink);
+}
+.title em {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-weight: 400;
+  letter-spacing: -0.01em;
+  color: var(--sprout);
+}
+
+.hero {
+  margin-top: 22px;
+  font-family: var(--font-dots);
+  font-weight: 900;
+  font-size: 54px;
+  line-height: 0.9;
+  letter-spacing: -0.02em;
+  color: var(--sprout);
+  text-shadow: 0 0 26px color-mix(in srgb, var(--sprout) 35%, transparent);
+  white-space: nowrap;
+}
+.heroClear {
+  color: var(--dark-ink);
+  text-shadow: none;
+}
+.heroPending {
+  opacity: 0.4;
+}
+.heroHint {
+  margin-top: 8px;
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--dark-ink-2);
+}
+
+/* Franja vencida / al corriente. */
+.split {
+  position: relative;
+  margin-top: 20px;
+  height: 6px;
+  border-radius: 99px;
+  background: color-mix(in srgb, var(--sprout) 55%, transparent);
+  overflow: hidden;
+}
+.splitOverdue {
+  position: absolute;
+  inset: 0;
+  background: var(--dark-bad);
+  transform: scaleX(var(--share));
+  transform-origin: left;
+  animation: grow 1.3s var(--ease-out) 0.4s backwards;
+}
+
+.figures {
+  margin: 14px 0 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+  gap: 12px;
+}
+.figures > div {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+  padding-top: 9px;
+  border-top: 1px solid var(--dark-line);
+}
+.figures dt {
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--dark-muted);
+}
+.figures dd {
+  margin: 0;
+  font-family: var(--font-heading);
+  font-size: 19px;
+  font-weight: 300;
+  letter-spacing: -0.03em;
+  color: var(--dark-ink);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.figureBad dd {
+  color: var(--dark-bad);
+}
+
+/* Mayores saldos. */
+.barsHead {
+  margin-top: 22px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--dark-muted);
+}
+.barsLegend {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.dotBad {
+  width: 6px;
+  height: 6px;
+  border-radius: 2px;
+  background: var(--dark-bad);
+}
+.bars {
+  margin-top: 10px;
+  height: 92px;
+  display: flex;
+  align-items: flex-end;
+  gap: 3px;
+  border-bottom: 1px solid var(--dark-line);
+}
+.bar {
+  flex: 1 1 0;
+  min-width: 3px;
+  max-width: 18px;
+  height: calc(6px + var(--h) * 84px);
+  border: 0;
+  padding: 0;
+  border-radius: 3px 3px 0 0;
+  background: color-mix(in srgb, var(--sprout) 70%, transparent);
+  cursor: pointer;
+  transform-origin: bottom;
+  transition:
+    background var(--dur-fast) var(--ease-out),
+    filter var(--dur-fast) var(--ease-out);
+  animation: rise 0.9s var(--ease-out) backwards;
+  animation-delay: calc(var(--i) * 30ms + 300ms);
+}
+.barBad {
+  background: var(--dark-bad);
+}
+.bar:hover,
+.bar:focus-visible {
+  background: var(--sprout);
+  filter: drop-shadow(0 0 8px color-mix(in srgb, var(--sprout) 60%, transparent));
+  outline: none;
+}
+.barBad:hover,
+.barBad:focus-visible {
+  background: var(--dark-bad);
+  filter: drop-shadow(0 0 8px color-mix(in srgb, var(--dark-bad) 60%, transparent));
+}
+.barsEmpty {
+  margin-top: 10px;
+  padding: 18px 0;
+  font-size: 12.5px;
+  color: var(--dark-ink-2);
+  border-top: 1px dashed var(--dark-line);
+  border-bottom: 1px dashed var(--dark-line);
+}
+.caption {
+  min-height: 34px;
+  margin-top: 8px;
+  font-size: 12px;
+  line-height: 1.45;
+  color: var(--dark-ink-2);
+  font-variant-numeric: tabular-nums;
+}
+.caption strong {
+  font-weight: 500;
+  color: var(--dark-ink);
+}
+.captionBad {
+  color: var(--dark-bad);
+}
+
+.error {
+  margin-top: 18px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 12.5px;
+  color: var(--dark-ink-2);
+}
+
+.note {
+  margin-top: 18px;
+  padding-top: 14px;
+  border-top: 1px solid var(--dark-line);
+  font-size: 12px;
+  line-height: 1.55;
+  color: var(--dark-ink-2);
+}
+
+@container customers (max-width: 980px) {
+  .aside {
+    position: relative;
+    top: auto;
+  }
+}
+
+@keyframes asideIn {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+}
+@keyframes grow {
+  from {
+    transform: scaleX(0);
+  }
+}
+@keyframes rise {
+  from {
+    transform: scaleY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .aside,
+  .splitOverdue,
+  .bar {
+    animation: none;
+  }
+}

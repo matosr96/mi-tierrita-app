@@ -24,6 +24,12 @@
   border: 1px solid var(--dark-line);
   box-shadow: 0 30px 60px -36px rgba(4, 12, 8, 0.7);
 }
+.shader,
+.photos {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+}
 .topo {
   position: absolute;
   z-index: -1;
@@ -175,5 +181,43 @@
   }
   .aside {
     width: 100%;
+  }
+}
+
+/* ---------- ligado al scroll (CSS scroll-driven; sin soporte, la portada queda quieta) ---------- */
+@supports (animation-timeline: scroll()) {
+  .topo {
+    animation: heroParallax linear both;
+    animation-timeline: scroll(root);
+    animation-range: 0 520px;
+  }
+  .main {
+    animation: heroAway linear both;
+    animation-timeline: view();
+    animation-range: exit 0% exit 90%;
+  }
+  .aside {
+    animation: asideIn 1.1s var(--ease-out) 0.5s backwards, heroAway linear both;
+    animation-timeline: auto, view();
+    animation-range: normal, exit 0% exit 90%;
+  }
+}
+@keyframes heroParallax {
+  to {
+    transform: translate(-50%, calc(-50% + 140px)) rotate(10deg) scale(1.08);
+  }
+}
+@keyframes heroAway {
+  to {
+    opacity: 0.15;
+    transform: translateY(-40px);
+    filter: blur(4px);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .topo,
+  .main,
+  .aside {
+    animation: none !important;
   }
 }

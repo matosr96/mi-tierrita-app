@@ -1,9 +1,11 @@
 import { useEffect, type ReactNode } from "react";
 import styles from "./Modal.module.css";
 
-type Props = { open: boolean; title: string; description?: string; onClose: () => void; children: ReactNode; footer?: ReactNode; wide?: boolean };
+type Props = { open: boolean; title: string; description?: string; onClose: () => void; children: ReactNode; footer?: ReactNode; wide?: boolean; viewTransitionName?: string };
 
-export const Modal = ({ open, title, description, onClose, children, footer, wide = false }: Props) => {
+/** `viewTransitionName` (opcional) nombra el diálogo solo mientras dura un morfismo de View Transitions; sin él, el diálogo usa su propia entrada. */
+
+export const Modal = ({ open, title, description, onClose, children, footer, wide = false, viewTransitionName }: Props) => {
   useEffect(() => {
     if (!open) return;
     const onKey = (e: KeyboardEvent) => {
@@ -16,7 +18,7 @@ export const Modal = ({ open, title, description, onClose, children, footer, wid
   if (!open) return null;
   return (
     <div className={styles.backdrop} onMouseDown={(e) => e.target === e.currentTarget && onClose()}>
-      <div className={[styles.dialog, wide ? styles.wide : ""].join(" ")} role="dialog" aria-modal="true" aria-label={title}>
+      <div className={[styles.dialog, wide ? styles.wide : "", viewTransitionName ? styles.morph : ""].join(" ")} style={viewTransitionName ? { viewTransitionName } : undefined} role="dialog" aria-modal="true" aria-label={title}>
         <div className={styles.head}>
           <div>
             <h2>{title}</h2>

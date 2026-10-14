@@ -80,6 +80,8 @@
   --font-heading: "Geist", "Inter", system-ui, sans-serif;
   --font-serif: "Instrument Serif", "IBM Plex Serif", Georgia, serif;
   --font-mono: "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  /* Matriz de puntos: solo para la cifra estrella (precarga, portada). */
+  --font-dots: "Doto", "Geist Mono", ui-monospace, monospace;
   --nav-width: 248px;
   --nav-rail: 76px;
   /* movimiento */

@@ -244,73 +244,137 @@
   color: var(--sprout-ink);
 }
 
-/* ---------- avance del mes (portada) ---------- */
-.monthRing {
-  position: relative;
+/* ---------- estado de la portada ---------- */
+.status {
+  width: 300px;
+  max-width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.statusTop {
+  display: flex;
+  align-items: flex-end;
+  gap: 12px;
+}
+.statusCount {
+  font-family: var(--font-dots);
+  font-weight: 900;
+  font-size: 76px;
+  line-height: 0.85;
+  letter-spacing: -0.02em;
+  color: var(--sprout);
+  text-shadow: 0 0 24px rgba(185, 236, 111, 0.35);
+}
+.statusClear {
+  color: var(--dark-ink);
+  text-shadow: none;
+}
+.statusLabel {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--dark-ink-2);
+  padding-bottom: 6px;
+}
+.statusList {
+  list-style: none;
+  margin: 0;
+  padding: 12px 0 0;
+  border-top: 1px solid var(--dark-line);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.statusList li {
+  animation: itemIn 0.7s var(--ease-out) backwards;
+}
+.statusList li:nth-child(1) {
+  animation-delay: 0.7s;
+}
+.statusList li:nth-child(2) {
+  animation-delay: 0.8s;
+}
+.statusList li:nth-child(3) {
+  animation-delay: 0.9s;
+}
+.statusItem {
   display: flex;
   align-items: center;
-  gap: 18px;
+  gap: 9px;
+  padding: 5px 0;
+  font-size: 12.5px;
+  color: var(--dark-ink-2);
+  text-decoration: none;
+  transition: color 0.2s ease, transform 0.35s var(--ease-out);
 }
-.monthRing svg {
-  transform: rotate(-90deg);
+.statusItem:hover {
+  color: var(--dark-ink);
+  transform: translateX(4px);
+}
+.statusDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
   flex-shrink: 0;
 }
-.ringTrack {
-  fill: none;
-  stroke: var(--dark-line);
-  stroke-width: 3;
+.statusDotBad {
+  background: var(--dark-bad);
+  box-shadow: 0 0 10px var(--dark-bad);
 }
-.ringFill {
-  fill: none;
-  stroke: var(--sprout);
-  stroke-width: 3;
-  stroke-linecap: round;
-  transition: stroke-dashoffset 1.8s var(--ease-in-out);
-  filter: drop-shadow(0 0 6px rgba(185, 236, 111, 0.5));
+.statusDotWarn {
+  background: var(--dark-warn);
 }
-.ringCenter {
-  position: absolute;
-  left: 0;
-  top: 0;
-  width: 104px;
-  height: 104px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: 30px;
-  font-weight: 300;
-  letter-spacing: -0.04em;
-  line-height: 1;
-  color: var(--dark-ink);
-}
-.ringCenter > span:last-child {
-  font-family: var(--font-mono);
-  font-size: 9.5px;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--dark-muted);
-  margin-top: 4px;
-}
-.ringText {
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
-  font-size: 12px;
-  color: var(--dark-ink-2);
-}
-.ringText strong {
-  font-size: 17px;
-  font-weight: 400;
-  letter-spacing: -0.03em;
-  color: var(--dark-ink);
-}
-.ringLabel {
+.statusMore {
+  align-self: flex-start;
+  border: none;
+  background: none;
+  padding: 0;
+  cursor: pointer;
   font-family: var(--font-mono);
   font-size: 10px;
   letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--sprout);
+}
+.statusMore span {
+  display: inline-block;
+  animation: nudge 1.6s var(--ease-in-out) infinite;
+}
+.statusMonth {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--dark-muted);
+}
+.statusBar {
+  flex: 1;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--dark-line);
+  overflow: hidden;
+}
+.statusBar > span {
+  display: block;
+  height: 100%;
+  background: var(--sprout);
+  transform-origin: left;
+  animation: barGrow 1.6s var(--ease-in-out) 0.5s backwards;
+}
+@keyframes nudge {
+  50% {
+    transform: translateY(3px);
+  }
+}
+@keyframes barGrow {
+  from {
+    transform: scaleX(0);
+  }
 }
 
 @keyframes itemIn {
@@ -332,5 +396,25 @@
   .grid,
   .gridEven {
     grid-template-columns: 1fr;
+  }
+}
+
+@supports (animation-timeline: view()) {
+  .decisionTopo {
+    animation: decisionSpin linear both;
+    animation-timeline: view();
+  }
+}
+@keyframes decisionSpin {
+  from {
+    transform: rotate(-12deg) scale(0.95);
+  }
+  to {
+    transform: rotate(18deg) scale(1.08);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .decisionTopo {
+    animation: none !important;
   }
 }

@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { HeroHeader } from "@/components/layout/HeroHeader";
-import { MonthRing } from "./MonthRing";
 import { Button, Card, DataTable, EmptyState, QueryState, StatGrid, type Column } from "@/components/ui";
 import { useExpiringBatches } from "@/hooks/batches";
 import { useProducts } from "@/hooks/products";
@@ -10,12 +9,13 @@ import type { Product, ProductBatch, User } from "@/types/api";
 import { ExpiryBadge } from "@/screens/Batches/ExpiryBadge";
 import { RegisterBatchModal } from "@/screens/Batches/RegisterBatchModal";
 import { QueryStat } from "./QueryStat";
-import { AttentionList, type AttentionItem } from "./AttentionList";
-import { greetingFor } from "./homeDates";
+import { AttentionList } from "./AttentionList";
+import { scrollToPending, statusTitle } from "./homeDates";
+import { LOW_STOCK, todoItems } from "./attention";
+import { StatusAside } from "./StatusAside";
 import styles from "./HomeScreen.module.css";
 
 const EXPIRING_DAYS = 30;
-const LOW_STOCK = 5;
 
 const batchColumns: Column<ProductBatch>[] = [
   { key: "product", header: "Producto", render: (b) => <span className={styles.strong}>{b.productName}</span> },
@@ -24,24 +24,6 @@ const batchColumns: Column<ProductBatch>[] = [
   { key: "days", header: "Restan", align: "left", render: (b) => <ExpiryBadge batch={b} /> },
   { key: "remaining", header: "Cant.", align: "right", render: (b) => int(b.quantityRemaining) },
 ];
-
-/** "Qué hacer hoy": lotes vencidos o por vencer y productos sin existencias o con pocas. */
-const todoItems = (batches: ProductBatch[], products: Product[]): AttentionItem[] => {
-  const items: AttentionItem[] = [];
-  for (const b of batches.filter((x) => x.expired).slice(0, 2)) {
-    items.push({ key: `expired-${b.id}`, tone: "bad", text: `Retirar ${b.productName}: lote #${b.id} venció el ${dateOnly(b.expiresAt)}`, to: "/lotes", tag: "Vencido" });
-  }
-  for (const b of batches.filter((x) => !x.expired).slice(0, 2)) {
-    items.push({ key: `fefo-${b.id}`, tone: b.daysToExpire <= 7 ? "bad" : "warn", text: `Sacar al frente ${b.productName}: vence en ${int(b.daysToExpire)} ${b.daysToExpire === 1 ? "día" : "días"}`, to: "/lotes", tag: "FEFO" });
-  }
-  for (const p of products.filter((x) => x.stock === 0).slice(0, 2)) {
-    items.push({ key: `out-${p.id}`, tone: "bad", text: `Sin existencias de ${p.name}`, to: "/inventario", tag: "Reponer" });
-  }
-  for (const p of products.filter((x) => x.stock > 0 && x.stock < LOW_STOCK).slice(0, 2)) {
-    items.push({ key: `low-${p.id}`, tone: "warn", text: `${p.stock === 1 ? "Queda 1 unidad" : `Quedan ${int(p.stock)} unidades`} de ${p.name}`, to: "/inventario", tag: "Avisar" });
-  }
-  return items.slice(0, 6);
-};
 
 /** Inicio de bodega (BodInicio del lienzo): qué reponer, qué sacar al frente y los lotes más próximos a vencer. */
 export const WarehouseHome = ({ user }: { user: User }) => {
@@ -53,14 +35,20 @@ export const WarehouseHome = ({ user }: { user: User }) => {
   const outOfStock = (items: Product[]) => items.filter((p) => p.stock === 0).length;
   const expired = (items: ProductBatch[]) => items.filter((b) => b.expired).length;
   const upcoming = (items: ProductBatch[]) => items.filter((b) => !b.expired).length;
+  const loadingTodo = products.isPending || expiring.isPending;
+  const attention = loadingTodo ? null : todoItems(expiring.data?.items ?? [], products.data?.items ?? []);
+  // Total de pendientes (la lista muestra a lo sumo dos por tipo): se cuentan los elementos que trae la API.
+  const attentionTotal =
+    (expiring.data?.items.length ?? 0) +
+    (products.data?.items.filter((p) => p.stock === 0 || p.stock < LOW_STOCK).length ?? 0);
   const subtitle = expiring.data ? `${longToday()} · ${int(expiring.data.count)} ${expiring.data.count === 1 ? "lote por vencer" : "lotes por vencer"} en ${EXPIRING_DAYS} días` : longToday();
 
   return (
     <>
       <HeroHeader
         eyebrow="Bodega y vencimientos"
-        title={greetingFor(user.firstName)}
-        aside={<MonthRing />}
+        title={statusTitle(attention === null ? null : attentionTotal, user.firstName)}
+        aside={<StatusAside items={attention} total={attentionTotal} onSeeAll={scrollToPending} />}
         subtitle={subtitle}
         actions={
           <>
@@ -80,6 +68,7 @@ export const WarehouseHome = ({ user }: { user: User }) => {
       </StatGrid>
 
       <div className={styles.gridEven}>
+        <div id="pendientes">
         <Card title="Qué hacer hoy">
           {products.isPending || expiring.isPending ? (
             <p className="muted">Cargando…</p>
@@ -92,6 +81,7 @@ export const WarehouseHome = ({ user }: { user: User }) => {
             })()
           )}
         </Card>
+        </div>
 
         <Card title="Lotes próximos a vencer" subtitle="Los más próximos primero">
           <QueryState query={expiring} isEmpty={(p) => p.items.length === 0} empty={<EmptyState title={`Ningún lote vence en los próximos ${EXPIRING_DAYS} días`} />}>

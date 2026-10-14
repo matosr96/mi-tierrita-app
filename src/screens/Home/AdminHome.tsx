@@ -1,6 +1,5 @@
 import { useNavigate } from "react-router-dom";
 import { HeroHeader } from "@/components/layout/HeroHeader";
-import { MonthRing } from "./MonthRing";
 import { Button, Card, EmptyState, QueryState, StatGrid } from "@/components/ui";
 import { HBarChart } from "@/components/charts";
 import { useInventoryReport, useReceivablesReport, useSalesReport } from "@/hooks/reports";
@@ -10,7 +9,9 @@ import type { SalesReportProductRow, User } from "@/types/api";
 import { QueryStat } from "./QueryStat";
 import { AttentionCard } from "./AttentionCard";
 import { DecisionCard } from "./DecisionCard";
-import { greetingFor, monthCloseLine, monthName } from "./homeDates";
+import { monthName, scrollToPending, statusSubtitle, statusTitle } from "./homeDates";
+import { adminAttention } from "./attention";
+import { StatusAside } from "./StatusAside";
 import styles from "./HomeScreen.module.css";
 
 /** Inicio del administrador (Dashboard del lienzo): ventas del mes, cartera, valor por vencer, pendientes y decisión abierta. */
@@ -22,14 +23,15 @@ export const AdminHome = ({ user }: { user: User }) => {
   const receivables = useReceivablesReport();
   const inventory = useInventoryReport();
   const scenarios = useScenarios({ limit: 1 });
+  const attention = inventory.isPending || receivables.isPending ? null : adminAttention(inventory.data, receivables.data);
 
   return (
     <>
       <HeroHeader
         eyebrow="Panel de administración"
-        title={greetingFor(user.firstName)}
-        aside={<MonthRing />}
-        subtitle={monthCloseLine()}
+        title={statusTitle(attention?.length ?? null, user.firstName)}
+        aside={<StatusAside items={attention} onSeeAll={scrollToPending} />}
+        subtitle={statusSubtitle(user.firstName)}
         actions={
           <>
             <Button variant="secondary" onClick={() => navigate("/reportes")}>
@@ -92,7 +94,9 @@ export const AdminHome = ({ user }: { user: User }) => {
           </QueryState>
         </Card>
         <div className={styles.column}>
-          <AttentionCard inventory={inventory} receivables={receivables} />
+          <div id="pendientes">
+            <AttentionCard inventory={inventory} receivables={receivables} />
+          </div>
           <DecisionCard query={scenarios} />
         </div>
       </div>

@@ -251,31 +251,7 @@
   color: var(--ink-2);
 }
 
-/* ---------- Historial ---------- */
-.filters {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
-  gap: 12px;
-}
-.cardNote {
-  font-size: 12.5px;
-  color: var(--ink-2);
-  border-top: 1px solid var(--line-soft);
-  padding-top: 9px;
-  margin-top: 10px;
-  line-height: 1.55;
-}
-.chartCard {
-  align-self: start;
-}
-.emptyActions {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-  justify-content: center;
-}
-
-/* ---------- Fichas (detalle y modal de éxito) ---------- */
+/* ---------- Fichas (modal de éxito) ---------- */
 .section {
   display: flex;
   flex-direction: column;
@@ -317,5 +293,190 @@
 @media (max-width: 1080px) {
   .layout {
     grid-template-columns: 1fr;
+  }
+}
+
+/* ---------- celebración de la venta confirmada ---------- */
+.success {
+  --btn-invert: var(--app-bg);
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  flex-wrap: wrap;
+  padding: 20px 22px;
+  border-radius: 16px;
+  background: var(--app-bg);
+  color: var(--dark-ink);
+  border: 1px solid var(--dark-line);
+}
+.success::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(50% 120% at 8% 50%, rgba(185, 236, 111, 0.22), transparent 70%);
+  animation: successGlow 1.6s var(--ease-out) backwards;
+  pointer-events: none;
+}
+.successMark {
+  position: relative;
+  width: 64px;
+  height: 64px;
+  flex-shrink: 0;
+}
+.successCircle {
+  stroke: var(--sprout);
+  stroke-width: 2;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 0;
+  fill: rgba(185, 236, 111, 0.08);
+  transform-origin: center;
+  transform: rotate(-90deg);
+  animation: drawStroke 0.7s var(--ease-in-out) 0.15s backwards;
+}
+.successCheck {
+  stroke: var(--sprout);
+  stroke-width: 3.2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 0;
+  animation: drawStroke 0.5s var(--ease-out) 0.75s backwards;
+}
+.ripple {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 1px solid var(--sprout);
+  animation: ripple 1.4s var(--ease-out) 0.8s backwards;
+  opacity: 0;
+}
+.spark {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 4px;
+  height: 4px;
+  margin: -2px;
+  border-radius: 50%;
+  background: var(--sprout);
+  opacity: 0;
+  animation: spark 0.9s var(--ease-out) 0.8s backwards;
+}
+.successText {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+  min-width: 160px;
+  animation: successIn 0.7s var(--ease-out) 0.5s backwards;
+}
+.successLabel {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--sprout);
+}
+.successInvoice {
+  font-family: var(--font-dots);
+  font-weight: 900;
+  font-size: 30px;
+  letter-spacing: 0.02em;
+  line-height: 1.1;
+  color: var(--dark-ink);
+}
+.successTotal {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  animation: successIn 0.7s var(--ease-out) 0.65s backwards;
+}
+.successTotal > span {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--dark-muted);
+}
+.successTotal strong {
+  font-size: 34px;
+  font-weight: 300;
+  letter-spacing: -0.05em;
+  color: var(--dark-ink);
+}
+/* El detalle sale como un ticket impreso: se desenrolla de arriba abajo con borde troquelado. */
+.receipt {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 18px 20px 22px;
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  border-radius: 12px 12px 4px 4px;
+  animation: print 1.1s steps(18, end) 0.9s backwards;
+}
+.receipt::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -6px;
+  height: 6px;
+  background: radial-gradient(circle at 6px 0, var(--surface-2) 5px, transparent 5.5px) 0 0 / 12px 6px repeat-x;
+}
+@keyframes drawStroke {
+  from {
+    stroke-dashoffset: 1;
+  }
+}
+@keyframes ripple {
+  0% {
+    opacity: 0;
+    transform: scale(1);
+  }
+  5% {
+    opacity: 0.8;
+  }
+  100% {
+    opacity: 0;
+    transform: scale(2.4);
+  }
+}
+@keyframes spark {
+  0% {
+    opacity: 0;
+    transform: rotate(var(--a)) translateX(0) scale(1);
+  }
+  8% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: rotate(var(--a)) translateX(var(--d)) scale(0.4);
+  }
+}
+@keyframes successIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+}
+@keyframes successGlow {
+  from {
+    opacity: 0;
+    transform: scale(0.6);
+  }
+}
+@keyframes print {
+  from {
+    clip-path: inset(0 0 100% 0);
+  }
+  to {
+    clip-path: inset(0 0 0 0);
   }
 }

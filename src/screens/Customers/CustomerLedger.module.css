@@ -1,0 +1,324 @@
+/* Libro de cartera: filas-tarjeta con riel de estado, monograma, medidor de cupo y abono rápido. */
+.ledger {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.row {
+  --rail: var(--good);
+  --meter: var(--good);
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(190px, 1.2fr) minmax(150px, 1.2fr) minmax(100px, 0.6fr) 200px;
+  align-items: center;
+  gap: 14px 20px;
+  padding: 14px 18px 14px 20px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  overflow: hidden;
+  isolation: isolate;
+  transition:
+    border-color var(--dur) var(--ease-out),
+    transform var(--dur) var(--ease-out),
+    box-shadow var(--dur) var(--ease-out);
+  animation: rowIn 0.7s var(--ease-out) backwards;
+  animation-delay: calc(var(--i) * 45ms);
+}
+/* Brillo que sigue al cursor. */
+.row::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: radial-gradient(260px circle at var(--mx, -400px) var(--my, -400px), var(--spot), transparent 70%);
+  pointer-events: none;
+}
+/* Riel de estado a la izquierda. */
+.row::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 12px;
+  bottom: 12px;
+  width: 3px;
+  border-radius: 0 3px 3px 0;
+  background: var(--rail);
+  transform-origin: top;
+  animation: railIn 0.9s var(--ease-in-out) backwards;
+  animation-delay: calc(var(--i) * 45ms + 200ms);
+}
+.row:hover {
+  border-color: var(--spot-border);
+  box-shadow: var(--shadow-lift);
+  transform: translateY(-1px);
+}
+.row:focus-within {
+  border-color: var(--spot-border);
+}
+
+.clear {
+  --rail: var(--good);
+  --meter: var(--good);
+}
+.balance {
+  --rail: var(--warn);
+  --meter: var(--warn);
+}
+.over,
+.overdue {
+  --rail: var(--bad);
+  --meter: var(--bad);
+}
+.inactive {
+  --rail: var(--line-strong);
+  --meter: var(--muted-2);
+}
+.inactive .name {
+  color: var(--muted);
+}
+
+/* Toda la fila abre el detalle; las acciones quedan encima. */
+.hit {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  border-radius: inherit;
+}
+.hit:focus-visible {
+  outline: 2px solid var(--link);
+  outline-offset: -2px;
+}
+.who,
+.credit,
+.available,
+.end {
+  position: relative;
+  z-index: 1;
+  pointer-events: none;
+  min-width: 0;
+}
+.pay {
+  pointer-events: auto;
+}
+
+.who {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.identity {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+.name {
+  font-family: var(--font-heading);
+  font-size: 16px;
+  font-weight: 400;
+  letter-spacing: -0.025em;
+  color: var(--ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px 12px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--ink-2);
+  font-variant-numeric: tabular-nums;
+}
+.meta abbr {
+  text-decoration: none;
+  font-size: 9.5px;
+  letter-spacing: 0.12em;
+  color: var(--muted);
+}
+.lastPay {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+/* Medidor de cupo usado: pista con marcas cada 10 % y relleno que crece. */
+.credit {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+.meterHead {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.meterHead strong {
+  font-weight: 500;
+  color: var(--ink);
+}
+.meter {
+  position: relative;
+  height: 8px;
+  border-radius: 99px;
+  background: var(--surface-3);
+  overflow: hidden;
+}
+.meter::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(90deg, transparent 0 calc(10% - 1px), var(--surface) calc(10% - 1px) 10%);
+  pointer-events: none;
+}
+.meterFill {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: var(--meter);
+  transform: scaleX(var(--fill));
+  transform-origin: left;
+  animation: fillIn 1.2s var(--ease-out) backwards;
+  animation-delay: calc(var(--i) * 45ms + 250ms);
+}
+.cash {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+  border: 1px dashed var(--line-strong);
+  border-radius: 99px;
+  padding: 5px 11px;
+  align-self: flex-start;
+}
+
+.available {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  text-align: right;
+}
+.availableLabel {
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.availableValue {
+  font-family: var(--font-heading);
+  font-size: 18px;
+  font-weight: 300;
+  letter-spacing: -0.035em;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.negative {
+  color: var(--bad);
+}
+
+.end {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+}
+.pay {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 30px;
+  padding: 0 12px 0 14px;
+  border-radius: 99px;
+  border: 1px solid var(--line-strong);
+  background: var(--surface);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition:
+    background var(--dur-fast) var(--ease-out),
+    color var(--dur-fast) var(--ease-out),
+    border-color var(--dur-fast) var(--ease-out);
+}
+.pay svg {
+  transition: transform var(--dur) var(--ease-spring);
+}
+.pay:hover {
+  background: var(--sprout);
+  border-color: var(--sprout);
+  color: var(--sprout-ink);
+}
+.pay:hover svg {
+  transform: translateX(2px);
+}
+.pay:focus-visible {
+  outline: 2px solid var(--link);
+  outline-offset: 2px;
+}
+
+@container book (max-width: 740px) {
+  .row {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+  .credit {
+    grid-column: 1 / -1;
+    order: 3;
+  }
+  .available {
+    order: 2;
+  }
+  .end {
+    grid-column: 1 / -1;
+    order: 4;
+    justify-content: space-between;
+  }
+}
+
+@keyframes rowIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+}
+@keyframes railIn {
+  from {
+    transform: scaleY(0);
+  }
+}
+@keyframes fillIn {
+  from {
+    transform: scaleX(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .row,
+  .row::before,
+  .meterFill {
+    animation: none;
+  }
+  .row:hover {
+    transform: none;
+  }
+}

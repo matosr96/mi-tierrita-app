@@ -27,7 +27,8 @@ HTTP; solo usa hooks. Un hook por operación (`src/hooks/<entidad>/useX.ts`), un
    `--good`/`--warn`/`--bad` con sus `-soft`, `-line`, `-tag-bg`, `-tag-fg`; superficies siempre oscuras
    (menú, login, toasts) con `--dark-*`. Tipografía: `--font-heading`/`--font-body` Geist (titulares en
    peso 300 con tracking negativo), `--font-serif` Instrument Serif solo para acentos en cursiva (`<em>` o
-   `*así*` en `SplitText`), `--font-mono` Geist Mono para microetiquetas en mayúsculas. Movimiento:
+   `*así*` en `SplitText`), `--font-mono` Geist Mono para microetiquetas en mayúsculas, `--font-dots` Doto (matriz de puntos) solo para
+   la cifra estrella (precarga, pendientes de la portada, número de factura al confirmar una venta). Movimiento:
    `--ease-out`, `--ease-in-out`, `--ease-spring`; las entradas usan `animation-fill-mode: backwards`
    (nunca `both`/`forwards` en contenedores: un `transform` retenido rompe los modales `position: fixed`).
    `global.css` anula todo con `prefers-reduced-motion`. Los SVG de iconos pueden llevar `currentColor`.
@@ -59,11 +60,16 @@ align, render, width}], rows, rowKey, onRowClick, footer) · `Loading`, `EmptySt
 `StatCard` pasa los valores de texto con dígitos por `Odometer`; `DataTable` escalona la entrada de filas.
 Movimiento en `@/components/motion`: `Reveal` (aparece al entrar en pantalla), `SplitText` (titular por
 palabras; `*x*` serif cursiva, `\n` salto), `Odometer` (rodillos por dígito), `Preloader` (intro 0→100 %,
-una vez por sesión), `TopoField` (curvas de nivel animadas para superficies oscuras), `trackSpotlight`
+una vez por sesión), `TopoField` (curvas de nivel animadas para superficies oscuras), `ShaderField` (fondo vivo en
+WebGL con los colores del tema; se pausa fuera de la vista), `PhotoBackdrop` (fotos en duotono con zoom lento;
+las rutas van en `src/lib/media.ts` y los archivos en `public/media/`), `trackSpotlight`
 (brillo que sigue al cursor; ya lo usan `Card` y `StatCard`), `useInView`. En `@/components/layout`:
 `HeroHeader` (portada oscura de Inicio: eyebrow, titular, subtítulo, acciones y `aside`) y `CommandPalette`
 (⌘K / Ctrl+K, montada en el shell). El shell revela al hacer scroll todo `section` o `[data-reveal-item]`
 que monta fuera de la vista, y las `NavLink` usan View Transitions (`view-transition-name: page`).
+Efectos ligados al scroll con CSS nativo (`animation-timeline: scroll()/view()`) siempre dentro de
+`@supports` y anulados con `prefers-reduced-motion`. La portada de Inicio responde "¿está todo bien?":
+`statusTitle` + `StatusAside` a partir de los pendientes de `screens/Home/attention.ts`.
 Superficies oscuras dentro del panel claro (héroe, ticket del punto de venta, tarjeta de decisión)
 reutilizan el kit redefiniendo `--ink`, `--surface`, `--line`… y `--btn-invert` en su contenedor. Gráficos SVG en `@/components/charts`:
 `HBarChart`, `VBarChart` ({label, value, alt}[], format), `LineChart` (points, formatX, formatY, marker,

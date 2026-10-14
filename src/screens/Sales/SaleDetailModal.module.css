@@ -1,0 +1,264 @@
+/* Detalle de venta impreso: el tiquete sale de la ranura de la caja con borde troquelado y sello si fue anulada. */
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.paperWrap {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  padding: 10px 0 12px;
+}
+/* Ranura de la impresora. */
+.paperWrap::before {
+  content: "";
+  position: absolute;
+  top: 4px;
+  left: 50%;
+  width: min(440px, 100%);
+  height: 8px;
+  transform: translateX(-50%);
+  border-radius: 999px;
+  background: var(--app-bg);
+  border: 1px solid var(--line-strong);
+  box-shadow: inset 0 2px 3px rgba(0, 0, 0, 0.5);
+  z-index: 1;
+}
+.receipt {
+  position: relative;
+  width: min(400px, calc(100% - 24px));
+  display: flex;
+  flex-direction: column;
+  padding: 26px 22px 24px;
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  border-bottom: none;
+  box-shadow: 0 24px 40px -28px rgba(10, 24, 17, 0.45);
+  font-family: var(--font-mono);
+  color: var(--ink);
+  animation: feed 1.1s steps(22, end) 0.15s backwards;
+}
+/* Borde inferior troquelado. */
+.receipt::after {
+  content: "";
+  position: absolute;
+  left: -1px;
+  right: -1px;
+  bottom: -7px;
+  height: 8px;
+  background: radial-gradient(circle at 6px 0, var(--surface-2) 5.5px, transparent 6px) 0 0 / 12px 8px repeat-x;
+}
+.head {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  text-align: center;
+  padding-bottom: 14px;
+  border-bottom: 1px dashed var(--line-strong);
+}
+.brand {
+  font-size: 10.5px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--ink);
+}
+.kicker {
+  font-size: 9px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.invoice {
+  font-family: var(--font-dots);
+  font-weight: 800;
+  font-size: 30px;
+  line-height: 1.1;
+  letter-spacing: 0.02em;
+  color: var(--forest-fg);
+  margin-top: 6px;
+}
+.when {
+  font-size: 11px;
+  color: var(--ink-2);
+  font-variant-numeric: tabular-nums;
+}
+
+.facts {
+  margin: 0;
+  padding: 12px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  border-bottom: 1px dashed var(--line-strong);
+}
+.facts > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 14px;
+  font-size: 11.5px;
+}
+.facts dt {
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-size: 10px;
+  padding-top: 1px;
+}
+.facts dd {
+  margin: 0;
+  text-align: right;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+.good {
+  color: var(--good) !important;
+}
+.bad {
+  color: var(--bad) !important;
+}
+
+.linesHead {
+  display: flex;
+  justify-content: space-between;
+  padding: 12px 0 6px;
+  font-size: 9.5px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.lines {
+  list-style: none;
+  margin: 0;
+  padding: 0 0 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  border-bottom: 1px dashed var(--line-strong);
+}
+.line {
+  animation: lineIn 0.5s var(--ease-out) backwards;
+  animation-delay: 0.9s;
+}
+.lineTop {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  font-size: 12px;
+}
+.lineName {
+  font-family: var(--font-body);
+  font-size: 13px;
+  color: var(--ink);
+  min-width: 0;
+}
+.leader {
+  flex: 1;
+  min-width: 12px;
+  border-bottom: 1px dotted var(--line-strong);
+  transform: translateY(-3px);
+}
+.lineTotal {
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.lineSub {
+  font-size: 10.5px;
+  color: var(--ink-2);
+  margin-top: 2px;
+  font-variant-numeric: tabular-nums;
+}
+
+.total {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding: 14px 0 4px;
+}
+.total span {
+  font-size: 10.5px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ink-2);
+}
+.total strong {
+  font-family: var(--font-heading);
+  font-size: 34px;
+  font-weight: 300;
+  letter-spacing: -0.05em;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+.voided .total strong {
+  text-decoration: line-through;
+  text-decoration-color: var(--bad);
+  text-decoration-thickness: 2px;
+  color: var(--muted);
+}
+.barcode {
+  height: 36px;
+  margin: 14px 18px 0;
+  background: repeating-linear-gradient(
+    90deg,
+    var(--ink) 0 2px,
+    transparent 2px 4px,
+    var(--ink) 4px 5px,
+    transparent 5px 7px,
+    var(--ink) 7px 10px,
+    transparent 10px 11px,
+    var(--ink) 11px 12px,
+    transparent 12px 15px
+  );
+  opacity: 0.78;
+}
+.thanks {
+  margin-top: 10px;
+  text-align: center;
+  font-size: 9.5px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+/* Sello de anulada. */
+.stamp {
+  position: absolute;
+  top: 60%;
+  left: 50%;
+  padding: 6px 16px;
+  border: 2.5px solid var(--bad);
+  border-radius: 8px;
+  color: var(--bad);
+  font-family: var(--font-mono);
+  font-size: 26px;
+  font-weight: 600;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  opacity: 0.72;
+  transform: translate(-50%, -50%) rotate(-14deg);
+  pointer-events: none;
+  animation: stamp 0.45s var(--ease-spring) 1.2s backwards;
+}
+
+@keyframes feed {
+  from {
+    clip-path: inset(0 0 100% 0);
+    transform: translateY(-24px);
+  }
+  to {
+    clip-path: inset(0 0 -10px 0);
+    transform: translateY(0);
+  }
+}
+@keyframes lineIn {
+  from {
+    opacity: 0;
+  }
+}
+@keyframes stamp {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -50%) rotate(-14deg) scale(1.8);
+  }
+}

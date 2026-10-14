@@ -5,3 +5,5 @@ export * from "./Odometer";
 export * from "./Preloader";
 export * from "./TopoField";
 export * from "./spotlight";
+export * from "./ShaderField";
+export * from "./PhotoBackdrop";

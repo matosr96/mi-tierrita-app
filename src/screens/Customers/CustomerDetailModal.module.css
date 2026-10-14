@@ -1,0 +1,289 @@
+/* Detalle del cliente: héroe oscuro con el saldo en matriz de puntos, ficha en mono y abono. */
+.wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.hero {
+  --ink: var(--dark-ink);
+  --ink-2: var(--dark-ink-2);
+  --muted: var(--dark-muted);
+  --line: var(--dark-line);
+  --line-soft: var(--dark-line);
+  --surface: var(--dark-glass);
+  --skeleton: var(--dark-line);
+  --btn-invert: var(--app-bg);
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  display: flex;
+  flex-direction: column;
+  padding: 20px 22px 18px;
+  color: var(--dark-ink);
+  background: var(--app-bg);
+  border: 1px solid var(--dark-line);
+  border-radius: var(--radius);
+  animation: heroIn 0.7s var(--ease-out) backwards;
+}
+.topo {
+  position: absolute;
+  z-index: -1;
+  right: -240px;
+  bottom: -360px;
+  width: 700px;
+  height: 700px;
+  opacity: 0.5;
+}
+.hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: radial-gradient(circle at 85% 90%, transparent 15%, var(--app-bg) 72%);
+  pointer-events: none;
+}
+
+.heroTop {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding-left: 6px;
+}
+.heroWho {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  min-width: 0;
+}
+.label,
+.balanceLabel {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--dark-ink-2);
+}
+.label::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--sprout);
+  box-shadow: 0 0 10px var(--sprout);
+}
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.balanceLabel {
+  margin-top: 24px;
+}
+.balance {
+  margin-top: 8px;
+  font-family: var(--font-dots);
+  font-weight: 900;
+  font-size: clamp(38px, 7vw, 60px);
+  line-height: 0.95;
+  letter-spacing: -0.02em;
+  white-space: nowrap;
+}
+.toneGood {
+  color: var(--sprout);
+  text-shadow: 0 0 26px color-mix(in srgb, var(--sprout) 35%, transparent);
+}
+.toneWarn {
+  color: var(--dark-warn);
+  text-shadow: 0 0 26px color-mix(in srgb, var(--dark-warn) 30%, transparent);
+}
+.toneBad {
+  color: var(--dark-bad);
+  text-shadow: 0 0 26px color-mix(in srgb, var(--dark-bad) 30%, transparent);
+}
+
+.meter {
+  position: relative;
+  margin-top: 18px;
+  height: 10px;
+  border-radius: 99px;
+  background: color-mix(in srgb, var(--dark-ink) 8%, transparent);
+  overflow: hidden;
+}
+.meter::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(90deg, transparent 0 calc(5% - 1.5px), var(--app-bg) calc(5% - 1.5px) 5%);
+  pointer-events: none;
+}
+.meterFill {
+  position: absolute;
+  inset: 0;
+  background: currentColor;
+  transform: scaleX(var(--fill));
+  transform-origin: left;
+  animation: grow 1.3s var(--ease-out) 0.3s backwards;
+}
+.toneGood ~ .meter {
+  color: var(--sprout);
+}
+.toneWarn ~ .meter {
+  color: var(--dark-warn);
+}
+.toneBad ~ .meter {
+  color: var(--dark-bad);
+}
+.cashOnly {
+  margin-top: 14px;
+  font-size: 12.5px;
+  color: var(--dark-ink-2);
+}
+
+.pair {
+  margin: 14px 0 0;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+.pair > div {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding-top: 9px;
+  border-top: 1px solid var(--dark-line);
+  min-width: 0;
+}
+.pair > div:last-child {
+  text-align: right;
+}
+.pair dt {
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--dark-muted);
+}
+.pair dd {
+  margin: 0;
+  font-family: var(--font-heading);
+  font-size: 22px;
+  font-weight: 300;
+  letter-spacing: -0.035em;
+  color: var(--dark-ink);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.negative {
+  color: var(--dark-bad) !important;
+}
+.heroError {
+  margin-top: 18px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  font-size: 12.5px;
+  color: var(--dark-ink-2);
+}
+
+/* Ficha: celdas con microetiqueta en mono separadas por reglas finas. */
+.facts {
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  background: var(--line);
+  gap: 1px;
+}
+.fact {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 11px 13px;
+  background: var(--surface);
+  min-width: 0;
+}
+.fact dt {
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.fact dd {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+.mono {
+  font-family: var(--font-mono);
+  font-size: 12.5px !important;
+}
+
+.pay {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px 18px;
+  border: 1px dashed var(--line-strong);
+  border-radius: var(--radius);
+  background: var(--surface-2);
+}
+.payHead {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.payLabel {
+  font-family: var(--font-heading);
+  font-size: 17px;
+  font-weight: 400;
+  letter-spacing: -0.03em;
+  color: var(--ink);
+}
+.payHint {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+@media (max-width: 640px) {
+  .heroTop {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+@keyframes heroIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+@keyframes grow {
+  from {
+    transform: scaleX(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero,
+  .meterFill {
+    animation: none;
+  }
+}

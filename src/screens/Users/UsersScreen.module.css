@@ -1,75 +1,166 @@
-/* Usuarios y roles: lienzo Usuarios.dc.html (Cuentas, matriz por rol y registro de actividad). */
+/* Usuarios y roles: equipo en tarjetas con monograma, matriz de permisos oscura y feed de actividad. */
 .page {
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 18px;
 }
-.card {
-  border-radius: 10px;
+
+/* Equipo */
+.teamHead {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 16px;
+  margin-bottom: 16px;
 }
-.grid {
+.label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.label::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 2px;
+  background: var(--forest);
+}
+.title {
+  font-family: var(--font-heading);
+  font-size: clamp(24px, 3vw, 30px);
+  font-weight: 300;
+  letter-spacing: -0.045em;
+  line-height: 1.1;
+  margin-top: 10px;
+  color: var(--ink);
+}
+.title em {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-weight: 400;
+  letter-spacing: -0.01em;
+}
+.count {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+.countValue {
+  font-family: var(--font-heading);
+  font-size: 44px;
+  font-weight: 300;
+  letter-spacing: -0.05em;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink);
+}
+.countLabel {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.people {
+  list-style: none;
+  margin: 0;
+  padding: 0;
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(232px, 1fr));
+  gap: 12px;
+}
+.addItem {
+  display: flex;
+  animation: addIn 0.7s var(--ease-out) backwards;
+}
+.add {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-end;
+  gap: 4px;
+  min-height: 200px;
+  padding: 18px;
+  border-radius: var(--radius);
+  border: 1px dashed var(--line-strong);
+  background: transparent;
+  color: var(--ink-2);
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.3s ease, background 0.3s ease, color 0.3s ease;
+}
+.add:hover,
+.add:focus-visible {
+  border-color: var(--forest);
+  background: var(--sprout-soft);
+  color: var(--ink);
+  outline: none;
+}
+.addPlus {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  margin-bottom: auto;
+  border-radius: 14px;
+  font-size: 24px;
+  font-weight: 300;
+  color: var(--sprout-ink);
+  background: var(--sprout);
+  transition: transform 0.5s var(--ease-spring);
+}
+.add:hover .addPlus {
+  transform: rotate(90deg) scale(1.06);
+}
+.addText {
+  font-family: var(--font-heading);
+  font-size: 18px;
+  font-weight: 300;
+  letter-spacing: -0.03em;
+}
+.addHint {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.split {
+  display: grid;
+  grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
   gap: 14px;
   align-items: start;
 }
-@media (max-width: 1000px) {
-  .grid {
+@media (max-width: 1080px) {
+  .split {
     grid-template-columns: 1fr;
   }
 }
-.name {
-  font-weight: 600;
-  color: var(--ink);
-}
-.you {
-  margin-left: 6px;
-  font-size: 12px;
-  color: var(--muted);
-  font-weight: 400;
-}
-.username {
-  color: var(--ink-2);
-}
-.date {
-  white-space: nowrap;
-  color: var(--ink-2);
-}
-.mono {
-  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-  font-size: 12px;
-  color: var(--ink);
-  word-break: break-all;
-}
-.pager {
-  padding-top: 8px;
+@media (max-width: 560px) {
+  .teamHead {
+    flex-direction: column;
+    align-items: flex-start;
+  }
 }
 
-/* matriz de módulos por rol */
-.full {
-  color: var(--good);
-  font-weight: 600;
+@keyframes addIn {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
 }
-.consult {
-  color: var(--ink-2);
-}
-.none {
-  color: var(--muted);
-}
-.legend {
-  display: flex;
-  gap: 14px;
-  flex-wrap: wrap;
-  margin-top: 10px;
-  font-size: 11.5px;
-  color: var(--muted);
-}
-.cardLink {
-  font-size: 12.5px;
-  font-weight: 600;
-  color: var(--link);
-  text-decoration: none;
-  white-space: nowrap;
+@media (prefers-reduced-motion: reduce) {
+  .addItem {
+    animation: none;
+  }
+  .add:hover .addPlus {
+    transform: none;
+  }
 }
 
 /* formularios de los modales */
@@ -90,29 +181,4 @@
   cursor: pointer;
   color: var(--muted);
   font-size: 13px;
-}
-
-/* Subrayado que se dibuja al pasar el cursor. */
-.cardLink {
-  position: relative;
-  text-decoration: none;
-}
-.cardLink::after {
-  content: "";
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: -2px;
-  height: 1px;
-  background: currentColor;
-  transform: scaleX(0);
-  transform-origin: right;
-  transition: transform 0.45s var(--ease-out);
-}
-.cardLink:hover {
-  text-decoration: none;
-}
-.cardLink:hover::after {
-  transform: scaleX(1);
-  transform-origin: left;
 }

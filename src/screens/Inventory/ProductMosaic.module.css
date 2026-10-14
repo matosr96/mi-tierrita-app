@@ -1,0 +1,380 @@
+/* Mosaico del catálogo: tarjetas con visual generativo (superficie siempre oscura), entrada escalonada y brillo al cursor. */
+.mosaic {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(228px, 100%), 1fr));
+  gap: 12px;
+}
+
+/* ---------- tarjeta ---------- */
+.tile {
+  --tint: var(--sprout);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  overflow: hidden;
+  min-width: 0;
+  transition: transform 0.6s var(--ease-out), border-color 0.4s var(--ease-out), box-shadow 0.6s var(--ease-out);
+  animation: tileIn 0.8s var(--ease-out) calc(var(--i, 0) * var(--stagger)) backwards;
+}
+.tile:hover,
+.tile:focus-within {
+  transform: translateY(-4px);
+  border-color: var(--line-strong);
+  box-shadow: var(--shadow-lift);
+}
+.tile:active {
+  transform: translateY(-2px) scale(0.995);
+}
+.tint0 {
+  --tint: var(--sprout);
+}
+.tint1 {
+  --tint: var(--dark-warn);
+}
+.tint2 {
+  --tint: var(--nav-badge-fg);
+}
+.tint3 {
+  --tint: var(--nav-ink);
+}
+.tint4 {
+  --tint: var(--dark-bad);
+}
+.tint5 {
+  --tint: var(--dark-ink-2);
+}
+.inactive {
+  opacity: 0.62;
+}
+.inactive .visual {
+  filter: grayscale(1);
+}
+
+/* Brillo que sigue al cursor (--mx/--my de trackSpotlight) y borde que se ilumina cerca de él. */
+.tile::before,
+.tile::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  opacity: 0;
+  z-index: 3;
+  transition: opacity 0.5s var(--ease-out);
+}
+.tile::before {
+  background: radial-gradient(360px circle at var(--mx, 50%) var(--my, 50%), var(--spot), transparent 65%);
+}
+.tile::after {
+  padding: 1px;
+  background: radial-gradient(240px circle at var(--mx, 50%) var(--my, 50%), var(--spot-border), transparent 70%);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+}
+.tile:hover::before,
+.tile:hover::after {
+  opacity: 1;
+}
+
+/* ---------- visual generativo ---------- */
+.visual {
+  position: relative;
+  aspect-ratio: 16 / 10;
+  overflow: hidden;
+  background: var(--app-bg);
+  color: var(--tint);
+}
+.visualSvg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  transform: scale(1.001);
+  transition: transform 1.1s var(--ease-out);
+}
+.tile:hover .visualSvg,
+.tile:focus-within .visualSvg {
+  transform: scale(1.08);
+}
+.visualGlow {
+  fill: var(--tint);
+  opacity: 0.07;
+}
+.visualLine {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 0.8;
+}
+.visualLineStrong {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.5;
+}
+.visualDot {
+  fill: currentColor;
+  opacity: 0.78;
+}
+.visualGrain {
+  opacity: 0.16;
+  mix-blend-mode: overlay;
+}
+.visual::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, color-mix(in srgb, var(--app-bg) 70%, transparent), transparent 55%);
+  pointer-events: none;
+}
+.sku {
+  position: absolute;
+  left: 12px;
+  bottom: 10px;
+  z-index: 1;
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--dark-ink);
+}
+.visualBadge {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 1;
+}
+
+/* ---------- cuerpo ---------- */
+.body {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 14px 15px 12px;
+  flex: 1;
+}
+.category {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  align-self: flex-start;
+  max-width: 100%;
+  padding: 3px 9px 3px 8px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-2);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.categoryDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  background: var(--tint);
+  box-shadow: 0 0 0 1px var(--app-bg);
+}
+.name {
+  font-family: var(--font-heading);
+  font-size: 21px;
+  font-weight: 300;
+  line-height: 1.12;
+  letter-spacing: -0.035em;
+  color: var(--ink);
+  margin-top: 2px;
+  overflow-wrap: anywhere;
+}
+.price {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--ink);
+  letter-spacing: -0.01em;
+}
+.gauge {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: auto;
+  padding-top: 8px;
+}
+.gaugeHead {
+  display: flex;
+  justify-content: space-between;
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.gaugeValue {
+  color: var(--ink);
+}
+.gaugeTrack {
+  --gauge: var(--good);
+  position: relative;
+  height: 4px;
+  border-radius: 999px;
+  background: var(--surface-3);
+}
+.gauge_good {
+  --gauge: var(--good);
+}
+.gauge_warn {
+  --gauge: var(--warn);
+}
+.gauge_bad {
+  --gauge: var(--bad);
+}
+.gauge_neutral {
+  --gauge: var(--muted-2);
+}
+.gaugeFill {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: var(--fill);
+  border-radius: inherit;
+  background: var(--gauge);
+  transform-origin: left;
+  animation: gaugeIn 1.1s var(--ease-out) calc(var(--i, 0) * var(--stagger) + 0.3s) backwards;
+}
+.gaugeTick {
+  position: absolute;
+  top: -3px;
+  bottom: -3px;
+  width: 1px;
+  background: var(--line-strong);
+}
+
+/* ---------- área de clic y acciones ---------- */
+.hit {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  border: none;
+  background: transparent;
+  padding: 0;
+  cursor: pointer;
+  border-radius: inherit;
+}
+.hit:focus-visible {
+  outline: 2px solid var(--leaf);
+  outline-offset: -2px;
+}
+.actions {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 15px 12px;
+  border-top: 1px solid var(--line-soft);
+  pointer-events: none;
+}
+.action {
+  position: relative;
+  border: none;
+  background: transparent;
+  padding: 0;
+  font-size: 12px;
+  color: var(--link);
+  cursor: pointer;
+  pointer-events: auto;
+}
+.actionDanger {
+  color: var(--bad-tag-fg);
+}
+.action::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -2px;
+  height: 1px;
+  background: currentColor;
+  transform: scaleX(0);
+  transform-origin: right;
+  transition: transform 0.45s var(--ease-out);
+}
+.action:hover::after {
+  transform: scaleX(1);
+  transform-origin: left;
+}
+.actionHint {
+  margin-left: auto;
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+  transform: translateX(-4px);
+  opacity: 0.6;
+  transition: transform 0.5s var(--ease-out), opacity 0.5s var(--ease-out), color 0.3s ease;
+}
+.tile:hover .actionHint {
+  transform: none;
+  opacity: 1;
+  color: var(--ink);
+}
+
+@keyframes tileIn {
+  from {
+    opacity: 0;
+    transform: translateY(28px) scale(0.97);
+    filter: blur(4px);
+  }
+}
+@keyframes gaugeIn {
+  from {
+    transform: scaleX(0);
+  }
+}
+
+/* ---------- morfismo compartido (View Transitions) ---------- */
+/* Clase que el hook pone en <html> solo mientras dura el morfismo: la página no se desliza, solo se funde. */
+:global(html).morphing::view-transition-old(page) {
+  animation: morphFade 0.3s var(--ease-out) both;
+}
+:global(html).morphing::view-transition-new(page) {
+  animation: none;
+}
+:global(html).morphing::view-transition-group(product-hero) {
+  animation-duration: 0.6s;
+  animation-timing-function: var(--ease-out);
+  border-radius: 20px;
+  overflow: hidden;
+}
+:global(html).morphing::view-transition-old(product-hero),
+:global(html).morphing::view-transition-new(product-hero) {
+  height: 100%;
+  object-fit: cover;
+  animation-duration: 0.45s;
+  animation-timing-function: var(--ease-out);
+}
+@keyframes morphFade {
+  to {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tile,
+  .tile:hover,
+  .tile:focus-within,
+  .tile:hover .visualSvg {
+    transform: none;
+    animation: none;
+  }
+}

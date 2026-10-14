@@ -1,6 +1,6 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type MouseEvent } from "react";
 import { PageHeader } from "@/components/layout/AppShell";
-import { Badge, Button, Card, Checkbox, Chips, DataTable, EmptyState, Input, Modal, Pagination, QueryState, type Column } from "@/components/ui";
+import { Badge, Button, Card, Checkbox, Chips, DataTable, EmptyState, Input, Modal, Pagination, QueryState, Tabs, type Column } from "@/components/ui";
 import { useCategories } from "@/hooks/categories";
 import { useDeactivateProduct, useProducts } from "@/hooks/products";
 import { int, money } from "@/lib/format";
@@ -14,14 +14,35 @@ import { ProductsByLineCard } from "./ProductsByLineCard";
 import { ProductFormModal } from "./ProductFormModal";
 import { ProductBatchesModal } from "./ProductBatchesModal";
 import { CategoriesModal } from "./CategoriesModal";
+import { ProductMosaic } from "./ProductMosaic";
+import { stockStatus } from "./stockStatus";
+import { useProductMorph } from "./useProductMorph";
 import styles from "./InventoryScreen.module.css";
 
 const PAGE_SIZE = 20;
-const LOW_STOCK = 5;
 
-/** Estado de existencias del lienzo: la API no guarda mínimos, así que Crítico = sin stock y Bajo = menos de 5 unidades. */
-const stockStatus = (p: Product): { tone: "bad" | "warn" | "good" | "neutral"; label: string } =>
-  !p.active ? { tone: "neutral", label: "Inactivo" } : p.stock === 0 ? { tone: "bad", label: "Crítico" } : p.stock < LOW_STOCK ? { tone: "warn", label: "Bajo" } : { tone: "good", label: "Normal" };
+type View = "table" | "mosaic";
+const VIEW_KEY = "mi-tierrita:inventario-vista";
+const viewOptions: { value: View; label: string }[] = [
+  { value: "table", label: "Tabla" },
+  { value: "mosaic", label: "Mosaico" },
+];
+
+/** Vista preferida de este navegador (comodidad por usuario; si el almacenamiento falla, tabla). */
+const readView = (): View => {
+  try {
+    return window.localStorage.getItem(VIEW_KEY) === "mosaic" ? "mosaic" : "table";
+  } catch {
+    return "table";
+  }
+};
+const saveView = (v: View) => {
+  try {
+    window.localStorage.setItem(VIEW_KEY, v);
+  } catch {
+    /* sin almacenamiento: la preferencia dura solo esta visita */
+  }
+};
 
 /** CU-05 / RF-02 Inventario: existencias por producto, lotes y mantenimiento del catálogo según el rol. */
 export const InventoryScreen = () => {
@@ -41,6 +62,13 @@ export const InventoryScreen = () => {
   const [categoriesOpen, setCategoriesOpen] = useState(false);
   const [registerOpen, setRegisterOpen] = useState(false);
   const [deactivating, setDeactivating] = useState<Product | null>(null);
+  const [view, setView] = useState<View>(readView);
+  const morph = useProductMorph<Product>(useCallback((p: Product | null) => setBatchesProduct(p), []));
+  // DataTable solo entrega la fila de datos: se recuerda el <tr> pulsado para el morfismo.
+  const rowEl = useRef<HTMLElement | null>(null);
+  const captureRow = (e: MouseEvent<HTMLElement>) => {
+    rowEl.current = (e.target as HTMLElement).closest("tr");
+  };
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -162,7 +190,20 @@ export const InventoryScreen = () => {
       </div>
 
       <div className={styles.grid}>
-        <Card title="Existencias" subtitle={products.data ? `${int(products.data.count)} ${products.data.count === 1 ? "producto" : "productos"} · clic en una fila para ver sus lotes` : undefined}>
+        <Card
+          title="Existencias"
+          subtitle={products.data ? `${int(products.data.count)} ${products.data.count === 1 ? "producto" : "productos"} · clic en ${view === "mosaic" ? "una tarjeta" : "una fila"} para ver sus lotes` : undefined}
+          actions={
+            <Tabs
+              options={viewOptions}
+              value={view}
+              onChange={(v) => {
+                setView(v);
+                saveView(v);
+              }}
+            />
+          }
+        >
           <QueryState
             query={products}
             isEmpty={(data) => data.items.length === 0}
@@ -194,7 +235,13 @@ export const InventoryScreen = () => {
           >
             {(data) => (
               <>
-                <DataTable columns={columns} rows={data.items} rowKey={(p) => p.id} onRowClick={setBatchesProduct} />
+                {view === "mosaic" ? (
+                  <ProductMosaic products={data.items} canEdit={canEdit} isAdmin={isAdmin} onOpen={morph.open} onEdit={openEdit} onDeactivate={setDeactivating} />
+                ) : (
+                  <div onClickCapture={captureRow}>
+                    <DataTable columns={columns} rows={data.items} rowKey={(p) => p.id} onRowClick={(p) => morph.open(p, rowEl.current)} />
+                  </div>
+                )}
                 <Pagination page={data} onPage={setPage} />
               </>
             )}
@@ -203,7 +250,7 @@ export const InventoryScreen = () => {
         {isAdmin ? <ValueByLineCard /> : <ProductsByLineCard />}
       </div>
 
-      <ProductBatchesModal product={batchesProduct} canRegister={canEdit} onClose={() => setBatchesProduct(null)} />
+      <ProductBatchesModal product={batchesProduct} canRegister={canEdit} onClose={morph.close} viewTransitionName={morph.heroName} />
 
       {canEdit ? (
         <>

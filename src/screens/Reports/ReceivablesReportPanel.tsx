@@ -57,17 +57,19 @@ export const ReceivablesReportPanel = () => {
       <QueryState query={query} empty={null}>
         {(report) => (
           <ReportPaper
-            title="Reporte de cartera"
-            meta={`Agropecuaria Mi Tierrita · al ${dateOnly(todayIso())} · ${user ? `Generado por ${user.firstName} ${user.lastName}, ${ROLE_LABELS[user.role]}` : ""}`}
+            code="R-03"
+            title="Reporte de"
+            accent="cartera"
+            meta={[`Corte al ${dateOnly(todayIso())}`, `Vencida a ${int(report.overdueDays)} días`, user ? `Por ${user.firstName} ${user.lastName}, ${ROLE_LABELS[user.role]}` : ""]}
             summary={
               report.customersWithBalance === 0 ? (
-                <p className={styles.summary}>Ningún cliente tiene saldo pendiente a la fecha.</p>
+                <p>Ningún cliente tiene saldo pendiente a la fecha.</p>
               ) : (
                 <>
-                  <p className={styles.summary}>
+                  <p>
                     <strong>{int(report.customersWithBalance)} clientes</strong> deben en total <strong>{money(report.totalBalance)}</strong>.
                   </p>
-                  <p className={styles.summary}>
+                  <p>
                     De esa cartera, {money(report.overdueBalance)} corresponde a {int(report.overdueCustomers)} clientes con más de {int(report.overdueDays)} días sin abonar desde su última venta a crédito.
                   </p>
                 </>

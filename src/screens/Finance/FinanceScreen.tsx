@@ -2,32 +2,38 @@ import { useMemo, useState } from "react";
 import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { useScenario, useScenarios } from "@/hooks/financial";
 import type { ScenarioDetail } from "@/types/api";
-import { SplitText } from "@/components/motion";
-import { Button, EmptyState, ErrorState, Loading, QueryState, Tabs, type TabOption } from "@/components/ui";
+import { Odometer, SplitText } from "@/components/motion";
+import { Button, EmptyState, ErrorState, Loading, QueryState } from "@/components/ui";
+import { dateOnly, money, moneyCompact, pct, times } from "@/lib/format";
 import { DecisionPanel } from "./DecisionPanel";
 import { AssumptionsPanel } from "./AssumptionsPanel";
 import { ScenariosPanel } from "./ScenariosPanel";
 import { CashFlowPanel } from "./CashFlowPanel";
 import { ScenarioFormModal } from "./ScenarioFormModal";
+import { FinanceTabs, type FinanceTabOption } from "./FinanceTabs";
+import { letterOf } from "./financeShared";
 import styles from "./FinanceScreen.module.css";
 
 export type FinanceTab = "panel" | "supuestos" | "escenarios" | "flujo";
 
-const TAB_OPTIONS: TabOption<FinanceTab>[] = [
-  { value: "panel", label: "Panel" },
-  { value: "supuestos", label: "Datos y supuestos" },
-  { value: "escenarios", label: "Escenarios" },
-  { value: "flujo", label: "Flujo y amortización" },
+const TAB_OPTIONS: FinanceTabOption<FinanceTab>[] = [
+  { value: "panel", label: "Panel", hint: "Decisión" },
+  { value: "supuestos", label: "Datos y supuestos", hint: "Ficha técnica" },
+  { value: "escenarios", label: "Escenarios", hint: "Comparación y riesgo" },
+  { value: "flujo", label: "Flujo y amortización", hint: "Año a año · mes a mes" },
 ];
 
-/** Título y subtítulo de cada vista del lienzo (el Panel usa el nombre del escenario). */
+/** Título y subtítulo de cada vista (el Panel usa el nombre del escenario). `*x*` va en serif cursiva. */
 const TAB_META: Record<Exclude<FinanceTab, "panel">, { title: string; subtitle: string }> = {
-  supuestos: { title: "Datos del caso y supuestos", subtitle: "Cada campo indica su origen. Un cambio recalcula todos los indicadores y queda registrado con su usuario." },
-  escenarios: { title: "Escenarios y sensibilidad", subtitle: "Qué alternativa conviene y cuánto margen de error tolera antes de dejar de convenir." },
-  flujo: { title: "Flujo de caja y amortización", subtitle: "Detalle año por año de la ampliación y mes por mes del crédito." },
+  supuestos: { title: "Datos del caso y *supuestos*", subtitle: "Cada campo indica su origen. Un cambio recalcula todos los indicadores y queda registrado con su usuario." },
+  escenarios: { title: "Escenarios y *sensibilidad*", subtitle: "Qué alternativa conviene y cuánto margen de error tolera antes de dejar de convenir." },
+  flujo: { title: "Flujo de caja y *amortización*", subtitle: "Detalle año por año de la ampliación y mes por mes del crédito." },
 };
 
 const isTab = (v: string | undefined): v is FinanceTab => v === "panel" || v === "supuestos" || v === "escenarios" || v === "flujo";
+
+type Tone = "good" | "bad" | "warn" | undefined;
+const toneClass = (t: Tone): string => (t === "good" ? styles.tickGood : t === "bad" ? styles.tickBad : t === "warn" ? styles.tickWarn : "") ?? "";
 
 /** CU-14 a CU-17: evaluación de la ampliación con crédito. Solo ADMIN (la ruta ya lo garantiza). */
 export const FinanceScreen = () => {
@@ -55,56 +61,60 @@ export const FinanceScreen = () => {
     setSearchParams({ escenario: String(id) });
   };
 
-  const presets = useMemo(() => [...items].sort((a, b) => a.createdAt.localeCompare(b.createdAt)).map((s) => ({ value: String(s.id), label: s.name })), [items]);
+  // Orden de creación: la letra de cada escenario (A, B, C…) coincide con la de la comparación.
+  const presets = useMemo(() => [...items].sort((a, b) => a.createdAt.localeCompare(b.createdAt)), [items]);
+  const selectedLetter = selected ? letterOf(Math.max(0, presets.findIndex((s) => s.id === selected.id))) : null;
 
-  const titleRow = () => {
+  const actions = () => {
     if (!selected) return null;
-    const meta = tab === "panel" ? null : TAB_META[tab];
-    const selector = (
-      <div className={styles.presets}>
-        <Tabs options={presets} value={String(selectedId)} onChange={(v) => selectScenario(Number(v))} />
-      </div>
-    );
     if (tab === "panel") {
       return (
-        <div className={styles.titleRow}>
-          <h1 className={styles.titlePanel}>
-            <SplitText key={selected.name} text={selected.name} />
-          </h1>
-          {selector}
-          <Link to="/reportes" className={styles.reportLink}>
-            Reporte
-          </Link>
-        </div>
+        <Link to="/reportes" className={styles.reportLink}>
+          Reporte
+        </Link>
       );
     }
+    if (tab === "supuestos" || tab === "escenarios") {
+      return (
+        <>
+          <Button variant="secondary" onClick={openDuplicate} disabled={!detail.data}>
+            {tab === "supuestos" ? "Nuevo escenario a partir de este" : "Duplicar escenario"}
+          </Button>
+          <Button onClick={openNew}>Nuevo escenario</Button>
+        </>
+      );
+    }
+    return null;
+  };
+
+  const ticker = () => {
+    const ind = detail.data?.indicators;
+    if (!ind || !detail.data) return null;
+    const cov = ind.coverageIncremental;
+    const cells: { label: string; value: string; tone?: Tone }[] = [
+      { label: "VPN del proyecto", value: moneyCompact(ind.npv), tone: ind.npv < 0 ? "bad" : "good" },
+      { label: "TIR", value: pct(ind.irr), tone: ind.irr !== null && ind.npv < 0 ? "bad" : undefined },
+      { label: "VPN inversionista", value: moneyCompact(ind.investorNpv), tone: ind.investorNpv < 0 ? "bad" : undefined },
+      { label: "Cobertura", value: times(cov), tone: cov === null ? undefined : cov < 1 ? "bad" : cov < 1.5 ? "warn" : undefined },
+      { label: "Cuota mensual", value: moneyCompact(ind.installment) },
+      { label: "Aporte propio", value: money(ind.ownContribution) },
+    ];
     return (
-      <div className={[styles.titleRow, styles.titleRowTop].join(" ")}>
-        <div className={styles.titleText}>
-          <h1 className={styles.title}>
-            <SplitText key={tab} text={meta?.title ?? ""} />
-          </h1>
-          <div className={styles.subtitle}>{meta?.subtitle}</div>
-        </div>
-        {selector}
-        {tab === "supuestos" ? (
-          <>
-            <Button variant="secondary" onClick={openDuplicate} disabled={!detail.data}>
-              Nuevo escenario a partir de este
-            </Button>
-            <Button onClick={openNew}>Nuevo escenario</Button>
-          </>
-        ) : tab === "escenarios" ? (
-          <>
-            <Button variant="secondary" onClick={openDuplicate} disabled={!detail.data}>
-              Duplicar escenario
-            </Button>
-            <Button onClick={openNew}>Nuevo escenario</Button>
-          </>
-        ) : null}
-      </div>
+      <dl className={styles.ticker} key={detail.data.id} aria-label="Indicadores del escenario calculados por la API">
+        {cells.map((c, i) => (
+          <div key={c.label} className={styles.tick} style={{ animationDelay: `${120 + i * 60}ms` }}>
+            <dt>{c.label}</dt>
+            <dd className={toneClass(c.tone)}>
+              <Odometer value={c.value} />
+            </dd>
+          </div>
+        ))}
+      </dl>
     );
   };
+
+  const meta = tab === "panel" ? null : TAB_META[tab];
+  const heading = selected ? (tab === "panel" ? selected.name : (meta?.title ?? "")) : "Finanzas y *crédito*";
 
   const body = () => {
     if (scenarios.isPending) return <Loading text="Cargando escenarios…" />;
@@ -119,29 +129,72 @@ export const FinanceScreen = () => {
       );
     }
     return (
-      <>
-        {titleRow()}
-        <QueryState query={detail} empty={null}>
-          {(scenario) => {
-            switch (tab) {
-              case "panel":
-                return <DecisionPanel scenario={scenario} onOpenAssumptions={() => goTab("supuestos")} onNew={openNew} />;
-              case "supuestos":
-                return <AssumptionsPanel scenario={scenario} />;
-              case "escenarios":
-                return <ScenariosPanel scenario={scenario} scenarios={items} />;
-              case "flujo":
-                return <CashFlowPanel scenario={scenario} />;
-            }
-          }}
-        </QueryState>
-      </>
+      <QueryState query={detail} empty={null}>
+        {(scenario) => {
+          switch (tab) {
+            case "panel":
+              return <DecisionPanel scenario={scenario} onOpenAssumptions={() => goTab("supuestos")} onNew={openNew} />;
+            case "supuestos":
+              return <AssumptionsPanel scenario={scenario} letter={selectedLetter ?? "A"} />;
+            case "escenarios":
+              return <ScenariosPanel scenario={scenario} scenarios={items} onSelect={selectScenario} />;
+            case "flujo":
+              return <CashFlowPanel scenario={scenario} />;
+          }
+        }}
+      </QueryState>
     );
   };
 
   return (
     <div className={[styles.page, tab === "panel" ? "" : styles.pageWide].join(" ")}>
-      <Tabs options={TAB_OPTIONS} value={tab} onChange={goTab} />
+      <header className={styles.terminal}>
+        <div className={styles.termGlow} aria-hidden="true" />
+        <div className={styles.termTop}>
+          <span className={styles.termLive}>
+            <i aria-hidden="true" />
+            Terminal de inversión
+          </span>
+          <span className={styles.termPath}>Ampliación del local con crédito bancario</span>
+          {selected ? (
+            <span className={styles.termStamp}>
+              Escenario {selectedLetter} · {selected.username} · {dateOnly(selected.createdAt)}
+            </span>
+          ) : null}
+        </div>
+
+        <div className={styles.termHead}>
+          <div className={styles.termTitleBox}>
+            <h1 className={styles.termTitle}>
+              <SplitText key={`${tab}-${selected?.id ?? 0}`} text={heading} />
+            </h1>
+            {meta && selected ? <p className={styles.termSubtitle}>{meta.subtitle}</p> : null}
+          </div>
+          <div className={styles.termActions}>{actions()}</div>
+        </div>
+
+        {presets.length > 0 && selectedId !== null ? (
+          <div className={styles.selector} role="group" aria-label="Escenario en pantalla">
+            <span className={styles.selectorLabel}>Escenario</span>
+            <div className={styles.selectorList}>
+              {presets.map((s, i) => {
+                const on = s.id === selectedId;
+                return (
+                  <button key={s.id} type="button" aria-pressed={on} className={[styles.selectorItem, on ? styles.selectorOn : ""].join(" ")} onClick={() => selectScenario(s.id)}>
+                    <span className={styles.selectorLetter}>{letterOf(i)}</span>
+                    <span className={styles.selectorName}>{s.name}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        ) : null}
+
+        {tab === "panel" ? null : ticker()}
+
+        <FinanceTabs options={TAB_OPTIONS} value={tab} onChange={goTab} />
+      </header>
+
       {body()}
       {modal.open ? <ScenarioFormModal prefill={modal.prefill} onClose={closeModal} onCreated={onCreated} /> : null}
     </div>

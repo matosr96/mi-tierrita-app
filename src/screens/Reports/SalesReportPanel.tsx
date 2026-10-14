@@ -117,21 +117,23 @@ export const SalesReportPanel = () => {
           const rangeLabel = `${dateOnly(report.from)} – ${dateOnly(report.to)}`;
           return (
             <ReportPaper
-              title="Reporte de ventas"
-              meta={`Agropecuaria Mi Tierrita · ${rangeLabel} · ${user ? `Generado por ${user.firstName} ${user.lastName}, ${ROLE_LABELS[user.role]}` : ""}`}
+              code="R-01"
+              title="Reporte de"
+              accent="ventas"
+              meta={[rangeLabel, `Generado el ${dateOnly(todayIso())}`, user ? `Por ${user.firstName} ${user.lastName}, ${ROLE_LABELS[user.role]}` : ""]}
               summary={
                 hasRows ? (
                   <>
-                    <p className={styles.summary}>
+                    <p>
                       Entre el {dateOnly(report.from)} y el {dateOnly(report.to)} se registraron <strong>{int(report.salesCount)} ventas</strong> completadas por{" "}
                       <strong>{money(report.total)}</strong>, con {int(report.units)} unidades vendidas.
                     </p>
-                    <p className={styles.summary}>
+                    <p>
                       De ese total, {money(report.cashTotal)} fueron de contado y {money(report.creditTotal)} a crédito. Las ventas anuladas no se incluyen.
                     </p>
                   </>
                 ) : (
-                  <p className={styles.summary}>No se registraron ventas completadas entre el {dateOnly(report.from)} y el {dateOnly(report.to)}. Amplíe el rango para ver resultados.</p>
+                  <p>No se registraron ventas completadas entre el {dateOnly(report.from)} y el {dateOnly(report.to)}. Amplíe el rango para ver resultados.</p>
                 )
               }
               params={[
@@ -158,7 +160,7 @@ export const SalesReportPanel = () => {
                     hint={report.groupBy === "day" ? (dayRows.length > MAX_DAY_BARS ? `últimos ${MAX_DAY_BARS} días con ventas del rango` : rangeLabel) : `top ${int(topProducts.length)} por total vendido`}
                   >
                     {report.groupBy === "day" ? (
-                      <VBarChart data={chartDays.map((r) => ({ label: shortDay(r.date), value: r.total }))} format={chartDays.length <= 8 ? moneyCompact : () => ""} />
+                      <VBarChart data={chartDays.map((r) => ({ label: shortDay(r.date), value: r.total }))} format={chartDays.length <= 8 ? moneyCompact : () => ""} formatTip={moneyCompact} />
                     ) : (
                       <HBarChart data={topProducts.map((r) => ({ label: truncate(r.productName, 22), value: r.total }))} format={moneyCompact} />
                     )}

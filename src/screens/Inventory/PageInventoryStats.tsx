@@ -3,11 +3,10 @@ import { useProducts } from "@/hooks/products";
 import { int } from "@/lib/format";
 import { StatCard, StatGrid } from "@/components/ui";
 import type { Category, Page } from "@/types/api";
+import { LOW_STOCK } from "./stockStatus";
 
 type Query<T> = { data: T | undefined; isPending: boolean; isError: boolean };
 type Props = { categories: Query<Page<Category>> };
-
-const LOW_STOCK = 5;
 
 /** Indicadores para los roles que no pueden consultar el reporte: conteo de la API y faltantes entre los productos cargados. */
 export const PageInventoryStats = ({ categories }: Props) => {

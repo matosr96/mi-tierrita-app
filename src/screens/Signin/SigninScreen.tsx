@@ -3,7 +3,8 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { useSignin } from "@/hooks/session";
 import { Button, Field, Input } from "@/components/ui";
 import { BrandMark } from "@/components/layout/AppShell";
-import { SplitText, TopoField } from "@/components/motion";
+import { PhotoBackdrop, ShaderField, SplitText, TopoField } from "@/components/motion";
+import { HERO_PHOTOS } from "@/lib/media";
 import styles from "./SigninScreen.module.css";
 
 const Eye = ({ off }: { off: boolean }) => (
@@ -56,6 +57,8 @@ export const SigninScreen = () => {
   return (
     <div className={[styles.page, leaving ? styles.leaving : ""].join(" ")} onPointerMove={follow}>
       <div className={styles.bg} aria-hidden="true">
+        <ShaderField className={styles.shader} />
+        <PhotoBackdrop photos={HERO_PHOTOS} />
         <TopoField className={styles.topo} />
         <div className={styles.glow} />
         <div className={styles.spot} />

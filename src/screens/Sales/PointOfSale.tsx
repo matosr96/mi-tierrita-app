@@ -9,6 +9,7 @@ import { int, money } from "@/lib/format";
 import type { ApiError } from "@/lib/errors";
 import type { PaymentType, Product, SaleDetail, SaleLine } from "@/types/api";
 import { useDebounced } from "./useDebounced";
+import { SaleSuccess } from "./SaleSuccess";
 import styles from "./SalesScreen.module.css";
 
 type CartLine = { product: Product; quantity: number };
@@ -306,6 +307,8 @@ export const PointOfSale = ({ tabs }: { tabs: ReactNode }) => {
       >
         {result ? (
           <div className={styles.section}>
+            <SaleSuccess invoice={result.invoiceNumber} total={money(result.total)} />
+            <div className={styles.receipt}>
             <div className={styles.factGrid}>
               <div className={styles.fact}>
                 <span className={styles.factLabel}>Cliente</span>
@@ -324,6 +327,7 @@ export const PointOfSale = ({ tabs }: { tabs: ReactNode }) => {
             <div className={styles.total}>
               <span>Total</span>
               <strong>{money(result.total)}</strong>
+            </div>
             </div>
           </div>
         ) : null}

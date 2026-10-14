@@ -1,5 +1,6 @@
 import { useEffect, useState, type ReactNode } from "react";
-import { SplitText, TopoField, trackSpotlight } from "@/components/motion";
+import { PhotoBackdrop, ShaderField, SplitText, TopoField, trackSpotlight } from "@/components/motion";
+import { HERO_PHOTOS } from "@/lib/media";
 import styles from "./HeroHeader.module.css";
 
 type Props = {
@@ -24,6 +25,10 @@ export const HeroHeader = ({ eyebrow, title, subtitle, actions, aside }: Props) 
 
   return (
     <header className={styles.hero} onPointerMove={trackSpotlight}>
+      <ShaderField className={styles.shader} intensity={0.85} />
+      <div className={styles.photos}>
+        <PhotoBackdrop photos={HERO_PHOTOS} />
+      </div>
       <TopoField className={styles.topo} rings={14} signal={7} seed={1.7} />
       <div className={styles.glow} aria-hidden="true" />
       <span className={[styles.corner, styles.tl].join(" ")} aria-hidden="true" />

@@ -491,28 +491,81 @@
   animation-delay: 0.4s;
 }
 
-/* ---------- encabezado de página ---------- */
+/* ---------- encabezado de página: banda oscura ---------- */
 .pageHead {
+  /* Superficie siempre oscura: el kit se reutiliza cambiando sus variables. */
+  --ink: var(--dark-ink);
+  --ink-2: var(--dark-ink-2);
+  --muted: var(--dark-muted);
+  --surface: rgba(255, 255, 255, 0.06);
+  --surface-3: rgba(255, 255, 255, 0.1);
+  --segment-bg: rgba(255, 255, 255, 0.05);
+  --hover: rgba(255, 255, 255, 0.08);
+  --line: var(--dark-line);
+  --line-strong: rgba(255, 255, 255, 0.18);
+  --forest: var(--sprout);
+  --on-forest: var(--sprout-ink);
+  --serif-color: var(--sprout);
+  --btn-invert: var(--app-bg);
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  display: flex;
+  flex-direction: column;
+  gap: 26px;
+  min-height: 188px;
+  padding: 20px clamp(18px, 2.6vw, 30px) 24px;
+  border-radius: calc(var(--radius) + 6px);
+  background: var(--app-bg);
+  border: 1px solid var(--dark-line);
+  color: var(--dark-ink);
+  box-shadow: 0 26px 50px -34px rgba(4, 12, 8, 0.7);
+  margin-bottom: 4px;
+}
+.bandShader {
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+}
+.bandTopo {
+  position: absolute;
+  z-index: -1;
+  right: -220px;
+  top: 50%;
+  width: 900px;
+  height: 900px;
+  transform: translateY(-50%);
+  opacity: 0.9;
+}
+.bandGlow {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: radial-gradient(360px circle at var(--mx, 75%) var(--my, 40%), rgba(185, 236, 111, 0.09), transparent 70%),
+    linear-gradient(90deg, rgba(7, 17, 12, 0.92) 0%, rgba(7, 17, 12, 0.55) 50%, transparent 85%);
+  pointer-events: none;
+}
+.bandTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+.bandDate {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--dark-muted);
+  animation: blockIn 0.7s var(--ease-out) 0.1s backwards;
+}
+.bandBody {
   display: flex;
   align-items: flex-end;
-  gap: 18px;
+  justify-content: space-between;
+  gap: 20px;
   flex-wrap: wrap;
-  padding-bottom: 18px;
-  margin-bottom: 6px;
-  border-bottom: 1px solid var(--line);
-  position: relative;
-}
-.pageHead::after {
-  content: "";
-  position: absolute;
-  left: 0;
-  bottom: -1px;
-  height: 1px;
-  width: 100%;
-  background: var(--ink);
-  transform-origin: left;
-  animation: rule 1.2s var(--ease-in-out) 0.2s backwards;
-  opacity: 0.9;
+  margin-top: auto;
 }
 .pageHeadText {
   flex-grow: 1;
@@ -526,28 +579,28 @@
   font-size: 10.5px;
   letter-spacing: 0.16em;
   text-transform: uppercase;
-  color: var(--muted);
-  margin-bottom: 12px;
+  color: var(--dark-ink-2);
   animation: blockIn 0.7s var(--ease-out) backwards;
 }
 .eyebrow span:first-child {
-  color: var(--ink);
+  color: var(--sprout);
 }
 .eyebrowRule {
   width: 26px;
   height: 1px;
-  background: var(--line-strong);
+  background: var(--dark-line);
 }
 .pageTitle {
-  font-size: clamp(28px, 3.2vw, 42px);
-  line-height: 1.02;
+  color: var(--dark-ink);
+  font-size: clamp(32px, 4vw, 54px);
+  line-height: 0.98;
   font-weight: 300;
-  letter-spacing: -0.045em;
+  letter-spacing: -0.05em;
 }
 .pageSub {
   font-size: 13.5px;
-  color: var(--ink-2);
-  margin-top: 10px;
+  color: var(--dark-ink-2);
+  margin-top: 12px;
   max-width: 62ch;
   animation: blockIn 0.8s var(--ease-out) 0.25s backwards;
 }
@@ -556,6 +609,17 @@
   gap: 9px;
   flex-wrap: wrap;
   animation: blockIn 0.8s var(--ease-out) 0.3s backwards;
+}
+@media (max-width: 700px) {
+  .pageHead {
+    min-height: 0;
+  }
+  .bandDate {
+    display: none;
+  }
+  .bandTopo {
+    right: -420px;
+  }
 }
 
 @keyframes navIn {
@@ -581,11 +645,6 @@
   from {
     opacity: 0;
     transform: translateY(6px);
-  }
-}
-@keyframes rule {
-  from {
-    transform: scaleX(0);
   }
 }
 @keyframes ping {
@@ -748,5 +807,48 @@
     width: 36px;
     padding: 0;
     justify-content: center;
+  }
+}
+
+/* ---------- ligado al scroll (CSS scroll-driven) ---------- */
+.readProgress {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -1px;
+  height: 2px;
+  background: linear-gradient(90deg, var(--leaf), var(--sprout));
+  transform-origin: left;
+  transform: scaleX(0);
+  pointer-events: none;
+}
+@supports (animation-timeline: scroll()) {
+  .readProgress {
+    animation: readProgress linear both;
+    animation-timeline: scroll(root);
+  }
+  /* Conserva la entrada escalonada del contenido y añade la salida ligada al scroll. */
+  .content > .pageHead {
+    animation: blockIn 0.85s var(--ease-out) backwards, headAway linear both;
+    animation-timeline: auto, view();
+    animation-range: normal, exit 10% exit 100%;
+  }
+}
+@keyframes readProgress {
+  to {
+    transform: scaleX(1);
+  }
+}
+@keyframes headAway {
+  to {
+    opacity: 0.2;
+    transform: translateY(-24px) scale(0.98);
+    transform-origin: left top;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .readProgress,
+  .content > .pageHead {
+    animation: none !important;
   }
 }

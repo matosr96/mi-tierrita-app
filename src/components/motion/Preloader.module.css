@@ -63,9 +63,10 @@
   animation-delay: 0.12s;
 }
 .count {
-  font-family: var(--font-mono);
-  font-size: clamp(44px, 8vw, 96px);
-  letter-spacing: -0.04em;
+  font-family: var(--font-dots);
+  font-weight: 900;
+  font-size: clamp(56px, 10vw, 128px);
+  letter-spacing: -0.02em;
   line-height: 1;
   color: var(--dark-ink);
   min-width: 3.2ch;

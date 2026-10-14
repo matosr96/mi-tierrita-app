@@ -1,0 +1,301 @@
+/* Directorio de proveedores en fichas tipo remisión: sello punteado, línea perforada y contacto en mono. */
+.grid {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 10px;
+}
+
+.card {
+  --tone: var(--leaf);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  overflow: hidden;
+  isolation: isolate;
+  transition:
+    border-color var(--dur) var(--ease-out),
+    box-shadow var(--dur) var(--ease-out),
+    transform var(--dur) var(--ease-out);
+  animation: cardIn 0.7s var(--ease-out) backwards;
+  animation-delay: calc(var(--i) * 50ms);
+}
+.card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: radial-gradient(240px circle at var(--mx, -400px) var(--my, -400px), var(--spot), transparent 70%);
+  pointer-events: none;
+}
+.card:hover {
+  border-color: var(--spot-border);
+  box-shadow: var(--shadow-lift);
+  transform: translateY(-2px);
+}
+.t0 {
+  --tone: var(--leaf);
+}
+.t1 {
+  --tone: var(--warn);
+}
+.t2 {
+  --tone: var(--accent);
+}
+.t3 {
+  --tone: var(--good);
+}
+.t4 {
+  --tone: var(--link);
+}
+:global(html[data-theme="dark"]) .t0 {
+  --tone: var(--sprout);
+}
+.inactive {
+  --tone: var(--muted);
+}
+.inactive .name {
+  color: var(--muted);
+}
+
+.top {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: start;
+  gap: 13px;
+  padding: 16px 16px 14px;
+}
+/* Sello: cuadrado redondeado con trama de puntos del tono del proveedor. */
+.seal {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 50px;
+  height: 50px;
+  border-radius: 12px;
+  font-family: var(--font-heading);
+  font-size: 18px;
+  font-weight: 400;
+  letter-spacing: -0.03em;
+  color: var(--tone);
+  background:
+    radial-gradient(circle, color-mix(in srgb, var(--tone) 32%, transparent) 1px, transparent 1.4px) 0 0 / 6px 6px,
+    color-mix(in srgb, var(--tone) 9%, var(--surface));
+  border: 1px solid color-mix(in srgb, var(--tone) 30%, transparent);
+  transition: transform var(--dur) var(--ease-spring);
+}
+.card:hover .seal {
+  transform: rotate(-6deg) scale(1.04);
+}
+.who {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+.number {
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+.name {
+  font-family: var(--font-heading);
+  font-size: 17px;
+  font-weight: 400;
+  letter-spacing: -0.03em;
+  line-height: 1.2;
+  color: var(--ink);
+  overflow-wrap: anywhere;
+}
+.since {
+  font-size: 11.5px;
+  color: var(--muted);
+}
+.status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+  white-space: nowrap;
+  padding-top: 2px;
+}
+.statusDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--muted-2);
+}
+.statusOn {
+  color: var(--good);
+}
+.statusOn .statusDot {
+  background: var(--good);
+  box-shadow: 0 0 0 3px var(--good-soft);
+  animation: pulse 2.4s var(--ease-in-out) infinite;
+}
+
+/* Línea perforada con muescas a los lados, como un talonario. */
+.perforation {
+  position: relative;
+  height: 0;
+  margin: 0 14px;
+  border-top: 1px dashed var(--line-strong);
+}
+.perforation::before,
+.perforation::after {
+  content: "";
+  position: absolute;
+  top: -7px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--ground);
+  border: 1px solid var(--line);
+}
+.perforation::before {
+  left: -22px;
+}
+.perforation::after {
+  right: -22px;
+}
+
+.contact {
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  padding: 13px 16px 12px;
+}
+.contact > div {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+.contact dt {
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.contact dd {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.missing {
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-style: italic;
+  color: var(--muted-2);
+}
+.phone {
+  color: inherit;
+  text-decoration: none;
+  background-image: linear-gradient(currentColor, currentColor);
+  background-size: 0 1px;
+  background-position: 0 100%;
+  background-repeat: no-repeat;
+  transition: background-size var(--dur) var(--ease-out);
+}
+.phone:hover {
+  background-size: 100% 1px;
+}
+
+.actions {
+  margin-top: auto;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 12px 12px;
+}
+.purchase,
+.edit {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  height: 32px;
+  border-radius: 99px;
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition:
+    background var(--dur-fast) var(--ease-out),
+    color var(--dur-fast) var(--ease-out),
+    border-color var(--dur-fast) var(--ease-out);
+}
+.purchase {
+  flex: 1;
+  padding: 0 14px;
+  border: 1px solid var(--forest);
+  background: var(--forest);
+  color: var(--on-forest);
+}
+.purchase:hover {
+  background: var(--sprout);
+  border-color: var(--sprout);
+  color: var(--sprout-ink);
+}
+.purchase svg {
+  transition: transform var(--dur) var(--ease-spring);
+}
+.purchase:hover svg {
+  transform: translateY(-1px) rotate(-8deg);
+}
+.edit {
+  padding: 0 14px;
+  border: 1px solid var(--line-strong);
+  background: transparent;
+  color: var(--ink);
+}
+.edit:hover {
+  border-color: var(--ink);
+}
+.purchase:focus-visible,
+.edit:focus-visible {
+  outline: 2px solid var(--link);
+  outline-offset: 2px;
+}
+
+@keyframes cardIn {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.985);
+  }
+}
+@keyframes pulse {
+  50% {
+    box-shadow: 0 0 0 5px transparent;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card,
+  .statusOn .statusDot {
+    animation: none;
+  }
+  .card:hover,
+  .card:hover .seal {
+    transform: none;
+  }
+}

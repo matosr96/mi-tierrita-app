@@ -1,0 +1,6 @@
+Fotos de portada de Mi Tierrita (login e Inicio).
+
+1. Copie aquí fotos horizontales (JPG o WebP, unos 2000 px de ancho, menos de 400 KB cada una).
+2. Agregue sus rutas en src/lib/media.ts, por ejemplo "/media/bodega.jpg".
+
+La app las tiñe en duotono verde, les aplica un zoom lento y las alterna cada pocos segundos.

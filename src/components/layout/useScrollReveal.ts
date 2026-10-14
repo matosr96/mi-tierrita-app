@@ -39,12 +39,26 @@ export const useScrollReveal = (rootRef: RefObject<HTMLElement | null>, resetKey
       });
     };
 
+    // Red de seguridad: si el observador no avisa (pestaña en segundo plano, navegador raro), lo que ya está a la vista se revela igual.
+    const sweep = () => {
+      root.querySelectorAll<HTMLElement>('[data-reveal="pending"]').forEach((el) => {
+        if (el.getBoundingClientRect().top < window.innerHeight * 0.95) {
+          el.dataset.reveal = "in";
+          io.unobserve(el);
+        }
+      });
+    };
+
     scan();
     const mo = new MutationObserver(scan);
     mo.observe(root, { childList: true, subtree: true });
+    const timer = window.setInterval(sweep, 1200);
+    window.addEventListener("scroll", sweep, { passive: true });
     return () => {
       io.disconnect();
       mo.disconnect();
+      window.clearInterval(timer);
+      window.removeEventListener("scroll", sweep);
     };
   }, [rootRef, resetKey]);
 };

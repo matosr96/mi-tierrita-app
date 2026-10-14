@@ -1,10 +1,14 @@
-import type { ScenarioDetail } from "@/types/api";
+import { useState } from "react";
+import type { Range, ScenarioDetail } from "@/types/api";
+import { useSensitivity } from "@/hooks/financial";
 import { Badge, Callout, EmptyState, ErrorState, Loading, StatCard } from "@/components/ui";
+import { Odometer } from "@/components/motion";
 import { int, money, moneyCompact, pct, times } from "@/lib/format";
 import { breakEven, formatPoints, marginPoints } from "./financeShared";
 import { useSalesSensitivity } from "./useSalesSensitivity";
 import { SafetyMarginChart } from "./SafetyMarginChart";
 import { MonthlyBarsChart } from "./MonthlyBarsChart";
+import { ScenarioDial } from "./ScenarioDial";
 import styles from "./FinanceScreen.module.css";
 
 type Props = { scenario: ScenarioDetail; onOpenAssumptions: () => void; onNew: () => void };
@@ -24,7 +28,25 @@ const DIALS = {
   term: { min: 24, max: 84, minLabel: "24 m", maxLabel: "84 m" },
 };
 
-const position = (v: number, min: number, max: number): number => Math.min(1, Math.max(0, (v - min) / (max - min)));
+/** Rejilla que se pide a la API para simular la rotación (misma escala del dial, paso de media vuelta). */
+const TURNOVER_RANGE: Range = { from: DIALS.turnover.min, to: DIALS.turnover.max, step: 0.5 };
+
+type SimKey = "sales" | "turnover";
+type SensPoint = { value: number; npv: number };
+
+/** Punto de la serie de la API más cercano al valor de la perilla: una búsqueda, no un cálculo. */
+const nearestPoint = (points: SensPoint[], v: number): SensPoint | null =>
+  points.reduce<SensPoint | null>((best, p) => (best === null || Math.abs(p.value - v) < Math.abs(best.value - v) ? p : best), null);
+
+const gridIn = (points: SensPoint[] | undefined, min: number, max: number): number[] | null =>
+  points
+    ? points
+        .map((p) => p.value)
+        .filter((v) => v >= min - 1e-9 && v <= max + 1e-9)
+        .sort((a, b) => a - b)
+    : null;
+
+const turnoverText = (v: number): string => `${times(v)}/año`;
 
 /** Pestaña "Panel": veredicto, supuestos del escenario, cuatro indicadores, margen de seguridad y lectura mensual. */
 export const DecisionPanel = ({ scenario, onOpenAssumptions, onNew }: Props) => {
@@ -34,6 +56,16 @@ export const DecisionPanel = ({ scenario, onOpenAssumptions, onNew }: Props) => 
   const margin = be !== null ? marginPoints(scenario.salesIncrease, be) : null;
   const viable = ind.npv > 0;
   const coverage = ind.coverageIncremental;
+
+  // Simulación con los diales: la serie de rotación se pide a la API solo cuando alguien se acerca al dial.
+  const [sim, setSim] = useState<{ key: SimKey; value: number } | null>(null);
+  const [turnoverArmed, setTurnoverArmed] = useState(false);
+  const turnover = useSensitivity(turnoverArmed ? scenario.id : null, "inventoryTurnover", TURNOVER_RANGE);
+  const series = { sales: sensitivity, turnover } as const;
+  const simQuery = sim ? series[sim.key] : null;
+  const simPoint = sim && simQuery?.data ? nearestPoint(simQuery.data.points, sim.value) : null;
+  const simFormat = sim?.key === "turnover" ? turnoverText : pct;
+  const change = (key: SimKey) => (value: number | null) => setSim(value === null ? null : { key, value });
 
   const tone: "good" | "warn" | "bad" = !viable ? "bad" : margin !== null && margin < 2 ? "warn" : "good";
   const reason = (() => {
@@ -77,15 +109,77 @@ export const DecisionPanel = ({ scenario, onOpenAssumptions, onNew }: Props) => 
 
       <section className={[styles.card, styles.dials].join(" ")} aria-label="Supuestos del escenario">
         <div className={styles.dialGrid}>
-          <Dial label="Aumento de ventas" value={pct(scenario.salesIncrease)} pos={position(scenario.salesIncrease, DIALS.sales.min, DIALS.sales.max)} min={DIALS.sales.minLabel} max={DIALS.sales.maxLabel} />
-          <Dial label="Rotación del inventario" value={`${times(a.inventoryTurnover)}/año`} pos={position(a.inventoryTurnover, DIALS.turnover.min, DIALS.turnover.max)} min={DIALS.turnover.minLabel} max={DIALS.turnover.maxLabel} />
-          <Dial label="Plazo del crédito" value={`${int(scenario.termMonths)} meses`} pos={position(scenario.termMonths, DIALS.term.min, DIALS.term.max)} min={DIALS.term.minLabel} max={DIALS.term.maxLabel} />
+          <ScenarioDial
+            label="Aumento de ventas"
+            value={pct(scenario.salesIncrease)}
+            base={scenario.salesIncrease}
+            min={DIALS.sales.min}
+            max={DIALS.sales.max}
+            minLabel={DIALS.sales.minLabel}
+            maxLabel={DIALS.sales.maxLabel}
+            sim={{
+              values: gridIn(sensitivity.data?.points, DIALS.sales.min, DIALS.sales.max),
+              current: sim?.key === "sales" ? sim.value : null,
+              format: pct,
+              onArm: () => undefined,
+              onChange: change("sales"),
+            }}
+          />
+          <ScenarioDial
+            label="Rotación del inventario"
+            value={turnoverText(a.inventoryTurnover)}
+            base={a.inventoryTurnover}
+            min={DIALS.turnover.min}
+            max={DIALS.turnover.max}
+            minLabel={DIALS.turnover.minLabel}
+            maxLabel={DIALS.turnover.maxLabel}
+            sim={{
+              values: gridIn(turnover.data?.points, DIALS.turnover.min, DIALS.turnover.max),
+              current: sim?.key === "turnover" ? sim.value : null,
+              format: turnoverText,
+              onArm: () => setTurnoverArmed(true),
+              onChange: change("turnover"),
+            }}
+          />
+          <ScenarioDial
+            label="Plazo del crédito"
+            value={`${int(scenario.termMonths)} meses`}
+            base={scenario.termMonths}
+            min={DIALS.term.min}
+            max={DIALS.term.max}
+            minLabel={DIALS.term.minLabel}
+            maxLabel={DIALS.term.maxLabel}
+          />
         </div>
-        <div className={styles.dialNote}>
-          Cree un escenario nuevo para cambiar estos supuestos.{" "}
-          <button type="button" className={styles.linkBtn} onClick={onNew}>
-            Nuevo escenario
-          </button>
+        <div className={[styles.simReadout, sim ? styles.simReadoutOn : ""].join(" ")} role="status" aria-live="polite">
+          {sim === null ? (
+            <div className={styles.dialNote}>
+              Arrastre la perilla de las ventas o de la rotación para leer el VPN que la API calculó con otro valor; el plazo no se simula porque la API no calcula sensibilidad al plazo. Para cambiar
+              los supuestos, cree un escenario nuevo.{" "}
+              <button type="button" className={styles.linkBtn} onClick={onNew}>
+                Nuevo escenario
+              </button>
+            </div>
+          ) : simQuery?.isError ? (
+            <div className={styles.dialNote}>La API no devolvió la sensibilidad de esta variable. Suelte la perilla para volver al caso base.</div>
+          ) : simPoint === null ? (
+            <div className={styles.dialNote}>Consultando a la API la sensibilidad del VPN…</div>
+          ) : (
+            <>
+              <div className={styles.simMain}>
+                <span className={styles.simLabel}>Simulación · VPN con {simFormat(simPoint.value)}</span>
+                <strong className={[styles.simValue, simPoint.npv > 0 ? styles.textGood : styles.textBad].join(" ")}>
+                  <Odometer value={moneyCompact(simPoint.npv)} />
+                </strong>
+              </div>
+              <div className={styles.simAside}>
+                <span>
+                  Caso base <b>{moneyCompact(ind.npv)}</b>
+                </span>
+                <span className={styles.simHint}>Lectura de la sensibilidad que calcula la API · el escenario no se modifica · suelte o pulse Esc para volver</span>
+              </div>
+            </>
+          )}
         </div>
       </section>
 
@@ -169,20 +263,3 @@ export const DecisionPanel = ({ scenario, onOpenAssumptions, onNew }: Props) => 
     </div>
   );
 };
-
-const Dial = ({ label, value, pos, min, max }: { label: string; value: string; pos: number; min: string; max: string }) => (
-  <div className={styles.dial}>
-    <div className={styles.dialHead}>
-      <span className={styles.dialLabel}>{label}</span>
-      <strong className={styles.dialValue}>{value}</strong>
-    </div>
-    <div className={styles.track} role="img" aria-label={`${label}: ${value}`}>
-      <span className={styles.trackFill} style={{ width: `${pos * 100}%` }} />
-      <span className={styles.thumb} style={{ left: `${pos * 100}%` }} />
-    </div>
-    <div className={styles.dialRange}>
-      <span>{min}</span>
-      <span>{max}</span>
-    </div>
-  </div>
-);

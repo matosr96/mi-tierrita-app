@@ -8,7 +8,7 @@ import { useSignout } from "@/hooks/session";
 import { ALL_NAV_ITEMS, NAV_GROUPS, NAV_ICONS, findRoute, isLockedFor, isVisibleFor } from "@/router/navigation";
 import { initials } from "@/lib/format";
 import { Toasts } from "@/components/ui";
-import { SplitText } from "@/components/motion";
+import { ShaderField, SplitText, TopoField, trackSpotlight } from "@/components/motion";
 import { useNavBadges } from "./useNavBadges";
 import { useScrollReveal } from "./useScrollReveal";
 import { CommandPalette } from "./CommandPalette";
@@ -213,6 +213,7 @@ export const AppShell = () => {
             </svg>
             {attention ? <span className={styles.dot} /> : null}
           </button>
+          <span className={styles.readProgress} aria-hidden="true" />
           <div className={styles.user}>
             <div className={styles.avatar}>{initials(user.firstName, user.lastName)}</div>
             <div>
@@ -233,25 +234,42 @@ export const AppShell = () => {
   );
 };
 
-/** Encabezado de página editorial: microetiqueta numerada, titular que sube palabra por palabra, subtítulo y acciones. */
+/** "Lotes y vencimientos" → "Lotes y *vencimientos*": la última palabra va en serif cursiva (si el título no trae ya un acento). */
+const accentTitle = (title: string): string => {
+  if (title.includes("*")) return title;
+  const words = title.trim().split(/\s+/);
+  if (words.length < 2) return title;
+  return `${words.slice(0, -1).join(" ")} *${words[words.length - 1]}*`;
+};
+
+/** Encabezado de página: banda oscura con fondo vivo, curvas de nivel propias de la sección, titular por palabras y acciones. */
 export const PageHeader = ({ title, subtitle, actions }: { title: string; subtitle?: string; actions?: ReactNode }) => {
   const location = useLocation();
   const route = findRoute(location.pathname);
   const index = route ? ALL_NAV_ITEMS.indexOf(route) + 1 : 0;
+  const today = new Date().toLocaleDateString("es-CO", { weekday: "short", day: "numeric", month: "short" });
   return (
-    <div className={styles.pageHead}>
-      <div className={styles.pageHeadText}>
+    <div className={styles.pageHead} onPointerMove={trackSpotlight}>
+      <ShaderField className={styles.bandShader} intensity={0.55} />
+      <TopoField className={styles.bandTopo} rings={12} signal={(index * 5) % 12} seed={index * 1.37} />
+      <div className={styles.bandGlow} aria-hidden="true" />
+      <div className={styles.bandTop}>
         <div className={styles.eyebrow}>
           <span>{String(index).padStart(2, "0")}</span>
           <span className={styles.eyebrowRule} />
           {route?.label ?? "Mi Tierrita"}
         </div>
-        <h1 className={styles.pageTitle}>
-          <SplitText key={title} text={title} />
-        </h1>
-        {subtitle ? <div className={styles.pageSub}>{subtitle}</div> : null}
+        <span className={styles.bandDate}>Mi Tierrita · {today}</span>
       </div>
-      {actions ? <div className={styles.pageActions}>{actions}</div> : null}
+      <div className={styles.bandBody}>
+        <div className={styles.pageHeadText}>
+          <h1 className={styles.pageTitle}>
+            <SplitText key={title} text={accentTitle(title)} />
+          </h1>
+          {subtitle ? <div className={styles.pageSub}>{subtitle}</div> : null}
+        </div>
+        {actions ? <div className={styles.pageActions}>{actions}</div> : null}
+      </div>
     </div>
   );
 };

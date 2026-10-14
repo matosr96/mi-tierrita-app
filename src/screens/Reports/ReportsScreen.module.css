@@ -1,278 +1,68 @@
-/* Reportes: lienzo Reportes.dc.html (tarjetas por reporte + vista previa tipo documento). */
+/* Reportes: portadas por reporte y piezas compartidas por los tres paneles (filtros y tablas del documento). */
 .page {
   display: flex;
   flex-direction: column;
   gap: 14px;
 }
-
-/* ---------- tarjetas por reporte ---------- */
-.cards {
+.covers {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: 14px;
 }
-.reportCard {
-  padding: 16px 18px;
-  border-radius: 10px;
-}
-.cardHead {
-  display: flex;
-  gap: 11px;
-  align-items: flex-start;
-}
-.cardIcon {
-  flex-shrink: 0;
-  color: var(--forest-fg);
-}
-.cardIconMuted {
-  flex-shrink: 0;
-  color: var(--ink-2);
-}
-.cardBody {
-  flex-grow: 1;
-  min-width: 0;
-}
-.cardBody h2 {
-  font-size: 15px;
-  font-weight: 600;
-}
-.cardText {
-  font-size: 12.5px;
-  color: var(--ink-2);
-  margin-top: 4px;
-  line-height: 1.55;
-}
-.cardActions {
-  display: flex;
-  gap: 9px;
-  margin-top: 14px;
-  flex-wrap: wrap;
-}
 
-/* ---------- vista previa ---------- */
-.preview {
-  border-radius: 10px;
-  padding: 16px 18px;
-}
-.filters {
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 12px;
-  margin-bottom: 12px;
-}
+/* ---------- filtros (dentro de la barra de mando) ---------- */
 .filterGroup {
   display: flex;
   align-items: flex-end;
   flex-wrap: wrap;
-  gap: 12px;
+  gap: 8px 10px;
 }
 .dateField {
-  min-width: 160px;
+  width: 150px;
+}
+.dateField > div {
+  gap: 6px;
 }
 .filterLabel {
-  font-size: 12.5px;
-  color: var(--ink-2);
-  font-weight: 600;
-  margin-right: 4px;
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
 }
 .chipsRow {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  gap: 10px;
+  gap: 8px 12px;
+}
+.chipsRow button {
+  height: 30px;
+  padding: 0 12px;
+  font-size: 12px;
 }
 .filterHint {
-  font-size: 12.5px;
+  font-size: 12px;
   color: var(--muted);
 }
 
-/* documento: fondo suave, borde fino, radio 8, encabezado con línea bosque de 2px */
-.paper {
-  background: var(--surface-2);
-  border: 1px solid var(--line);
-  border-radius: 8px;
-  padding: 26px 34px;
-  box-shadow: 0 1px 0 var(--line), 0 30px 60px -40px rgba(10, 24, 17, 0.45);
-  transform-origin: top center;
-  animation: paperIn 1s var(--ease-out) backwards;
-}
-.paper > * {
-  animation: paperLine 0.8s var(--ease-out) backwards;
-}
-.paper > :nth-child(2) {
-  animation-delay: 0.25s;
-}
-.paper > :nth-child(n + 3) {
-  animation-delay: 0.4s;
-}
-@keyframes paperIn {
-  from {
-    opacity: 0;
-    transform: perspective(1400px) rotateX(8deg) translateY(40px);
-  }
-}
-@keyframes paperLine {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-}
-@media (max-width: 700px) {
-  .paper {
-    padding: 18px 16px;
-  }
-}
-.paperHead {
-  border-bottom: 2px solid var(--ink);
-  padding-bottom: 12px;
-}
-.paperHead h3 {
-  font-size: 19px;
-  font-weight: 600;
-}
-.paperMeta {
-  font-size: 12.5px;
-  color: var(--ink-2);
-  margin-top: 4px;
-}
-.paperBody {
-  display: flex;
-  gap: 26px;
-  margin-top: 16px;
-}
-@media (max-width: 900px) {
-  .paperBody {
-    flex-direction: column;
-  }
-  .paperAside {
-    width: auto !important;
-  }
-}
-.paperMain {
-  flex-grow: 1;
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-.paperAside {
-  width: 232px;
-  flex-shrink: 0;
-}
-.sectionLabel {
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--ink-2);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-.summary {
-  font-size: 13px;
-  line-height: 1.65;
-  margin: 7px 0 0 0;
-  color: var(--ink);
-}
-.summary + .summary {
-  margin-top: 9px;
-}
-.params {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 4px 20px;
-  margin-top: 7px;
-  font-size: 12px;
-}
-@media (max-width: 600px) {
-  .params {
-    grid-template-columns: 1fr;
-  }
-}
-.param {
-  display: flex;
-  gap: 8px;
-}
-.paramLabel {
-  color: var(--ink-2);
-  flex-grow: 1;
-}
-.paramValue {
-  font-variant-numeric: tabular-nums;
-  color: var(--ink);
-}
-.indicators {
-  display: flex;
-  flex-direction: column;
-  gap: 7px;
-  margin-top: 8px;
-}
-.indicator {
-  display: flex;
-  justify-content: space-between;
-  gap: 8px;
-  font-size: 12.5px;
-  padding-bottom: 6px;
-  border-bottom: 1px solid var(--line);
-}
-.indicator:last-child {
-  border-bottom: none;
-  padding-bottom: 0;
-}
-.indicatorLabel {
-  color: var(--ink-2);
-}
-.indicator strong {
-  font-variant-numeric: tabular-nums;
-  text-align: right;
-  color: var(--ink);
-}
-.indicatorGood strong {
-  color: var(--good);
-}
-.indicatorWarn strong {
-  color: var(--warn);
-}
-.indicatorBad strong {
-  color: var(--bad);
-}
-.note {
-  background: var(--warn-soft);
-  border-radius: 6px;
-  padding: 9px 11px;
-  margin-top: 12px;
-  font-size: 11.5px;
-  color: var(--warn-tag-fg);
-  line-height: 1.5;
-}
-.block {
-  min-width: 0;
-}
-.blockHead {
-  display: flex;
-  align-items: baseline;
-  gap: 10px;
-  margin-bottom: 7px;
-}
-.blockHint {
-  font-size: 12px;
-  color: var(--muted);
-}
+/* ---------- contenido del documento ---------- */
 .chartNote {
   font-size: 12px;
   color: var(--muted);
   margin-top: 6px;
 }
 .mono {
-  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-  font-size: 12px;
+  font-family: var(--font-mono);
+  font-size: 11.5px;
   color: var(--ink-2);
 }
 .name {
-  font-weight: 600;
+  font-weight: 500;
   color: var(--ink);
 }
 .footRow td {
   font-weight: 600;
   background: var(--surface-3);
+  border-top: 2px solid var(--ink);
 }

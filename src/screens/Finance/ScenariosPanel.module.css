@@ -1,0 +1,606 @@
+/* "Escenarios y sensibilidad": cara a cara, tabla con columna fija, héroe oscuro de sensibilidad, tornado y bivariante. */
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+/* ---------- bloques ---------- */
+.block {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 20px 22px;
+  min-width: 0;
+}
+.blockHead {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 16px;
+}
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.eyebrow b {
+  font-weight: 400;
+  color: var(--forest);
+  padding-right: 10px;
+  border-right: 1px solid var(--line-strong);
+}
+.blockTitle {
+  font-size: clamp(24px, 2.4vw, 32px);
+  font-weight: 300;
+  letter-spacing: -0.045em;
+  line-height: 1.08;
+}
+.blockTitleSm {
+  font-size: 19px;
+  font-weight: 300;
+  letter-spacing: -0.03em;
+  line-height: 1.2;
+}
+.blockSub {
+  font-size: 12.5px;
+  color: var(--ink-2);
+  line-height: 1.5;
+}
+.foot {
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid var(--line-soft);
+  font-size: 12.5px;
+  color: var(--ink-2);
+  line-height: 1.55;
+}
+.cardBody {
+  margin-top: 10px;
+}
+.pair {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 440px), 1fr));
+  gap: 18px;
+  align-items: start;
+}
+
+/* ---------- tonos ---------- */
+.good {
+  color: var(--good);
+}
+.warn {
+  color: var(--warn);
+}
+.bad {
+  color: var(--bad);
+}
+.muted {
+  color: var(--muted);
+}
+
+/* ---------- cara a cara ---------- */
+.versus {
+  display: grid;
+  grid-template-columns: repeat(var(--cols, 3), minmax(0, 1fr));
+  gap: 12px;
+}
+.vsCard {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px 18px 18px;
+  border-radius: var(--radius);
+  border: 1px solid var(--line);
+  background: var(--surface-2);
+  color: var(--ink);
+  text-align: left;
+  font-family: inherit;
+  cursor: pointer;
+  min-width: 0;
+  transition: transform 0.4s var(--ease-out), border-color 0.3s var(--ease-out), box-shadow 0.4s var(--ease-out);
+  animation: cardUp 0.7s var(--ease-out) backwards;
+  animation-delay: calc(var(--i, 0) * 80ms + 100ms);
+}
+.vsCard:disabled {
+  cursor: default;
+}
+.vsCard:hover:not(:disabled) {
+  transform: translateY(-3px);
+  border-color: var(--line-strong);
+  box-shadow: var(--shadow-lift);
+}
+.vsCard:focus-visible {
+  outline: 2px solid var(--sprout);
+  outline-offset: 2px;
+}
+@keyframes cardUp {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+}
+.vsCurrent {
+  border-color: var(--forest);
+  box-shadow: inset 0 0 0 1px var(--forest);
+}
+/* Recomendado: superficie oscura con borde lima; el kit se reutiliza redefiniendo sus variables. */
+.vsRec {
+  --ink: var(--dark-ink);
+  --ink-2: var(--dark-ink-2);
+  --muted: var(--dark-muted);
+  --line: var(--dark-line);
+  --line-strong: color-mix(in srgb, var(--dark-ink) 20%, transparent);
+  --good: var(--sprout);
+  --good-soft: color-mix(in srgb, var(--sprout) 14%, transparent);
+  --good-line: color-mix(in srgb, var(--sprout) 40%, transparent);
+  --bad: var(--dark-bad);
+  --warn: var(--dark-warn);
+  background: var(--app-bg);
+  border-color: color-mix(in srgb, var(--sprout) 55%, transparent);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--sprout) 20%, transparent), 0 24px 50px -28px color-mix(in srgb, var(--sprout) 60%, transparent);
+  overflow: hidden;
+  isolation: isolate;
+}
+.vsRec::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: radial-gradient(80% 60% at 100% 0%, color-mix(in srgb, var(--sprout) 16%, transparent), transparent 70%);
+}
+.vsRec.vsCurrent {
+  border-color: var(--sprout);
+  box-shadow: inset 0 0 0 1px var(--sprout), 0 24px 50px -28px color-mix(in srgb, var(--sprout) 60%, transparent);
+}
+.vsTop {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.vsLetter {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 1px solid var(--line-strong);
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--ink);
+}
+.vsRec .vsLetter {
+  background: var(--sprout);
+  border-color: var(--sprout);
+  color: var(--sprout-ink);
+}
+.vsNow {
+  margin-left: auto;
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--forest);
+}
+.vsRec .vsNow {
+  color: var(--sprout);
+}
+.vsName {
+  font-size: 15px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  line-height: 1.3;
+}
+.vsHero {
+  display: grid;
+  gap: 2px;
+  padding: 12px 0;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+}
+.vsHeroLabel {
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.vsHeroValue {
+  font-family: var(--font-heading);
+  font-size: clamp(28px, 2.8vw, 36px);
+  font-weight: 300;
+  letter-spacing: -0.045em;
+  line-height: 1.1;
+}
+.vsRec .vsHeroValue:not(.bad) {
+  color: var(--sprout);
+}
+.vsList {
+  display: grid;
+  gap: 6px;
+}
+.vsList > span {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  font-size: 12px;
+}
+.vsList i {
+  font-style: normal;
+  color: var(--ink-2);
+}
+.vsList b {
+  font-family: var(--font-mono);
+  font-weight: 400;
+  font-size: 12px;
+  white-space: nowrap;
+}
+.reading {
+  margin-top: 16px;
+  padding: 14px 16px;
+  border-radius: var(--radius-sm);
+  background: var(--surface-2);
+  border-left: 3px solid var(--sprout);
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--ink-2);
+}
+.reading strong {
+  color: var(--ink);
+  font-weight: 600;
+}
+
+/* ---------- tablas con columna fija ---------- */
+.tableWrap {
+  overflow-x: auto;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+}
+.table {
+  border-collapse: separate;
+  border-spacing: 0;
+  width: 100%;
+}
+.table th,
+.table td {
+  text-align: right;
+  padding: 9px 14px;
+  font-size: 12.5px;
+  border-bottom: 1px solid var(--line-soft);
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+.table tbody tr:last-child th,
+.table tbody tr:last-child td {
+  border-bottom: none;
+}
+.table thead th {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-weight: 400;
+  color: var(--muted);
+  background: var(--surface-2);
+  border-bottom: 1px solid var(--line-strong);
+}
+.table th:first-child {
+  position: sticky;
+  left: 0;
+  z-index: 1;
+  text-align: left;
+  background: var(--surface);
+  box-shadow: 1px 0 0 var(--line);
+  font-weight: 400;
+  color: var(--ink);
+}
+.table thead th:first-child {
+  background: var(--surface-2);
+  color: var(--muted);
+  z-index: 2;
+}
+.table tbody tr {
+  animation: rowIn 0.6s var(--ease-out) backwards;
+  transition: background 0.2s ease;
+}
+.table tbody tr:nth-child(2) {
+  animation-delay: 0.03s;
+}
+.table tbody tr:nth-child(3) {
+  animation-delay: 0.06s;
+}
+.table tbody tr:nth-child(4) {
+  animation-delay: 0.09s;
+}
+.table tbody tr:nth-child(5) {
+  animation-delay: 0.12s;
+}
+.table tbody tr:nth-child(6) {
+  animation-delay: 0.15s;
+}
+.table tbody tr:nth-child(7) {
+  animation-delay: 0.18s;
+}
+.table tbody tr:nth-child(n + 8) {
+  animation-delay: 0.21s;
+}
+@keyframes rowIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+.table tbody tr:hover td,
+.table tbody tr:hover th {
+  background: var(--hover);
+}
+.band td,
+.band th {
+  background: var(--surface-2);
+}
+.table .band th:first-child {
+  background: var(--surface-2);
+}
+.thLetter {
+  display: inline-grid;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+  margin-right: 4px;
+  border-radius: 50%;
+  border: 1px solid var(--line-strong);
+  font-size: 9.5px;
+  color: var(--ink-2);
+}
+.thCurrent {
+  color: var(--forest) !important;
+}
+.thCurrent .thLetter {
+  border-color: var(--forest);
+  color: var(--forest);
+}
+.thRec .thLetter {
+  background: var(--sprout);
+  border-color: var(--sprout);
+  color: var(--sprout-ink);
+}
+.thDiff,
+.tdDiff {
+  border-left: 1px dashed var(--line-strong);
+  color: var(--muted);
+}
+.tdCurrent {
+  background: color-mix(in srgb, var(--sprout) 6%, transparent);
+}
+/* Valor preferible de la fila: subrayado lima y un punto. */
+.best > span {
+  position: relative;
+  padding-right: 14px;
+  box-shadow: inset 0 -2px 0 color-mix(in srgb, var(--sprout) 80%, transparent);
+}
+.best > span::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  top: 50%;
+  width: 6px;
+  height: 6px;
+  margin-top: -3px;
+  border-radius: 50%;
+  background: var(--sprout);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--sprout) 30%, transparent);
+}
+.bestKey {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  margin-right: 2px;
+  border-radius: 50%;
+  background: var(--sprout);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--sprout) 30%, transparent);
+  vertical-align: middle;
+}
+
+/* ---------- mapa de calor por signo (bivariante) ---------- */
+.heat td {
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+}
+.heatGood {
+  background: color-mix(in srgb, var(--good) 9%, transparent);
+  color: var(--ink);
+}
+.heatBad {
+  background: color-mix(in srgb, var(--bad) 10%, transparent);
+  color: var(--bad);
+}
+.heatBase {
+  outline: 2px solid var(--forest);
+  outline-offset: -2px;
+}
+
+/* ---------- héroe de sensibilidad: superficie oscura ---------- */
+.hero {
+  --ink: var(--dark-ink);
+  --ink-2: var(--dark-ink-2);
+  --muted: var(--dark-muted);
+  --muted-2: var(--dark-muted);
+  --surface: var(--app-bg);
+  --line: var(--dark-line);
+  --line-soft: var(--dark-line);
+  --line-strong: color-mix(in srgb, var(--dark-ink) 22%, transparent);
+  --good: var(--sprout);
+  --good-soft: color-mix(in srgb, var(--sprout) 12%, transparent);
+  --leaf: var(--sprout);
+  --bad: var(--dark-bad);
+  --bad-soft: color-mix(in srgb, var(--dark-bad) 14%, transparent);
+  --warn: var(--dark-warn);
+  --warn-tag-fg: var(--dark-warn);
+  --forest: var(--sprout);
+  --serif-color: var(--sprout);
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  display: grid;
+  grid-template-columns: minmax(240px, 0.7fr) minmax(0, 2.3fr);
+  gap: 28px;
+  padding: 26px clamp(20px, 2.6vw, 32px);
+  border-radius: var(--radius-panel);
+  background: var(--app-bg);
+  color: var(--dark-ink);
+  border: 1px solid var(--dark-line);
+  box-shadow: var(--shadow-panel);
+}
+.hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background-image: linear-gradient(var(--dark-line) 1px, transparent 1px), linear-gradient(90deg, var(--dark-line) 1px, transparent 1px);
+  background-size: 40px 40px;
+  mask-image: radial-gradient(90% 90% at 70% 50%, black, transparent 80%);
+  opacity: 0.45;
+  pointer-events: none;
+}
+.heroGlow {
+  position: absolute;
+  z-index: -1;
+  left: -15%;
+  bottom: -70%;
+  width: 55%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, color-mix(in srgb, var(--sprout) 14%, transparent), transparent);
+  pointer-events: none;
+}
+.heroSide {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-width: 0;
+}
+.hero .eyebrow b {
+  border-right-color: var(--dark-line);
+}
+.heroTitle {
+  font-size: clamp(24px, 2.4vw, 32px);
+  font-weight: 300;
+  letter-spacing: -0.045em;
+  line-height: 1.08;
+  color: var(--dark-ink);
+}
+.heroFigure {
+  display: grid;
+  gap: 2px;
+  color: var(--sprout);
+}
+.hero_warn {
+  color: var(--dark-warn);
+}
+.hero_bad {
+  color: var(--dark-bad);
+}
+.heroLabel,
+.heroUnit {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--dark-muted);
+}
+.heroDots {
+  font-family: var(--font-dots);
+  font-size: clamp(54px, 6vw, 80px);
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  text-shadow: 0 0 30px color-mix(in srgb, currentColor 35%, transparent);
+  animation: dotsIn 1s var(--ease-out) 0.3s backwards;
+}
+@keyframes dotsIn {
+  from {
+    opacity: 0;
+    filter: blur(6px);
+    transform: translateY(8px);
+  }
+}
+.heroFacts {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin: 0;
+  border-top: 1px solid var(--dark-line);
+}
+.heroFacts div {
+  padding: 10px 10px 0 0;
+}
+.heroFacts div + div {
+  padding-left: 10px;
+  border-left: 1px solid var(--dark-line);
+}
+.heroFacts dt {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--dark-muted);
+}
+.heroFacts dd {
+  margin: 4px 0 0;
+  font-size: 15px;
+  font-weight: 300;
+  letter-spacing: -0.02em;
+  white-space: nowrap;
+}
+.heroReading {
+  font-size: 12.5px;
+  line-height: 1.6;
+  color: var(--dark-ink-2);
+}
+.heroReading strong {
+  color: var(--dark-ink);
+  font-weight: 500;
+}
+.heroChart {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 8px;
+  min-width: 0;
+  padding: 14px 16px 10px;
+  border-radius: var(--radius);
+  background: color-mix(in srgb, var(--dark-ink) 3%, transparent);
+  border: 1px solid var(--dark-line);
+}
+.heroHint {
+  align-self: flex-end;
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--dark-muted);
+}
+
+/* ---------- responsivo ---------- */
+@media (max-width: 1000px) {
+  .hero {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .versus {
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr));
+  }
+}
+@media (max-width: 560px) {
+  .block {
+    padding: 16px;
+  }
+  .heroHint {
+    display: none;
+  }
+}

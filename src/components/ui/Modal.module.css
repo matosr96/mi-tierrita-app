@@ -29,6 +29,10 @@
 .wide {
   max-width: 880px;
 }
+/* Durante un morfismo compartido la transición de vista anima el diálogo; se suprime su entrada propia. */
+.morph {
+  animation: none;
+}
 .head {
   display: flex;
   align-items: flex-start;

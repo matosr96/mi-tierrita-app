@@ -71,15 +71,17 @@ export const InventoryReportPanel = () => {
           ];
           return (
             <ReportPaper
-              title="Reporte de inventario"
-              meta={`Agropecuaria Mi Tierrita · al ${dateTime(report.asOf)} · ${user ? `Generado por ${user.firstName} ${user.lastName}, ${ROLE_LABELS[user.role]}` : ""}`}
+              code="R-02"
+              title="Reporte de"
+              accent="inventario"
+              meta={[`Corte al ${dateTime(report.asOf)}`, `Ventana de ${int(report.expiringDays)} días`, user ? `Por ${user.firstName} ${user.lastName}, ${ROLE_LABELS[user.role]}` : ""]}
               summary={
                 <>
-                  <p className={styles.summary}>
+                  <p>
                     El inventario tiene <strong>{int(report.units)} unidades</strong> en {int(report.activeProducts)} productos activos, valoradas en <strong>{money(report.costValue)}</strong> al costo y{" "}
                     {money(report.saleValue)} a precio de venta.
                   </p>
-                  <p className={styles.summary}>
+                  <p>
                     {int(report.outOfStock)} productos activos están sin stock. En los próximos {int(report.expiringDays)} días vencen {int(report.expiringSoon.batches)} lotes ({int(report.expiringSoon.units)} unidades) y hay{" "}
                     {int(report.expired.batches)} lotes vencidos con unidades disponibles.
                   </p>

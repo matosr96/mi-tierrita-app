@@ -1,0 +1,503 @@
+/* Bodega isométrica: tarjeta siempre oscura, estantes que se dibujan y cajas (lotes) que caen en orden FEFO. */
+.card {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  color: var(--dark-ink);
+  background: var(--app-bg);
+  border: 1px solid var(--dark-line);
+  border-radius: var(--radius);
+  padding: 20px 22px 18px;
+  --ink: var(--dark-ink);
+  --ink-2: var(--dark-ink-2);
+  --muted: var(--dark-muted);
+  --line: var(--dark-line);
+  --line-soft: var(--dark-line);
+  --surface: var(--dark-glass);
+  animation: cardIn 0.8s var(--ease-out) backwards;
+}
+.topo {
+  position: absolute;
+  z-index: -1;
+  left: -220px;
+  bottom: -340px;
+  width: 760px;
+  height: 760px;
+  opacity: 0.45;
+}
+.card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: radial-gradient(circle at 30% 35%, transparent 20%, var(--app-bg) 78%);
+  pointer-events: none;
+}
+
+.body {
+  display: grid;
+  grid-template-columns: minmax(0, 1.5fr) minmax(220px, 1fr);
+  grid-template-areas:
+    "stage head"
+    "stage aside";
+  grid-template-rows: auto 1fr;
+  gap: 6px 28px;
+}
+.head {
+  grid-area: head;
+  padding-top: 6px;
+}
+.label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--dark-ink-2);
+}
+.label::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--sprout);
+  box-shadow: 0 0 10px var(--sprout);
+}
+.title {
+  font-family: var(--font-heading);
+  font-size: 26px;
+  font-weight: 300;
+  letter-spacing: -0.045em;
+  line-height: 1.1;
+  color: var(--dark-ink);
+  margin-top: 12px;
+}
+.title em {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-weight: 400;
+  letter-spacing: -0.01em;
+  color: var(--sprout);
+}
+.lead {
+  font-size: 12.5px;
+  line-height: 1.55;
+  color: var(--dark-ink-2);
+  margin-top: 10px;
+  max-width: 42ch;
+}
+
+/* Escenario del SVG */
+.stage {
+  grid-area: stage;
+  position: relative;
+  min-width: 0;
+}
+.scroller {
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scrollbar-width: thin;
+  scrollbar-color: var(--dark-line) transparent;
+}
+.svg {
+  display: block;
+  width: 100%;
+  min-width: 440px;
+  max-width: 600px;
+  height: auto;
+  margin: 0 auto;
+  overflow: visible;
+}
+
+/* Estantes */
+.rack {
+  --rack: var(--dark-muted);
+}
+.floor {
+  fill: color-mix(in srgb, var(--dark-ink) 4%, transparent);
+  stroke: var(--dark-line);
+  stroke-width: 1;
+  stroke-dasharray: 1;
+  animation: draw 1.1s var(--ease-in-out) backwards;
+  animation-delay: calc(var(--r) * 120ms + 100ms);
+}
+.back {
+  fill: color-mix(in srgb, var(--rack) 10%, transparent);
+  stroke: color-mix(in srgb, var(--rack) 45%, transparent);
+  stroke-width: 1;
+  stroke-dasharray: 1;
+  animation: draw 1.3s var(--ease-in-out) backwards;
+  animation-delay: calc(var(--r) * 120ms + 200ms);
+}
+.post .top,
+.post .front,
+.post .side,
+.plank .top,
+.plank .front,
+.plank .side {
+  stroke: color-mix(in srgb, var(--dark-ink) 10%, transparent);
+  stroke-width: 0.6;
+  stroke-linejoin: round;
+}
+.post .top,
+.plank .top {
+  fill: color-mix(in srgb, var(--rack) 62%, var(--app-bg));
+}
+.post .front,
+.plank .front {
+  fill: color-mix(in srgb, var(--rack) 80%, var(--app-bg));
+}
+.post .side,
+.plank .side {
+  fill: color-mix(in srgb, var(--rack) 45%, var(--app-bg));
+}
+.post {
+  transform-box: fill-box;
+  transform-origin: bottom;
+  animation: postIn 0.8s var(--ease-out) backwards;
+  animation-delay: calc(var(--r) * 120ms + 250ms);
+}
+.plank {
+  animation: plankIn 0.7s var(--ease-out) backwards;
+  animation-delay: calc(var(--r) * 120ms + var(--k) * 90ms + 400ms);
+}
+.emptySlot {
+  fill: none;
+  stroke: color-mix(in srgb, var(--dark-ink) 16%, transparent);
+  stroke-width: 0.8;
+  stroke-dasharray: 2 2;
+  animation: fadeIn 0.6s ease 0.9s backwards;
+}
+
+/* Cajas (lotes) */
+.sExpired {
+  --box: var(--dark-bad);
+}
+.sWeek {
+  --box: color-mix(in srgb, var(--dark-bad) 50%, var(--dark-warn));
+}
+.sMonth {
+  --box: var(--dark-warn);
+}
+.sLater {
+  --box: var(--sprout);
+}
+.box {
+  cursor: pointer;
+  outline: none;
+  animation: drop 0.75s var(--ease-spring) backwards;
+  animation-delay: calc(var(--i) * 32ms + 750ms);
+}
+.lift {
+  transition: transform 0.45s var(--ease-spring), filter 0.3s ease;
+}
+.box:hover .lift,
+.box:focus-visible .lift {
+  transform: translateY(-7px);
+  filter: brightness(1.12) drop-shadow(0 6px 6px color-mix(in srgb, var(--app-bg) 80%, transparent));
+}
+.face {
+  stroke: color-mix(in srgb, var(--app-bg) 55%, transparent);
+  stroke-width: 0.6;
+  stroke-linejoin: round;
+}
+.box .top {
+  fill: color-mix(in srgb, var(--box) 86%, var(--dark-ink));
+}
+.box .front {
+  fill: color-mix(in srgb, var(--box) 78%, var(--app-bg));
+}
+.box .side {
+  fill: color-mix(in srgb, var(--box) 52%, var(--app-bg));
+}
+.box:focus-visible .face {
+  stroke: var(--dark-ink);
+  stroke-width: 1.2;
+}
+.hatch {
+  pointer-events: none;
+}
+.hatchLine {
+  stroke: color-mix(in srgb, var(--app-bg) 45%, transparent);
+  stroke-width: 1.6;
+}
+.boxLabel {
+  font-family: var(--font-mono);
+  font-size: 6.5px;
+  letter-spacing: 0.04em;
+  fill: color-mix(in srgb, var(--app-bg) 82%, transparent);
+  pointer-events: none;
+}
+
+.firstMark {
+  pointer-events: none;
+  animation: fadeIn 0.6s ease 1.3s backwards;
+}
+.firstLine {
+  stroke: var(--sprout);
+  stroke-width: 1;
+  stroke-dasharray: 2 2;
+}
+.firstText {
+  font-family: var(--font-mono);
+  font-size: 7.5px;
+  letter-spacing: 0.16em;
+  text-anchor: middle;
+  fill: var(--sprout);
+}
+
+/* Estados sobre el escenario */
+.overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  text-align: center;
+  padding: 0 24px;
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--dark-ink-2);
+  pointer-events: none;
+}
+.overlay > * {
+  pointer-events: auto;
+}
+
+/* Tooltip de vidrio oscuro */
+.tip {
+  position: absolute;
+  z-index: 2;
+  width: max-content;
+  max-width: 220px;
+  transform: translate(-50%, -100%);
+  padding: 10px 12px 11px;
+  border-radius: var(--radius-sm);
+  background: var(--dark-surface);
+  border: 1px solid var(--dark-line);
+  backdrop-filter: blur(14px) saturate(1.3);
+  -webkit-backdrop-filter: blur(14px) saturate(1.3);
+  box-shadow: 0 18px 40px -18px color-mix(in srgb, var(--app-bg) 90%, transparent);
+  color: var(--dark-ink);
+  pointer-events: none;
+  animation: tipIn 0.28s var(--ease-out) backwards;
+}
+.tipBelow {
+  transform: translate(-50%, 0);
+}
+.tipProduct {
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  line-height: 1.3;
+}
+.tipRows {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 3px 10px;
+  margin: 8px 0 0;
+  font-size: 11.5px;
+}
+.tipRows dt {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--dark-muted);
+  align-self: center;
+}
+.tipRows dd {
+  margin: 0;
+  color: var(--dark-ink-2);
+  font-variant-numeric: tabular-nums;
+}
+.tipBadge {
+  display: inline-block;
+  margin-left: 4px;
+  padding: 0 6px;
+  border-radius: 999px;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  line-height: 16px;
+  color: var(--box);
+  background: color-mix(in srgb, var(--box) 14%, transparent);
+  border: 1px solid color-mix(in srgb, var(--box) 32%, transparent);
+}
+
+/* Leyenda y notas */
+.aside {
+  grid-area: aside;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding-top: 8px;
+}
+.legend {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border-top: 1px solid var(--dark-line);
+}
+.legendItem {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 0;
+  border-bottom: 1px solid var(--dark-line);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--dark-ink-2);
+}
+.swatch {
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  background: var(--box);
+  box-shadow: 0 0 10px color-mix(in srgb, var(--box) 45%, transparent);
+}
+.sExpired .swatch {
+  background: repeating-linear-gradient(45deg, var(--box) 0 2px, color-mix(in srgb, var(--box) 55%, var(--app-bg)) 2px 4px);
+}
+.legendLabel {
+  flex: 1;
+}
+.legendValue {
+  font-size: 12px;
+  color: var(--dark-ink);
+  font-variant-numeric: tabular-nums;
+}
+.more {
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--dark-ink-2);
+}
+.more strong {
+  font-family: var(--font-mono);
+  font-weight: 500;
+  font-size: 10.5px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--sprout);
+  margin-right: 4px;
+}
+.next {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 12.5px;
+  color: var(--dark-ink);
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  background: var(--dark-glass);
+  border: 1px solid var(--dark-line);
+}
+.nextLabel {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--dark-muted);
+}
+
+@media (max-width: 900px) {
+  .body {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas:
+      "head"
+      "stage"
+      "aside";
+    grid-template-rows: auto;
+    gap: 14px;
+  }
+  .legend {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: 16px;
+  }
+}
+@media (max-width: 480px) {
+  .card {
+    padding: 16px 14px 14px;
+  }
+  .title {
+    font-size: 22px;
+  }
+  .svg {
+    min-width: 400px;
+  }
+  .legend {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@keyframes cardIn {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+}
+@keyframes draw {
+  from {
+    stroke-dashoffset: 1;
+    fill-opacity: 0;
+  }
+}
+@keyframes postIn {
+  from {
+    opacity: 0;
+    transform: scaleY(0);
+  }
+}
+@keyframes plankIn {
+  from {
+    opacity: 0;
+    transform: translateY(-12px);
+  }
+}
+@keyframes drop {
+  from {
+    opacity: 0;
+    transform: translateY(-64px);
+  }
+  60% {
+    opacity: 1;
+  }
+}
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+}
+@keyframes tipIn {
+  from {
+    opacity: 0;
+    margin-top: 6px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card,
+  .floor,
+  .back,
+  .post,
+  .plank,
+  .emptySlot,
+  .box,
+  .firstMark,
+  .tip {
+    animation: none;
+  }
+  .lift {
+    transition: none;
+  }
+}

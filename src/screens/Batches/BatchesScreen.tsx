@@ -9,6 +9,7 @@ import { ExpiryBadge } from "./ExpiryBadge";
 import { AdminBatchStats } from "./AdminBatchStats";
 import { WindowBatchStats } from "./WindowBatchStats";
 import { DistributionCard } from "./DistributionCard";
+import { WarehouseCard } from "./WarehouseCard";
 import { RegisterBatchModal } from "./RegisterBatchModal";
 import styles from "./BatchesScreen.module.css";
 
@@ -79,6 +80,8 @@ export const BatchesScreen = () => {
         <span className={styles.filtersLabel}>Ventana</span>
         <Chips options={WINDOWS} value={days} onChange={setDays} />
       </div>
+
+      <WarehouseCard days={days} query={query} />
 
       <div className={styles.grid}>
         <Card title="Lotes por orden de vencimiento" subtitle={isAdmin ? "El más próximo a vencer sale primero" : "El más próximo sale primero"}>

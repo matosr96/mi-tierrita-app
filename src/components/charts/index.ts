@@ -1,3 +1,6 @@
 export * from "./BarChart";
 export * from "./LineChart";
 export * from "./TornadoChart";
+export * from "./ChartFrame";
+export * from "./ChartCrosshair";
+export * from "./useChartHover";
