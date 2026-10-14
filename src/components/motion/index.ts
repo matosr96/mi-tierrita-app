@@ -7,3 +7,4 @@ export * from "./TopoField";
 export * from "./spotlight";
 export * from "./ShaderField";
 export * from "./PhotoBackdrop";
+export * from "./TerrainField";

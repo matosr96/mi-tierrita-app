@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Navigate, Outlet, useLocation } from "react-router-dom";
 import { useSessionStore } from "@/stores/session";
 import type { Role } from "@/types/api";
@@ -18,9 +19,12 @@ export const RequireRole = ({ roles }: { roles: Role[] }) => {
   return <Outlet />;
 };
 
-/** Con sesión activa, Iniciar sesión redirige al inicio. */
+/**
+ * Con sesión activa al llegar, Iniciar sesión redirige al inicio. Si la sesión nace aquí mismo (el usuario acaba de
+ * entrar), no se redirige: la pantalla termina su salida animada y navega ella misma.
+ */
 export const RedirectIfSession = () => {
-  const token = useSessionStore((s) => s.token);
-  if (token) return <Navigate to="/" replace />;
+  const [hadSession] = useState(() => Boolean(useSessionStore.getState().token));
+  if (hadSession) return <Navigate to="/" replace />;
   return <Outlet />;
 };

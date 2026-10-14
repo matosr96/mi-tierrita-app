@@ -1,4 +1,4 @@
-Fotos de portada de Mi Tierrita (login e Inicio).
+Fotos de la portada de Inicio de Mi Tierrita.
 
 1. Copie aquí fotos horizontales (JPG o WebP, unos 2000 px de ancho, menos de 400 KB cada una).
 2. Agregue sus rutas en src/lib/media.ts, por ejemplo "/media/bodega.jpg".

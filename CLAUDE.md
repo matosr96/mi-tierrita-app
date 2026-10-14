@@ -60,12 +60,14 @@ align, render, width}], rows, rowKey, onRowClick, footer) · `Loading`, `EmptySt
 `StatCard` pasa los valores de texto con dígitos por `Odometer`; `DataTable` escalona la entrada de filas.
 Movimiento en `@/components/motion`: `Reveal` (aparece al entrar en pantalla), `SplitText` (titular por
 palabras; `*x*` serif cursiva, `\n` salto), `Odometer` (rodillos por dígito), `Preloader` (intro 0→100 %,
-una vez por sesión), `TopoField` (curvas de nivel animadas para superficies oscuras), `ShaderField` (fondo vivo en
+una vez por sesión), `TopoField` (curvas de nivel animadas para superficies oscuras), `TerrainField` (terreno 3D en malla de alambre del login, WebGL a mano: fases `idle`/`leaving` y `alert` para el
+escaneo rojo), `ShaderField` (fondo vivo en
 WebGL con los colores del tema; se pausa fuera de la vista), `PhotoBackdrop` (fotos en duotono con zoom lento;
 las rutas van en `src/lib/media.ts` y los archivos en `public/media/`), `trackSpotlight`
 (brillo que sigue al cursor; ya lo usan `Card` y `StatCard`), `useInView`. En `@/components/layout`:
 `HeroHeader` (portada oscura de Inicio: eyebrow, titular, subtítulo, acciones y `aside`) y `CommandPalette`
-(⌘K / Ctrl+K, montada en el shell). El shell revela al hacer scroll todo `section` o `[data-reveal-item]`
+(⌘K / Ctrl+K, montada en el shell). `RedirectIfSession` solo redirige si ya había sesión al llegar al login,
+para que la salida animada del login termine antes de navegar. El shell revela al hacer scroll todo `section` o `[data-reveal-item]`
 que monta fuera de la vista, y las `NavLink` usan View Transitions (`view-transition-name: page`).
 Efectos ligados al scroll con CSS nativo (`animation-timeline: scroll()/view()`) siempre dentro de
 `@supports` y anulados con `prefers-reduced-motion`. La portada de Inicio responde "¿está todo bien?":
