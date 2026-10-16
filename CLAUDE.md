@@ -97,7 +97,9 @@ el cursor: `primary` verde bosque que se rellena de lima, `secondary` con borde 
   auditoría (administrador) o las ventas propias (secretaria).
 - **Historial de reportes**: cada PDF o Excel descargado se registra con `useRecordExport` (`ReportPreview` lo hace
   solo si recibe `record`; Finanzas desde `ScenarioExport`) y se lista en `ExportHistory` (prototipo 09).
-- **Comunicación**: `/chat` (todos los roles; `useChatMessages` pide solo lo nuevo cada 4 s con `?after=`) y
+- **Comunicación**: `/chat` (todos los roles; canal general y privados con `?con=<id>`; `useChatMessages(peerId)` pide solo
+  lo nuevo cada 4 s con `?after=`; `useChatTeam` da presencia y no leídos, y su consulta periódica desde el menú mantiene
+  a la persona "en línea") y
   `/contactos` (ADMIN; bandeja del formulario público, insignia del menú y aviso en la campana con los nuevos).
   El formulario de la página pública envía a `POST /contact` con un campo trampa `website`.
 

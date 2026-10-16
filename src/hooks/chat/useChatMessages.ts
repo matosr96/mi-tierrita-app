@@ -5,10 +5,11 @@ import type { ChatMessage } from "@/types/api";
 const POLL_MS = 4000;
 
 /**
- * Mensajes del chat del equipo: carga los últimos y luego pide cada 4 s solo los nuevos (`after`), mientras la pestaña
- * está visible. `push` agrega de inmediato el mensaje propio recién enviado.
+ * Mensajes de una conversación (canal general si `peerId` es null, privada si no): carga los últimos y luego pide
+ * cada 4 s solo los nuevos (`after`), mientras la pestaña está visible. `push` agrega de inmediato el mensaje propio.
+ * Al cambiar de conversación empieza de cero.
  */
-export const useChatMessages = (enabled = true) => {
+export const useChatMessages = (peerId: number | null, enabled = true) => {
   const [items, setItems] = useState<ChatMessage[]>([]);
   const [status, setStatus] = useState<"pending" | "ready" | "error">("pending");
   const lastId = useRef<number | undefined>(undefined);
@@ -25,6 +26,10 @@ export const useChatMessages = (enabled = true) => {
 
   useEffect(() => {
     if (!enabled) return;
+    setItems([]);
+    setStatus("pending");
+    lastId.current = undefined;
+    const peer = peerId === null ? {} : { with: peerId };
     let cancelled = false;
     let timer: number | undefined;
     let first = true;
@@ -33,7 +38,7 @@ export const useChatMessages = (enabled = true) => {
         // La primera carga va siempre; las siguientes, solo con la pestaña a la vista.
         if (first || document.visibilityState === "visible") {
           first = false;
-          const page = await chatService.list(lastId.current === undefined ? { limit: 60 } : { after: lastId.current, limit: 100 });
+          const page = await chatService.list(lastId.current === undefined ? { ...peer, limit: 60 } : { ...peer, after: lastId.current, limit: 100 });
           if (cancelled) return;
           merge(page.items);
           setStatus("ready");
@@ -48,7 +53,7 @@ export const useChatMessages = (enabled = true) => {
       cancelled = true;
       window.clearTimeout(timer);
     };
-  }, [enabled]);
+  }, [enabled, peerId]);
 
   return { items, status, push: (m: ChatMessage) => merge([m]) };
 };

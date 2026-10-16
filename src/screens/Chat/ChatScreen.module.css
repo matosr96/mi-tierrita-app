@@ -1,6 +1,6 @@
 .layout {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 240px;
+  grid-template-columns: 260px minmax(0, 1fr) 230px;
   gap: 12px;
   align-items: start;
 }
@@ -102,6 +102,7 @@
   color: var(--good);
 }
 .avatar {
+  position: relative;
   width: 30px;
   height: 30px;
   flex-shrink: 0;
@@ -192,7 +193,8 @@
   align-items: center;
   gap: 10px;
 }
-.team li span:last-child {
+.team li span:last-child,
+.teamBtn > span:last-child {
   display: flex;
   flex-direction: column;
   min-width: 0;
@@ -206,9 +208,176 @@
   font-size: 11px;
   color: var(--muted);
 }
+/* ---------- conversaciones ---------- */
+.inbox {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 14px 10px;
+  height: max(420px, calc(100vh - 320px));
+  overflow-y: auto;
+  border-radius: var(--radius);
+  border: 1px solid var(--dark-line);
+  background: var(--app-bg);
+  color: var(--dark-ink);
+}
+.inboxTitle {
+  margin: 0 6px 8px;
+  font-family: var(--font-heading);
+  font-size: 20px;
+  font-weight: 300;
+  letter-spacing: -0.03em;
+  color: var(--dark-ink);
+}
+.search {
+  margin: 0 4px 8px;
+  padding: 9px 12px;
+  border-radius: 10px;
+  border: 1px solid var(--dark-line);
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--dark-ink);
+  font: inherit;
+  font-size: 13px;
+}
+.search:focus {
+  outline: 2px solid var(--sprout);
+  outline-offset: 1px;
+}
+.groupLabel {
+  display: block;
+  margin: 12px 6px 4px;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--dark-muted);
+}
+.team .groupLabel {
+  color: var(--muted);
+  margin-left: 0;
+}
+.conv {
+  display: grid;
+  grid-template-columns: 30px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 8px;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--dark-ink-2);
+  text-align: left;
+  font: inherit;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+.conv:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+.convOn {
+  background: rgba(185, 236, 111, 0.12);
+  color: var(--dark-ink);
+}
+.convText {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.convText strong {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--dark-ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.convText small {
+  font-size: 11.5px;
+  color: var(--dark-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.unread {
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 999px;
+  background: var(--sprout);
+  color: var(--sprout-ink);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  line-height: 18px;
+  text-align: center;
+}
+.hashSmall {
+  width: 30px;
+  height: 30px;
+  border-radius: 9px;
+  display: grid;
+  place-items: center;
+  background: var(--sprout);
+  color: var(--sprout-ink);
+  font-family: var(--font-mono);
+  font-weight: 600;
+}
+.muted {
+  margin: 4px 8px;
+  font-size: 12px;
+  color: var(--dark-muted);
+}
+/* Punto de presencia sobre el avatar. */
+.presence {
+  position: absolute;
+  right: -1px;
+  bottom: -1px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--muted-2);
+  border: 2px solid var(--surface);
+}
+.inbox .presence {
+  border-color: var(--app-bg);
+}
+.isOnline {
+  background: var(--good);
+}
+.teamBtn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  text-align: left;
+  font: inherit;
+  cursor: pointer;
+}
+.teamBtn:hover strong {
+  color: var(--forest);
+}
+.team ul + .groupLabel {
+  margin-top: 16px;
+}
+
+@media (max-width: 1180px) {
+  .layout {
+    grid-template-columns: 240px minmax(0, 1fr);
+  }
+  .team {
+    display: none;
+  }
+}
 @media (max-width: 900px) {
   .layout {
     grid-template-columns: 1fr;
+  }
+  .inbox {
+    height: auto;
+    max-height: 260px;
   }
   .team {
     display: none;

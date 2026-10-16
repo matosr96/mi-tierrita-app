@@ -9,7 +9,7 @@ export type NavItem = {
   /** Roles que ven el módulo con candado (van a Acceso restringido), como Finanzas para la Secretaria. */
   lockedFor?: Role[];
   /** Clave de la insignia numérica del menú. */
-  badge?: "inventory" | "batches" | "customers" | "contact";
+  badge?: "inventory" | "batches" | "customers" | "contact" | "chat";
 };
 export type NavGroup = { title?: string; items: NavItem[] };
 
@@ -56,7 +56,7 @@ export const NAV_GROUPS: NavGroup[] = [
   {
     title: "Comunicación",
     items: [
-      { path: "/chat", label: "Chat del equipo", icon: ICONS.chat, roles: ALL },
+      { path: "/chat", label: "Chat del equipo", icon: ICONS.chat, roles: ALL, badge: "chat" },
       { path: "/contactos", label: "Contactos del sitio", icon: ICONS.contact, roles: ["ADMIN"], badge: "contact" },
     ],
   },

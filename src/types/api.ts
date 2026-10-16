@@ -233,7 +233,11 @@ export type ExportFormat = "pdf" | "xlsx";
 export type ReportExport = { id: number; userId: number; username: string; report: ExportReportKind; format: ExportFormat; description: string; createdAt: string };
 export type RecordExportInput = { report: ExportReportKind; format: ExportFormat; description: string };
 
-export type ChatMessage = { id: number; userId: number; username: string; firstName: string; lastName: string; role: Role; body: string; createdAt: string };
+/** `recipientId` null: canal general; con valor: mensaje privado. */
+export type ChatMessage = { id: number; userId: number; username: string; firstName: string; lastName: string; role: Role; recipientId: number | null; body: string; createdAt: string };
+export type ChatPreview = { body: string; createdAt: string; mine: boolean } | null;
+export type ChatMember = { id: number; firstName: string; lastName: string; username: string; role: Role; online: boolean; lastSeenAt: string | null; unread: number; lastMessage: ChatPreview };
+export type ChatTeam = { general: { unread: number; lastMessage: ChatPreview }; members: ChatMember[]; onlineCount: number };
 
 export type ContactStatus = "NEW" | "READ" | "ARCHIVED";
 export type ContactMessage = { id: number; name: string; phone: string | null; email: string | null; topic: string | null; body: string; status: ContactStatus; createdAt: string };
