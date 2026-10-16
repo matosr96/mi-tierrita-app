@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { SplitText } from "@/components/motion";
-import { STORE } from "./content";
+import { STORE, WORK_KIND } from "./content";
 import styles from "./Landing.module.css";
 
 const smooth = (e0: number, e1: number, x: number) => {
@@ -126,7 +126,7 @@ export const LandingHero = () => {
         </div>
 
         <div className={styles.heroFoot}>
-          <span>Proyecto de grado · Ingeniería de Software · Universidad de Cartagena</span>
+          <span>{WORK_KIND} · Ingeniería de Software · Universidad de Cartagena</span>
           <span className={styles.scrollCue} aria-hidden="true">
             <span />
           </span>

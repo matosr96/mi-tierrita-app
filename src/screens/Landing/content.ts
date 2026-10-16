@@ -63,14 +63,13 @@ export const CHAPTERS: Chapter[] = [
 ];
 
 export const TEAM = [
-  { initials: "KR", name: "Karina Redondo Sáez", role: "Sistemas de Información Gerencial · Ingeniería Económica" },
-  { initials: "AR", name: "Alexa Patricia Ricardo Lozano", role: "Sistemas de Información Gerencial · Ingeniería Económica" },
-  { initials: "EM", name: "Edgar Alexander Matos Rivera", role: "Ingeniería Económica" },
+  { initials: "KR", name: "Karina Redondo Sáez" },
+  { initials: "AR", name: "Alexa Patricia Ricardo Lozano" },
+  { initials: "EM", name: "Edgar Alexander Matos Rivera" },
 ];
 
-export const ADVISORS = [
-  { initials: "LS", name: "Esp. Luis Antonio Sarruf Durango", course: "Sistemas de Información Gerencial" },
-  { initials: "EC", name: "Estrella del Carmen Camacho Alvis", course: "Ingeniería Económica" },
-];
+
+/** Tipo de trabajo académico del que nace el sistema. */
+export const WORK_KIND = "Trabajo Colaborativo Contextualizado";
 
 export const ACADEMIC = "Universidad de Cartagena · Ingeniería de Software · Cereté · 2026-2";

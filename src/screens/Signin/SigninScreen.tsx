@@ -239,7 +239,7 @@ export const SigninScreen = () => {
           </div>
           <div className={styles.footLine}>
             <span>© {new Date().getFullYear()} Mi Tierrita SIG</span>
-            <span>Ingeniería Económica · Evaluación de inversiones</span>
+            <span>Trabajo Colaborativo Contextualizado · Ingeniería de Software</span>
           </div>
         </footer>
       </div>

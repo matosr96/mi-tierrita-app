@@ -848,9 +848,6 @@
 }
 .people {
   margin-top: 36px;
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 28px;
 }
 .peopleLabel {
   display: block;
@@ -898,11 +895,6 @@
   justify-content: center;
   font-family: var(--font-mono);
   font-size: 12px;
-}
-.personMonoAlt {
-  background: transparent;
-  color: var(--leaf);
-  border: 1px solid var(--dark-line);
 }
 .seal {
   margin: 0;

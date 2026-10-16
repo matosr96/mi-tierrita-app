@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { BrandMark } from "@/components/layout/AppShell";
-import { ACADEMIC, LINES } from "./content";
+import { ACADEMIC, LINES, WORK_KIND } from "./content";
 import styles from "./Landing.module.css";
 
 /** Pie: marca, secciones, líneas, acceso al sistema y crédito académico. */
@@ -44,7 +44,7 @@ export const LandingFooter = () => (
       <span>Fotografías: Gabriel Jimenez y archivo de Unsplash (licencia Unsplash)</span>
       <span className={styles.footerUni}>
         <img src="/media/universidad-de-cartagena.jpg" alt="" width={72} height={35} loading="lazy" />
-        Trabajo de grado · Ingeniería de Software · {ACADEMIC.split(" · ")[0]}
+        {WORK_KIND} · Ingeniería de Software · {ACADEMIC.split(" · ")[0]}
       </span>
     </div>
   </footer>
