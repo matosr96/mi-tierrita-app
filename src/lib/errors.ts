@@ -12,6 +12,7 @@ export const ERROR_MESSAGES: Record<string, string> = {
   "605": "El proveedor no existe.",
   "606": "La venta no existe.",
   "607": "El escenario no existe.",
+  "608": "El mensaje de contacto no existe.",
   "610": "Usuario o contraseña incorrectos.",
   "611": "La sesión no es válida. Inicie sesión de nuevo.",
   "612": "El usuario está inactivo.",

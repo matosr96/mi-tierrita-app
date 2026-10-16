@@ -1142,7 +1142,8 @@
   color: var(--dark-muted);
 }
 .contactForm input,
-.contactForm textarea {
+.contactForm textarea,
+.contactForm select {
   width: 100%;
   border-radius: 14px;
   border: 1px solid rgba(255, 255, 255, 0.14);
@@ -1155,13 +1156,44 @@
   transition: border-color 0.3s ease, box-shadow 0.4s var(--ease-out);
 }
 .contactForm input:focus,
-.contactForm textarea:focus {
+.contactForm textarea:focus,
+.contactForm select:focus {
   border-color: var(--sprout);
   box-shadow: 0 0 0 5px rgba(185, 236, 111, 0.12);
 }
 .contactForm .btnPrimary,
 .contactCard .btnPrimary {
   align-self: flex-start;
+}
+.contactForm select option {
+  color: var(--app-bg);
+}
+.contactForm [aria-invalid="true"] {
+  border-color: var(--bad);
+}
+.formRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+.fieldError,
+.formError {
+  font-style: normal;
+  font-size: 12px;
+  color: color-mix(in srgb, var(--bad) 45%, white);
+}
+/* Campo trampa para robots: fuera de la vista y del orden de tabulación. */
+.trap {
+  position: absolute !important;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+@media (max-width: 640px) {
+  .formRow {
+    grid-template-columns: 1fr;
+  }
 }
 .formNote {
   font-size: 12px;

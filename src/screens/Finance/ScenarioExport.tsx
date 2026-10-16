@@ -1,6 +1,7 @@
 import { useRef } from "react";
 import { Button, DataTable, type Column } from "@/components/ui";
 import { useAmortization } from "@/hooks/financial";
+import { useRecordExport } from "@/hooks/reports";
 import { dateOnly, int, money, pct, times, todayIso, years } from "@/lib/format";
 import { printElement } from "@/lib/print";
 import { downloadXlsx, type XlsxCell, type XlsxSheet } from "@/lib/xlsx";
@@ -69,6 +70,8 @@ export const ScenarioExport = ({ scenario, letter }: { scenario: ScenarioDetail;
   const user = useSessionStore((s) => s.user);
   const paperRef = useRef<HTMLDivElement>(null);
   const amortization = useAmortization(scenario.id);
+  const recordExport = useRecordExport();
+  const logged = (format: "pdf" | "xlsx") => recordExport.mutate({ report: "scenario", format, description: `Escenario ${letter} · ${scenario.name}`.slice(0, 200) });
   const ind = scenario.indicators;
   const a = scenario.assumptions;
   const viable = ind.npv >= 0;
@@ -106,11 +109,15 @@ export const ScenarioExport = ({ scenario, letter }: { scenario: ScenarioDetail;
       },
       ...(amortization.data ? [amortizationSheet(amortization.data)] : []),
     ]);
+    logged("xlsx");
   };
 
   return (
     <>
-      <Button variant="secondary" onClick={() => printElement(paperRef.current?.querySelector("article") ?? null, `${fileBase(scenario, letter)}.pdf`)}>
+      <Button variant="secondary" onClick={() => {
+          printElement(paperRef.current?.querySelector("article") ?? null, `${fileBase(scenario, letter)}.pdf`);
+          logged("pdf");
+        }}>
         PDF
       </Button>
       <Button variant="secondary" onClick={exportExcel} loading={amortization.isPending}>

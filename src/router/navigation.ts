@@ -9,7 +9,7 @@ export type NavItem = {
   /** Roles que ven el módulo con candado (van a Acceso restringido), como Finanzas para la Secretaria. */
   lockedFor?: Role[];
   /** Clave de la insignia numérica del menú. */
-  badge?: "inventory" | "batches" | "customers";
+  badge?: "inventory" | "batches" | "customers" | "contact";
 };
 export type NavGroup = { title?: string; items: NavItem[] };
 
@@ -26,6 +26,8 @@ export const ICONS = {
   reports: '<path d="M5.5 2.5 h8 l4 4 v13 a1.5 1.5 0 0 1 -1.5 1.5 h-10.5 a1.5 1.5 0 0 1 -1.5 -1.5 v-15.5 a1.5 1.5 0 0 1 1.5 -1.5 z"/><line x1="8" y1="12" x2="14" y2="12"/><line x1="8" y1="15.5" x2="12" y2="15.5"/>',
   users: '<circle cx="11" cy="7.5" r="3.6"/><path d="M4 19 c0 -3.6 3.1 -5.6 7 -5.6 s7 2 7 5.6"/>',
   audits: '<path d="M4 5.5 h14"/><path d="M4 11 h14"/><path d="M4 16.5 h9"/><circle cx="17" cy="16.5" r="2"/>',
+  chat: '<path d="M4 5.5 h14 a1.5 1.5 0 0 1 1.5 1.5 v8 a1.5 1.5 0 0 1 -1.5 1.5 h-8 l-4 3 v-3 h-2 a1.5 1.5 0 0 1 -1.5 -1.5 v-8 a1.5 1.5 0 0 1 1.5 -1.5 z"/><line x1="7" y1="9.5" x2="15" y2="9.5"/><line x1="7" y1="12.5" x2="12" y2="12.5"/>',
+  contact: '<rect x="2.5" y="5" width="17" height="12" rx="1.6"/><path d="M3 6 L11 12 L19 6"/>',
   signout: '<path d="M8.6 3.5 H5 a1.6 1.6 0 0 0 -1.6 1.6 v11.8 a1.6 1.6 0 0 0 1.6 1.6 h3.6"/><path d="M13.8 7.4 L17.4 11 L13.8 14.6"/><line x1="17.1" y1="11" x2="8.8" y2="11"/>',
 } as const;
 
@@ -49,6 +51,13 @@ export const NAV_GROUPS: NavGroup[] = [
     items: [
       { path: "/finanzas", label: "Finanzas y crédito", icon: ICONS.finance, roles: ["ADMIN"], lockedFor: ["SALES"] },
       { path: "/reportes", label: "Reportes", icon: ICONS.reports, roles: ["ADMIN", "SALES"] },
+    ],
+  },
+  {
+    title: "Comunicación",
+    items: [
+      { path: "/chat", label: "Chat del equipo", icon: ICONS.chat, roles: ALL },
+      { path: "/contactos", label: "Contactos del sitio", icon: ICONS.contact, roles: ["ADMIN"], badge: "contact" },
     ],
   },
   {

@@ -11,7 +11,7 @@
 }
 .table th:first-child,
 .table td:first-child,
-.left {
+.table .left {
   text-align: left;
 }
 .table thead th {
@@ -61,11 +61,11 @@
 .clickable tbody tr:hover td:first-child::before {
   height: 60%;
 }
-.right {
+.table .right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
-.center {
+.table .center {
   text-align: center;
 }
 .table tfoot td {

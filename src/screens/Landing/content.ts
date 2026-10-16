@@ -18,7 +18,6 @@ export const STORE = {
   email: "",
 } as const;
 
-export const hasContactChannel = () => Boolean(STORE.whatsapp || STORE.email);
 
 export type ProductLine = { code: string; name: string; accent: string; text: string; tags: string[] };
 

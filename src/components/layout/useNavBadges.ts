@@ -5,6 +5,7 @@ import { reportsService } from "@/services/reports";
 import { batchesService } from "@/services/batches";
 import { productsService } from "@/services/products";
 import { customersService } from "@/services/customers";
+import { contactService } from "@/services/contact";
 import type { NavItem } from "@/router/navigation";
 
 /**
@@ -45,7 +46,15 @@ export const useNavBadges = (): Partial<Record<NonNullable<NavItem["badge"]>, nu
     staleTime: 60_000,
   });
 
+  const contact = useQuery({
+    queryKey: [...keys.contact, { status: "NEW", limit: 1 }],
+    queryFn: () => contactService.list({ status: "NEW", limit: 1 }),
+    enabled: isAdmin,
+    staleTime: 60_000,
+  });
+
   return {
+    contact: contact.data?.count,
     inventory: isAdmin ? inventory.data?.outOfStock : products.data?.items.filter((p) => p.stock === 0).length,
     batches: batches.data?.count,
     customers: isAdmin ? receivables.data?.overdueCustomers : withBalance.data?.count,

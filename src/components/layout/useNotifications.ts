@@ -2,6 +2,8 @@ import { useExpiringBatches } from "@/hooks/batches";
 import { useCustomers } from "@/hooks/customers";
 import { useProducts } from "@/hooks/products";
 import { useInventoryReport, useReceivablesReport } from "@/hooks/reports";
+import { useContactMessages } from "@/hooks/contact";
+import { int } from "@/lib/format";
 import { useNotificationsStore } from "@/stores/notifications";
 import { useSessionStore } from "@/stores/session";
 import { adminAttention, pendingItems, todoItems } from "@/screens/Home/attention";
@@ -20,12 +22,18 @@ export const useNotifications = () => {
   const isAdmin = role === "ADMIN";
   const inventory = useInventoryReport(30, { enabled: isAdmin });
   const receivables = useReceivablesReport(30, { enabled: isAdmin });
+  const contacts = useContactMessages({ status: "NEW", limit: 1 }, { enabled: isAdmin });
   const customers = useCustomers({ withBalance: true, limit: 5 }, { enabled: role === "SALES" });
   const products = useProducts({ limit: 100, active: true }, { enabled: role === "WAREHOUSE" });
   const expiring = useExpiringBatches({ days: 30, limit: 100 }, { enabled: role === "WAREHOUSE" });
 
+  const newContacts = contacts.data?.count ?? 0;
+  const contactItem: AttentionItem[] =
+    newContacts > 0
+      ? [{ key: "contact", tone: "neutral", text: `${int(newContacts)} ${newContacts === 1 ? "mensaje nuevo" : "mensajes nuevos"} desde la página pública`, to: "/contactos", tag: "Responder" }]
+      : [];
   const items: AttentionItem[] = isAdmin
-    ? adminAttention(inventory.data, receivables.data)
+    ? [...contactItem, ...adminAttention(inventory.data, receivables.data)]
     : role === "SALES"
       ? pendingItems(customers.data?.items ?? [])
       : role === "WAREHOUSE"

@@ -92,8 +92,14 @@ el cursor: `primary` verde bosque que se rellena de lima, `secondary` con borde 
 - **Notificaciones**: la campana (`NotificationsMenu`) muestra los pendientes del Inicio de cada rol
   (`useNotifications`, misma caché que el Inicio); lo leído se guarda en `useNotificationsStore` (este navegador).
 - **Mi perfil** (`/perfil`, `/perfil/seguridad`, `/perfil/actividad`): cualquier rol, fuera del menú; se abre desde el
-  usuario de la barra superior o con ⌘K. Los datos son de solo lectura (la API no permite editarlos); la contraseña
-  se cambia con `useChangePassword`; "Mi actividad" usa la auditoría (administrador) o las ventas propias (secretaria).
+  usuario de la barra superior o con ⌘K. Nombre, correo y teléfono se editan con `useUpdateProfile` (`PUT /users/me`,
+  solo los campos cambiados, a partir de `useMe`); la contraseña con `useChangePassword`; "Mi actividad" usa la
+  auditoría (administrador) o las ventas propias (secretaria).
+- **Historial de reportes**: cada PDF o Excel descargado se registra con `useRecordExport` (`ReportPreview` lo hace
+  solo si recibe `record`; Finanzas desde `ScenarioExport`) y se lista en `ExportHistory` (prototipo 09).
+- **Comunicación**: `/chat` (todos los roles; `useChatMessages` pide solo lo nuevo cada 4 s con `?after=`) y
+  `/contactos` (ADMIN; bandeja del formulario público, insignia del menú y aviso en la campana con los nuevos).
+  El formulario de la página pública envía a `POST /contact` con un campo trampa `website`.
 
 ## Página pública (`src/screens/Landing`)
 

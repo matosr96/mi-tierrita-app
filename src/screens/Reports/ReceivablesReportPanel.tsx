@@ -58,6 +58,7 @@ export const ReceivablesReportPanel = () => {
       filters={filters}
       exportName={query.data && query.data.items.length > 0 ? `cartera_${query.data.overdueDays}-dias` : undefined}
       onExcel={query.data ? () => exportExcel(query.data, user) : undefined}
+      record={{ report: "receivables", description: `Vencida a ${overdueDays} días` }}
     >
       <QueryState query={query} empty={null}>
         {(report) => (

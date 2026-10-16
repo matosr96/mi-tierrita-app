@@ -66,11 +66,10 @@ export const AdminHome = ({ user }: { user: User }) => {
           tone={(r) => (r.overdueBalance > 0 ? "warn" : "neutral")}
         />
         <QueryStat
-          query={inventory}
-          label="Valor por vencer"
-          value={(r) => moneyCompact(r.expiringSoon.costValue)}
-          hint={(r) => `${int(r.expiringSoon.batches)} ${r.expiringSoon.batches === 1 ? "lote" : "lotes"} en los próximos ${r.expiringDays} días`}
-          tone={(r) => (r.expiringSoon.batches > 0 ? "bad" : "neutral")}
+          query={sales}
+          label="Ticket promedio"
+          value={(r) => (r.averageTicket == null ? "—" : moneyCompact(r.averageTicket))}
+          hint={(r) => `${int(r.units)} unidades vendidas en el mes`}
         />
       </StatGrid>
 

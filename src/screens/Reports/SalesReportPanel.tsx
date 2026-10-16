@@ -119,6 +119,7 @@ export const SalesReportPanel = () => {
       filters={filters}
       exportName={query.data && query.data.rows.length > 0 ? exportName(query.data) : undefined}
       onExcel={query.data ? () => exportExcel(query.data, user) : undefined}
+      record={{ report: "sales", description: `Del ${dateOnly(from)} al ${dateOnly(to)} · ${groupLabel}` }}
     >
       <QueryState query={query} empty={null}>
         {(report) => {

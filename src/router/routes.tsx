@@ -16,6 +16,8 @@ import { ReportsScreen } from "@/screens/Reports/ReportsScreen";
 import { UsersScreen } from "@/screens/Users/UsersScreen";
 import { AuditsScreen } from "@/screens/Audits/AuditsScreen";
 import { ProfileScreen } from "@/screens/Profile/ProfileScreen";
+import { ChatScreen } from "@/screens/Chat/ChatScreen";
+import { ContactsScreen } from "@/screens/Contacts/ContactsScreen";
 import { NotFoundScreen } from "@/screens/Restricted/RestrictedScreen";
 
 /** Cada ruta declara qué roles pueden verla (documento 07, sección 5). */
@@ -51,6 +53,8 @@ export const router = createBrowserRouter([
           protectedRoute("/proveedores", <SuppliersScreen />),
           { element: <RequireRole roles={rolesFor("/finanzas")} />, children: [{ path: "/finanzas", element: <FinanceScreen /> }, { path: "/finanzas/:tab", element: <FinanceScreen /> }] },
           protectedRoute("/reportes", <ReportsScreen />),
+          protectedRoute("/chat", <ChatScreen />),
+          protectedRoute("/contactos", <ContactsScreen />),
           protectedRoute("/usuarios", <UsersScreen />),
           protectedRoute("/auditoria", <AuditsScreen />),
           // Mi perfil: cualquier rol, fuera del menú (se abre desde el usuario de la barra superior).

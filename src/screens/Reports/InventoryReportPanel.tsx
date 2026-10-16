@@ -77,6 +77,7 @@ export const InventoryReportPanel = () => {
       filters={filters}
       exportName={query.data && query.data.byCategory.length > 0 ? `inventario_${query.data.asOf.slice(0, 10)}` : undefined}
       onExcel={query.data ? () => exportExcel(query.data, user) : undefined}
+      record={{ report: "inventory", description: `Corte al ${dateOnly(todayIso())} · vencimientos a ${days} días` }}
     >
       <QueryState query={query} isEmpty={(r) => r.products === 0} empty={<EmptyState title="Sin productos registrados" text="Registre productos y compras en Inventario para ver el valor del stock." />}>
         {(report) => {

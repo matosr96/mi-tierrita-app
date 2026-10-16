@@ -4,7 +4,8 @@ export type Role = "ADMIN" | "SALES" | "WAREHOUSE";
 export type Page<T> = { count: number; page: number; pages: number; items: T[] };
 export type PageQuery = { page?: number; limit?: number };
 
-export type User = { id: number; firstName: string; lastName: string; username: string; role: Role; active: boolean; createdAt: string };
+export type User = { id: number; firstName: string; lastName: string; username: string; role: Role; active: boolean; email?: string | null; phone?: string | null; createdAt: string };
+export type UpdateProfileInput = { firstName?: string; lastName?: string; email?: string | null; phone?: string | null };
 export type SigninResponse = { token: string; user: User };
 export type CreateUserInput = { firstName: string; lastName: string; username: string; password: string; role: Role };
 export type ChangePasswordInput = { currentPassword: string; newPassword: string };
@@ -113,6 +114,8 @@ export type SalesReport = {
   total: number;
   cashTotal: number;
   creditTotal: number;
+  /** Total / número de ventas, calculado por la API (null si no hubo ventas). */
+  averageTicket?: number | null;
   rows: SalesReportDayRow[] | SalesReportProductRow[];
 };
 export type BatchAggregate = { batches: number; units: number; costValue: number };
@@ -224,3 +227,14 @@ export type Sensitivity = { scenarioId: number; variable: SensitivityVariable; r
 export type Bivariate = { scenarioId: number; varX: SensitivityVariable; varY: SensitivityVariable; xValues: number[]; yValues: number[]; npv: number[][] };
 export type TornadoBar = { variable: string; low: number; high: number; npvLow: number; npvHigh: number; amplitude: number };
 export type Tornado = { scenarioId: number; delta: number; baseNpv: number; bars: TornadoBar[] };
+
+export type ExportReportKind = "sales" | "inventory" | "receivables" | "scenario";
+export type ExportFormat = "pdf" | "xlsx";
+export type ReportExport = { id: number; userId: number; username: string; report: ExportReportKind; format: ExportFormat; description: string; createdAt: string };
+export type RecordExportInput = { report: ExportReportKind; format: ExportFormat; description: string };
+
+export type ChatMessage = { id: number; userId: number; username: string; firstName: string; lastName: string; role: Role; body: string; createdAt: string };
+
+export type ContactStatus = "NEW" | "READ" | "ARCHIVED";
+export type ContactMessage = { id: number; name: string; phone: string | null; email: string | null; topic: string | null; body: string; status: ContactStatus; createdAt: string };
+export type SendContactInput = { name: string; phone?: string; email?: string; topic?: string; body: string; website?: string };

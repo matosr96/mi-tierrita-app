@@ -5,6 +5,7 @@ import { SalesReportPanel } from "./SalesReportPanel";
 import { InventoryReportPanel } from "./InventoryReportPanel";
 import { ReceivablesReportPanel } from "./ReceivablesReportPanel";
 import { ReportCover, type ReportDef, type ReportKind } from "./ReportCover";
+import { ExportHistory } from "./ExportHistory";
 import styles from "./ReportsScreen.module.css";
 
 /** Una portada por reporte real de la API. */
@@ -65,6 +66,8 @@ export const ReportsScreen = () => {
       {current === "sales" ? <SalesReportPanel /> : null}
       {isAdmin && current === "inventory" ? <InventoryReportPanel /> : null}
       {isAdmin && current === "receivables" ? <ReceivablesReportPanel /> : null}
+
+      <ExportHistory isAdmin={isAdmin} />
     </div>
   );
 };

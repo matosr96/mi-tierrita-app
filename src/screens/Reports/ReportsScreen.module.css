@@ -66,3 +66,16 @@
   background: var(--surface-3);
   border-top: 2px solid var(--ink);
 }
+.historyReport {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.historyReport strong {
+  font-weight: 500;
+  color: var(--ink);
+}
+.historyReport span {
+  font-size: 12px;
+  color: var(--muted);
+}

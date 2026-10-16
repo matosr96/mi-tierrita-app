@@ -120,3 +120,17 @@
     position: static;
   }
 }
+.formActions {
+  display: flex;
+  gap: 8px;
+}
+.contact {
+  list-style: none;
+  margin: 10px 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 13px;
+  color: var(--dark-ink-2);
+}

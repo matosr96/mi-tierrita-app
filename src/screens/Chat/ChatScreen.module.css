@@ -1,0 +1,219 @@
+.layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 240px;
+  gap: 12px;
+  align-items: start;
+}
+.room {
+  display: flex;
+  flex-direction: column;
+  height: max(420px, calc(100vh - 320px));
+  border-radius: var(--radius);
+  border: 1px solid var(--line);
+  background: var(--surface);
+  overflow: hidden;
+}
+.roomHead {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--line);
+}
+.roomHead h2 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--ink);
+}
+.roomHead span {
+  font-size: 12px;
+  color: var(--muted);
+}
+.hash {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  display: grid;
+  place-items: center;
+  background: var(--sprout);
+  color: var(--sprout-ink);
+  font-family: var(--font-mono);
+  font-weight: 600;
+}
+.messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.day {
+  align-self: center;
+  margin: 12px 0 6px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: var(--surface-3);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.msg {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  max-width: min(78%, 560px);
+  padding-left: 38px;
+}
+.first {
+  margin-top: 10px;
+}
+.mine {
+  align-self: flex-end;
+  align-items: flex-end;
+  padding-left: 0;
+}
+.meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 4px -38px;
+  font-size: 12px;
+  color: var(--muted);
+}
+.mine .meta {
+  margin-left: 0;
+}
+.meta strong {
+  font-weight: 500;
+  color: var(--ink);
+}
+.role {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 2px 6px;
+  border-radius: 999px;
+  background: var(--good-soft);
+  color: var(--good);
+}
+.avatar {
+  width: 30px;
+  height: 30px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: var(--forest);
+  color: var(--on-forest);
+  font-size: 11px;
+  font-weight: 600;
+}
+.bubble {
+  margin: 0;
+  padding: 9px 13px;
+  border-radius: 4px 14px 14px 14px;
+  background: var(--surface-3);
+  color: var(--ink);
+  font-size: 14px;
+  line-height: 1.45;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.mine .bubble {
+  border-radius: 14px 4px 14px 14px;
+  background: var(--app-bg);
+  color: var(--dark-ink);
+}
+.composer {
+  display: flex;
+  align-items: flex-end;
+  gap: 10px;
+  padding: 12px 14px 6px;
+  border-top: 1px solid var(--line);
+}
+.composer textarea {
+  flex: 1;
+  resize: none;
+  min-height: 42px;
+  max-height: 140px;
+  field-sizing: content;
+  padding: 11px 14px;
+  border-radius: 12px;
+  border: 1px solid var(--line-strong);
+  background: var(--ground);
+  color: var(--ink);
+  font: inherit;
+  font-size: 14px;
+}
+.composer textarea:focus {
+  outline: 2px solid var(--sprout);
+  outline-offset: 1px;
+}
+.hint {
+  margin: 0;
+  padding: 0 16px 10px;
+  font-size: 11px;
+  color: var(--muted);
+}
+.team {
+  padding: 16px;
+  border-radius: var(--radius);
+  border: 1px solid var(--line);
+  background: var(--surface);
+}
+.team h3 {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink);
+}
+.teamNote {
+  margin: 4px 0 12px;
+  font-size: 12px;
+  color: var(--muted);
+}
+.team ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.team li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.team li span:last-child {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.team strong {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--ink);
+}
+.team small {
+  font-size: 11px;
+  color: var(--muted);
+}
+@media (max-width: 900px) {
+  .layout {
+    grid-template-columns: 1fr;
+  }
+  .team {
+    display: none;
+  }
+  .msg {
+    max-width: 92%;
+  }
+}
