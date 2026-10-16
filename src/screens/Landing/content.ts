@@ -32,7 +32,7 @@ export const LINES: ProductLine[] = [
   { code: "06", name: "Ferretería", accent: "agrícola", text: "Machetes, alambre, mangueras y herramienta de finca.", tags: ["Machetes", "Alambre", "Mangueras"] },
 ];
 
-export type Chapter = { code: string; eyebrow: string; title: string; accent: string; text: string; points: string[] };
+export type Chapter = { code: string; eyebrow: string; title: string; accent: string; text: string; points: string[]; steps: [string, string, string] };
 
 /** Lo que de verdad hace el sistema (módulos implementados en la app). */
 export const CHAPTERS: Chapter[] = [
@@ -43,6 +43,7 @@ export const CHAPTERS: Chapter[] = [
     accent: "antes de perder.",
     text: "Cada compra entra como un lote con su fecha de vencimiento. Las ventas descuentan primero el lote que vence antes y el sistema señala lo que está por vencer.",
     points: ["Lotes y vencimientos por producto", "Salida FEFO: primero en vencer, primero en salir", "Proveedores y compras en un solo lugar"],
+    steps: ["Llega una compra: cada lote entra con su vencimiento.", "El estante se ordena: a la izquierda, lo que vence antes.", "Sale primero el que vence antes; el vencido queda marcado."],
   },
   {
     code: "02",
@@ -51,6 +52,7 @@ export const CHAPTERS: Chapter[] = [
     accent: "bajo control.",
     text: "El punto de venta registra contado y crédito, respeta el cupo de cada cliente y los abonos bajan el saldo al instante.",
     points: ["Punto de venta con factura", "Cupo de crédito y abonos por cliente", "Cartera vencida a la vista"],
+    steps: ["La venta pasa por el mostrador y sale la factura.", "A crédito, el saldo del cliente sube sin pasar su cupo.", "Cada abono baja el saldo al instante."],
   },
   {
     code: "03",
@@ -59,6 +61,7 @@ export const CHAPTERS: Chapter[] = [
     accent: "el local?",
     text: "La evaluación financiera arma escenarios con la inversión, el crédito y el aumento de ventas esperado, y calcula VPN, TIR, cuota y cuánto pueden fallar las ventas antes de dejar de convenir.",
     points: ["Escenarios comparables", "VPN, TIR y cobertura de la cuota", "Sensibilidad y punto de quiebre"],
+    steps: ["Cada escenario es una barra: inversión, crédito y ventas.", "El piso es VPN = 0: lo que queda debajo destruye valor.", "El sistema señala el escenario que conviene."],
   },
 ];
 

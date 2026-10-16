@@ -85,9 +85,12 @@ Ruta pública `/sitio`; `/` sin sesión también la muestra (ver `RequireSession
 (`lazy`), así que three.js solo se descarga para quien la abre. Todo el texto sale de `content.ts`; los datos de
 contacto vacíos (`STORE.whatsapp`, `email`, `hours`, `address`) ocultan su bloque: no publicar nada sin confirmar
 con la tienda. Escenas three.js: `photoScene.ts` (héroe de tres actos con fotos reales en capas: manos con tierra,
-nubes, granos que caen; la palabra calada y la neblina son SVG/CSS en `LandingHero`) y `lotsScene.ts` (48 cajas que
-pasan de estante FEFO a circuito de ventas y a barras de la decisión, ligadas al scroll). Fotos y créditos en
-`public/media/LEEME.txt`.
+nubes, granos que caen; la palabra calada y la neblina son SVG/CSS en `LandingHero`) y `storyScene.ts` ("El sistema por dentro":
+30 cajas que cuentan un guion de diez momentos ligado al scroll —compra, estante FEFO, sale primero el que vence,
+venta al mostrador, saldo y abono del cupo, escenarios con el piso VPN = 0— con etiquetas HTML proyectadas desde
+3D; `LandingSystem` sincroniza capítulo y paso con `BOUNDS`/`STEP_AT`). El catálogo usa fotos reales
+(`public/media/catalogo/<código>.webp`) que, al activarse (cursor, foco o centro de la pantalla en táctiles), se desenfoca y deja ver una escena SVG en tres pasos por línea
+(`LineStory.tsx`). Fotos y créditos en `public/media/LEEME.txt`.
 
 ## Hooks disponibles (`@/hooks/<entidad>`)
 

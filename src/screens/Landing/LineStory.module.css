@@ -1,0 +1,780 @@
+/* Escenas narrativas del catálogo: un ciclo de tres tiempos (--dur) sincronizado con el pie de pasos. */
+.story {
+  --dur: 7.2s;
+  --ink: var(--sprout);
+  --soft: color-mix(in srgb, var(--sprout) 45%, transparent);
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  pointer-events: none;
+}
+.svg {
+  flex: 1;
+  width: 100%;
+  min-height: 0;
+  overflow: visible;
+}
+.story :where(*) {
+  animation-duration: var(--dur);
+  animation-iteration-count: infinite;
+  animation-timing-function: var(--ease-in-out);
+  animation-fill-mode: both;
+  animation-play-state: paused;
+}
+.on :where(*) {
+  animation-play-state: running;
+}
+
+/* trazos base */
+.line,
+.lineSoft,
+.lineFill {
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: 2.2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.lineSoft {
+  stroke: var(--soft);
+  stroke-width: 1.6;
+}
+.lineFill {
+  fill: color-mix(in srgb, var(--sprout) 10%, transparent);
+}
+.label {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  letter-spacing: 0.08em;
+  fill: var(--ink);
+}
+
+/* pie de pasos: solo se ve el paso en curso, con marcadores de avance */
+.steps {
+  list-style: none;
+  position: relative;
+  height: 30px;
+  margin: 0;
+  padding: 0;
+}
+.steps li {
+  position: absolute;
+  left: 14px;
+  right: 14px;
+  bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--dark-ink);
+  white-space: nowrap;
+  opacity: 0;
+  animation-name: stepShow;
+  animation-delay: calc(var(--i) * var(--dur) / 3);
+}
+.steps li span {
+  color: var(--sprout);
+}
+.steps li::after {
+  content: "";
+  margin-left: auto;
+  width: 34px;
+  height: 2px;
+  border-radius: 2px;
+  background: linear-gradient(90deg, var(--sprout) calc((var(--i) + 1) * 33.4%), var(--dark-line) 0);
+}
+@keyframes stepShow {
+  0% {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  3%,
+  30% {
+    opacity: 1;
+    transform: none;
+  }
+  33%,
+  100% {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+}
+
+/* ---------- 01 · alimentos: el saco se inclina, cae el concentrado, el comedero se llena ---------- */
+.sack {
+  transform-box: view-box;
+  transform-origin: 176px 138px;
+  animation-name: sackTilt;
+}
+.pellet {
+  fill: var(--dark-warn);
+  animation-name: pellet;
+  animation-delay: calc(var(--i) * 0.11s);
+}
+.fillUp {
+  fill: color-mix(in srgb, var(--dark-warn) 75%, transparent);
+  transform-box: fill-box;
+  transform-origin: center bottom;
+  animation-name: fillUp;
+}
+@keyframes sackTilt {
+  0%,
+  8% {
+    transform: rotate(0deg);
+  }
+  22%,
+  66% {
+    transform: rotate(-38deg);
+  }
+  80%,
+  100% {
+    transform: rotate(0deg);
+  }
+}
+@keyframes pellet {
+  0%,
+  22% {
+    opacity: 0;
+    transform: translate(0, 0);
+  }
+  24% {
+    opacity: 1;
+  }
+  36% {
+    opacity: 1;
+    transform: translate(14px, 102px);
+  }
+  38%,
+  100% {
+    opacity: 0;
+    transform: translate(14px, 102px);
+  }
+}
+@keyframes fillUp {
+  0%,
+  26% {
+    transform: scaleY(0);
+  }
+  70%,
+  88% {
+    transform: scaleY(1);
+  }
+  98%,
+  100% {
+    transform: scaleY(0);
+  }
+}
+
+/* ---------- 02 · medicina: se toma la dosis, se aplica, pulso estable y lote registrado ---------- */
+.plunger {
+  animation-name: plunger;
+}
+.syringeLiquid {
+  fill: color-mix(in srgb, var(--sprout) 55%, transparent);
+  transform-box: fill-box;
+  transform-origin: right center;
+  animation-name: syringeLiquid;
+}
+.vialLiquid {
+  fill: color-mix(in srgb, var(--sprout) 45%, transparent);
+  transform-box: fill-box;
+  transform-origin: center bottom;
+  animation-name: vialLiquid;
+}
+.ecg {
+  fill: none;
+  stroke: var(--sprout);
+  stroke-width: 2.4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 1;
+  filter: drop-shadow(0 0 6px var(--sprout));
+  animation-name: ecg;
+}
+.tag {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation-name: pop;
+  --pop-at: 72%;
+}
+.tagBox {
+  fill: var(--sprout);
+}
+.tagText {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  fill: var(--sprout-ink);
+}
+@keyframes plunger {
+  0%,
+  6% {
+    transform: translateX(0);
+  }
+  26%,
+  38% {
+    transform: translateX(-34px);
+  }
+  56%,
+  86% {
+    transform: translateX(34px);
+  }
+  100% {
+    transform: translateX(0);
+  }
+}
+@keyframes syringeLiquid {
+  0%,
+  6% {
+    transform: scaleX(0.05);
+  }
+  26%,
+  38% {
+    transform: scaleX(1);
+  }
+  56%,
+  100% {
+    transform: scaleX(0.05);
+  }
+}
+@keyframes vialLiquid {
+  0%,
+  6% {
+    transform: scaleY(1);
+  }
+  26%,
+  92% {
+    transform: scaleY(0.55);
+  }
+  100% {
+    transform: scaleY(1);
+  }
+}
+@keyframes ecg {
+  0%,
+  56% {
+    stroke-dashoffset: 1;
+    opacity: 1;
+  }
+  76%,
+  90% {
+    stroke-dashoffset: 0;
+    opacity: 1;
+  }
+  98%,
+  100% {
+    stroke-dashoffset: 0;
+    opacity: 0;
+  }
+}
+@keyframes pop {
+  0%,
+  70% {
+    transform: scale(0);
+    opacity: 0;
+  }
+  76% {
+    transform: scale(1.12);
+    opacity: 1;
+  }
+  80%,
+  92% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  98%,
+  100% {
+    transform: scale(0.6);
+    opacity: 0;
+  }
+}
+
+/* ---------- 03 · semillas: cae la semilla, llueve, brota la mata, sale el sol ---------- */
+.ground {
+  fill: color-mix(in srgb, var(--dark-warn) 18%, transparent);
+}
+.seed {
+  fill: var(--dark-warn);
+  animation-name: seed;
+}
+.drop {
+  fill: none;
+  stroke: var(--sprout);
+  stroke-width: 2;
+  stroke-linecap: round;
+  animation-name: drop;
+  animation-delay: calc(var(--i) * 0.12s);
+}
+.stem {
+  fill: none;
+  stroke: var(--sprout);
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-dasharray: 1;
+  animation-name: grow;
+}
+.leaf {
+  fill: color-mix(in srgb, var(--sprout) 35%, transparent);
+  stroke: var(--sprout);
+  stroke-width: 1.8;
+  stroke-dasharray: 1;
+  transform-box: fill-box;
+  animation-name: leaf;
+}
+.leafA {
+  transform-origin: left bottom;
+}
+.leafB {
+  transform-origin: right bottom;
+  animation-delay: 0.25s;
+}
+.leafC {
+  transform-origin: left bottom;
+  animation-delay: 0.5s;
+}
+.sun {
+  animation-name: sun;
+}
+.sunDisk {
+  fill: color-mix(in srgb, var(--dark-warn) 70%, transparent);
+}
+@keyframes seed {
+  0% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  14% {
+    transform: translateY(124px);
+    opacity: 1;
+  }
+  30%,
+  100% {
+    transform: translateY(124px);
+    opacity: 0;
+  }
+}
+@keyframes drop {
+  0%,
+  30% {
+    transform: translateY(0);
+    opacity: 0;
+  }
+  32% {
+    opacity: 1;
+  }
+  46% {
+    transform: translateY(110px);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(110px);
+    opacity: 0;
+  }
+}
+@keyframes grow {
+  0%,
+  46% {
+    stroke-dashoffset: 1;
+    opacity: 1;
+  }
+  64%,
+  90% {
+    stroke-dashoffset: 0;
+    opacity: 1;
+  }
+  98%,
+  100% {
+    stroke-dashoffset: 0;
+    opacity: 0;
+  }
+}
+@keyframes leaf {
+  0%,
+  58% {
+    stroke-dashoffset: 1;
+    transform: scale(0.2);
+    opacity: 0;
+  }
+  72%,
+  90% {
+    stroke-dashoffset: 0;
+    transform: scale(1);
+    opacity: 1;
+  }
+  98%,
+  100% {
+    opacity: 0;
+  }
+}
+@keyframes sun {
+  0%,
+  60% {
+    transform: translateY(70px);
+    opacity: 0;
+  }
+  76%,
+  90% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 0;
+  }
+}
+
+/* ---------- 04 · aves: el huevo se mueve, se agrieta, nace el pollito ---------- */
+.egg {
+  transform-box: view-box;
+  transform-origin: 200px 184px;
+  animation-name: wobble;
+}
+.shell {
+  fill: var(--dark-ink);
+  stroke: var(--sprout);
+  stroke-width: 1.5;
+}
+.shellTop {
+  transform-box: fill-box;
+  transform-origin: left bottom;
+  animation-name: shellTop;
+}
+.crack {
+  fill: none;
+  stroke: var(--app-bg);
+  stroke-width: 2.4;
+  stroke-linejoin: round;
+  stroke-dasharray: 1;
+  animation-name: crack;
+}
+.chick {
+  animation-name: chick;
+}
+.chickBody {
+  fill: var(--dark-warn);
+}
+.eye {
+  fill: var(--app-bg);
+}
+.beak {
+  fill: var(--sprout);
+}
+.peep {
+  fill: none;
+  stroke: var(--sprout);
+  stroke-width: 2;
+  stroke-linecap: round;
+  animation-name: peep;
+}
+@keyframes wobble {
+  0%,
+  4% {
+    transform: rotate(0deg);
+  }
+  10% {
+    transform: rotate(-7deg);
+  }
+  16% {
+    transform: rotate(6deg);
+  }
+  22% {
+    transform: rotate(-4deg);
+  }
+  28%,
+  100% {
+    transform: rotate(0deg);
+  }
+}
+@keyframes crack {
+  0%,
+  30% {
+    stroke-dashoffset: 1;
+  }
+  44%,
+  100% {
+    stroke-dashoffset: 0;
+  }
+}
+@keyframes shellTop {
+  0%,
+  52% {
+    transform: none;
+    opacity: 1;
+  }
+  62% {
+    transform: translate(-30px, -46px) rotate(-38deg);
+    opacity: 1;
+  }
+  72%,
+  92% {
+    transform: translate(-46px, -30px) rotate(-70deg);
+    opacity: 0;
+  }
+  100% {
+    transform: none;
+    opacity: 0;
+  }
+}
+@keyframes chick {
+  0%,
+  56% {
+    transform: translateY(44px);
+  }
+  66% {
+    transform: translateY(-6px);
+  }
+  70%,
+  92% {
+    transform: translateY(0);
+  }
+  100% {
+    transform: translateY(44px);
+  }
+}
+@keyframes peep {
+  0%,
+  70% {
+    opacity: 0;
+  }
+  74%,
+  80% {
+    opacity: 1;
+  }
+  84%,
+  100% {
+    opacity: 0;
+  }
+}
+
+/* ---------- 05 · agroquímicos: plaga en la hoja, aspersión, hoja sana ---------- */
+.leafBig {
+  stroke: var(--sprout);
+  stroke-width: 2;
+  animation-name: heal;
+}
+.bug {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation-name: bug;
+}
+.bugBody {
+  fill: var(--dark-bad);
+}
+.bugLegs {
+  fill: none;
+  stroke: var(--dark-bad);
+  stroke-width: 1.8;
+  stroke-linecap: round;
+}
+.mist {
+  fill: var(--sprout);
+  animation-name: mist;
+  animation-delay: calc(var(--i) * 0.06s);
+}
+.shield {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation-name: pop;
+}
+.shieldPath {
+  fill: color-mix(in srgb, var(--sprout) 18%, transparent);
+  stroke: var(--sprout);
+  stroke-width: 2;
+}
+.check {
+  fill: none;
+  stroke: var(--sprout);
+  stroke-width: 2.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 1;
+  animation-name: check;
+}
+@keyframes heal {
+  0%,
+  50% {
+    fill: color-mix(in srgb, var(--dark-warn) 30%, transparent);
+  }
+  70%,
+  92% {
+    fill: color-mix(in srgb, var(--sprout) 32%, transparent);
+  }
+  100% {
+    fill: color-mix(in srgb, var(--dark-warn) 30%, transparent);
+  }
+}
+@keyframes bug {
+  0%,
+  8% {
+    transform: translate(0, 0) rotate(0deg);
+    opacity: 1;
+  }
+  16% {
+    transform: translate(-8px, 4px) rotate(-10deg);
+  }
+  24% {
+    transform: translate(4px, -3px) rotate(8deg);
+  }
+  50% {
+    transform: translate(0, 0) rotate(0deg);
+    opacity: 1;
+  }
+  62%,
+  92% {
+    transform: translate(10px, 40px) rotate(120deg);
+    opacity: 0;
+  }
+  100% {
+    transform: translate(0, 0);
+    opacity: 0;
+  }
+}
+@keyframes mist {
+  0%,
+  32% {
+    transform: translate(0, 0);
+    opacity: 0;
+  }
+  34% {
+    opacity: 0.9;
+  }
+  52% {
+    transform: translate(var(--dx), var(--dy));
+    opacity: 0;
+  }
+  100% {
+    transform: translate(var(--dx), var(--dy));
+    opacity: 0;
+  }
+}
+@keyframes check {
+  0%,
+  74% {
+    stroke-dashoffset: 1;
+  }
+  84%,
+  100% {
+    stroke-dashoffset: 0;
+  }
+}
+
+/* ---------- 06 · ferretería: postes a mazo, alambre tendido, púas ---------- */
+.post {
+  fill: color-mix(in srgb, var(--dark-warn) 45%, transparent);
+  stroke: var(--sprout);
+  stroke-width: 1.6;
+  animation-name: post;
+}
+.postB {
+  animation-delay: 0.6s;
+}
+.mallet {
+  transform-box: view-box;
+  transform-origin: 78px 104px;
+  animation-name: mallet;
+}
+.wire {
+  fill: none;
+  stroke: var(--dark-ink-2);
+  stroke-width: 2;
+  stroke-dasharray: 1;
+  animation-name: wire;
+}
+.wireB {
+  animation-delay: 0.4s;
+}
+.barb {
+  fill: none;
+  stroke: var(--sprout);
+  stroke-width: 2;
+  stroke-linecap: round;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation-name: barb;
+  animation-delay: calc(var(--i) * 0.07s);
+}
+@keyframes post {
+  0% {
+    transform: translateY(-70px);
+    opacity: 0;
+  }
+  12% {
+    transform: translateY(6px);
+    opacity: 1;
+  }
+  16%,
+  92% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 0;
+  }
+}
+@keyframes mallet {
+  0%,
+  4% {
+    transform: rotate(-30deg);
+    opacity: 0;
+  }
+  8% {
+    transform: rotate(-30deg);
+    opacity: 1;
+  }
+  12% {
+    transform: rotate(18deg);
+  }
+  18% {
+    transform: rotate(-20deg);
+    opacity: 1;
+  }
+  26%,
+  100% {
+    transform: rotate(-20deg);
+    opacity: 0;
+  }
+}
+@keyframes wire {
+  0%,
+  30% {
+    stroke-dashoffset: 1;
+    opacity: 1;
+  }
+  52%,
+  92% {
+    stroke-dashoffset: 0;
+    opacity: 1;
+  }
+  100% {
+    stroke-dashoffset: 0;
+    opacity: 0;
+  }
+}
+@keyframes barb {
+  0%,
+  60% {
+    transform: scale(0);
+    opacity: 0;
+  }
+  68%,
+  92% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .story :where(*) {
+    animation-play-state: paused !important;
+    animation-delay: calc(var(--dur) * -0.85) !important;
+  }
+}
