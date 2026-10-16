@@ -130,3 +130,43 @@ confirmación:
 `pnpm build` genera archivos estáticos que cualquier hosting o CDN sirve por HTTPS. El
 [Dockerfile](Dockerfile) empaqueta el build en Nginx con `try_files` para que las rutas de la SPA carguen
 al refrescar. CI ([ci.yml](.github/workflows/ci.yml)) hace typecheck, build y construye la imagen.
+
+## Licencias
+
+### Código del proyecto
+
+© 2026 Karina Redondo Sáez, Alexa Patricia Ricardo Lozano y Edgar Alexander Matos Rivera. **Todos los derechos
+reservados.** Mi Tierrita SIG es un Trabajo Colaborativo Contextualizado del programa de Ingeniería de Software de la
+Universidad de Cartagena. El código se puede consultar en este repositorio, pero no se concede permiso para usarlo,
+copiarlo, modificarlo ni distribuirlo sin autorización escrita de los autores (por eso `package.json` declara
+`"license": "UNLICENSED"`). El texto completo está en [LICENSE](LICENSE).
+
+Las ilustraciones propias del sistema —Tita (la plantita), el abanico de vidrio, las pantallas ilustrativas de la página
+pública y los íconos de la navegación— forman parte del proyecto y tienen la misma reserva.
+
+### Dependencias
+
+Todas las dependencias de producción de la app (39 paquetes, incluidas las transitivas) usan la licencia **MIT**:
+
+| Paquete | Licencia |
+|---|---|
+| react, react-dom | MIT |
+| react-router-dom | MIT |
+| @tanstack/react-query | MIT |
+| zustand | MIT |
+| axios | MIT |
+
+El detalle actualizado se obtiene con `pnpm licenses list --prod`.
+
+### Tipografías
+
+[Urbanist](https://fonts.google.com/specimen/Urbanist) y [Geist Mono](https://fonts.google.com/specimen/Geist+Mono), servidas
+desde Google Fonts, bajo la **SIL Open Font License 1.1**.
+
+### Fotografías y logos
+
+- **Fotos de la página pública** (catálogo y banda de cierre): de [Unsplash](https://unsplash.com), bajo la
+  [licencia de Unsplash](https://unsplash.com/license), que permite usarlas y modificarlas sin pedir permiso. Cada foto,
+  su autor y su enlace están en [public/media/LEEME.txt](public/media/LEEME.txt).
+- **Logo de la Universidad de Cartagena**: marca de la universidad. Se muestra solo para identificar el programa académico
+  del proyecto; no queda cubierto por la licencia de este repositorio.
