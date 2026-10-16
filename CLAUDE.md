@@ -79,6 +79,16 @@ highlightX), `TornadoChart` (data[{label, low, high}], base, format). Encabezado
 acciones) y `BrandMark` de `@/components/layout/AppShell`. Botones en píldora con rótulo que rueda al pasar
 el cursor: `primary` verde bosque que se rellena de lima, `secondary` con borde que se rellena de tinta.
 
+## Página pública (`src/screens/Landing`)
+
+Ruta pública `/sitio`; `/` sin sesión también la muestra (ver `RequireSession`). Se carga en su propio paquete
+(`lazy`), así que three.js solo se descarga para quien la abre. Todo el texto sale de `content.ts`; los datos de
+contacto vacíos (`STORE.whatsapp`, `email`, `hours`, `address`) ocultan su bloque: no publicar nada sin confirmar
+con la tienda. Escenas three.js: `photoScene.ts` (héroe de tres actos con fotos reales en capas: manos con tierra,
+nubes, granos que caen; la palabra calada y la neblina son SVG/CSS en `LandingHero`) y `lotsScene.ts` (48 cajas que
+pasan de estante FEFO a circuito de ventas y a barras de la decisión, ligadas al scroll). Fotos y créditos en
+`public/media/LEEME.txt`.
+
 ## Hooks disponibles (`@/hooks/<entidad>`)
 
 - session: `useSignin`, `useSignout`, `useMe`

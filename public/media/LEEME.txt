@@ -4,3 +4,8 @@ Fotos de la portada de Inicio de Mi Tierrita.
 2. Agregue sus rutas en src/lib/media.ts, por ejemplo "/media/bodega.jpg".
 
 La app las tiñe en duotono verde, les aplica un zoom lento y las alterna cada pocos segundos.
+
+Página pública (héroe):
+- manos-recorte.webp: recorte (sin fondo, Vision de macOS) de «Fotografía bokeh de una persona que lleva tierra», de Gabriel Jimenez, Unsplash (unsplash.com/photos/jin4W1HqgL4), licencia Unsplash.
+- nubes.webp: «Mar de nubes», Unsplash (unsplash.com/photos/nv7WX42LKjU), licencia Unsplash.
+- universidad-de-cartagena.jpg: logo de la Universidad de Cartagena (programa de Ingeniería de Software).

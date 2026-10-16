@@ -1,13 +1,26 @@
-import { useState } from "react";
+import { lazy, Suspense, useState } from "react";
 import { Navigate, Outlet, useLocation } from "react-router-dom";
 import { useSessionStore } from "@/stores/session";
 import type { Role } from "@/types/api";
 import { RestrictedScreen } from "@/screens/Restricted/RestrictedScreen";
 
-/** Guarda de sesión: sin token redirige a Iniciar sesión. */
+/** Página pública, en su propio paquete (three.js solo se descarga para quien la abre). */
+export const LandingScreen = lazy(() => import("@/screens/Landing/LandingScreen").then((m) => ({ default: m.LandingScreen })));
+
+/** Fondo mientras llega el paquete de la página pública. */
+export const LandingFallback = () => <div style={{ minHeight: "100vh", background: "var(--app-bg)" }} />;
+
+/** Guarda de sesión: sin token, la raíz muestra la página pública y el resto redirige a Iniciar sesión. */
 export const RequireSession = () => {
   const token = useSessionStore((s) => s.token);
   const location = useLocation();
+  if (!token && location.pathname === "/") {
+    return (
+      <Suspense fallback={<LandingFallback />}>
+        <LandingScreen />
+      </Suspense>
+    );
+  }
   if (!token) return <Navigate to="/iniciar-sesion" replace state={{ from: location.pathname }} />;
   return <Outlet />;
 };

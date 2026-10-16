@@ -69,6 +69,13 @@
   --dark-surface: rgba(10, 20, 15, 0.88);
   --dark-bad: #f09a9c;
   --dark-warn: #e6b35a;
+  /* papel claro en ambos temas (banda académica de la página pública, fondo del logo de la universidad) */
+  --paper: #f2f1eb;
+  --paper-ink: #0d1411;
+  --paper-ink-2: #48514c;
+  --paper-muted: #7d8681;
+  --paper-line: rgba(13, 20, 17, 0.12);
+  --logo-bg: #f6f6f6;
   /* geometría y tipografía */
   --radius: 14px;
   --radius-sm: 9px;

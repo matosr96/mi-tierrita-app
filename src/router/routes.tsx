@@ -1,7 +1,8 @@
 import type React from "react";
 import { createBrowserRouter, Navigate } from "react-router-dom";
 import { AppShell } from "@/components/layout/AppShell";
-import { RedirectIfSession, RequireRole, RequireSession } from "./guards";
+import { Suspense } from "react";
+import { LandingFallback, LandingScreen, RedirectIfSession, RequireRole, RequireSession } from "./guards";
 import { rolesFor } from "./navigation";
 import { SigninScreen } from "@/screens/Signin/SigninScreen";
 import { HomeScreen } from "@/screens/Home/HomeScreen";
@@ -23,6 +24,14 @@ const protectedRoute = (path: string, element: React.ReactElement) => ({
 });
 
 export const router = createBrowserRouter([
+  {
+    path: "/sitio",
+    element: (
+      <Suspense fallback={<LandingFallback />}>
+        <LandingScreen />
+      </Suspense>
+    ),
+  },
   {
     element: <RedirectIfSession />,
     children: [{ path: "/iniciar-sesion", element: <SigninScreen /> }],
