@@ -22,7 +22,17 @@ export const LandingCta = () => (
             </Link>
           </div>
         </div>
-        <img className={styles.ctaPhoto} src="/media/manos-recorte.webp" alt="Manos que sostienen tierra" width={1440} height={1173} loading="lazy" decoding="async" />
+        {/* Afina el borde del recorte: desenfoca solo la transparencia y la recorta apenas (quita el halo del fondo original), sin tocar la foto. */}
+        <svg className={styles.ctaFilter} aria-hidden="true" focusable="false">
+          <filter id="cta-feather" x="-2%" y="-2%" width="104%" height="104%" colorInterpolationFilters="sRGB">
+            <feGaussianBlur in="SourceAlpha" stdDeviation="0.8" result="soft" />
+            <feComponentTransfer in="soft" result="edge">
+              <feFuncA type="linear" slope="1.5" intercept="-0.4" />
+            </feComponentTransfer>
+            <feComposite in="SourceGraphic" in2="edge" operator="in" />
+          </filter>
+        </svg>
+        <img className={styles.ctaPhoto} src="/media/manos-recorte.webp" alt="Manos que sostienen tierra" width={1440} height={1172} loading="lazy" decoding="async" />
       </div>
     </Reveal>
   </section>

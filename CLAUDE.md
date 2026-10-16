@@ -100,7 +100,7 @@ animaciones**: la raíz lleva `data-motion` (así `global.css` no las apaga) y l
 en `src/screens/Landing/motion/` (`Reveal`, `SplitText`, `useInView`); la app interna no los usa. Estructura: barra
 flotante en píldora (`LandingNav`: marca, secciones, «Ingresar al sistema»; menú desplegable bajo 900 px) → héroe
 centrado (`LandingHero` + `LandingHero.module.css`: titular, dos botones y `DashboardMock`, una pantalla del Inicio hecha
-con divs —ilustrativa, `aria-hidden`, con la leyenda "Vista ilustrativa del sistema · cifras de ejemplo"— sobre un halo
+con divs a escala del Inicio real de administración (franja verde, barra alta con navegación en círculos, abanico, indicadores, línea del mes y tarjeta de pendientes) —ilustrativa, `aria-hidden`, con la leyenda "Vista ilustrativa del sistema · cifras de ejemplo"— sobre un halo
 pastel; el monitor pasa de inclinado en perspectiva a plano con el scroll vía la variable `--p`, tarjetas KPI flotantes
 que se mecen y una fila lenta de píldoras con las seis líneas) → catálogo (`LandingCatalog`: fotos reales
 `public/media/catalogo/<código>.webp` en tarjetas blancas; al activarlas un velo blanco deja ver la escena SVG en tres

@@ -75,11 +75,11 @@ export const LandingHero = () => {
         </div>
 
         <div className={[styles.float, styles.floatA].join(" ")} aria-hidden="true">
-          <span className={styles.floatLabel}>Lotes por vencer</span>
-          <strong>7</strong>
+          <span className={styles.floatLabel}>Venta registrada</span>
+          <strong>$ 86.400</strong>
           <span className={styles.floatFoot}>
-            <small>esta semana</small>
-            <MiniBars values={[30, 46, 38, 62, 50, 74, 58]} tone="warn" />
+            <small>FV-2026-000214 · contado</small>
+            <MiniBars values={[30, 46, 38, 62, 50, 74, 58]} />
           </span>
         </div>
         <div className={[styles.float, styles.floatB].join(" ")} aria-hidden="true">

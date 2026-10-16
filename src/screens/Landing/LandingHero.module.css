@@ -177,11 +177,12 @@
 }
 .floatA {
   left: -48px;
-  top: 30%;
+  top: 64%;
 }
+/* Por encima del borde del marco: así no tapa la barra ni el saludo de la pantalla ilustrativa. */
 .floatB {
   right: -48px;
-  top: 12%;
+  top: -6%;
   animation-delay: -2s;
 }
 .floatC {
@@ -320,9 +321,9 @@
     top: auto;
     bottom: -34px;
   }
+  /* En pantalla angosta no cabe sin tapar la barra de la pantalla ilustrativa. */
   .floatB {
-    right: -4px;
-    top: -30px;
+    display: none;
   }
   .floatC {
     display: none;
