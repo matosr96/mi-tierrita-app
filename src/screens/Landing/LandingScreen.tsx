@@ -3,6 +3,7 @@ import { LandingNav } from "./LandingNav";
 import { LandingHero } from "./LandingHero";
 import { LandingCatalog } from "./LandingCatalog";
 import { LandingSystem } from "./LandingSystem";
+import { LandingTita } from "./LandingTita";
 import { LandingVisit } from "./LandingVisit";
 import { LandingProject } from "./LandingProject";
 import { LandingContact } from "./LandingContact";
@@ -30,6 +31,7 @@ export const LandingScreen = () => {
         <LandingHero />
         <LandingCatalog />
         <LandingSystem />
+        <LandingTita />
         <LandingVisit />
         <LandingProject />
         <LandingContact />

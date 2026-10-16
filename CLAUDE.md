@@ -98,7 +98,7 @@ sin three.js ni WebGL). Mismo lenguaje visual que la app, al estilo de la landin
 negativo (los `*acentos*` de `SplitText` solo cambian a `--serif-color`, verde), botones en píldora. Pero **conserva sus
 animaciones**: la raíz lleva `data-motion` (así `global.css` no las apaga) y los ayudantes de movimiento viven solo aquí,
 en `src/screens/Landing/motion/` (`Reveal`, `SplitText`, `useInView`); la app interna no los usa. Estructura: barra
-flotante en píldora (`LandingNav`: marca, secciones, «Ingresar al sistema»; menú desplegable bajo 900 px) → héroe
+flotante en píldora (`LandingNav`: marca, secciones (incluida Tita), «Ingresar al sistema»; menú desplegable bajo 900 px) → héroe
 centrado (`LandingHero` + `LandingHero.module.css`: titular, dos botones y `DashboardMock`, una pantalla del Inicio hecha
 con divs a escala del Inicio real de administración (franja verde, barra alta con navegación en círculos, abanico, indicadores, línea del mes y tarjeta de pendientes) —ilustrativa, `aria-hidden`, con la leyenda "Vista ilustrativa del sistema · cifras de ejemplo"— sobre un halo
 pastel; el monitor pasa de inclinado en perspectiva a plano con el scroll vía la variable `--p`, tarjetas KPI flotantes
@@ -106,7 +106,10 @@ que se mecen y una fila lenta de píldoras con las seis líneas) → catálogo (
 `public/media/catalogo/<código>.webp` en tarjetas blancas; al activarlas un velo blanco deja ver la escena SVG en tres
 pasos de `LineStory.tsx`) → "El sistema por dentro" (`LandingSystem` + `SystemMocks`: un panel por capítulo de `CHAPTERS`
 con una minipantalla que repite FEFO, venta/cupo/abono y escenarios con VPN = 0 en tres pasos mientras está a la vista;
-los pasos también se eligen a mano) → Visítenos → Proyecto (logo de la universidad, `WORK_KIND`, `ACADEMIC`, `TEAM`) →
+los pasos también se eligen a mano) → "Conozca a Tita" (`LandingTita`: qué se le puede pedir y una conversación
+ilustrativa en un teléfono que repite tres escenas —reponer, venta desde la foto de un pedido, pregunta por voz— con la
+tarjeta que pasa a "Registrado"; mascota grande asomada en escritorio; leyenda "Conversación ilustrativa · cifras de
+ejemplo") → Visítenos → Proyecto (logo de la universidad, `WORK_KIND`, `ACADEMIC`, `TEAM`) →
 Contacto (`LandingContact`, `POST /contact` con campo trampa `website`) → banda de cierre (`LandingCta`, degradado pastel
 con la foto de las manos) → pie claro con columnas, créditos y la palabra "Mi Tierrita" gigante recortada. Con
 `prefers-reduced-motion` el monitor queda plano y los capítulos quietos en su último paso. Todo el texto sale de

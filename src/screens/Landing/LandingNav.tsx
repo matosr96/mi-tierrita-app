@@ -6,6 +6,7 @@ import styles from "./Landing.module.css";
 const LINKS = [
   { href: "#catalogo", label: "Catálogo" },
   { href: "#sistema", label: "El sistema" },
+  { href: "#tita", label: "Tita" },
   { href: "#visitenos", label: "Visítenos" },
   { href: "#proyecto", label: "Proyecto" },
   { href: "#contacto", label: "Contacto" },
