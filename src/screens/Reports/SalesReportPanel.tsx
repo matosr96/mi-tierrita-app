@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { useSalesReport } from "@/hooks/reports";
+import { useAiStatus } from "@/hooks/ai";
+import { AiDraftModal } from "@/components/ai/AiDraftModal";
 import { ROLE_LABELS, useSessionStore } from "@/stores/session";
 import { addDaysIso, dateOnly, int, money, moneyCompact, todayIso } from "@/lib/format";
 import { Button, DataTable, EmptyState, Field, Input, QueryState, Tabs, type Column, type TabOption } from "@/components/ui";
@@ -76,14 +78,18 @@ const exportExcel = (report: SalesReport, user: User | null) => {
 };
 
 /** CU-19 Reporte de ventas (ADMIN y SALES). */
-export const SalesReportPanel = () => {
+/** Valores iniciales opcionales (por ejemplo, el reporte que preparó Tita). */
+export const SalesReportPanel = (initial: { from?: string | undefined; to?: string | undefined; groupBy?: SalesGroupBy | undefined }) => {
   const user = useSessionStore((s) => s.user);
-  const [from, setFrom] = useState(() => addDaysIso(todayIso(), -30));
-  const [to, setTo] = useState(() => todayIso());
-  const [groupBy, setGroupBy] = useState<SalesGroupBy>("day");
+  const [from, setFrom] = useState(() => initial.from ?? addDaysIso(todayIso(), -30));
+  const [to, setTo] = useState(() => initial.to ?? todayIso());
+  const [groupBy, setGroupBy] = useState<SalesGroupBy>(initial.groupBy ?? "day");
   const query = useSalesReport({ from, to, groupBy });
   const rangeError = from && to && from > to ? "La fecha inicial no puede ser posterior a la final." : undefined;
   const groupLabel = groupBy === "day" ? "por día" : "por producto";
+  const ai = useAiStatus();
+  const [summaryOpen, setSummaryOpen] = useState(false);
+  const canSummarize = ai.enabled && (user?.role === "ADMIN" || user?.role === "SALES") && Boolean(from && to) && !rangeError;
 
   const filters = (
     <>
@@ -108,116 +114,132 @@ export const SalesReportPanel = () => {
         >
           Últimos 30 días
         </Button>
+        {canSummarize ? (
+          <Button variant="secondary" size="sm" onClick={() => setSummaryOpen(true)}>
+            Lectura con IA
+          </Button>
+        ) : null}
       </div>
       <Tabs options={GROUP_OPTIONS} value={groupBy} onChange={setGroupBy} />
     </>
   );
 
   return (
-    <ReportPreview
-      subtitle={`Reporte de ventas · ${dateOnly(from)} – ${dateOnly(to)} · ${groupLabel} · generado el ${dateOnly(todayIso())}`}
-      filters={filters}
-      exportName={query.data && query.data.rows.length > 0 ? exportName(query.data) : undefined}
-      onExcel={query.data ? () => exportExcel(query.data, user) : undefined}
-      record={{ report: "sales", description: `Del ${dateOnly(from)} al ${dateOnly(to)} · ${groupLabel}` }}
-    >
-      <QueryState query={query} empty={null}>
-        {(report) => {
-          const dayRows = report.groupBy === "day" ? (report.rows as SalesReportDayRow[]) : [];
-          const productRows = report.groupBy === "product" ? (report.rows as SalesReportProductRow[]) : [];
-          const chartDays = dayRows.slice(-MAX_DAY_BARS);
-          const topProducts = [...productRows].sort((a, b) => b.total - a.total).slice(0, TOP_PRODUCTS);
-          const hasRows = report.rows.length > 0;
-          const rangeLabel = `${dateOnly(report.from)} – ${dateOnly(report.to)}`;
-          return (
-            <ReportPaper
-              code="R-01"
-              title="Reporte de"
-              accent="ventas"
-              meta={[rangeLabel, `Generado el ${dateOnly(todayIso())}`, user ? `Por ${user.firstName} ${user.lastName}, ${ROLE_LABELS[user.role]}` : ""]}
-              summary={
-                hasRows ? (
-                  <>
-                    <p>
-                      Entre el {dateOnly(report.from)} y el {dateOnly(report.to)} se registraron <strong>{int(report.salesCount)} ventas</strong> completadas por{" "}
-                      <strong>{money(report.total)}</strong>, con {int(report.units)} unidades vendidas.
-                    </p>
-                    <p>
-                      De ese total, {money(report.cashTotal)} fueron de contado y {money(report.creditTotal)} a crédito. Las ventas anuladas no se incluyen.
-                    </p>
-                  </>
+    <>
+      <ReportPreview
+        subtitle={`Reporte de ventas · ${dateOnly(from)} – ${dateOnly(to)} · ${groupLabel} · generado el ${dateOnly(todayIso())}`}
+        filters={filters}
+        exportName={query.data && query.data.rows.length > 0 ? exportName(query.data) : undefined}
+        onExcel={query.data ? () => exportExcel(query.data, user) : undefined}
+        record={{ report: "sales", description: `Del ${dateOnly(from)} al ${dateOnly(to)} · ${groupLabel}` }}
+      >
+        <QueryState query={query} empty={null}>
+          {(report) => {
+            const dayRows = report.groupBy === "day" ? (report.rows as SalesReportDayRow[]) : [];
+            const productRows = report.groupBy === "product" ? (report.rows as SalesReportProductRow[]) : [];
+            const chartDays = dayRows.slice(-MAX_DAY_BARS);
+            const topProducts = [...productRows].sort((a, b) => b.total - a.total).slice(0, TOP_PRODUCTS);
+            const hasRows = report.rows.length > 0;
+            const rangeLabel = `${dateOnly(report.from)} – ${dateOnly(report.to)}`;
+            return (
+              <ReportPaper
+                code="R-01"
+                title="Reporte de"
+                accent="ventas"
+                meta={[rangeLabel, `Generado el ${dateOnly(todayIso())}`, user ? `Por ${user.firstName} ${user.lastName}, ${ROLE_LABELS[user.role]}` : ""]}
+                summary={
+                  hasRows ? (
+                    <>
+                      <p>
+                        Entre el {dateOnly(report.from)} y el {dateOnly(report.to)} se registraron <strong>{int(report.salesCount)} ventas</strong> completadas por{" "}
+                        <strong>{money(report.total)}</strong>, con {int(report.units)} unidades vendidas.
+                      </p>
+                      <p>
+                        De ese total, {money(report.cashTotal)} fueron de contado y {money(report.creditTotal)} a crédito. Las ventas anuladas no se incluyen.
+                      </p>
+                    </>
+                  ) : (
+                    <p>No se registraron ventas completadas entre el {dateOnly(report.from)} y el {dateOnly(report.to)}. Amplíe el rango para ver resultados.</p>
+                  )
+                }
+                params={[
+                  { label: "Desde", value: dateOnly(report.from) },
+                  { label: "Hasta", value: dateOnly(report.to) },
+                  { label: "Agrupación", value: report.groupBy === "day" ? "Por día" : "Por producto" },
+                  { label: "Estado de las ventas", value: "Completadas" },
+                ]}
+                indicators={[
+                  { label: "Ventas", value: int(report.salesCount) },
+                  { label: "Unidades vendidas", value: int(report.units) },
+                  { label: "Total vendido", value: money(report.total), tone: "good" },
+                  { label: "De contado", value: money(report.cashTotal) },
+                  { label: "A crédito", value: money(report.creditTotal), tone: report.creditTotal > 0 ? "warn" : undefined },
+                ]}
+                note="Elaborado con las ventas registradas en el sistema. No sustituye la contabilidad ni los estados financieros."
+              >
+                {!hasRows ? (
+                  <EmptyState title="Sin ventas en el periodo" text="No se registraron ventas completadas entre esas fechas." />
                 ) : (
-                  <p>No se registraron ventas completadas entre el {dateOnly(report.from)} y el {dateOnly(report.to)}. Amplíe el rango para ver resultados.</p>
-                )
-              }
-              params={[
-                { label: "Desde", value: dateOnly(report.from) },
-                { label: "Hasta", value: dateOnly(report.to) },
-                { label: "Agrupación", value: report.groupBy === "day" ? "Por día" : "Por producto" },
-                { label: "Estado de las ventas", value: "Completadas" },
-              ]}
-              indicators={[
-                { label: "Ventas", value: int(report.salesCount) },
-                { label: "Unidades vendidas", value: int(report.units) },
-                { label: "Total vendido", value: money(report.total), tone: "good" },
-                { label: "De contado", value: money(report.cashTotal) },
-                { label: "A crédito", value: money(report.creditTotal), tone: report.creditTotal > 0 ? "warn" : undefined },
-              ]}
-              note="Elaborado con las ventas registradas en el sistema. No sustituye la contabilidad ni los estados financieros."
-            >
-              {!hasRows ? (
-                <EmptyState title="Sin ventas en el periodo" text="No se registraron ventas completadas entre esas fechas." />
-              ) : (
-                <>
-                  <PaperBlock
-                    label={report.groupBy === "day" ? "Total vendido por día" : "Productos más vendidos"}
-                    hint={report.groupBy === "day" ? (dayRows.length > MAX_DAY_BARS ? `últimos ${MAX_DAY_BARS} días con ventas del rango` : rangeLabel) : `top ${int(topProducts.length)} por total vendido`}
-                  >
-                    {report.groupBy === "day" ? (
-                      <VBarChart data={chartDays.map((r) => ({ label: shortDay(r.date), value: r.total }))} format={chartDays.length <= 8 ? moneyCompact : () => ""} formatTip={moneyCompact} />
-                    ) : (
-                      <HBarChart data={topProducts.map((r) => ({ label: truncate(r.productName, 22), value: r.total }))} format={moneyCompact} />
-                    )}
-                    {report.groupBy === "day" && chartDays.length > 8 ? <p className={styles.chartNote}>Los valores de cada día están en la tabla.</p> : null}
-                  </PaperBlock>
+                  <>
+                    <PaperBlock
+                      label={report.groupBy === "day" ? "Total vendido por día" : "Productos más vendidos"}
+                      hint={report.groupBy === "day" ? (dayRows.length > MAX_DAY_BARS ? `últimos ${MAX_DAY_BARS} días con ventas del rango` : rangeLabel) : `top ${int(topProducts.length)} por total vendido`}
+                    >
+                      {report.groupBy === "day" ? (
+                        <VBarChart data={chartDays.map((r) => ({ label: shortDay(r.date), value: r.total }))} format={chartDays.length <= 8 ? moneyCompact : () => ""} formatTip={moneyCompact} />
+                      ) : (
+                        <HBarChart data={topProducts.map((r) => ({ label: truncate(r.productName, 22), value: r.total }))} format={moneyCompact} />
+                      )}
+                      {report.groupBy === "day" && chartDays.length > 8 ? <p className={styles.chartNote}>Los valores de cada día están en la tabla.</p> : null}
+                    </PaperBlock>
 
-                  <PaperBlock label="Detalle" hint={`${int(report.rows.length)} ${report.groupBy === "day" ? "días" : "productos"}`}>
-                    {report.groupBy === "day" ? (
-                      <DataTable
-                        columns={dayColumns}
-                        rows={dayRows}
-                        rowKey={(r) => r.date}
-                        footer={
-                          <tr className={styles.footRow}>
-                            <td>Total</td>
-                            <td className="num">{int(report.salesCount)}</td>
-                            <td className="num">{int(report.units)}</td>
-                            <td className="num">{money(report.total)}</td>
-                          </tr>
-                        }
-                      />
-                    ) : (
-                      <DataTable
-                        columns={productColumns}
-                        rows={productRows}
-                        rowKey={(r) => r.productId}
-                        footer={
-                          <tr className={styles.footRow}>
-                            <td colSpan={2}>Total</td>
-                            <td className="num">{int(report.salesCount)}</td>
-                            <td className="num">{int(report.units)}</td>
-                            <td className="num">{money(report.total)}</td>
-                          </tr>
-                        }
-                      />
-                    )}
-                  </PaperBlock>
-                </>
-              )}
-            </ReportPaper>
-          );
-        }}
-      </QueryState>
-    </ReportPreview>
+                    <PaperBlock label="Detalle" hint={`${int(report.rows.length)} ${report.groupBy === "day" ? "días" : "productos"}`}>
+                      {report.groupBy === "day" ? (
+                        <DataTable
+                          columns={dayColumns}
+                          rows={dayRows}
+                          rowKey={(r) => r.date}
+                          footer={
+                            <tr className={styles.footRow}>
+                              <td>Total</td>
+                              <td className="num">{int(report.salesCount)}</td>
+                              <td className="num">{int(report.units)}</td>
+                              <td className="num">{money(report.total)}</td>
+                            </tr>
+                          }
+                        />
+                      ) : (
+                        <DataTable
+                          columns={productColumns}
+                          rows={productRows}
+                          rowKey={(r) => r.productId}
+                          footer={
+                            <tr className={styles.footRow}>
+                              <td colSpan={2}>Total</td>
+                              <td className="num">{int(report.salesCount)}</td>
+                              <td className="num">{int(report.units)}</td>
+                              <td className="num">{money(report.total)}</td>
+                            </tr>
+                          }
+                        />
+                      )}
+                    </PaperBlock>
+                  </>
+                )}
+              </ReportPaper>
+            );
+          }}
+        </QueryState>
+      </ReportPreview>
+      {canSummarize ? (
+        <AiDraftModal
+          open={summaryOpen}
+          onClose={() => setSummaryOpen(false)}
+          title="Lectura del reporte de ventas"
+          description={`Del ${dateOnly(from)} al ${dateOnly(to)} frente al periodo anterior de igual duración`}
+          request={{ kind: "report_summary", from, to }}
+        />
+      ) : null}
+    </>
   );
 };

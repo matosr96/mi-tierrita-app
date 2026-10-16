@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useSuppliers } from "@/hooks/suppliers";
 import { useExpiringBatches } from "@/hooks/batches";
+import { useAiStatus } from "@/hooks/ai";
 import { useSessionStore } from "@/stores/session";
 import { int } from "@/lib/format";
 import { PageHeader } from "@/components/layout/AppShell";
@@ -8,9 +9,11 @@ import { Button, Chips, EmptyState, Input, Pagination, QueryState } from "@/comp
 import type { Supplier } from "@/types/api";
 import { SupplierFormModal } from "./SupplierFormModal";
 import { PurchaseModal } from "./PurchaseModal";
+import { InvoiceImportModal } from "./InvoiceImportModal";
 import { SupplierCounts } from "./SupplierCounts";
 import { SupplierCards } from "./SupplierCards";
 import { ExpiringPanel } from "./ExpiringPanel";
+import { useAiStore } from "@/stores/ai";
 import styles from "./SuppliersScreen.module.css";
 
 type ActiveFilter = "active" | "inactive" | "all";
@@ -39,6 +42,10 @@ const matches = (supplier: Supplier, term: string): boolean => {
 export const SuppliersScreen = () => {
   const role = useSessionStore((s) => s.user?.role);
   const isAdmin = role === "ADMIN";
+  const ai = useAiStatus();
+  // «Leer factura» registra compras: solo para quienes pueden registrarlas y solo si el servidor tiene IA.
+  const canReadInvoice = ai.enabled && (role === "ADMIN" || role === "WAREHOUSE");
+  const [invoiceOpen, setInvoiceOpen] = useState(false);
   const [page, setPage] = useState(1);
   const [filter, setFilter] = useState<ActiveFilter>("active");
   const [search, setSearch] = useState("");
@@ -53,6 +60,13 @@ export const SuppliersScreen = () => {
 
   const openCreate = () => setForm({ open: true, supplier: null });
   const openPurchase = (supplier: Supplier | null) => setPurchase({ open: true, supplier });
+  // Borrador de compra del asistente: se toma una vez al entrar y abre la compra prellenada.
+  const [aiPurchase, setAiPurchase] = useState(() => useAiStore.getState().peekDraft("purchase"));
+  useEffect(() => {
+    if (!aiPurchase) return;
+    useAiStore.getState().clearDraft();
+    setPurchase({ open: true, supplier: null });
+  }, [aiPurchase]);
 
   const emptyText = isAdmin
     ? filter === "active"
@@ -116,12 +130,19 @@ export const SuppliersScreen = () => {
         title="Proveedores"
         subtitle={isAdmin ? "Directorio y compras: cada compra registrada crea un lote y sube el stock." : "Qué llega, cuándo y de quién."}
         actions={
-          isAdmin ? (
+          isAdmin || canReadInvoice ? (
             <>
-              <Button variant="secondary" onClick={openCreate}>
-                Nuevo proveedor
-              </Button>
-              <Button onClick={() => openPurchase(null)}>Registrar compra</Button>
+              {isAdmin ? (
+                <Button variant="secondary" onClick={openCreate}>
+                  Nuevo proveedor
+                </Button>
+              ) : null}
+              {canReadInvoice ? (
+                <Button variant="secondary" onClick={() => setInvoiceOpen(true)}>
+                  Leer factura
+                </Button>
+              ) : null}
+              {isAdmin ? <Button onClick={() => openPurchase(null)}>Registrar compra</Button> : null}
             </>
           ) : undefined
         }
@@ -148,7 +169,17 @@ export const SuppliersScreen = () => {
       )}
 
       {form.open ? <SupplierFormModal supplier={form.supplier} onClose={() => setForm({ open: false, supplier: null })} /> : null}
-      {purchase.open ? <PurchaseModal supplier={purchase.supplier} onClose={() => setPurchase({ open: false, supplier: null })} /> : null}
+      {invoiceOpen ? <InvoiceImportModal onClose={() => setInvoiceOpen(false)} /> : null}
+      {purchase.open ? (
+        <PurchaseModal
+          supplier={purchase.supplier}
+          draft={aiPurchase}
+          onClose={() => {
+            setPurchase({ open: false, supplier: null });
+            setAiPurchase(null);
+          }}
+        />
+      ) : null}
     </div>
   );
 };

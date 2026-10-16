@@ -101,7 +101,7 @@ export type SaleLine = { id: number; productId: number; productName: string; sku
 export type SaleDetail = Sale & { lines: SaleLine[] };
 export type SaleQuery = PageQuery & { from?: string; to?: string; customerId?: number; userId?: number; status?: SaleStatus };
 
-export type Audit = { id: number; userId: number; username: string; method: string; resource: string; createdAt: string };
+export type Audit = { id: number; userId: number; username: string; method: string; resource: string; aiSuggested: boolean; createdAt: string };
 export type AuditQuery = PageQuery & { userId?: number; resource?: string; from?: string; to?: string };
 
 export type SalesGroupBy = "day" | "product";
@@ -244,3 +244,53 @@ export type ChatTeam = { general: { unread: number; lastMessage: ChatPreview }; 
 export type ContactStatus = "NEW" | "READ" | "ARCHIVED";
 export type ContactMessage = { id: number; name: string; phone: string | null; email: string | null; topic: string | null; body: string; status: ContactStatus; createdAt: string };
 export type SendContactInput = { name: string; phone?: string; email?: string; topic?: string; body: string; website?: string };
+
+/* ---------- Asistente de IA (rutas /ai; ninguna escribe datos) ---------- */
+export type AiStatus = { enabled: boolean; model: string | null };
+export type AiChatTurn = { role: "user" | "assistant"; content: string; attachments?: AiAttachment[] };
+export type AiSource = { tool: string; label: string };
+export type AiSaleProposal = {
+  type: "sale";
+  customerId: number | null;
+  customerName: string | null;
+  paymentType: PaymentType;
+  lines: { productId: number; productName: string; quantity: number; unitPrice: number; available: number }[];
+  estimatedTotal: number;
+  warnings: string[];
+};
+export type AiPaymentProposal = { type: "payment"; customerId: number; customerName: string; amount: number; balance: number };
+export type AiPurchaseProposal = { type: "purchase"; supplierId: number | null; supplierName: string | null; productId: number; productName: string; quantity: number; unitCost: number; expiresAt: string };
+/** Formulario prellenado en su pantalla (venta, abono o compra), para quien prefiera revisarlo allí. */
+export type AiHandoff = AiSaleProposal | AiPaymentProposal | AiPurchaseProposal;
+/** Petición exacta que la app envía a la API real si la persona confirma (misma validación, permisos y auditoría). */
+export type AiActionRequest = { method: "POST" | "PUT" | "PATCH" | "DELETE"; path: string; body?: Record<string, unknown> };
+export type AiAction = { type: "action"; kind: string; title: string; lines: string[]; warnings: string[]; confirmLabel: string; request: AiActionRequest; handoff?: AiHandoff };
+export type AiReportKind = "sales" | "inventory" | "receivables";
+export type AiReportProposal = { type: "report"; report: AiReportKind; title: string; lines: string[]; params: Record<string, string | number> };
+export type AiProposal = AiAction | AiReportProposal;
+/** Adjunto de una pregunta: imagen o PDF en base64, o el texto de una hoja de cálculo o archivo de texto. */
+export type AiAttachment =
+  | { kind: "image"; name: string; mediaType: "image/jpeg"; data: string }
+  | { kind: "pdf"; name: string; data: string }
+  | { kind: "text"; name: string; text: string };
+export type AiReply = { reply: string; sources: AiSource[]; proposals: AiProposal[] };
+
+export type AiInsight =
+  | { kind: "restock"; productId: number; productName: string; sku: string; available: number; dailyAvg: number; coverDays: number; suggestedQty: number }
+  | { kind: "rotate"; batchId: number; productId: number; productName: string; expiresAt: string; daysToExpire: number; remaining: number; projectedSold: number; surplus: number; surplusCost: number }
+  | { kind: "collect"; customerId: number; name: string; phone: string | null; balance: number; creditLimit: number; usedPct: number; overdue: boolean; daysSincePayment: number | null }
+  | { kind: "idle"; productId: number; productName: string; sku: string; available: number; costValue: number; lastSaleAt: string | null };
+export type AiBriefing = { text: string | null; generatedAt: string; insights: AiInsight[] };
+
+export type AiInvoiceCandidate = { productId: number; name: string; sku: string; purchasePrice: number; score: number };
+export type AiInvoiceLine = { description: string; quantity: number | null; unitCost: number | null; expiresAt: string | null; lot: string | null; candidates: AiInvoiceCandidate[]; warnings: string[] };
+export type AiInvoiceReading = {
+  supplier: { name: string | null; taxId: string | null; match: { supplierId: number; name: string } | null };
+  invoiceNumber: string | null;
+  invoiceDate: string | null;
+  lines: AiInvoiceLine[];
+  notes: string | null;
+};
+export type AiDraftKind = "collection_message" | "contact_reply" | "report_summary" | "scenario_explain";
+export type AiDraftRequest = { kind: AiDraftKind; customerId?: number; contactId?: number; scenarioId?: number; from?: string; to?: string };
+export type AiDraft = { kind: AiDraftKind; text: string; phone: string | null };

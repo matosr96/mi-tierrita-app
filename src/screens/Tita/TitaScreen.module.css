@@ -1,0 +1,133 @@
+/* Página de Tita: conversación amplia a la izquierda (alta, con su propio desplazamiento) y contexto a la derecha. */
+.layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 340px;
+  gap: 16px;
+  align-items: start;
+}
+.chat {
+  /* Cabe en la ventana: la conversación desplaza por dentro y la página no. */
+  height: max(460px, calc(100dvh - 300px));
+  display: flex;
+  flex-direction: column;
+  border-radius: var(--radius-panel);
+  background: var(--surface);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+  padding-bottom: 4px;
+}
+.side {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.who {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.who div {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.who strong {
+  font-family: var(--font-heading);
+  font-size: 26px;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+}
+.who span {
+  font-size: 13.5px;
+  color: var(--muted);
+}
+.bio {
+  margin: 14px 0 0;
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--ink-2);
+}
+.can {
+  margin: 0;
+  padding-left: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--ink-2);
+}
+.today {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.today button {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: var(--surface);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color var(--dur) ease, border-color var(--dur) ease;
+}
+.today button:hover:not(:disabled) {
+  background: var(--sprout-soft);
+  border-color: transparent;
+}
+.today button:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+.today button:focus-visible {
+  outline: 2px solid var(--sprout);
+  outline-offset: 1px;
+}
+.tag {
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+}
+.bad {
+  background: var(--bad-tag-bg);
+  color: var(--bad-tag-fg);
+}
+.warn {
+  background: var(--warn-tag-bg);
+  color: var(--warn-tag-fg);
+}
+.neutral {
+  background: var(--surface-2);
+  color: var(--ink-2);
+}
+.todayText {
+  font-size: 13.5px;
+  line-height: 1.45;
+  color: var(--ink-2);
+}
+.privacy {
+  margin: 0;
+  padding: 0 6px;
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: var(--muted);
+}
+
+@media (max-width: 1000px) {
+  .layout {
+    grid-template-columns: 1fr;
+  }
+  .chat {
+    height: max(520px, calc(100vh - 200px));
+  }
+}

@@ -1,5 +1,6 @@
-import { useState, type ReactNode } from "react";
-import { useProducts } from "@/hooks/products";
+import { useEffect, useState, type ReactNode } from "react";
+import { useAiStore } from "@/stores/ai";
+import { useProducts, useProductsByIds } from "@/hooks/products";
 import { useCustomerBalance, useCustomers } from "@/hooks/customers";
 import { useRegisterSale } from "@/hooks/sales";
 import { PageHeader } from "@/components/layout/AppShell";
@@ -57,6 +58,27 @@ export const PointOfSale = ({ tabs }: { tabs: ReactNode }) => {
   const balance = useCustomerBalance(customerId);
   const registerSale = useRegisterSale();
 
+  // Borrador de venta del asistente: se toma una vez al entrar; cuando llegan los productos se arma el carrito.
+  // La venta queda marcada como sugerida en la auditoría solo si se confirma sin vaciar el carrito.
+  const [aiDraft] = useState(() => useAiStore.getState().peekDraft("sale"));
+  useEffect(() => {
+    if (aiDraft) useAiStore.getState().clearDraft();
+  }, [aiDraft]);
+  const [fromAi, setFromAi] = useState(false);
+  const draftProducts = useProductsByIds(aiDraft?.lines.map((l) => l.productId) ?? []);
+  useEffect(() => {
+    if (!aiDraft || !draftProducts.ready) return;
+    const lines = aiDraft.lines.flatMap((l) => {
+      const product = draftProducts.products.find((p) => p.id === l.productId);
+      return product ? [{ product, quantity: Math.max(1, Math.min(l.quantity, sellable(product))) }] : [];
+    });
+    setCart(lines);
+    setCustomerId(aiDraft.customerId);
+    setPaymentType(aiDraft.paymentType);
+    setFromAi(lines.length > 0);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [aiDraft, draftProducts.ready]);
+
   /** Única suma del cliente: vista previa estimada del carrito (el total real lo devuelve la API). */
   const estimated = cart.reduce((sum, l) => sum + l.quantity * l.product.salePrice, 0);
   const creditNeedsCustomer = paymentType === "CREDIT" && customerId === null;
@@ -86,10 +108,11 @@ export const PointOfSale = ({ tabs }: { tabs: ReactNode }) => {
 
   const confirm = async () => {
     const input = { paymentType, lines: cart.map((l) => ({ productId: l.product.id, quantity: l.quantity })), ...(customerId !== null ? { customerId } : {}) };
-    await registerSale.mutateAsync(input).then(
+    await registerSale.mutateAsync({ ...input, aiSuggested: fromAi }).then(
       (sale) => {
         setResult(sale);
         setCart([]);
+        setFromAi(false);
       },
       () => undefined,
     );
@@ -143,6 +166,12 @@ export const PointOfSale = ({ tabs }: { tabs: ReactNode }) => {
   return (
     <>
       <PageHeader title="Punto de venta" subtitle="Los productos descuentan del inventario al confirmar." actions={tabs} />
+      {fromAi && cart.length > 0 ? (
+        <Callout tone="good" title="Venta preparada por Tita">
+          Revise productos, cantidades, cliente y forma de pago antes de confirmar.
+          {aiDraft && aiDraft.warnings.length > 0 ? ` Atención: ${aiDraft.warnings.join(" ")}` : ""}
+        </Callout>
+      ) : null}
 
       <div className={styles.layout}>
         <div className={styles.column}>

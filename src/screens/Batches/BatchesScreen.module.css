@@ -19,16 +19,6 @@
 .alertIcon {
   flex-shrink: 0;
 }
-.filters {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  flex-wrap: wrap;
-}
-.filtersLabel {
-  font-size: 13px;
-  color: var(--muted);
-}
 .product {
   font-weight: 600;
   color: var(--ink);

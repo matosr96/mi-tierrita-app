@@ -1,0 +1,105 @@
+/* Panel rápido de Tita: blanco, muy redondeado, a la derecha sobre la app. */
+.scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 70;
+  background: var(--overlay);
+}
+.panel {
+  position: fixed;
+  top: 12px;
+  right: 12px;
+  bottom: 12px;
+  z-index: 71;
+  width: min(440px, calc(100vw - 24px));
+  display: flex;
+  flex-direction: column;
+  border-radius: var(--radius-panel);
+  background: var(--surface);
+  box-shadow: var(--shadow-panel);
+  overflow: hidden;
+}
+
+.head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 18px 18px 14px;
+  border-bottom: 1px solid var(--line-soft);
+}
+.headText {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.headText strong {
+  font-size: 17px;
+  font-weight: 600;
+}
+.headText small {
+  font-size: 12.5px;
+  color: var(--muted);
+}
+.textBtn,
+.close {
+  border: 0;
+  background: transparent;
+  color: var(--ink-2);
+  cursor: pointer;
+  border-radius: 999px;
+  transition: background-color var(--dur) ease;
+}
+.textBtn {
+  height: 32px;
+  padding: 0 12px;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 500;
+}
+.close {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+}
+.textBtn:hover,
+.close:hover {
+  background: var(--hover);
+}
+.textBtn:focus-visible,
+.close:focus-visible {
+  outline: 2px solid var(--sprout);
+  outline-offset: 1px;
+}
+
+.fullLink {
+  display: inline-flex;
+  align-items: center;
+  height: 32px;
+  padding: 0 12px;
+  border-radius: 999px;
+  color: var(--ink-2);
+  font-size: 13px;
+  font-weight: 500;
+  text-decoration: none;
+  transition: background-color var(--dur) ease;
+}
+.fullLink:hover {
+  background: var(--hover);
+}
+.fullLink:focus-visible {
+  outline: 2px solid var(--sprout);
+  outline-offset: 1px;
+}
+
+@media (max-width: 560px) {
+  .panel {
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 100vw;
+    border-radius: 0;
+  }
+}

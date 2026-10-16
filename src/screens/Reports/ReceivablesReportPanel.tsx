@@ -39,9 +39,9 @@ const exportExcel = (report: ReceivablesReport, user: User | null) =>
   ]);
 
 /** CU-20 Reporte de cartera (solo ADMIN). */
-export const ReceivablesReportPanel = () => {
+export const ReceivablesReportPanel = (initial: { overdueDays?: number | undefined }) => {
   const user = useSessionStore((s) => s.user);
-  const [overdueDays, setOverdueDays] = useState(30);
+  const [overdueDays, setOverdueDays] = useState(initial.overdueDays ?? 30);
   const query = useReceivablesReport(overdueDays);
 
   const filters = (

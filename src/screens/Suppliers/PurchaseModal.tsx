@@ -4,23 +4,30 @@ import { useRegisterPurchase, useSuppliers } from "@/hooks/suppliers";
 import { fieldErrors } from "@/lib/errors";
 import { dateOnly, int, money, todayIso } from "@/lib/format";
 import { Button, Callout, EmptyState, ErrorState, Field, FieldRow, Input, Loading, Modal, Select } from "@/components/ui";
-import type { Product, ProductBatch, Supplier } from "@/types/api";
+import type { AiPurchaseProposal, Product, ProductBatch, Supplier } from "@/types/api";
 import styles from "./SuppliersScreen.module.css";
 
 /** Con `supplier` fijo (botón de la fila) o `null` (botón del encabezado: se elige en el formulario). */
-type Props = { supplier: Supplier | null; onClose: () => void };
+/** `draft`: compra prellenada desde un borrador del asistente (la persona revisa y confirma; queda marcada en auditoría). */
+type Props = { supplier: Supplier | null; onClose: () => void; draft?: AiPurchaseProposal | null };
 
 type FormState = { supplierId: number | null; productId: number | null; quantity: string; unitCost: string; expiresAt: string };
 
 /** CU-13 Registrar compra: crea un lote asociado al proveedor y sube el stock del producto. */
-export const PurchaseModal = ({ supplier, onClose }: Props) => {
+export const PurchaseModal = ({ supplier, onClose, draft = null }: Props) => {
   const pickSupplier = supplier === null;
   const products = useProducts({ limit: 100, active: true });
   const suppliers = useSuppliers({ limit: 100, active: true });
   const register = useRegisterPurchase();
   const emptyForm: FormState = { supplierId: supplier?.id ?? null, productId: null, quantity: "", unitCost: "", expiresAt: "" };
   const [filter, setFilter] = useState("");
-  const [form, setForm] = useState<FormState>(emptyForm);
+  const [form, setForm] = useState<FormState>(
+    draft
+      ? { supplierId: supplier?.id ?? draft.supplierId, productId: draft.productId, quantity: String(draft.quantity), unitCost: String(draft.unitCost), expiresAt: draft.expiresAt }
+      : emptyForm,
+  );
+  // Solo la primera compra viene del borrador; «Registrar otra compra» empieza en blanco y ya no se marca como sugerida.
+  const [fromAi, setFromAi] = useState(draft !== null);
   const [localErrors, setLocalErrors] = useState<Record<string, string>>({});
   const [created, setCreated] = useState<ProductBatch | null>(null);
 
@@ -43,6 +50,7 @@ export const PurchaseModal = ({ supplier, onClose }: Props) => {
   };
 
   const startAnother = () => {
+    setFromAi(false);
     setCreated(null);
     setForm({ ...emptyForm, supplierId: form.supplierId });
     setLocalErrors({});
@@ -64,7 +72,7 @@ export const PurchaseModal = ({ supplier, onClose }: Props) => {
     setLocalErrors(next);
     if (Object.keys(next).length > 0 || form.productId === null || form.supplierId === null) return;
     try {
-      const batch = await register.mutateAsync({ supplierId: form.supplierId, productId: form.productId, quantity, unitCost, expiresAt: form.expiresAt });
+      const { batch } = await register.mutateAsync({ supplierId: form.supplierId, productId: form.productId, quantity, unitCost, expiresAt: form.expiresAt, aiSuggested: fromAi });
       setCreated(batch);
     } catch {
       /* el error queda en la mutación y se pinta en el formulario */
@@ -119,7 +127,13 @@ export const PurchaseModal = ({ supplier, onClose }: Props) => {
     <Modal
       open
       title="Registrar compra"
-      description={supplier ? `Proveedor: ${supplier.name}. La compra crea un lote con su fecha de vencimiento.` : "La compra crea un lote con su fecha de vencimiento y sube el stock del producto."}
+      description={
+        fromAi
+          ? "Compra preparada por Tita: revise proveedor, cantidad, costo y vencimiento antes de registrarla."
+          : supplier
+            ? `Proveedor: ${supplier.name}. La compra crea un lote con su fecha de vencimiento.`
+            : "La compra crea un lote con su fecha de vencimiento y sube el stock del producto."
+      }
       onClose={onClose}
       footer={
         <>

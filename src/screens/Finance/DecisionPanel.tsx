@@ -1,7 +1,10 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { Range, ScenarioDetail } from "@/types/api";
 import { useSensitivity } from "@/hooks/financial";
-import { Badge, Callout, EmptyState, ErrorState, Loading, StatCard } from "@/components/ui";
+import { useAiStatus } from "@/hooks/ai";
+import { useSessionStore } from "@/stores/session";
+import { AiDraftModal } from "@/components/ai/AiDraftModal";
+import { Badge, Button, Callout, EmptyState, ErrorState, Loading, StatCard } from "@/components/ui";
 import { int, money, moneyCompact, pct, times } from "@/lib/format";
 import { breakEven, formatPoints, marginPoints } from "./financeShared";
 import { useSalesSensitivity } from "./useSalesSensitivity";
@@ -55,6 +58,11 @@ export const DecisionPanel = ({ scenario, onOpenAssumptions, onNew }: Props) => 
   const margin = be !== null ? marginPoints(scenario.salesIncrease, be) : null;
   const viable = ind.npv > 0;
   const coverage = ind.coverageIncremental;
+  const role = useSessionStore((s) => s.user?.role);
+  const ai = useAiStatus();
+  const [explainOpen, setExplainOpen] = useState(false);
+  const canExplain = ai.enabled && role === "ADMIN";
+  useEffect(() => setExplainOpen(false), [scenario.id]);
 
   // Simulación con los diales: la serie de rotación se pide a la API solo cuando alguien se acerca al dial.
   const [sim, setSim] = useState<{ key: SimKey; value: number } | null>(null);
@@ -99,12 +107,28 @@ export const DecisionPanel = ({ scenario, onOpenAssumptions, onNew }: Props) => 
             <div className={styles.aside}>
               <div className={styles.asideLabel}>Aporte propio</div>
               <div className={styles.asideValue}>{money(ind.ownContribution)}</div>
+              {canExplain ? (
+                <div className={styles.asideAi}>
+                  <Button variant="secondary" size="sm" onClick={() => setExplainOpen(true)}>
+                    Explicar en palabras simples
+                  </Button>
+                </div>
+              ) : null}
             </div>
           }
         >
           <span>{reason}</span>
         </Callout>
       </div>
+      {canExplain ? (
+        <AiDraftModal
+          open={explainOpen}
+          onClose={() => setExplainOpen(false)}
+          title="El escenario en palabras simples"
+          description={scenario.name}
+          request={{ kind: "scenario_explain", scenarioId: scenario.id }}
+        />
+      ) : null}
 
       <section className={[styles.card, styles.dials].join(" ")} aria-label="Supuestos del escenario">
         <div className={styles.dialGrid}>

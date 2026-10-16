@@ -9,6 +9,10 @@ import { Toasts } from "@/components/ui";
 import { useNavBadges } from "./useNavBadges";
 import { NotificationsMenu } from "./NotificationsMenu";
 import { CommandPalette } from "./CommandPalette";
+import { TitaPanel } from "@/components/ai/TitaPanel";
+import { TitaAvatar } from "@/components/ai/TitaAvatar";
+import { useAiStatus } from "@/hooks/ai";
+import { useAiStore } from "@/stores/ai";
 import styles from "./AppShell.module.css";
 
 /** Marca: hoja blanca sobre cuadrado verde. */
@@ -56,7 +60,12 @@ export const AppShell = () => {
   const [moreOpen, setMoreOpen] = useState(false);
   const [paletteOpen, setPaletteOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const ai = useAiStatus();
+  const aiOpen = useAiStore((s) => s.open);
+  const setAiOpen = useAiStore((s) => s.setOpen);
   const moreRef = useRef<HTMLDivElement>(null);
+  const aiEnabledRef = useRef(false);
+  aiEnabledRef.current = ai.enabled;
   const current = findRoute(location.pathname);
   const pageKey = current?.path ?? location.pathname;
 
@@ -65,6 +74,10 @@ export const AppShell = () => {
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
         e.preventDefault();
         setPaletteOpen((v) => !v);
+      }
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "j" && aiEnabledRef.current) {
+        e.preventDefault();
+        useAiStore.getState().setOpen(!useAiStore.getState().open);
       }
       if (e.key === "Escape") {
         setMoreOpen(false);
@@ -96,7 +109,10 @@ export const AppShell = () => {
 
   if (!user) return null;
 
-  const visible = NAV_GROUPS.flatMap((g) => g.items.filter((i) => isVisibleFor(i, user.role)).map((i) => ({ ...i, group: g.title ?? "General" })));
+  // Tita solo aparece en el menú si el servidor tiene IA configurada.
+  const visible = NAV_GROUPS.flatMap((g) =>
+    g.items.filter((i) => isVisibleFor(i, user.role) && (i.path !== "/tita" || ai.enabled)).map((i) => ({ ...i, group: g.title ?? "General" })),
+  );
   const primary = visible.filter((i) => PRIMARY[i.path]);
   const secondary = visible.filter((i) => !PRIMARY[i.path]);
   const secondaryActive = secondary.some((i) => location.pathname === i.path || location.pathname.startsWith(`${i.path}/`));
@@ -176,6 +192,12 @@ export const AppShell = () => {
               <path d="M13.5 13.5 L17.5 17.5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
             </svg>
           </button>
+          {ai.enabled ? (
+            <button type="button" className={styles.askBtn} onClick={() => setAiOpen(!aiOpen)} aria-expanded={aiOpen} title="Preguntarle a Tita (Ctrl+J)">
+              <TitaAvatar size={30} />
+              <span>Tita</span>
+            </button>
+          ) : null}
           <NotificationsMenu />
           <Link to="/perfil" className={styles.user} title={`${user.firstName} ${user.lastName} · ${ROLE_LABELS[user.role]}`}>
             <span className={styles.avatar}>{initials(user.firstName, user.lastName)}</span>
@@ -216,6 +238,7 @@ export const AppShell = () => {
       </main>
       <Toasts />
       <CommandPalette open={paletteOpen} onClose={() => setPaletteOpen(false)} role={user.role} />
+      {ai.enabled ? <TitaPanel /> : null}
     </div>
   );
 };

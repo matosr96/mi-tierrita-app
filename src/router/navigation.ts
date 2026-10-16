@@ -28,6 +28,8 @@ export const ICONS = {
   audits: '<path d="M4 5.5 h14"/><path d="M4 11 h14"/><path d="M4 16.5 h9"/><circle cx="17" cy="16.5" r="2"/>',
   chat: '<path d="M4 5.5 h14 a1.5 1.5 0 0 1 1.5 1.5 v8 a1.5 1.5 0 0 1 -1.5 1.5 h-8 l-4 3 v-3 h-2 a1.5 1.5 0 0 1 -1.5 -1.5 v-8 a1.5 1.5 0 0 1 1.5 -1.5 z"/><line x1="7" y1="9.5" x2="15" y2="9.5"/><line x1="7" y1="12.5" x2="12" y2="12.5"/>',
   contact: '<rect x="2.5" y="5" width="17" height="12" rx="1.6"/><path d="M3 6 L11 12 L19 6"/>',
+  /** Tita: su plantita en trazo (semilla con dos hojas), como su avatar; sin íconos de IA. */
+  tita: '<path d="M11 10 V6.2"/><path d="M11 7.6 C 8.3 7.8 6.4 6.2 6 3.4 C 8.8 3.3 10.7 4.9 11 7.6 Z"/><path d="M11 6.6 C 13.6 6.6 15.5 5 15.9 2.4 C 13.3 2.4 11.4 3.9 11 6.6 Z"/><ellipse cx="11" cy="14.6" rx="5.6" ry="5.2"/>',
   signout: '<path d="M8.6 3.5 H5 a1.6 1.6 0 0 0 -1.6 1.6 v11.8 a1.6 1.6 0 0 0 1.6 1.6 h3.6"/><path d="M13.8 7.4 L17.4 11 L13.8 14.6"/><line x1="17.1" y1="11" x2="8.8" y2="11"/>',
 } as const;
 
@@ -56,6 +58,7 @@ export const NAV_GROUPS: NavGroup[] = [
   {
     title: "Comunicación",
     items: [
+      { path: "/tita", label: "Tita, asistente", icon: ICONS.tita, roles: ALL },
       { path: "/chat", label: "Chat del equipo", icon: ICONS.chat, roles: ALL, badge: "chat" },
       { path: "/contactos", label: "Contactos del sitio", icon: ICONS.contact, roles: ["ADMIN"], badge: "contact" },
     ],

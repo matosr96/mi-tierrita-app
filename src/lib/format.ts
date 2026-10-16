@@ -16,6 +16,8 @@ export const moneyCompact = (value: number | null | undefined): string => {
 };
 
 export const int = (value: number | null | undefined): string => (value === null || value === undefined ? "—" : integer.format(value));
+/** Hasta un decimal y sin ceros sobrantes: "1", "2,5" (ritmos de venta, promedios cortos). */
+export const num1 = (value: number | null | undefined): string => (value === null || value === undefined ? "—" : value.toLocaleString("es-CO", { maximumFractionDigits: 1 }));
 export const num2 = (value: number | null | undefined): string => (value === null || value === undefined ? "—" : decimal.format(value));
 export const pct = (value: number | null | undefined): string => (value === null || value === undefined ? "—" : percent.format(value));
 export const years = (value: number | null | undefined): string => (value === null || value === undefined ? "no se recupera" : `${decimal.format(value)} años`);

@@ -26,6 +26,8 @@ import { QueryStat } from "./QueryStat";
 import { shortDay, statusTitle, timeOnly, greetingFor } from "./homeDates";
 import { pendingItems } from "./attention";
 import { StatusAside } from "./StatusAside";
+import { BriefingCard } from "./BriefingCard";
+import { useBriefing } from "@/hooks/ai";
 import styles from "./HomeScreen.module.css";
 
 const PAYMENT_LABELS = { CASH: "Contado", CREDIT: "Crédito" } as const;
@@ -73,6 +75,8 @@ export const SalesHome = ({ user }: { user: User }) => {
     userId: user.id,
     limit: 5,
   });
+  const briefing = useBriefing();
+  const hasSuggestions = (briefing.data?.insights.length ?? 0) > 0;
   const attention = customers.isPending
     ? null
     : pendingItems(customers.data?.items ?? []);
@@ -129,18 +133,24 @@ export const SalesHome = ({ user }: { user: User }) => {
         />
       </StatGrid>
 
+      {/* Si hay a quién cobrar, las sugerencias (con su prioridad y el mensaje de cobro) reemplazan a la lista de
+          pendientes: serían los mismos clientes dos veces. */}
+      {hasSuggestions ? <BriefingCard /> : null}
+
       <div className={styles.dash}>
-        <StatusAside
-          title={statusTitle(
-            attention === null ? null : (customers.data?.count ?? 0),
-            user.firstName,
-          )}
-          items={attention}
-          total={customers.data?.count}
-          to={"/clientes"}
-          watches="los clientes con saldo por cobrar y los que agotaron su cupo"
-        />
-        <Card title="Últimos 7 días" subtitle="Vendido por día · pesos">
+        {hasSuggestions ? null : (
+          <StatusAside
+            title={statusTitle(
+              attention === null ? null : (customers.data?.count ?? 0),
+              user.firstName,
+            )}
+            items={attention}
+            total={customers.data?.count}
+            to={"/clientes"}
+            watches="los clientes con saldo por cobrar y los que agotaron su cupo"
+          />
+        )}
+        <Card className={hasSuggestions ? styles.span2 : undefined} title="Últimos 7 días" subtitle="Vendido por día · pesos">
           <QueryState
             query={week}
             isEmpty={(r) => r.rows.length === 0}

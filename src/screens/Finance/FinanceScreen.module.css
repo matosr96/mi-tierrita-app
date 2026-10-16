@@ -374,6 +374,9 @@
   font-size: 13px;
   color: var(--muted);
 }
+.asideAi {
+  margin-top: 10px;
+}
 .asideValue {
   font-size: 20px;
   font-weight: 600;

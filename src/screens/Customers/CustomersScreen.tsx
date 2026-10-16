@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useAiStore } from "@/stores/ai";
 import { useSessionStore } from "@/stores/session";
-import { useCustomers } from "@/hooks/customers";
+import { useCustomer, useCustomers } from "@/hooks/customers";
 import { PageHeader } from "@/components/layout/AppShell";
 import { Button, Chips, EmptyState, Input, Pagination, QueryState } from "@/components/ui";
 import { int } from "@/lib/format";
@@ -38,7 +39,16 @@ export const CustomersScreen = () => {
   const [filter, setFilter] = useState<Filter>("all");
   const [page, setPage] = useState(1);
   const [selectedId, setSelectedId] = useState<number | null>(null);
-  const [payment, setPayment] = useState<{ open: boolean; customer: Customer | null }>({ open: false, customer: null });
+  const [payment, setPayment] = useState<{ open: boolean; customer: Customer | null; amount?: number; aiSuggested?: boolean }>({ open: false, customer: null });
+  // Borrador de abono del asistente: se toma una sola vez al entrar y abre el abono prellenado cuando llega el cliente.
+  const [aiPayment] = useState(() => useAiStore.getState().peekDraft("payment"));
+  useEffect(() => {
+    if (aiPayment) useAiStore.getState().clearDraft();
+  }, [aiPayment]);
+  const aiCustomer = useCustomer(aiPayment?.customerId ?? null);
+  useEffect(() => {
+    if (aiPayment && aiCustomer.data) setPayment({ open: true, customer: aiCustomer.data, amount: aiPayment.amount, aiSuggested: true });
+  }, [aiPayment, aiCustomer.data]);
   const [form, setForm] = useState<{ open: boolean; customer: Customer | null }>({ open: false, customer: null });
 
   const query: CustomerQuery = { page, limit: 20 };
@@ -167,7 +177,13 @@ export const CustomersScreen = () => {
       </div>
 
       <CustomerDetailModal customerId={form.open ? null : selectedId} onClose={() => setSelectedId(null)} onEdit={(c) => setForm({ open: true, customer: c })} />
-      <PaymentModal open={payment.open} customer={payment.customer} onClose={() => setPayment({ open: false, customer: null })} />
+      <PaymentModal
+        open={payment.open}
+        customer={payment.customer}
+        initialAmount={payment.amount}
+        aiSuggested={payment.aiSuggested}
+        onClose={() => setPayment({ open: false, customer: null })}
+      />
       {form.open ? <CustomerFormModal key={form.customer?.id ?? "new"} customer={form.customer} onClose={() => setForm({ open: false, customer: null })} /> : null}
     </div>
   );

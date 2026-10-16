@@ -1,5 +1,6 @@
 import { Fragment } from "react";
 import { dateTime } from "@/lib/format";
+import { Badge } from "@/components/ui";
 import type { Audit } from "@/types/api";
 import { AuditMethodBadge } from "./AuditMethodBadge";
 import { METHOD_VERB, methodKind, pathSegments, splitDateTime } from "./auditMethod";
@@ -42,6 +43,11 @@ export const AuditTimeline = ({ items }: { items: Audit[] }) => {
               </span>
               <span className={styles.line}>
                 <span className={styles.user}>{a.username}</span> <span className={styles.verb}>{METHOD_VERB[methodKind(a.method)]}</span> <ResourcePath resource={a.resource} />
+                {a.aiSuggested ? (
+                  <span className={styles.ai} title="Confirmado desde un borrador de Tita">
+                    <Badge tone="good">IA</Badge>
+                  </span>
+                ) : null}
               </span>
               <span className={styles.id}>#{a.id}</span>
             </div>

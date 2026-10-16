@@ -33,6 +33,7 @@ import {
 } from "./homeDates";
 import { adminAttention } from "./attention";
 import { StatusAside } from "./StatusAside";
+import { BriefingCard } from "./BriefingCard";
 import styles from "./HomeScreen.module.css";
 
 /** Inicio del administrador (Dashboard del lienzo): ventas del mes, cartera, valor por vencer, pendientes y decisión abierta. */
@@ -121,6 +122,8 @@ export const AdminHome = ({ user }: { user: User }) => {
       </StatGrid>
 
       {/* Rejilla de tres columnas, como en la referencia. */}
+      <BriefingCard />
+
       <div className={styles.dash}>
         <div className={styles.span2}>
           <Card

@@ -113,6 +113,34 @@ con la foto de las manos) → pie claro con columnas, créditos y la palabra "Mi
 `content.ts`; los datos de contacto vacíos (`STORE.whatsapp`, `email`, `hours`, `address`) ocultan su bloque: no publicar
 nada sin confirmar con la tienda. Fotos y créditos en `public/media/LEEME.txt`.
 
+## Tita, la asistente (Claude, de Anthropic)
+
+**Tita** es la asistente de Mi Tierrita: su mascota es una plantita con carita (`components/ai/TitaAvatar`, SVG propio;
+nada de destellos, estrellas, robots ni otros íconos cliché de IA). Habla cercana y directa, con trato de usted.
+Principio: **las cifras salen del servidor; Tita consulta, explica y prepara; nada se registra sin que una persona lo
+confirme**. Todo depende de `useAiStatus().enabled` (sin `ANTHROPIC_API_KEY` la API responde 660 y la app oculta a Tita;
+las "Sugerencias de hoy" sí se muestran porque las calcula el servidor sin IA).
+- **Dónde**: página `/tita` (conversación amplia, quién es, lo que puede hacer por el rol, "Para hoy") y panel rápido
+  (`TitaPanel`, botón "Tita" de la barra o ⌘J / Ctrl+J). Ambos usan `TitaConversation` y comparten la conversación
+  (`useAiStore`, solo en memoria; se borra al cerrar sesión).
+- **Superpoderes con confirmación**: puede hacer todo lo que la cuenta puede hacer (clientes, productos, categorías,
+  proveedores, lotes, compras, ventas, abonos, anulaciones, escenarios, contactos, mensajes al equipo, reportes). El
+  servidor devuelve tarjetas `AiAction` con la petición exacta; al pulsar Confirmar, `useTitaConversation().run` la envía
+  con `executeAiAction` (lista cerrada de rutas en `services/ai.ts`) a la API real con `X-AI-Suggested: 1` → auditoría con
+  insignia "IA", e invalida todas las cachés. Las tarjetas guardan su estado y Tita lo recibe en el historial. Venta, abono
+  y compra traen además `handoff` ("Revisar en su pantalla": `peekDraft`/`clearDraft` en `PointOfSale`, `CustomersScreen`,
+  `SuppliersScreen`). Los reportes llegan como `AiReportProposal` y abren `/reportes?r=…`. No crea usuarios ni maneja
+  contraseñas.
+- **Adjuntos** (`lib/attachments.ts`): fotos (reducidas a 1600 px), PDF (hasta 8 MB), Excel .xlsx (leído en el
+  navegador sin dependencias, cada hoja a CSV), CSV y .txt; hasta 4 por pregunta.
+- **Voz en vivo** (`useTitaVoice`): reconocimiento y síntesis de voz del navegador (es-CO); escucha, envía, lee la respuesta
+  y vuelve a escuchar. Se oculta si el navegador no lo soporta.
+- **Sugerencias de hoy** (`screens/Home/BriefingCard`, `useBriefing`): reponer, rotar lotes, cobrar, sin rotación, con su
+  porqué en cifras; con IA, "Lo que sugiere Tita". En el Inicio de caja reemplaza a la lista de pendientes.
+- **Borradores de texto** (`components/ai/AiDraftModal`, `useAiDraft`): mensaje de cobro, respuesta a contactos, lectura del
+  reporte y explicación del escenario. **Factura por foto** (`screens/Suppliers/InvoiceImportModal`, `useReadInvoice`).
+- Texto de Tita con `RichText` (párrafos, listas, citas `>` y negritas; nunca HTML).
+
 ## Stock vendible y fechas
 
 `Product.stock` es el stock físico (incluye lotes vencidos aún en bodega); `Product.availableStock` es lo que FEFO puede

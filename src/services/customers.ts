@@ -1,4 +1,5 @@
 import { http } from "@/lib/http";
+import { aiSuggestedHeaders } from "@/services/ai";
 import type { CreateCustomerInput, Customer, CustomerBalance, CustomerPayment, CustomerQuery, Page, UpdateCustomerInput } from "@/types/api";
 
 export const customersService = {
@@ -8,5 +9,6 @@ export const customersService = {
   update: async (id: number, input: UpdateCustomerInput): Promise<Customer> => (await http.put<Customer>(`/customers/${id}`, input)).data,
   balance: async (id: number, overdueDays?: number): Promise<CustomerBalance> =>
     (await http.get<CustomerBalance>(`/customers/${id}/balance`, { params: { overdueDays } })).data,
-  registerPayment: async (id: number, amount: number): Promise<CustomerPayment> => (await http.post<CustomerPayment>(`/customers/${id}/payments`, { amount })).data,
+  registerPayment: async (id: number, amount: number, aiSuggested?: boolean): Promise<CustomerPayment> =>
+    (await http.post<CustomerPayment>(`/customers/${id}/payments`, { amount }, aiSuggestedHeaders(aiSuggested))).data,
 };

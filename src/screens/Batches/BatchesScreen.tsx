@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { PageHeader } from "@/components/layout/AppShell";
-import { Button, Card, Chips, DataTable, EmptyState, QueryState, type Column } from "@/components/ui";
+import { Button, Card, DataTable, EmptyState, QueryState, Tabs, type Column } from "@/components/ui";
 import { useExpiringBatches } from "@/hooks/batches";
 import { dateOnly, int, money } from "@/lib/format";
 import { useSessionStore } from "@/stores/session";
@@ -12,7 +12,7 @@ import { WarehouseCard } from "./WarehouseCard";
 import { RegisterBatchModal } from "./RegisterBatchModal";
 import styles from "./BatchesScreen.module.css";
 
-const WINDOWS = [7, 15, 30, 60, 90].map((d) => ({ value: d, label: `${d} días` }));
+const WINDOWS = [7, 15, 30, 60, 90].map((d) => ({ value: String(d), label: `${d} días` }));
 
 const columns: Column<ProductBatch>[] = [
   { key: "product", header: "Producto", render: (b) => <span className={styles.product}>{b.productName}</span> },
@@ -48,7 +48,13 @@ export const BatchesScreen = () => {
       <PageHeader
         title="Lotes y vencimientos"
         subtitle={isAdmin ? "Control FEFO: primero en vencer, primero en salir." : "Primero en vencer, primero en salir."}
-        actions={<Button onClick={() => setRegisterOpen(true)}>Registrar lote</Button>}
+        actions={
+          <>
+            {/* La ventana gobierna todo lo de abajo (indicadores, estante y tabla): va en el encabezado, como en Ventas. */}
+            <Tabs options={WINDOWS} value={String(days)} onChange={(v) => setDays(Number(v))} ariaLabel="Ventana de vencimiento" />
+            <Button onClick={() => setRegisterOpen(true)}>Registrar lote</Button>
+          </>
+        }
       />
 
       {query.data !== undefined && expired > 0 ? (
@@ -74,11 +80,6 @@ export const BatchesScreen = () => {
       ) : null}
 
       {isAdmin ? <AdminBatchStats days={days} /> : <WindowBatchStats days={days} query={query} />}
-
-      <div className={styles.filters}>
-        <span className={styles.filtersLabel}>Ventana de vencimiento</span>
-        <Chips options={WINDOWS} value={days} onChange={setDays} />
-      </div>
 
       <WarehouseCard days={days} query={query} />
 

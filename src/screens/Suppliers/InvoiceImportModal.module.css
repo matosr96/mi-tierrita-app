@@ -1,0 +1,239 @@
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* ---------- Paso 1: foto ---------- */
+.drop {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 220px;
+  padding: 28px 20px;
+  border: 1.5px dashed var(--line-strong);
+  border-radius: var(--radius);
+  background: var(--surface-2);
+  color: var(--ink-2);
+  text-align: center;
+  cursor: pointer;
+  transition: border-color var(--dur) ease, background var(--dur) ease;
+}
+.drop:hover,
+.dropActive {
+  border-color: var(--sprout);
+  background: var(--sprout-soft);
+}
+.drop:focus-within {
+  border-color: var(--sprout);
+  box-shadow: 0 0 0 3px var(--sprout-soft);
+}
+.fileInput {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+.dropIcon {
+  color: var(--sprout-ink);
+}
+.dropTitle {
+  font-size: 17px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+}
+.dropHint {
+  font-size: 13px;
+  color: var(--muted);
+  max-width: 420px;
+}
+.thumb {
+  display: block;
+  max-width: 100%;
+  max-height: 260px;
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow);
+  object-fit: contain;
+}
+.readingBox {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 0;
+}
+
+/* ---------- Paso 2: revisión ---------- */
+.supplierBox {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px;
+  border-radius: var(--radius-sm);
+  background: var(--surface-2);
+}
+.facts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 10px 14px;
+  margin: 0;
+}
+.fact {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.fact dt {
+  font-size: 12.5px;
+  color: var(--muted);
+}
+.fact dd {
+  margin: 0;
+  font-size: 14px;
+  color: var(--ink);
+  overflow-wrap: anywhere;
+}
+.mono {
+  font-family: var(--font-mono);
+}
+
+.lines {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.line {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 14px 16px;
+  border: 1px solid var(--line-soft);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  transition: opacity var(--dur) ease;
+}
+.lineOff {
+  background: var(--surface-2);
+}
+.lineOff .readText {
+  color: var(--muted-2);
+}
+.lineHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 16px;
+}
+.readText {
+  font-size: 13px;
+  color: var(--muted);
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.lineGrid {
+  display: grid;
+  grid-template-columns: minmax(220px, 2fr) repeat(3, minmax(120px, 1fr));
+  gap: 12px;
+  align-items: start;
+}
+.productCell {
+  min-width: 0;
+}
+.warnings {
+  margin: 0;
+  padding-left: 18px;
+  font-size: 12.5px;
+  color: var(--warn-tag-fg);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+@media (max-width: 760px) {
+  .lineGrid {
+    grid-template-columns: 1fr 1fr;
+  }
+  .productCell {
+    grid-column: 1 / -1;
+  }
+}
+@media (max-width: 420px) {
+  .lineGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ---------- Paso 3 y 4: registro y resumen ---------- */
+.progressBox {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 8px 0;
+  font-size: 14px;
+  color: var(--ink-2);
+  font-variant-numeric: tabular-nums;
+}
+.progressTrack {
+  height: 8px;
+  border-radius: 999px;
+  background: var(--surface-3);
+  overflow: hidden;
+}
+.progressFill {
+  height: 100%;
+  border-radius: inherit;
+  background: var(--sprout);
+  transition: width var(--dur) ease;
+}
+.results {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.result {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 4px 12px;
+  padding: 10px 14px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--line-soft);
+  font-size: 13.5px;
+}
+.resultOk {
+  background: var(--good-soft);
+  border-color: var(--good-line);
+}
+.resultBad {
+  background: var(--bad-soft);
+  border-color: var(--bad-line);
+}
+.resultName {
+  color: var(--ink);
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.resultOk .resultStatus {
+  color: var(--good);
+  font-weight: 500;
+}
+.resultBad .resultStatus {
+  color: var(--bad);
+  font-weight: 500;
+}

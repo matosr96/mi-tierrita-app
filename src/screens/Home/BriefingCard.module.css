@@ -1,0 +1,121 @@
+/* Sugerencias de hoy: párrafo de la IA arriba y una fila por recomendación con su etiqueta y acciones. */
+.card {
+  min-width: 0;
+}
+.summary {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 14px;
+  padding: 14px 16px;
+  border-radius: 18px;
+  background: linear-gradient(150deg, var(--sprout-soft), var(--surface));
+}
+.summary p {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.55;
+  color: var(--ink);
+}
+.summaryLabel {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--forest);
+}
+.rows {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+.row {
+  display: grid;
+  grid-template-columns: 128px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 0;
+  border-top: 1px solid var(--line-soft);
+}
+.row:first-child {
+  border-top: 0;
+}
+.tag {
+  justify-self: start;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 12.5px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.bad {
+  background: var(--bad-tag-bg);
+  color: var(--bad-tag-fg);
+}
+.warn {
+  background: var(--warn-tag-bg);
+  color: var(--warn-tag-fg);
+}
+.neutral {
+  background: var(--surface-2);
+  color: var(--ink-2);
+}
+.text {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--ink-2);
+}
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  justify-self: end;
+}
+.link,
+.askBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 32px;
+  padding: 0 12px;
+  border-radius: 999px;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  white-space: nowrap;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color var(--dur) ease, color var(--dur) ease;
+}
+.link {
+  color: var(--ink-2);
+  border: 1px solid var(--line);
+}
+.link:hover {
+  background: var(--hover);
+  color: var(--ink);
+}
+.askBtn {
+  border: 0;
+  background: var(--sprout-soft);
+  color: var(--forest);
+}
+.askBtn:hover {
+  background: color-mix(in srgb, var(--sprout) 22%, var(--surface));
+}
+.link:focus-visible,
+.askBtn:focus-visible {
+  outline: 2px solid var(--sprout);
+  outline-offset: 2px;
+}
+
+@media (max-width: 760px) {
+  .row {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+  .actions {
+    justify-self: start;
+  }
+}

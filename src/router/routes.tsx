@@ -17,6 +17,7 @@ import { UsersScreen } from "@/screens/Users/UsersScreen";
 import { AuditsScreen } from "@/screens/Audits/AuditsScreen";
 import { ProfileScreen } from "@/screens/Profile/ProfileScreen";
 import { ChatScreen } from "@/screens/Chat/ChatScreen";
+import { TitaScreen } from "@/screens/Tita/TitaScreen";
 import { ContactsScreen } from "@/screens/Contacts/ContactsScreen";
 import { NotFoundScreen } from "@/screens/Restricted/RestrictedScreen";
 
@@ -53,6 +54,7 @@ export const router = createBrowserRouter([
           protectedRoute("/proveedores", <SuppliersScreen />),
           { element: <RequireRole roles={rolesFor("/finanzas")} />, children: [{ path: "/finanzas", element: <FinanceScreen /> }, { path: "/finanzas/:tab", element: <FinanceScreen /> }] },
           protectedRoute("/reportes", <ReportsScreen />),
+          protectedRoute("/tita", <TitaScreen />),
           protectedRoute("/chat", <ChatScreen />),
           protectedRoute("/contactos", <ContactsScreen />),
           protectedRoute("/usuarios", <UsersScreen />),

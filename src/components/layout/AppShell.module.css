@@ -62,9 +62,8 @@
   align-items: center;
   padding-top: 12px;
   padding-bottom: 12px;
-  background: color-mix(in srgb, var(--hero-from) 90%, transparent);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
+  /* Opaca: con transparencia el título de la página se veía pasar por debajo al desplazar. */
+  background: var(--hero-from);
   box-shadow: 0 10px 30px -20px rgba(16, 48, 30, 0.5);
 }
 .compact .pill,
@@ -277,6 +276,30 @@
 .iconBtn:hover {
   background: var(--band-glass);
 }
+/* Tita, la asistente: píldora blanca con su avatar y su nombre (sin íconos de IA). */
+.askBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 44px;
+  padding: 0 16px 0 7px;
+  border: 0;
+  border-radius: 999px;
+  background: #fff;
+  color: var(--forest);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color var(--dur) ease;
+}
+.askBtn:hover {
+  background: var(--sprout-soft);
+}
+.askBtn:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 2px;
+}
 .menuBtn {
   display: none;
 }
@@ -419,6 +442,19 @@
 @media (max-width: 640px) {
   .topbar {
     padding: 12px 16px;
+  }
+  /* En el teléfono Tita queda solo con su avatar: la barra no alcanza para el nombre. */
+  .askBtn {
+    height: 38px;
+    padding: 0 4px;
+  }
+  .askBtn span:last-child {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
   }
   .tools {
     gap: 6px;

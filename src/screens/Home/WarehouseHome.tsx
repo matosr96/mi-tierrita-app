@@ -22,6 +22,7 @@ import { statusTitle, greetingFor } from "./homeDates";
 import { todoItems } from "./attention";
 import { LOW_STOCK } from "@/screens/Inventory/stockStatus";
 import { StatusAside } from "./StatusAside";
+import { BriefingCard } from "./BriefingCard";
 import styles from "./HomeScreen.module.css";
 
 const EXPIRING_DAYS = 30;
@@ -136,6 +137,8 @@ export const WarehouseHome = ({ user }: { user: User }) => {
           hint={() => "en el catálogo"}
         />
       </StatGrid>
+
+      <BriefingCard />
 
       <div className={styles.dash}>
         <StatusAside

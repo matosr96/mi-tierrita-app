@@ -27,6 +27,8 @@ export const ERROR_MESSAGES: Record<string, string> = {
   "631": "La categoría tiene productos asociados.",
   "640": "Demasiados intentos. Espere unos minutos.",
   "650": "Los supuestos del escenario no son válidos.",
+  "660": "El asistente de IA no está configurado en el servidor.",
+  "661": "El asistente de IA no respondió. Intente de nuevo en un momento.",
 };
 
 export type ApiError = { code: string; message: string; details?: unknown };

@@ -2,6 +2,9 @@ import { useState } from "react";
 import { PageHeader } from "@/components/layout/AppShell";
 import { Badge, Button, Chips, EmptyState, Pagination, QueryState } from "@/components/ui";
 import { useContactMessages, useSetContactStatus } from "@/hooks/contact";
+import { useAiStatus } from "@/hooks/ai";
+import { useSessionStore } from "@/stores/session";
+import { AiDraftModal } from "@/components/ai/AiDraftModal";
 import { dateTime, int } from "@/lib/format";
 import type { ContactMessage, ContactStatus } from "@/types/api";
 import styles from "./ContactsScreen.module.css";
@@ -28,6 +31,10 @@ const whatsappUrl = (phone: string, name: string): string => {
 
 const Item = ({ m }: { m: ContactMessage }) => {
   const setStatus = useSetContactStatus();
+  const role = useSessionStore((s) => s.user?.role);
+  const ai = useAiStatus();
+  const [draftOpen, setDraftOpen] = useState(false);
+  const canDraft = ai.enabled && role === "ADMIN";
   const st = STATUS[m.status];
   return (
     <article className={[styles.item, m.status === "NEW" ? styles.isNew : ""].join(" ")}>
@@ -50,6 +57,11 @@ const Item = ({ m }: { m: ContactMessage }) => {
           ) : null}
         </div>
         <div className={styles.actions}>
+          {canDraft ? (
+            <Button size="sm" variant="secondary" onClick={() => setDraftOpen(true)}>
+              Sugerir respuesta
+            </Button>
+          ) : null}
           {m.status === "NEW" ? (
             <Button size="sm" variant="secondary" loading={setStatus.isPending} onClick={() => setStatus.mutate({ id: m.id, status: "READ" })}>
               Marcar atendido
@@ -66,6 +78,15 @@ const Item = ({ m }: { m: ContactMessage }) => {
           )}
         </div>
       </footer>
+      {canDraft ? (
+        <AiDraftModal
+          open={draftOpen}
+          onClose={() => setDraftOpen(false)}
+          title="Respuesta sugerida"
+          description={`Para ${m.name}${m.topic ? ` · ${m.topic}` : ""}`}
+          request={{ kind: "contact_reply", contactId: m.id }}
+        />
+      ) : null}
     </article>
   );
 };

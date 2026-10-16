@@ -1,7 +1,8 @@
 import { useState, type FormEvent, type KeyboardEvent } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useSignin } from "@/hooks/session";
 import { BrandMark } from "@/components/layout/AppShell";
+import { GlassFan } from "@/components/layout/GlassFan";
 import { Button, Callout, Field, Input } from "@/components/ui";
 import styles from "./SigninScreen.module.css";
 
@@ -22,7 +23,13 @@ const errorTitle = (code: string) => {
   return "No pudimos iniciar sesión";
 };
 
-/** CU-01 Iniciar sesión: marca y propósito a la izquierda, formulario a la derecha. Al entrar navega de inmediato. */
+/** Lo que hace el sistema, en píldoras sobre la franja (sin cifras: el inicio de sesión no muestra datos). */
+const FEATURES = ["Lotes con FEFO", "Ventas y cartera", "Reportes en PDF y Excel", "Evaluación de la ampliación"];
+
+/**
+ * CU-01 Iniciar sesión, con el mismo lenguaje de la app: panel verde con la marca, el abanico de vidrio y lo que hace el
+ * sistema a la izquierda; formulario limpio sobre blanco a la derecha. Al entrar navega de inmediato.
+ */
 export const SigninScreen = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -48,21 +55,37 @@ export const SigninScreen = () => {
 
   return (
     <div className={styles.page}>
-      <aside className={styles.brandSide}>
+      <aside className={styles.panel}>
         <div className={styles.brand}>
-          <BrandMark size={32} />
+          <BrandMark size={36} />
           <div>
             <div className={styles.brandName}>Mi Tierrita SIG</div>
-            <div className={styles.brandSub}>Agropecuaria · Sahagún</div>
+            <div className={styles.brandSub}>Agropecuaria · Sahagún, Córdoba</div>
           </div>
         </div>
-        <p className={styles.pitch}>Inventario, ventas, cartera y evaluación de inversiones de la tienda en un solo lugar.</p>
-        <p className={styles.credit}>Trabajo Colaborativo Contextualizado · Ingeniería de Software · Universidad de Cartagena</p>
+        <GlassFan className={styles.fan} />
+        <div className={styles.pitchBlock}>
+          <p className={styles.pitch}>
+            La tienda al día,
+            <br />
+            en un solo lugar.
+          </p>
+          <ul className={styles.features}>
+            {FEATURES.map((f) => (
+              <li key={f}>{f}</li>
+            ))}
+          </ul>
+          <p className={styles.credit}>Trabajo Colaborativo Contextualizado · Ingeniería de Software · Universidad de Cartagena</p>
+        </div>
       </aside>
 
       <main className={styles.formSide}>
+        <Link to="/sitio" className={styles.back}>
+          <span aria-hidden="true">←</span> Volver al sitio
+        </Link>
         <form className={styles.card} onSubmit={submit}>
           <div className={styles.head}>
+            <span className={styles.eyebrow}>Personal de la tienda</span>
             <h1 className={styles.title}>Iniciar sesión</h1>
             <p className={styles.lead}>Use el usuario que le asignó el administrador.</p>
           </div>

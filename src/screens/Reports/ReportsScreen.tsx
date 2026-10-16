@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import { useSessionStore } from "@/stores/session";
 import { PageHeader } from "@/components/layout/AppShell";
 import { SalesReportPanel } from "./SalesReportPanel";
@@ -50,7 +51,15 @@ export const ReportsScreen = () => {
   const user = useSessionStore((s) => s.user);
   const isAdmin = user?.role === "ADMIN";
   const reports = REPORTS.filter((r) => isAdmin || !r.adminOnly);
-  const [kind, setKind] = useState<ReportKind>("sales");
+  // ?r=sales|inventory|receivables y sus parámetros: así Tita abre el reporte que preparó en el chat.
+  const [params] = useSearchParams();
+  const asked = params.get("r");
+  const [kind, setKind] = useState<ReportKind>(asked === "inventory" || asked === "receivables" ? asked : "sales");
+  const intParam = (k: string) => {
+    const n = Number(params.get(k));
+    return Number.isInteger(n) && n > 0 ? n : undefined;
+  };
+  const isoParam = (k: string) => (/^\d{4}-\d{2}-\d{2}$/.test(params.get(k) ?? "") ? (params.get(k) as string) : undefined);
   const current: ReportKind = reports.some((r) => r.kind === kind) ? kind : "sales";
 
   return (
@@ -63,9 +72,9 @@ export const ReportsScreen = () => {
         ))}
       </div>
 
-      {current === "sales" ? <SalesReportPanel /> : null}
-      {isAdmin && current === "inventory" ? <InventoryReportPanel /> : null}
-      {isAdmin && current === "receivables" ? <ReceivablesReportPanel /> : null}
+      {current === "sales" ? <SalesReportPanel from={isoParam("from")} to={isoParam("to")} groupBy={params.get("groupBy") === "product" ? "product" : undefined} /> : null}
+      {isAdmin && current === "inventory" ? <InventoryReportPanel days={intParam("days")} /> : null}
+      {isAdmin && current === "receivables" ? <ReceivablesReportPanel overdueDays={intParam("overdueDays")} /> : null}
 
       <ExportHistory isAdmin={isAdmin} />
     </div>

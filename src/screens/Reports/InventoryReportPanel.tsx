@@ -59,9 +59,9 @@ const exportExcel = (report: InventoryReport, user: User | null) =>
   ]);
 
 /** CU-20 Reporte de inventario (solo ADMIN). */
-export const InventoryReportPanel = () => {
+export const InventoryReportPanel = (initial: { days?: number | undefined }) => {
   const user = useSessionStore((s) => s.user);
-  const [days, setDays] = useState(30);
+  const [days, setDays] = useState(initial.days ?? 30);
   const query = useInventoryReport(days);
 
   const filters = (

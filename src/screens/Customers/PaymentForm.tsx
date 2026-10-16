@@ -5,13 +5,14 @@ import { fieldErrors } from "@/lib/errors";
 import { dateTime, money } from "@/lib/format";
 import styles from "./CustomersScreen.module.css";
 
-type Props = { customerId: number; active: boolean; showBalance?: boolean };
+/** `initialAmount` y `aiSuggested`: el abono viene prellenado desde un borrador del asistente (la persona confirma). */
+type Props = { customerId: number; active: boolean; showBalance?: boolean; initialAmount?: number; aiSuggested?: boolean };
 
 /** Registro de abonos (CU-12): el saldo baja con cada abono y el servidor rechaza montos mayores al saldo (623). Se monta con key por cliente. */
-export const PaymentForm = ({ customerId, active, showBalance = false }: Props) => {
+export const PaymentForm = ({ customerId, active, showBalance = false, initialAmount, aiSuggested = false }: Props) => {
   const balance = useCustomerBalance(customerId);
   const payment = useRegisterPayment();
-  const [amount, setAmount] = useState("");
+  const [amount, setAmount] = useState(initialAmount !== undefined ? String(initialAmount) : "");
   const [amountError, setAmountError] = useState<string | undefined>(undefined);
 
   const submit = async (e: FormEvent) => {
@@ -22,7 +23,7 @@ export const PaymentForm = ({ customerId, active, showBalance = false }: Props) 
       return;
     }
     setAmountError(undefined);
-    await payment.mutateAsync({ id: customerId, amount: value }).then(
+    await payment.mutateAsync({ id: customerId, amount: value, aiSuggested }).then(
       () => setAmount(""),
       () => undefined,
     );
