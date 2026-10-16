@@ -5,7 +5,8 @@ import { addDaysIso, dateOnly, int, money, moneyCompact, todayIso } from "@/lib/
 import { Button, DataTable, EmptyState, Field, Input, QueryState, Tabs, type Column, type TabOption } from "@/components/ui";
 import { HBarChart, VBarChart } from "@/components/charts";
 import type { SalesGroupBy, SalesReport, SalesReportDayRow, SalesReportProductRow } from "@/types/api";
-import { downloadCsv } from "./csv";
+import { downloadXlsx } from "@/lib/xlsx";
+import type { User } from "@/types/api";
 import { ReportPreview } from "./ReportPreview";
 import { ReportPaper } from "./ReportPaper";
 import { PaperBlock } from "./PaperBlock";
@@ -38,22 +39,39 @@ const productColumns: Column<SalesReportProductRow>[] = [
   { key: "total", header: "Total", align: "right", render: (r) => money(r.total) },
 ];
 
-const exportCsv = (report: SalesReport) => {
-  const name = `ventas_${report.from.slice(0, 10)}_${report.to.slice(0, 10)}_${report.groupBy === "day" ? "por-dia" : "por-producto"}.csv`;
+const exportName = (report: SalesReport) => `ventas_${report.from.slice(0, 10)}_${report.to.slice(0, 10)}_${report.groupBy === "day" ? "por-dia" : "por-producto"}`;
+
+const exportExcel = (report: SalesReport, user: User | null) => {
+  const title = [
+    "Agropecuaria Mi Tierrita · Reporte de ventas",
+    `Del ${dateOnly(report.from)} al ${dateOnly(report.to)} · ${report.groupBy === "day" ? "por día" : "por producto"}`,
+    user ? `Generado por ${user.firstName} ${user.lastName} el ${dateOnly(todayIso())}` : `Generado el ${dateOnly(todayIso())}`,
+    `Contado ${money(report.cashTotal)} · crédito ${money(report.creditTotal)} · ventas anuladas no incluidas`,
+  ];
   if (report.groupBy === "day") {
     const rows = report.rows as SalesReportDayRow[];
-    downloadCsv(
-      name,
-      ["Fecha", "Ventas", "Unidades", "Total"],
-      rows.map((r) => [r.date.slice(0, 10), r.salesCount, r.units, r.total]),
-    );
+    downloadXlsx(`${exportName(report)}.xlsx`, [
+      {
+        name: "Ventas por día",
+        title,
+        headers: ["Fecha", "Ventas", "Unidades", "Total"],
+        formats: ["text", "int", "int", "money"],
+        rows: rows.map((r) => [r.date.slice(0, 10), r.salesCount, r.units, r.total]),
+        footer: ["Total", report.salesCount, report.units, report.total],
+      },
+    ]);
   } else {
     const rows = report.rows as SalesReportProductRow[];
-    downloadCsv(
-      name,
-      ["Producto", "SKU", "Ventas", "Unidades", "Total"],
-      rows.map((r) => [r.productName, r.sku, r.salesCount, r.units, r.total]),
-    );
+    downloadXlsx(`${exportName(report)}.xlsx`, [
+      {
+        name: "Ventas por producto",
+        title,
+        headers: ["Producto", "SKU", "Ventas", "Unidades", "Total"],
+        formats: ["text", "text", "int", "int", "money"],
+        rows: rows.map((r) => [r.productName, r.sku, r.salesCount, r.units, r.total]),
+        footer: ["Total", "", report.salesCount, report.units, report.total],
+      },
+    ]);
   }
 };
 
@@ -99,13 +117,8 @@ export const SalesReportPanel = () => {
     <ReportPreview
       subtitle={`Reporte de ventas · ${dateOnly(from)} – ${dateOnly(to)} · ${groupLabel} · generado el ${dateOnly(todayIso())}`}
       filters={filters}
-      actions={
-        query.data && query.data.rows.length > 0 ? (
-          <Button variant="secondary" size="sm" onClick={() => exportCsv(query.data)}>
-            Exportar CSV
-          </Button>
-        ) : undefined
-      }
+      exportName={query.data && query.data.rows.length > 0 ? exportName(query.data) : undefined}
+      onExcel={query.data ? () => exportExcel(query.data, user) : undefined}
     >
       <QueryState query={query} empty={null}>
         {(report) => {

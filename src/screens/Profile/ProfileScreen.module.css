@@ -1,0 +1,122 @@
+.layout {
+  display: grid;
+  grid-template-columns: minmax(240px, 300px) minmax(0, 1fr);
+  gap: 14px;
+  align-items: start;
+}
+/* Tarjeta de identidad: superficie oscura, como la del prototipo. */
+.idCard {
+  position: sticky;
+  top: 84px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 28px 22px 22px;
+  border-radius: calc(var(--radius) + 6px);
+  border: 1px solid var(--dark-line);
+  background: radial-gradient(80% 60% at 50% 0%, rgba(45, 106, 79, 0.45), transparent 70%), var(--app-bg);
+  color: var(--dark-ink);
+  text-align: center;
+}
+.avatar {
+  width: 76px;
+  height: 76px;
+  border-radius: 20px;
+  display: grid;
+  place-items: center;
+  background: var(--sprout);
+  color: var(--sprout-ink);
+  font-family: var(--font-heading);
+  font-size: 30px;
+  font-weight: 500;
+  letter-spacing: -0.03em;
+  margin-bottom: 8px;
+}
+.name {
+  margin: 0;
+  color: var(--dark-ink);
+  font-family: var(--font-heading);
+  font-weight: 300;
+  font-size: 24px;
+  letter-spacing: -0.04em;
+  line-height: 1.1;
+}
+.handle {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--dark-ink-2);
+  margin-bottom: 4px;
+}
+.facts {
+  width: 100%;
+  margin: 18px 0 0;
+  padding-top: 16px;
+  border-top: 1px solid var(--dark-line);
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  text-align: left;
+}
+.facts dt {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--dark-muted);
+}
+.facts dd {
+  margin: 4px 0 0;
+  font-size: 13px;
+  color: var(--dark-ink);
+}
+.main,
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 0;
+}
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.note {
+  margin: 0;
+  font-size: 12px;
+  color: var(--muted);
+}
+.rules {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 18px;
+  font-size: 12px;
+  color: var(--muted);
+}
+.rules li {
+  display: inline-flex;
+  gap: 6px;
+  transition: color 0.2s ease;
+}
+.ruleOk {
+  color: var(--good);
+}
+.formFoot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+@media (max-width: 860px) {
+  .layout {
+    grid-template-columns: 1fr;
+  }
+  .idCard {
+    position: static;
+  }
+}

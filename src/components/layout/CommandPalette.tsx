@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
 import { useNavigate } from "react-router-dom";
-import { NAV_GROUPS, isLockedFor, type NavItem } from "@/router/navigation";
+import { ICONS, NAV_GROUPS, isLockedFor, type NavItem } from "@/router/navigation";
 import type { Role } from "@/types/api";
 import styles from "./CommandPalette.module.css";
 
@@ -16,7 +16,11 @@ export const CommandPalette = ({ open, onClose, role }: { open: boolean; onClose
   const inputRef = useRef<HTMLInputElement>(null);
 
   const entries = useMemo<Entry[]>(
-    () => NAV_GROUPS.flatMap((g) => g.items.filter((i) => i.roles.includes(role) && !isLockedFor(i, role)).map((i) => ({ ...i, group: g.title ?? "General" }))),
+    () => [
+      ...NAV_GROUPS.flatMap((g) => g.items.filter((i) => i.roles.includes(role) && !isLockedFor(i, role)).map((i) => ({ ...i, group: g.title ?? "General" }))),
+      // Mi perfil no está en el menú lateral, pero se puede buscar (también como "contraseña").
+      { path: "/perfil", label: "Mi perfil", icon: ICONS.users, roles: [role], group: "Su cuenta · contraseña" },
+    ],
     [role],
   );
   const results = useMemo(() => {

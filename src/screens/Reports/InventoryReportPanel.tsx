@@ -2,10 +2,11 @@ import { useState } from "react";
 import { useInventoryReport } from "@/hooks/reports";
 import { ROLE_LABELS, useSessionStore } from "@/stores/session";
 import { dateOnly, dateTime, int, money, moneyCompact, todayIso } from "@/lib/format";
-import { Button, Chips, DataTable, EmptyState, QueryState, type Column } from "@/components/ui";
+import { Chips, DataTable, EmptyState, QueryState, type Column } from "@/components/ui";
 import { VBarChart } from "@/components/charts";
 import type { BatchAggregate, InventoryReport } from "@/types/api";
-import { downloadCsv } from "./csv";
+import { downloadXlsx } from "@/lib/xlsx";
+import type { User } from "@/types/api";
 import { ReportPreview } from "./ReportPreview";
 import { ReportPaper } from "./ReportPaper";
 import { PaperBlock } from "./PaperBlock";
@@ -31,12 +32,31 @@ const aggregateColumns: Column<AggregateRow>[] = [
   { key: "costValue", header: "Valor al costo", align: "right", render: (r) => money(r.data.costValue) },
 ];
 
-const exportCsv = (report: InventoryReport) =>
-  downloadCsv(
-    `inventario_${report.asOf.slice(0, 10)}.csv`,
-    ["Categoría", "Productos", "Unidades", "Valor al costo", "Valor a precio de venta"],
-    report.byCategory.map((r) => [r.categoryName, r.products, r.units, r.costValue, r.saleValue]),
-  );
+const exportExcel = (report: InventoryReport, user: User | null) =>
+  downloadXlsx(`inventario_${report.asOf.slice(0, 10)}.xlsx`, [
+    {
+      name: "Inventario por categoría",
+      title: [
+        "Agropecuaria Mi Tierrita · Reporte de inventario",
+        `Corte al ${dateOnly(report.asOf)} · lotes por vencer a ${report.expiringDays} días`,
+        user ? `Generado por ${user.firstName} ${user.lastName} el ${dateOnly(todayIso())}` : `Generado el ${dateOnly(todayIso())}`,
+      ],
+      headers: ["Categoría", "Productos", "Unidades", "Valor al costo", "Valor a precio de venta"],
+      formats: ["text", "int", "int", "money", "money"],
+      rows: report.byCategory.map((r) => [r.categoryName, r.products, r.units, r.costValue, r.saleValue]),
+      footer: ["Total", report.products, report.units, report.costValue, report.saleValue],
+    },
+    {
+      name: "Lotes",
+      headers: ["Lotes", "Cantidad de lotes", "Unidades", "Valor al costo"],
+      formats: ["text", "int", "int", "money"],
+      rows: [
+        [`Por vencer (${report.expiringDays} días)`, report.expiringSoon.batches, report.expiringSoon.units, report.expiringSoon.costValue],
+        ["Vencidos con unidades", report.expired.batches, report.expired.units, report.expired.costValue],
+        ["Productos agotados", report.outOfStock, null, null],
+      ],
+    },
+  ]);
 
 /** CU-20 Reporte de inventario (solo ADMIN). */
 export const InventoryReportPanel = () => {
@@ -55,13 +75,8 @@ export const InventoryReportPanel = () => {
     <ReportPreview
       subtitle={`Reporte de inventario · lotes por vencer a ${int(days)} días · generado el ${dateOnly(todayIso())}`}
       filters={filters}
-      actions={
-        query.data && query.data.byCategory.length > 0 ? (
-          <Button variant="secondary" size="sm" onClick={() => exportCsv(query.data)}>
-            Exportar CSV
-          </Button>
-        ) : undefined
-      }
+      exportName={query.data && query.data.byCategory.length > 0 ? `inventario_${query.data.asOf.slice(0, 10)}` : undefined}
+      onExcel={query.data ? () => exportExcel(query.data, user) : undefined}
     >
       <QueryState query={query} isEmpty={(r) => r.products === 0} empty={<EmptyState title="Sin productos registrados" text="Registre productos y compras en Inventario para ver el valor del stock." />}>
         {(report) => {

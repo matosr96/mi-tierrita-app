@@ -416,17 +416,6 @@
   border-color: var(--warn);
   animation-duration: 0.9s;
 }
-.dot {
-  position: absolute;
-  top: 7px;
-  right: 8px;
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: var(--accent);
-  border: 1.5px solid var(--surface);
-  animation: pop 0.5s var(--ease-spring) backwards;
-}
 .user {
   display: flex;
   align-items: center;
@@ -820,4 +809,13 @@
   .content > .pageHead {
     animation: none !important;
   }
+}
+/* El usuario de la barra superior abre Mi perfil. */
+a.user {
+  color: inherit;
+  text-decoration: none;
+  border-radius: 0 10px 10px 0;
+}
+a.user:hover .userName {
+  color: var(--forest);
 }

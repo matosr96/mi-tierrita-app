@@ -82,6 +82,19 @@ highlightX), `TornadoChart` (data[{label, low, high}], base, format). Encabezado
 acciones) y `BrandMark` de `@/components/layout/AppShell`. Botones en píldora con rótulo que rueda al pasar
 el cursor: `primary` verde bosque que se rellena de lima, `secondary` con borde que se rellena de tinta.
 
+## Exportes, notificaciones y perfil
+
+- **PDF**: `printElement(el, nombre)` de `@/lib/print` copia el documento a `#print-root` y abre el diálogo de
+  impresión (el usuario elige «Guardar como PDF»); las reglas `@media print` están en `global.css`. Los reportes
+  imprimen su `ReportPaper`; Finanzas imprime una hoja oculta del escenario (`ScenarioExport`).
+- **Excel**: `downloadXlsx(nombre, hojas)` de `@/lib/xlsx` arma un .xlsx real sin dependencias (encabezado del
+  documento, formatos `int`/`money`/`pct`/`decimal`, fila de totales). Solo serializa lo que devolvió la API.
+- **Notificaciones**: la campana (`NotificationsMenu`) muestra los pendientes del Inicio de cada rol
+  (`useNotifications`, misma caché que el Inicio); lo leído se guarda en `useNotificationsStore` (este navegador).
+- **Mi perfil** (`/perfil`, `/perfil/seguridad`, `/perfil/actividad`): cualquier rol, fuera del menú; se abre desde el
+  usuario de la barra superior o con ⌘K. Los datos son de solo lectura (la API no permite editarlos); la contraseña
+  se cambia con `useChangePassword`; "Mi actividad" usa la auditoría (administrador) o las ventas propias (secretaria).
+
 ## Página pública (`src/screens/Landing`)
 
 Ruta pública `/sitio`; `/` sin sesión también la muestra (ver `RequireSession`). Se carga en su propio paquete

@@ -2,9 +2,10 @@ import { useState } from "react";
 import { useReceivablesReport } from "@/hooks/reports";
 import { ROLE_LABELS, useSessionStore } from "@/stores/session";
 import { dateOnly, dateTime, int, money, todayIso } from "@/lib/format";
-import { Badge, Button, Chips, DataTable, EmptyState, QueryState, type Column } from "@/components/ui";
+import { Badge, Chips, DataTable, EmptyState, QueryState, type Column } from "@/components/ui";
 import type { ReceivableRow, ReceivablesReport } from "@/types/api";
-import { downloadCsv } from "./csv";
+import { downloadXlsx } from "@/lib/xlsx";
+import type { User } from "@/types/api";
 import { ReportPreview } from "./ReportPreview";
 import { ReportPaper } from "./ReportPaper";
 import { PaperBlock } from "./PaperBlock";
@@ -21,12 +22,21 @@ const columns: Column<ReceivableRow>[] = [
   { key: "overdue", header: "Estado", align: "left", render: (r) => <Badge tone={r.overdue ? "bad" : "good"}>{r.overdue ? "Vencida" : "Al día"}</Badge> },
 ];
 
-const exportCsv = (report: ReceivablesReport) =>
-  downloadCsv(
-    `cartera_${report.overdueDays}-dias.csv`,
-    ["Cliente", "Cupo", "Saldo", "Última venta a crédito", "Último abono", "Estado"],
-    report.items.map((r) => [r.name, r.creditLimit, r.balance, r.lastCreditSaleAt ?? "", r.lastPaymentAt ?? "", r.overdue ? "Vencida" : "Al día"]),
-  );
+const exportExcel = (report: ReceivablesReport, user: User | null) =>
+  downloadXlsx(`cartera_${report.overdueDays}-dias.xlsx`, [
+    {
+      name: "Cartera",
+      title: [
+        "Agropecuaria Mi Tierrita · Reporte de cartera",
+        `Vencida a partir de ${report.overdueDays} días sin abonos · ${report.overdueCustomers} clientes con cartera vencida por ${money(report.overdueBalance)}`,
+        user ? `Generado por ${user.firstName} ${user.lastName} el ${dateOnly(todayIso())}` : `Generado el ${dateOnly(todayIso())}`,
+      ],
+      headers: ["Cliente", "Cupo", "Saldo", "Última venta a crédito", "Último abono", "Estado"],
+      formats: ["text", "money", "money", "text", "text", "text"],
+      rows: report.items.map((r) => [r.name, r.creditLimit, r.balance, dateTime(r.lastCreditSaleAt), dateTime(r.lastPaymentAt), r.overdue ? "Vencida" : "Al día"]),
+      footer: ["Total por cobrar", null, report.totalBalance, null, null, null],
+    },
+  ]);
 
 /** CU-20 Reporte de cartera (solo ADMIN). */
 export const ReceivablesReportPanel = () => {
@@ -46,13 +56,8 @@ export const ReceivablesReportPanel = () => {
     <ReportPreview
       subtitle={`Reporte de cartera · vencida a ${int(overdueDays)} días · generado el ${dateOnly(todayIso())}`}
       filters={filters}
-      actions={
-        query.data && query.data.items.length > 0 ? (
-          <Button variant="secondary" size="sm" onClick={() => exportCsv(query.data)}>
-            Exportar CSV
-          </Button>
-        ) : undefined
-      }
+      exportName={query.data && query.data.items.length > 0 ? `cartera_${query.data.overdueDays}-dias` : undefined}
+      onExcel={query.data ? () => exportExcel(query.data, user) : undefined}
     >
       <QueryState query={query} empty={null}>
         {(report) => (

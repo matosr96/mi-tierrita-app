@@ -171,3 +171,37 @@ table {
     scroll-behavior: auto !important;
   }
 }
+
+/* Impresión de un documento (lib/print.ts): solo el contenedor #print-root, en papel blanco y sin animaciones. */
+#print-root {
+  display: none;
+}
+@media print {
+  @page {
+    size: A4;
+    margin: 12mm;
+  }
+  html[data-printing] body > :not(#print-root) {
+    display: none !important;
+  }
+  html[data-printing] #print-root {
+    display: block;
+  }
+  html[data-printing],
+  html[data-printing] body {
+    background: #fff !important;
+  }
+  #print-root * {
+    animation: none !important;
+    transition: none !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  #print-root > * {
+    margin: 0 !important;
+    box-shadow: none !important;
+    transform: none !important;
+    max-width: none !important;
+    width: 100% !important;
+  }
+}

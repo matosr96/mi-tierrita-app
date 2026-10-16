@@ -143,21 +143,6 @@
 .termActions:empty {
   display: none;
 }
-.reportLink {
-  padding: 10px 20px;
-  border-radius: 999px;
-  transition: background 0.3s var(--ease-out), color 0.3s var(--ease-out);
-  background: var(--sprout);
-  color: var(--sprout-ink);
-  text-decoration: none;
-  font-size: 13px;
-  font-weight: 500;
-  white-space: nowrap;
-}
-.reportLink:hover {
-  background: var(--dark-ink);
-  color: var(--app-bg);
-}
 
 /* Selector de escenario: letras de la comparación como teclas de un terminal. */
 .selector {
@@ -1011,4 +996,8 @@
     margin-left: 0;
     text-align: left;
   }
+}
+/* Hoja del escenario para imprimir (ScenarioExport): fuera de la pantalla, solo la usa el diálogo de impresión. */
+.printOnly {
+  display: none;
 }

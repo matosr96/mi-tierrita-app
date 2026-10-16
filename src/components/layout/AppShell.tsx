@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
-import { NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
+import { Link, NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { useIsFetching } from "@tanstack/react-query";
 import { useSessionStore, ROLE_LABELS } from "@/stores/session";
 import { useUiStore } from "@/stores/ui";
@@ -10,6 +10,7 @@ import { initials } from "@/lib/format";
 import { Toasts } from "@/components/ui";
 import { SplitText, TopoField } from "@/components/motion";
 import { useNavBadges } from "./useNavBadges";
+import { NotificationsMenu } from "./NotificationsMenu";
 import { CommandPalette } from "./CommandPalette";
 import styles from "./AppShell.module.css";
 
@@ -98,7 +99,6 @@ export const AppShell = () => {
   }, [measure]);
 
   if (!user) return null;
-  const attention = (badges.inventory ?? 0) + (badges.batches ?? 0) + (badges.customers ?? 0) > 0;
   let order = 0;
 
   return (
@@ -176,7 +176,7 @@ export const AppShell = () => {
             <a href="/" onClick={(e) => { e.preventDefault(); navigate("/"); }}>Mi Tierrita</a>
             <Chevron />
             <strong aria-current="page" key={current?.path ?? "/"}>
-              {current?.label ?? "Inicio"}
+              {current?.label ?? (location.pathname.startsWith("/perfil") ? "Mi perfil" : "Inicio")}
             </strong>
             <span id="crumb-slot" style={{ display: "contents" }} />
           </nav>
@@ -204,15 +204,9 @@ export const AppShell = () => {
               )}
             </svg>
           </button>
-          <button type="button" className={styles.iconBtn} aria-label="Notificaciones" onClick={() => navigate("/")}>
-            <svg width="18" height="18" viewBox="0 0 20 20" fill="none" aria-hidden="true">
-              <path d="M10 2.5 a4.8 4.8 0 0 1 4.8 4.8 v3.2 l1.4 2.4 h-12.4 l1.4 -2.4 v-3.2 A4.8 4.8 0 0 1 10 2.5 z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" />
-              <path d="M8.2 15.6 a1.9 1.9 0 0 0 3.6 0" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-            </svg>
-            {attention ? <span className={styles.dot} /> : null}
-          </button>
+          <NotificationsMenu />
           <span className={styles.readProgress} aria-hidden="true" />
-          <div className={styles.user}>
+          <Link to="/perfil" className={styles.user} title="Mi perfil">
             <div className={styles.avatar}>{initials(user.firstName, user.lastName)}</div>
             <div>
               <div className={styles.userName}>
@@ -220,7 +214,7 @@ export const AppShell = () => {
               </div>
               <div className={styles.userRole}>{ROLE_LABELS[user.role]}</div>
             </div>
-          </div>
+          </Link>
         </header>
         <main className={styles.content} key={pageKey} ref={mainRef}>
           <Outlet />

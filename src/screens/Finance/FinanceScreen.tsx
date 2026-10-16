@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { useScenario, useScenarios } from "@/hooks/financial";
 import type { ScenarioDetail } from "@/types/api";
 import { Odometer, SplitText } from "@/components/motion";
@@ -8,6 +8,7 @@ import { dateOnly, money, moneyCompact, pct, times } from "@/lib/format";
 import { DecisionPanel } from "./DecisionPanel";
 import { AssumptionsPanel } from "./AssumptionsPanel";
 import { ScenariosPanel } from "./ScenariosPanel";
+import { ScenarioExport } from "./ScenarioExport";
 import { CashFlowPanel } from "./CashFlowPanel";
 import { ScenarioFormModal } from "./ScenarioFormModal";
 import { FinanceTabs, type FinanceTabOption } from "./FinanceTabs";
@@ -67,16 +68,12 @@ export const FinanceScreen = () => {
 
   const actions = () => {
     if (!selected) return null;
-    if (tab === "panel") {
-      return (
-        <Link to="/reportes" className={styles.reportLink}>
-          Reporte
-        </Link>
-      );
-    }
+    const exportButtons = detail.data ? <ScenarioExport scenario={detail.data} letter={selectedLetter ?? "A"} /> : null;
+    if (tab === "panel" || tab === "flujo") return exportButtons;
     if (tab === "supuestos" || tab === "escenarios") {
       return (
         <>
+          {exportButtons}
           <Button variant="secondary" onClick={openDuplicate} disabled={!detail.data}>
             {tab === "supuestos" ? "Nuevo escenario a partir de este" : "Duplicar escenario"}
           </Button>
