@@ -60,21 +60,24 @@ align, render, width}], rows, rowKey, onRowClick, footer) · `Loading`, `EmptySt
 `StatCard` pasa los valores de texto con dígitos por `Odometer`; `DataTable` escalona la entrada de filas.
 Movimiento en `@/components/motion`: `Reveal` (aparece al entrar en pantalla), `SplitText` (titular por
 palabras; `*x*` serif cursiva, `\n` salto), `Odometer` (rodillos por dígito), `Preloader` (intro 0→100 %,
-una vez por sesión), `TopoField` (curvas de nivel animadas para superficies oscuras), `TerrainField` (terreno 3D en malla de alambre del login, WebGL a mano: fases `idle`/`leaving` y `alert` para el
+una vez por sesión), `TopoField` (curvas de nivel que se dibujan una vez, para superficies oscuras), `TerrainField` (terreno 3D en malla de alambre del login, WebGL a mano: fases `idle`/`leaving` y `alert` para el
 escaneo rojo), `ShaderField` (fondo vivo en
 WebGL con los colores del tema; se pausa fuera de la vista), `PhotoBackdrop` (fotos en duotono con zoom lento;
 las rutas van en `src/lib/media.ts` y los archivos en `public/media/`), `trackSpotlight`
 (brillo que sigue al cursor; ya lo usan `Card` y `StatCard`), `useInView`. En `@/components/layout`:
 `HeroHeader` (portada oscura de Inicio: eyebrow, titular, subtítulo, acciones y `aside`) y `CommandPalette`
 (⌘K / Ctrl+K, montada en el shell). `RedirectIfSession` solo redirige si ya había sesión al llegar al login,
-para que la salida animada del login termine antes de navegar. El shell revela al hacer scroll todo `section` o `[data-reveal-item]`
-que monta fuera de la vista, y las `NavLink` usan View Transitions (`view-transition-name: page`).
+para que la salida animada del login termine antes de navegar. Dentro de la app el movimiento es breve y de una sola vez
+(entradas ≤ 0,5 s, sin bucles decorativos ni WebGL: `ShaderField` y `PhotoBackdrop` quedan solo para superficies
+públicas); los únicos bucles permitidos señalan algo (alerta en rojo, estado en línea, cargando). Las `NavLink` usan
+View Transitions cortas (`view-transition-name: page`).
 Efectos ligados al scroll con CSS nativo (`animation-timeline: scroll()/view()`) siempre dentro de
 `@supports` y anulados con `prefers-reduced-motion`. La portada de Inicio responde "¿está todo bien?":
 `statusTitle` + `StatusAside` a partir de los pendientes de `screens/Home/attention.ts`.
 Superficies oscuras dentro del panel claro (héroe, ticket del punto de venta, tarjeta de decisión)
 reutilizan el kit redefiniendo `--ink`, `--surface`, `--line`… y `--btn-invert` en su contenedor. Gráficos SVG en `@/components/charts`:
-`HBarChart`, `VBarChart` ({label, value, alt}[], format), `LineChart` (points, formatX, formatY, marker,
+`HBarChart`, `VBarChart` ({label, value, alt}[], format; `alt` pinta la barra en naranja), `DonutChart` (data[{label,
+value, tone}], format, center, centerLabel), `Sparkline` (values; también vía `StatCard trend`), `LineChart` (points, formatX, formatY, marker,
 highlightX), `TornadoChart` (data[{label, low, high}], base, format). Encabezado de página: `PageHeader` (microetiqueta numerada según la ruta + h1 con `SplitText` + subtítulo +
 acciones) y `BrandMark` de `@/components/layout/AppShell`. Botones en píldora con rótulo que rueda al pasar
 el cursor: `primary` verde bosque que se rellena de lima, `secondary` con borde que se rellena de tinta.

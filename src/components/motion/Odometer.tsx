@@ -30,7 +30,7 @@ export const Odometer = ({ value }: { value: string }) => {
         const n = Number(c);
         return (
           <span key={`d${key}`} className={styles.digit} aria-hidden="true">
-            <span className={styles.strip} style={{ transform: `translateY(${armed ? -n * 10 : 0}%)`, "--delay": `${i * 35}ms` } as CSSProperties}>
+            <span className={styles.strip} style={{ transform: `translateY(${armed ? -n * 10 : 0}%)`, "--delay": `${i * 18}ms` } as CSSProperties}>
               {DIGITS.map((d) => (
                 <span key={d}>{d}</span>
               ))}

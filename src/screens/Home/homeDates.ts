@@ -34,3 +34,18 @@ export const statusSubtitle = (firstName: string): string => `${greeting()}, ${f
 
 /** Lleva la vista hasta el bloque de pendientes. */
 export const scrollToPending = () => document.getElementById("pendientes")?.scrollIntoView({ behavior: "smooth", block: "center" });
+
+/** Mismo corte del mes anterior (del 1 al mismo día, o al último si el mes es más corto), para comparar. */
+export const previousMonthCut = (todayIso: string): { from: string; to: string } => {
+  const [y, m, d] = todayIso.split("-").map(Number) as [number, number, number];
+  const prev = new Date(y, m - 2, 1);
+  const last = new Date(prev.getFullYear(), prev.getMonth() + 1, 0).getDate();
+  const ym = `${prev.getFullYear()}-${String(prev.getMonth() + 1).padStart(2, "0")}`;
+  return { from: `${ym}-01`, to: `${ym}-${String(Math.min(d, last)).padStart(2, "0")}` };
+};
+
+/** "9 oct" a partir de "2026-10-09", para ejes de fechas. */
+export const shortDay = (iso: string): string => {
+  const d = new Date(`${iso}T12:00:00`);
+  return `${d.getDate()} ${d.toLocaleDateString("es-CO", { month: "short" }).replace(".", "")}`;
+};

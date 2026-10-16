@@ -340,7 +340,6 @@
 }
 .statusMore span {
   display: inline-block;
-  animation: nudge 1.6s var(--ease-in-out) infinite;
 }
 .statusMonth {
   display: flex;
@@ -399,20 +398,6 @@
   }
 }
 
-@supports (animation-timeline: view()) {
-  .decisionTopo {
-    animation: decisionSpin linear both;
-    animation-timeline: view();
-  }
-}
-@keyframes decisionSpin {
-  from {
-    transform: rotate(-12deg) scale(0.95);
-  }
-  to {
-    transform: rotate(18deg) scale(1.08);
-  }
-}
 @media (prefers-reduced-motion: reduce) {
   .decisionTopo {
     animation: none !important;

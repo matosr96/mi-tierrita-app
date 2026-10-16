@@ -37,7 +37,6 @@
   color: var(--bad-tag-fg);
 }
 .bad .dot {
-  animation: pulse 1.8s var(--ease-out) infinite;
 }
 @keyframes pulse {
   0% {

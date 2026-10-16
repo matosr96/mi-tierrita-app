@@ -125,7 +125,6 @@
   inset: -1px;
   border-radius: 50%;
   border: 1px solid var(--k);
-  animation: ping 2.2s var(--ease-out) infinite;
 }
 
 .line {

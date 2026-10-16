@@ -20,7 +20,6 @@
   margin: 0 auto 22px;
   color: var(--ink-2);
   border: 1px solid var(--line);
-  animation: float 4s var(--ease-in-out) infinite alternate;
 }
 @keyframes float {
   to {

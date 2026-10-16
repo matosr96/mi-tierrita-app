@@ -4,6 +4,7 @@ import { HeroHeader } from "@/components/layout/HeroHeader";
 import { Button, Card, DataTable, EmptyState, QueryState, StatGrid, type Column } from "@/components/ui";
 import { useExpiringBatches } from "@/hooks/batches";
 import { useProducts } from "@/hooks/products";
+import { HBarChart } from "@/components/charts";
 import { dateOnly, int, longToday } from "@/lib/format";
 import type { Product, ProductBatch, User } from "@/types/api";
 import { ExpiryBadge } from "@/screens/Batches/ExpiryBadge";
@@ -66,6 +67,38 @@ export const WarehouseHome = ({ user }: { user: User }) => {
         <QueryStat query={expiring} label="Lotes vencidos" value={(p) => int(expired(p.items))} hint={(p) => (expired(p.items) > 0 ? "retirar del estante" : "ninguno en bodega")} tone={(p) => (expired(p.items) > 0 ? "bad" : "good")} />
         <QueryStat query={products} label="Productos activos" value={(p) => int(p.count)} hint={() => "en el catálogo"} />
       </StatGrid>
+
+      <div className={styles.gridEven}>
+        <Card title="Existencias más bajas" subtitle={`Unidades en bodega · en naranja, menos de ${LOW_STOCK}`}>
+          <QueryState query={products} isEmpty={(p) => p.items.length === 0} empty={<EmptyState title="Sin productos activos" />}>
+            {(page) => {
+              const low = [...page.items].sort((a, b) => a.stock - b.stock).slice(0, 7);
+              return <HBarChart data={low.map((p) => ({ label: p.name, value: p.stock, alt: p.stock < LOW_STOCK }))} format={(v) => `${int(v)} u`} title="Productos con menos existencias" />;
+            }}
+          </QueryState>
+        </Card>
+        <Card title="Cuánto les queda a los lotes" subtitle={`Días para vencer · próximos ${EXPIRING_DAYS} días`}>
+          <QueryState
+            query={expiring}
+            isEmpty={(p) => p.items.every((b) => b.expired)}
+            empty={<EmptyState title="Ningún lote vence pronto" text={`No hay lotes que venzan en los próximos ${EXPIRING_DAYS} días.`} />}
+          >
+            {(page) => {
+              const soon = page.items.filter((b) => !b.expired).sort((a, b) => a.daysToExpire - b.daysToExpire).slice(0, 7);
+              return (
+                <>
+                  <HBarChart
+                    data={soon.map((b) => ({ label: `${b.productName} · #${b.id}`, value: b.daysToExpire, alt: b.daysToExpire <= 7 }))}
+                    format={(v) => `${int(v)} d`}
+                    title="Días para vencer de los lotes más próximos"
+                  />
+                  <p className={styles.note}>En naranja, los que vencen esta semana: van al frente del estante.</p>
+                </>
+              );
+            }}
+          </QueryState>
+        </Card>
+      </div>
 
       <div className={styles.gridEven}>
         <div id="pendientes">

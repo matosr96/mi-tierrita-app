@@ -28,7 +28,7 @@ const parse = (text: string): Word[] => {
 };
 
 /** Titular editorial: cada palabra sube desde detrás de una máscara, una tras otra. */
-export const SplitText = ({ text, delay = 0, stagger = 55, className }: Props) => {
+export const SplitText = ({ text, delay = 0, stagger = 30, className }: Props) => {
   const words = parse(text);
   return (
     <span className={[styles.split, className ?? ""].join(" ")} aria-label={text.replace(/\*/g, "").replace(/\n/g, " ")}>

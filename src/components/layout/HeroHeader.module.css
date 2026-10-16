@@ -24,12 +24,6 @@
   border: 1px solid var(--dark-line);
   box-shadow: 0 30px 60px -36px rgba(4, 12, 8, 0.7);
 }
-.shader,
-.photos {
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-}
 .topo {
   position: absolute;
   z-index: -1;
@@ -43,8 +37,7 @@
   position: absolute;
   inset: 0;
   z-index: -1;
-  background: radial-gradient(380px circle at var(--mx, 70%) var(--my, 40%), rgba(185, 236, 111, 0.1), transparent 70%),
-    radial-gradient(50% 80% at 80% 50%, rgba(45, 106, 79, 0.45), transparent 70%),
+  background: radial-gradient(50% 80% at 80% 50%, rgba(45, 106, 79, 0.45), transparent 70%),
     linear-gradient(90deg, rgba(7, 17, 12, 0.95) 0%, rgba(7, 17, 12, 0.6) 45%, transparent 80%);
 }
 .corner {

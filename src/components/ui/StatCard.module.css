@@ -154,3 +154,7 @@
 .card:hover::after {
   opacity: 1;
 }
+.trend {
+  margin: -10px 0 -10px auto;
+  opacity: 0.9;
+}

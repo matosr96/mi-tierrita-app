@@ -143,7 +143,6 @@
 .statusOn .statusDot {
   background: var(--good);
   box-shadow: 0 0 0 3px var(--good-soft);
-  animation: pulse 2.4s var(--ease-in-out) infinite;
 }
 
 /* Línea perforada con muescas a los lados, como un talonario. */

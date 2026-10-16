@@ -14,7 +14,6 @@
   background: radial-gradient(60% 50% at 0% 0%, rgba(45, 106, 79, 0.32), transparent 70%),
     radial-gradient(40% 40% at 10% 100%, rgba(185, 236, 111, 0.07), transparent 70%);
   pointer-events: none;
-  animation: breathe 12s var(--ease-in-out) infinite alternate;
 }
 
 /* ---------- barra de progreso de red ---------- */
@@ -304,14 +303,14 @@
   overflow: clip;
   background: var(--ground);
   box-shadow: var(--shadow-panel);
-  animation: panelIn 1s var(--ease-out) backwards;
+  animation: panelIn 0.5s var(--ease-out) backwards;
 }
 .topbar {
   height: 60px;
   flex-shrink: 0;
   background: var(--glass);
-  backdrop-filter: saturate(1.6) blur(18px);
-  -webkit-backdrop-filter: saturate(1.6) blur(18px);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
   border-bottom: 1px solid var(--line);
   display: flex;
   align-items: center;
@@ -473,22 +472,13 @@
 }
 /* Entrada escalonada de cada bloque de la pantalla. */
 .content > * {
-  animation: blockIn 0.85s var(--ease-out) backwards;
+  animation: blockIn 0.45s var(--ease-out) backwards;
 }
 .content > :nth-child(2) {
+  animation-delay: 0.04s;
+}
+.content > :nth-child(n + 3) {
   animation-delay: 0.08s;
-}
-.content > :nth-child(3) {
-  animation-delay: 0.16s;
-}
-.content > :nth-child(4) {
-  animation-delay: 0.24s;
-}
-.content > :nth-child(5) {
-  animation-delay: 0.32s;
-}
-.content > :nth-child(n + 6) {
-  animation-delay: 0.4s;
 }
 
 /* ---------- encabezado de página: banda oscura ---------- */
@@ -522,11 +512,6 @@
   box-shadow: 0 26px 50px -34px rgba(4, 12, 8, 0.7);
   margin-bottom: 4px;
 }
-.bandShader {
-  position: absolute;
-  inset: 0;
-  z-index: -2;
-}
 .bandTopo {
   position: absolute;
   z-index: -1;
@@ -541,8 +526,8 @@
   position: absolute;
   inset: 0;
   z-index: -1;
-  background: radial-gradient(360px circle at var(--mx, 75%) var(--my, 40%), rgba(185, 236, 111, 0.09), transparent 70%),
-    linear-gradient(90deg, rgba(7, 17, 12, 0.92) 0%, rgba(7, 17, 12, 0.55) 50%, transparent 85%);
+  background: radial-gradient(60% 140% at 85% 20%, rgba(45, 106, 79, 0.5), transparent 70%),
+    radial-gradient(30% 60% at 70% 100%, rgba(185, 236, 111, 0.06), transparent 70%);
   pointer-events: none;
 }
 .bandTop {
@@ -676,12 +661,6 @@
     background-position: 140% 0;
   }
 }
-@keyframes breathe {
-  to {
-    opacity: 0.6;
-    transform: scale(1.1);
-  }
-}
 
 @media (max-width: 900px) {
   .nav {
@@ -755,16 +734,6 @@
   view-transition-name: page;
 }
 
-/* ---------- revelado al hacer scroll ---------- */
-.content :global([data-reveal="pending"]) {
-  opacity: 0;
-  transform: translateY(42px) scale(0.985);
-  filter: blur(8px);
-}
-.content :global([data-reveal="in"]) {
-  transition: opacity 0.9s var(--ease-out), transform 1.1s var(--ease-out), filter 0.9s var(--ease-out), border-color 0.4s ease,
-    box-shadow 0.5s var(--ease-out);
-}
 
 /* ---------- acceso a la paleta de comandos ---------- */
 .search {

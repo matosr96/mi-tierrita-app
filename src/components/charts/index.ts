@@ -4,3 +4,5 @@ export * from "./TornadoChart";
 export * from "./ChartFrame";
 export * from "./ChartCrosshair";
 export * from "./useChartHover";
+export * from "./DonutChart";
+export * from "./Sparkline";

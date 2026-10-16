@@ -4,11 +4,12 @@ import { Button, Card, DataTable, EmptyState, QueryState, StatGrid, type Column 
 import { useCustomers } from "@/hooks/customers";
 import { useSalesReport } from "@/hooks/reports";
 import { useSales } from "@/hooks/sales";
-import { int, longToday, money, moneyCompact, todayIso } from "@/lib/format";
-import type { Sale, User } from "@/types/api";
+import { DonutChart, VBarChart } from "@/components/charts";
+import { addDaysIso, int, longToday, money, moneyCompact, todayIso } from "@/lib/format";
+import type { Sale, SalesReportDayRow, User } from "@/types/api";
 import { QueryStat } from "./QueryStat";
 import { AttentionList } from "./AttentionList";
-import { scrollToPending, statusTitle, timeOnly } from "./homeDates";
+import { scrollToPending, shortDay, statusTitle, timeOnly } from "./homeDates";
 import { pendingItems } from "./attention";
 import { StatusAside } from "./StatusAside";
 import styles from "./HomeScreen.module.css";
@@ -27,6 +28,7 @@ export const SalesHome = ({ user }: { user: User }) => {
   const navigate = useNavigate();
   const today = todayIso();
   const sales = useSalesReport({ from: today, to: today, groupBy: "product" });
+  const week = useSalesReport({ from: addDaysIso(today, -6), to: today, groupBy: "day" });
   const customers = useCustomers({ withBalance: true, limit: 5 });
   const recent = useSales({ from: today, to: today, userId: user.id, limit: 5 });
   const attention = customers.isPending ? null : pendingItems(customers.data?.items ?? []);
@@ -55,6 +57,31 @@ export const SalesHome = ({ user }: { user: User }) => {
         <QueryStat query={sales} label="Crédito hoy" value={(r) => moneyCompact(r.creditTotal)} hint={() => "por cobrar"} tone={(r) => (r.creditTotal > 0 ? "warn" : "neutral")} />
         <QueryStat query={customers} label="Clientes con saldo" value={(p) => int(p.count)} hint={() => "con cartera pendiente"} tone={(p) => (p.count > 0 ? "warn" : "neutral")} />
       </StatGrid>
+
+      <div className={styles.grid}>
+        <Card title="Últimos 7 días" subtitle="Vendido por día · pesos">
+          <QueryState query={week} isEmpty={(r) => r.rows.length === 0} empty={<EmptyState title="Sin ventas en la semana" text="Cada día con ventas aparecerá como una barra." />}>
+            {(report) => (
+              <VBarChart data={(report.rows as SalesReportDayRow[]).map((d) => ({ label: shortDay(d.date), value: d.total }))} format={moneyCompact} title="Ventas por día de la última semana" />
+            )}
+          </QueryState>
+        </Card>
+        <Card title="Hoy en caja" subtitle="Contado y crédito">
+          <QueryState query={sales} isEmpty={(r) => r.total === 0} empty={<EmptyState title="Aún no hay ventas hoy" />}>
+            {(report) => (
+              <DonutChart
+                data={[
+                  { label: "Contado", value: report.cashTotal, tone: "good" },
+                  { label: "Crédito", value: report.creditTotal, tone: "warn" },
+                ]}
+                format={moneyCompact}
+                center={moneyCompact(report.total)}
+                centerLabel="vendido hoy"
+              />
+            )}
+          </QueryState>
+        </Card>
+      </div>
 
       <div className={styles.gridEven}>
         <div id="pendientes">

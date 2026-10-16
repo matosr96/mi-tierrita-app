@@ -27,8 +27,8 @@
   padding-bottom: 8px;
 }
 .table tbody tr {
-  animation: rowIn 0.6s var(--ease-out) backwards;
-  animation-delay: calc(var(--row, 0) * 28ms + 80ms);
+  animation: rowIn 0.35s var(--ease-out) backwards;
+  animation-delay: calc(min(var(--row, 0), 8) * 18ms);
   transition: background 0.2s ease;
 }
 .table tbody tr:hover {

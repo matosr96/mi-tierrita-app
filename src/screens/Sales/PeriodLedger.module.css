@@ -68,7 +68,6 @@
   border-radius: 50%;
   background: var(--sprout);
   box-shadow: 0 0 10px var(--sprout);
-  animation: pulse 2.4s var(--ease-in-out) infinite;
 }
 .range {
   font-family: var(--font-mono);

@@ -59,7 +59,6 @@
   border-radius: 50%;
   background: radial-gradient(closest-side, color-mix(in srgb, var(--sprout) 18%, transparent), transparent);
   pointer-events: none;
-  animation: glowDrift 14s var(--ease-in-out) infinite alternate;
 }
 @keyframes termIn {
   from {
@@ -95,7 +94,6 @@
   border-radius: 50%;
   background: var(--sprout);
   box-shadow: 0 0 0 0 var(--sprout);
-  animation: livePulse 2.4s var(--ease-out) infinite;
 }
 @keyframes livePulse {
   0% {
@@ -774,7 +772,6 @@
 .beacon {
   transform-box: fill-box;
   transform-origin: center;
-  animation: beacon 2.4s var(--ease-out) 2s infinite;
 }
 .fadeDown {
   animation: fadeDown 0.8s var(--ease-out) 1s backwards;
@@ -796,7 +793,6 @@
   stroke-width: 1.5;
   transform-box: fill-box;
   transform-origin: center;
-  animation: halo 2.2s var(--ease-out) 2s infinite;
 }
 .zoneIn {
   animation: zoneIn 1.2s ease 0.6s backwards;

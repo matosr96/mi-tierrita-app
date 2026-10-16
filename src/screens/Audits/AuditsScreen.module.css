@@ -164,7 +164,6 @@
   line-height: 1;
   color: var(--sprout);
   margin-right: 6px;
-  animation: blink 1.2s steps(2, jump-none) infinite;
 }
 .cmdField {
   display: flex;
@@ -308,7 +307,6 @@ select.control option {
   width: 7px;
   height: 13px;
   background: var(--sprout);
-  animation: blink 1.05s steps(2, jump-none) infinite;
 }
 
 @keyframes termIn {

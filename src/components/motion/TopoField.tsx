@@ -25,23 +25,18 @@ const paths = (rings: number, seed: number) => {
 type Props = {
   className?: string;
   rings?: number;
-  /** Anillo que recorre la señal luminosa (o null para ninguno). */
+  /** Anillo resaltado (o null para ninguno). */
   signal?: number | null;
   /** Desfase de la forma, para que dos campos no se vean iguales. */
   seed?: number;
 };
 
-/** Curvas de nivel que se dibujan, giran despacio y una señal que recorre una de ellas. Decorativo. */
+/** Curvas de nivel que se dibujan una vez al montar; `signal` resalta uno de los anillos. Decorativo. */
 export const TopoField = ({ className, rings = 16, signal = 9, seed = 0 }: Props) => (
   <svg className={[styles.topo, className ?? ""].join(" ")} viewBox="0 0 1000 1000" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
     {paths(rings, seed).map((d, k) => (
       <g key={k} className={styles.ringGroup} style={{ "--k": k } as CSSProperties}>
         <path d={d} pathLength={1} className={[styles.ring, k === signal ? styles.ringHot : ""].join(" ")} />
-        {k === signal ? (
-          <circle r="4" className={styles.signal}>
-            <animateMotion dur="14s" repeatCount="indefinite" path={d} />
-          </circle>
-        ) : null}
       </g>
     ))}
   </svg>

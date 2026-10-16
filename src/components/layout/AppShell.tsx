@@ -8,9 +8,8 @@ import { useSignout } from "@/hooks/session";
 import { ALL_NAV_ITEMS, NAV_GROUPS, NAV_ICONS, findRoute, isLockedFor, isVisibleFor } from "@/router/navigation";
 import { initials } from "@/lib/format";
 import { Toasts } from "@/components/ui";
-import { ShaderField, SplitText, TopoField, trackSpotlight } from "@/components/motion";
+import { SplitText, TopoField } from "@/components/motion";
 import { useNavBadges } from "./useNavBadges";
-import { useScrollReveal } from "./useScrollReveal";
 import { CommandPalette } from "./CommandPalette";
 import styles from "./AppShell.module.css";
 
@@ -63,7 +62,6 @@ export const AppShell = () => {
   const current = findRoute(location.pathname);
   const pageKey = current?.path ?? location.pathname;
 
-  useScrollReveal(mainRef, pageKey);
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
@@ -242,15 +240,14 @@ const accentTitle = (title: string): string => {
   return `${words.slice(0, -1).join(" ")} *${words[words.length - 1]}*`;
 };
 
-/** Encabezado de página: banda oscura con fondo vivo, curvas de nivel propias de la sección, titular por palabras y acciones. */
+/** Encabezado de página: banda oscura con curvas de nivel propias de la sección, titular y acciones. */
 export const PageHeader = ({ title, subtitle, actions }: { title: string; subtitle?: string; actions?: ReactNode }) => {
   const location = useLocation();
   const route = findRoute(location.pathname);
   const index = route ? ALL_NAV_ITEMS.indexOf(route) + 1 : 0;
   const today = new Date().toLocaleDateString("es-CO", { weekday: "short", day: "numeric", month: "short" });
   return (
-    <div className={styles.pageHead} onPointerMove={trackSpotlight}>
-      <ShaderField className={styles.bandShader} intensity={0.55} />
+    <div className={styles.pageHead}>
       <TopoField className={styles.bandTopo} rings={12} signal={(index * 5) % 12} seed={index * 1.37} />
       <div className={styles.bandGlow} aria-hidden="true" />
       <div className={styles.bandTop}>

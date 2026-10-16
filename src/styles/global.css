@@ -133,10 +133,10 @@ table {
   animation: none;
 }
 ::view-transition-old(page) {
-  animation: page-out 0.38s var(--ease-in-out) both;
+  animation: page-out 0.16s ease-out both;
 }
 ::view-transition-new(page) {
-  animation: page-in 0.5s var(--ease-out) both;
+  animation: page-in 0.22s ease-out both;
 }
 /* Sin morfismo de tamaño: cada imagen conserva su alto y la vieja se desvanece encima. */
 ::view-transition-group(page) {
@@ -145,8 +145,7 @@ table {
 @keyframes page-out {
   to {
     opacity: 0;
-    transform: translateY(-24px) scale(0.99);
-    filter: blur(10px);
+    transform: translateY(-8px);
   }
 }
 @keyframes page-in {

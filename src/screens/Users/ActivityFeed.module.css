@@ -42,7 +42,6 @@
   inset: 0;
   border-radius: 50%;
   border: 1px solid var(--good);
-  animation: ping 1.8s var(--ease-out) infinite;
 }
 .title {
   font-family: var(--font-heading);
@@ -170,7 +169,6 @@
   inset: 0;
   border-radius: 50%;
   border: 1px solid var(--k);
-  animation: ping 1.8s var(--ease-out) infinite;
 }
 .body {
   min-width: 0;
