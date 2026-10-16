@@ -1,4 +1,3 @@
-import type { CSSProperties } from "react";
 import { ChartFrame, useChartHover } from "@/components/charts";
 import styles from "./FinanceScreen.module.css";
 
@@ -31,8 +30,8 @@ export const MonthlyBarsChart = ({ generates, installment, generatesLabel, insta
         <line x1="20" y1="130" x2="316" y2="130" className={styles.axis} strokeWidth="1" />
         <g className={styles.hoverItem} role="img" aria-label={`Genera: ${generatesLabel}`} {...hover.itemProps(0)}>
           <rect x="46" y="8" width="110" height="148" className={styles.hit} />
-          <rect x="66" y={130 - hGen} width="70" height={hGen} rx="4" className={[styles.fillGood, styles.growY].join(" ")} />
-          <text x="101" y={124 - hGen} textAnchor="middle" fontSize="12.5" fontWeight="600" className={[styles.textInk, styles.labelIn].join(" ")}>
+          <rect x="66" y={130 - hGen} width="70" height={hGen} rx="4" className={styles.fillGood} />
+          <text x="101" y={124 - hGen} textAnchor="middle" fontSize="12.5" fontWeight="600" className={styles.textInk}>
             {generatesLabel}
           </text>
           <text x="101" y="148" textAnchor="middle" fontSize="12" className={styles.textInk2}>
@@ -41,8 +40,8 @@ export const MonthlyBarsChart = ({ generates, installment, generatesLabel, insta
         </g>
         <g className={styles.hoverItem} role="img" aria-label={`Cuota: ${installmentLabel}`} {...hover.itemProps(1)}>
           <rect x="170" y="8" width="110" height="148" className={styles.hit} />
-          <rect x="190" y={130 - hCuo} width="70" height={hCuo} rx="4" className={[styles.fillAccent, styles.growY].join(" ")} style={{ "--i": 2 } as CSSProperties} />
-          <text x="225" y={124 - hCuo} textAnchor="middle" fontSize="12.5" fontWeight="600" className={[styles.textInk, styles.labelIn].join(" ")} style={{ "--i": 2 } as CSSProperties}>
+          <rect x="190" y={130 - hCuo} width="70" height={hCuo} rx="4" className={styles.fillAccent} />
+          <text x="225" y={124 - hCuo} textAnchor="middle" fontSize="12.5" fontWeight="600" className={styles.textInk}>
             {installmentLabel}
           </text>
           <text x="225" y="148" textAnchor="middle" fontSize="12" className={styles.textInk2}>

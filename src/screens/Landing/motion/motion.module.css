@@ -1,19 +1,19 @@
 /* ---------- Reveal ---------- */
 .reveal {
-  transition: opacity 0.9s var(--ease-out), transform 0.9s var(--ease-out), filter 0.9s var(--ease-out);
+  transition: opacity 0.9s var(--ease-out), transform 0.9s var(--ease-out);
   transition-delay: var(--delay, 0ms);
 }
+/* Sin desenfoque: sobre fondo blanco el blur se ve como una sombra gris. */
 .rise {
   opacity: 0;
   transform: translateY(26px);
-  filter: blur(6px);
 }
 .fade {
   opacity: 0;
 }
 .blur {
   opacity: 0;
-  filter: blur(14px);
+  transform: scale(0.98);
 }
 .scale {
   opacity: 0;
@@ -42,11 +42,7 @@
   animation-delay: var(--delay, 0ms);
 }
 .serif {
-  font-family: var(--font-serif);
-  font-style: italic;
-  font-weight: 400;
-  letter-spacing: -0.01em;
-  padding-right: 0.04em;
+  /* Acento del titular: misma letra, sin cursiva; solo cambia el color (--serif-color). */
   color: var(--serif-color, inherit);
 }
 @keyframes wordUp {

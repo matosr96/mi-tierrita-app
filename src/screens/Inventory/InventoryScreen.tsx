@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState, type MouseEvent } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { PageHeader } from "@/components/layout/AppShell";
 import { Badge, Button, Card, Checkbox, Chips, DataTable, EmptyState, Input, Modal, Pagination, QueryState, Tabs, type Column } from "@/components/ui";
 import { useCategories } from "@/hooks/categories";
@@ -15,8 +15,7 @@ import { ProductFormModal } from "./ProductFormModal";
 import { ProductBatchesModal } from "./ProductBatchesModal";
 import { CategoriesModal } from "./CategoriesModal";
 import { ProductMosaic } from "./ProductMosaic";
-import { stockStatus } from "./stockStatus";
-import { useProductMorph } from "./useProductMorph";
+import { expiredUnits, stockStatus } from "./stockStatus";
 import styles from "./InventoryScreen.module.css";
 
 const PAGE_SIZE = 20;
@@ -25,7 +24,7 @@ type View = "table" | "mosaic";
 const VIEW_KEY = "mi-tierrita:inventario-vista";
 const viewOptions: { value: View; label: string }[] = [
   { value: "table", label: "Tabla" },
-  { value: "mosaic", label: "Mosaico" },
+  { value: "mosaic", label: "Tarjetas" },
 ];
 
 /** Vista preferida de este navegador (comodidad por usuario; si el almacenamiento falla, tabla). */
@@ -63,12 +62,6 @@ export const InventoryScreen = () => {
   const [registerOpen, setRegisterOpen] = useState(false);
   const [deactivating, setDeactivating] = useState<Product | null>(null);
   const [view, setView] = useState<View>(readView);
-  const morph = useProductMorph<Product>(useCallback((p: Product | null) => setBatchesProduct(p), []));
-  // DataTable solo entrega la fila de datos: se recuerda el <tr> pulsado para el morfismo.
-  const rowEl = useRef<HTMLElement | null>(null);
-  const captureRow = (e: MouseEvent<HTMLElement>) => {
-    rowEl.current = (e.target as HTMLElement).closest("tr");
-  };
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -109,7 +102,7 @@ export const InventoryScreen = () => {
     { key: "sku", header: "Código", render: (p) => <span className={styles.code}>{p.sku}</span> },
     { key: "name", header: "Producto", align: "left", render: (p) => <span className={styles.productName}>{p.name}</span> },
     { key: "category", header: "Línea", align: "left", render: (p) => p.categoryName },
-    { key: "stock", header: "Stock", align: "right", render: (p) => int(p.stock) },
+    { key: "stock", header: "Stock", align: "right", render: (p) => (expiredUnits(p) > 0 ? `${int(p.stock)} (${int(expiredUnits(p))} vencidas)` : int(p.stock)) },
     { key: "price", header: "Precio", align: "right", render: (p) => money(p.salePrice) },
     {
       key: "status",
@@ -236,11 +229,9 @@ export const InventoryScreen = () => {
             {(data) => (
               <>
                 {view === "mosaic" ? (
-                  <ProductMosaic products={data.items} canEdit={canEdit} isAdmin={isAdmin} onOpen={morph.open} onEdit={openEdit} onDeactivate={setDeactivating} />
+                  <ProductMosaic products={data.items} canEdit={canEdit} isAdmin={isAdmin} onOpen={setBatchesProduct} onEdit={openEdit} onDeactivate={setDeactivating} />
                 ) : (
-                  <div onClickCapture={captureRow}>
-                    <DataTable columns={columns} rows={data.items} rowKey={(p) => p.id} onRowClick={(p) => morph.open(p, rowEl.current)} />
-                  </div>
+                  <DataTable columns={columns} rows={data.items} rowKey={(p) => p.id} onRowClick={setBatchesProduct} />
                 )}
                 <Pagination page={data} onPage={setPage} />
               </>
@@ -250,7 +241,7 @@ export const InventoryScreen = () => {
         {isAdmin ? <ValueByLineCard /> : <ProductsByLineCard />}
       </div>
 
-      <ProductBatchesModal product={batchesProduct} canRegister={canEdit} onClose={morph.close} viewTransitionName={morph.heroName} />
+      <ProductBatchesModal product={batchesProduct} canRegister={canEdit} onClose={() => setBatchesProduct(null)} />
 
       {canEdit ? (
         <>

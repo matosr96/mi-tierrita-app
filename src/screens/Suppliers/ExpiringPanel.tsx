@@ -1,45 +1,31 @@
-import type { CSSProperties } from "react";
 import { Link } from "react-router-dom";
-import { Odometer, TopoField } from "@/components/motion";
-import { Button } from "@/components/ui";
+import { Badge, Button } from "@/components/ui";
 import { dateOnly, int } from "@/lib/format";
 import type { Page, ProductBatch } from "@/types/api";
 import styles from "./ExpiringPanel.module.css";
 
 type Query = { data: Page<ProductBatch> | undefined; isPending: boolean; isError: boolean; refetch: () => unknown };
 
-const toneOf = (b: ProductBatch) => (b.expired ? styles.expired : b.daysToExpire <= 7 ? styles.week : styles.month);
-const dayText = (b: ProductBatch) => (b.expired ? "Vencido" : b.daysToExpire === 0 ? "Hoy" : b.daysToExpire === 1 ? "día" : "días");
+const toneOf = (b: ProductBatch) => (b.expired || b.daysToExpire <= 7 ? "bad" : "warn");
+const dayText = (b: ProductBatch) => (b.expired ? "Vencido" : b.daysToExpire === 0 ? "Hoy" : b.daysToExpire === 1 ? "1 día" : `${int(b.daysToExpire)} días`);
 
-/** Recepciones por vencer: tarjeta oscura con la cuenta en matriz de puntos, una regla 0→N días y la lista de lotes. */
+/** Recepciones por vencer: tarjeta blanca con la cuenta de la API y la lista de lotes más próximos. */
 export const ExpiringPanel = ({ days, query }: { days: number; query: Query }) => {
   const items = query.data?.items ?? [];
   const count = query.data?.count;
 
   return (
     <aside className={styles.panel} aria-labelledby="expiring-title">
-      <TopoField className={styles.topo} rings={10} signal={3} seed={4.1} />
-      <div className={styles.label}>Recepciones · próximos {int(days)} días</div>
-      <h2 id="expiring-title" className={styles.title}>
-        Lo recibido que <em>vence pronto</em>
-      </h2>
+      <header className={styles.head}>
+        <h2 id="expiring-title" className={styles.title}>
+          Recepciones por vencer
+        </h2>
+        <p className={styles.subtitle}>Lotes recibidos que vencen en los próximos {int(days)} días.</p>
+      </header>
 
       <div className={styles.countRow}>
-        <span className={[styles.count, count === 0 ? styles.countClear : ""].join(" ")}>{count !== undefined ? <Odometer value={String(count).padStart(2, "0")} /> : "··"}</span>
+        <span className={[styles.count, count === 0 ? styles.countClear : count !== undefined ? styles.countWarn : ""].join(" ")}>{count !== undefined ? int(count) : "—"}</span>
         <span className={styles.countLabel}>{count === undefined ? (query.isError ? "No disponible" : "Revisando…") : count === 1 ? "lote por vencer" : "lotes por vencer"}</span>
-      </div>
-
-      {/* Regla 0 → N días: cada marca es un lote en su día de vencimiento (posición solo visual). */}
-      <div className={styles.ruler} aria-hidden="true">
-        <span className={styles.rulerLine} />
-        {[0, 7, 15, days].map((d) => (
-          <span key={d} className={styles.tick} style={{ left: `${(d / days) * 100}%` }}>
-            <span>{d === 0 ? "hoy" : `${d}d`}</span>
-          </span>
-        ))}
-        {items.map((b, i) => (
-          <span key={b.id} className={[styles.pin, toneOf(b)].join(" ")} style={{ left: `${(Math.min(Math.max(b.daysToExpire, 0), days) / days) * 100}%`, "--lane": i % 3, "--i": i } as CSSProperties} />
-        ))}
       </div>
 
       {query.isPending ? (
@@ -54,26 +40,22 @@ export const ExpiringPanel = ({ days, query }: { days: number; query: Query }) =
       ) : items.length === 0 ? (
         <p className={styles.state}>Nada por vencer: ningún lote recibido vence en los próximos {int(days)} días.</p>
       ) : (
-        <ol className={styles.list}>
-          {items.map((b, i) => (
-            <li key={b.id} className={[styles.item, toneOf(b)].join(" ")} style={{ "--i": i } as CSSProperties}>
-              <span className={styles.days}>
-                <span className={styles.daysNum}>{b.expired ? "××" : String(b.daysToExpire).padStart(2, "0")}</span>
-                <span className={styles.daysUnit}>{dayText(b)}</span>
-              </span>
+        <ul className={styles.list}>
+          {items.map((b) => (
+            <li key={b.id} className={styles.item}>
               <span className={styles.what}>
                 <span className={styles.product}>{b.productName}</span>
                 <span className={styles.meta}>
-                  {b.supplierName ?? "Sin proveedor"} · #{b.id} · {dateOnly(b.expiresAt)}
+                  {b.supplierName ?? "Sin proveedor"} · <span className={styles.code}>#{b.id}</span> · {dateOnly(b.expiresAt)}
                 </span>
               </span>
-              <span className={styles.units}>
-                {int(b.quantityRemaining)}
-                <small>u.</small>
+              <span className={styles.side}>
+                <Badge tone={toneOf(b)}>{dayText(b)}</Badge>
+                <span className={styles.units}>{int(b.quantityRemaining)} u.</span>
               </span>
             </li>
           ))}
-        </ol>
+        </ul>
       )}
 
       <Link to="/lotes" className={styles.more}>

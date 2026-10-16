@@ -58,10 +58,10 @@ export const ProfileForm = ({ user }: { user: User }) => {
         </Field>
       </FieldRow>
       <FieldRow>
-        <Field label="Usuario" htmlFor="pf-user" hint="Solo lo cambia el administrador">
+        <Field label="Usuario" htmlFor="pf-user" hint="Se fija al crear la cuenta; no se modifica desde el sistema">
           <Input id="pf-user" value={user.username} readOnly />
         </Field>
-        <Field label="Rol" htmlFor="pf-role" hint="Solo lo cambia el administrador">
+        <Field label="Rol" htmlFor="pf-role" hint="Se fija al crear la cuenta; no se modifica desde el sistema">
           <Input id="pf-role" value={ROLE_LABELS[user.role]} readOnly />
         </Field>
       </FieldRow>

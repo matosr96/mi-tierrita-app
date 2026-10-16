@@ -1,13 +1,13 @@
 import { useState } from "react";
 import { useSessionStore } from "@/stores/session";
 import { useSale, useVoidSale } from "@/hooks/sales";
-import { Button, Callout, Modal, QueryState } from "@/components/ui";
+import { Badge, Button, Callout, Modal, QueryState } from "@/components/ui";
 import { dateTime, int, money } from "@/lib/format";
 import styles from "./SaleDetailModal.module.css";
 
 const PAYMENT_LABELS = { CASH: "Contado", CREDIT: "Crédito" } as const;
 
-/** Detalle de una venta (CU-10) impreso como un tiquete de caja, y anulación con confirmación (RF-03.4, solo ADMIN). */
+/** Detalle de una venta (CU-10) con sus líneas y total, y anulación con confirmación (RF-03.4, solo ADMIN). */
 export const SaleDetailModal = ({ id, onClose }: { id: number | null; onClose: () => void }) => {
   const user = useSessionStore((s) => s.user);
   const isAdmin = user?.role === "ADMIN";
@@ -58,74 +58,60 @@ export const SaleDetailModal = ({ id, onClose }: { id: number | null; onClose: (
           const voided = s.status === "VOIDED";
           return (
             <div className={styles.stack}>
-              <div className={styles.paperWrap}>
-                <article className={[styles.receipt, voided ? styles.voided : ""].join(" ")} key={s.id} aria-label={`Tiquete de la factura ${s.invoiceNumber}`}>
-                  <header className={styles.head}>
-                    <span className={styles.brand}>Agropecuaria Mi Tierrita</span>
+              <article className={[styles.receipt, voided ? styles.voided : ""].join(" ")} aria-label={`Detalle de la factura ${s.invoiceNumber}`}>
+                <header className={styles.head}>
+                  <div className={styles.headText}>
                     <span className={styles.kicker}>Factura de venta</span>
                     <span className={styles.invoice}>{s.invoiceNumber}</span>
                     <span className={styles.when}>{dateTime(s.createdAt)}</span>
-                  </header>
-
-                  <dl className={styles.facts}>
-                    <div>
-                      <dt>Cliente</dt>
-                      <dd>{s.customerName ?? "Consumidor final"}</dd>
-                    </div>
-                    <div>
-                      <dt>Registró</dt>
-                      <dd>{s.username}</dd>
-                    </div>
-                    <div>
-                      <dt>Pago</dt>
-                      <dd>{PAYMENT_LABELS[s.paymentType]}</dd>
-                    </div>
-                    <div>
-                      <dt>Estado</dt>
-                      <dd className={voided ? styles.bad : styles.good}>{voided ? "Anulada" : "Completada"}</dd>
-                    </div>
-                    {voided ? (
-                      <div>
-                        <dt>Anulada el</dt>
-                        <dd>{dateTime(s.voidedAt)}</dd>
-                      </div>
-                    ) : null}
-                  </dl>
-
-                  <div className={styles.linesHead} aria-hidden="true">
-                    <span>Artículo</span>
-                    <span>Subtotal</span>
                   </div>
-                  <ul className={styles.lines}>
-                    {s.lines.map((l) => (
-                      <li key={l.id} className={styles.line}>
-                        <div className={styles.lineTop}>
-                          <span className={styles.lineName}>{l.productName}</span>
-                          <span className={styles.leader} aria-hidden="true" />
-                          <span className={styles.lineTotal}>{money(l.lineTotal)}</span>
-                        </div>
-                        <div className={styles.lineSub}>
-                          {l.sku} · {int(l.quantity)} × {money(l.unitPrice)}
-                        </div>
-                      </li>
-                    ))}
-                  </ul>
+                  <Badge tone={voided ? "bad" : "good"}>{voided ? "Anulada" : "Completada"}</Badge>
+                </header>
 
-                  <div className={styles.total}>
-                    <span>Total</span>
-                    <strong>{money(s.total)}</strong>
+                <dl className={styles.facts}>
+                  <div>
+                    <dt>Cliente</dt>
+                    <dd>{s.customerName ?? "Consumidor final"}</dd>
                   </div>
-
-                  <div className={styles.barcode} aria-hidden="true" />
-                  <p className={styles.thanks}>Gracias por su compra · conserve este tiquete</p>
-
+                  <div>
+                    <dt>Registró</dt>
+                    <dd>{s.username}</dd>
+                  </div>
+                  <div>
+                    <dt>Pago</dt>
+                    <dd>{PAYMENT_LABELS[s.paymentType]}</dd>
+                  </div>
                   {voided ? (
-                    <span className={styles.stamp} aria-hidden="true">
-                      Anulada
-                    </span>
+                    <div>
+                      <dt>Anulada el</dt>
+                      <dd>{dateTime(s.voidedAt)}</dd>
+                    </div>
                   ) : null}
-                </article>
-              </div>
+                </dl>
+
+                <div className={styles.linesHead} aria-hidden="true">
+                  <span>Producto</span>
+                  <span>Subtotal</span>
+                </div>
+                <ul className={styles.lines}>
+                  {s.lines.map((l) => (
+                    <li key={l.id} className={styles.line}>
+                      <div className={styles.lineMain}>
+                        <span className={styles.lineName}>{l.productName}</span>
+                        <span className={styles.lineSub}>
+                          <span className={styles.sku}>{l.sku}</span> · {int(l.quantity)} × {money(l.unitPrice)}
+                        </span>
+                      </div>
+                      <span className={styles.lineTotal}>{money(l.lineTotal)}</span>
+                    </li>
+                  ))}
+                </ul>
+
+                <div className={styles.total}>
+                  <span>Total</span>
+                  <strong>{money(s.total)}</strong>
+                </div>
+              </article>
 
               {confirming ? (
                 <Callout tone="warn">

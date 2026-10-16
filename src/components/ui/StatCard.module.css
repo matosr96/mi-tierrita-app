@@ -1,160 +1,77 @@
 .grid {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 12px;
-}
-@media (max-width: 1100px) {
-  .grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-@media (max-width: 560px) {
-  .grid {
-    grid-template-columns: 1fr;
-  }
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
 }
 .card {
-  position: relative;
   background: var(--surface);
-  border: 1px solid var(--line);
   border-radius: var(--radius);
-  padding: 16px 18px 18px;
+  padding: 20px 22px;
   min-width: 0;
-  overflow: hidden;
-  transition: transform 0.5s var(--ease-out), box-shadow 0.5s var(--ease-out), border-color 0.4s ease;
-  animation: statIn 0.9s var(--ease-out) backwards;
-}
-.grid > .card:nth-child(2) {
-  animation-delay: 0.07s;
-}
-.grid > .card:nth-child(3) {
-  animation-delay: 0.14s;
-}
-.grid > .card:nth-child(4) {
-  animation-delay: 0.21s;
-}
-.card:hover {
-  transform: translateY(-3px);
-  box-shadow: var(--shadow-lift);
-  border-color: var(--line-strong);
+  box-shadow: var(--shadow);
 }
 .label {
   display: flex;
   align-items: center;
-  gap: 8px;
-  font-family: var(--font-mono);
-  font-size: 10px;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--muted);
+  gap: 7px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ink-2);
 }
 .dot {
-  width: 5px;
-  height: 5px;
+  width: 7px;
+  height: 7px;
   border-radius: 50%;
-  background: var(--muted-2);
   flex-shrink: 0;
+  background: var(--muted-2);
 }
 .value {
-  font-family: var(--font-heading);
-  font-size: clamp(24px, 2.3vw, 32px);
-  font-weight: 300;
-  line-height: 1.12;
-  letter-spacing: -0.045em;
   margin-top: 14px;
+  font-size: clamp(28px, 2.4vw, 36px);
+  font-weight: 400;
+  line-height: 1.1;
+  letter-spacing: -0.025em;
   color: var(--ink);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  font-variant-numeric: tabular-nums;
 }
 .hint {
-  font-size: 11.5px;
-  color: var(--muted);
   margin-top: 6px;
+  font-size: 12.5px;
+  color: var(--muted);
 }
-.line {
-  position: absolute;
-  left: 0;
-  bottom: 0;
-  height: 2px;
-  width: 100%;
-  background: var(--line-strong);
-  transform-origin: left;
-  transform: scaleX(0.18);
-  transition: transform 0.8s var(--ease-out);
-}
-.card:hover .line {
-  transform: scaleX(1);
-}
-.good .dot,
-.good .line {
+.good .dot {
   background: var(--good);
 }
 .good .value {
   color: var(--good);
 }
-.warn .dot,
-.warn .line {
+.warn .dot {
   background: var(--warn);
 }
 .warn .value {
   color: var(--warn);
 }
-.bad {
-  border-color: var(--bad-line);
-}
-.bad .dot,
-.bad .line {
-  background: var(--bad);
-}
 .bad .dot {
-  box-shadow: 0 0 0 0 var(--bad);
-  animation: alarm 1.8s var(--ease-out) infinite;
+  background: var(--bad);
 }
 .bad .value {
   color: var(--bad);
 }
-@keyframes statIn {
-  from {
-    opacity: 0;
-    transform: translateY(16px);
+@media (max-width: 640px) {
+  .grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
   }
-}
-@keyframes alarm {
-  0% {
-    box-shadow: 0 0 0 0 var(--bad-line);
+  .card {
+    padding: 16px;
   }
-  100% {
-    box-shadow: 0 0 0 7px transparent;
+  .value {
+    font-size: 24px;
   }
-}
-
-/* Brillo que sigue al cursor (posición en --mx/--my) y borde que se ilumina cerca de él. */
-.card::before,
-.card::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  pointer-events: none;
-  opacity: 0;
-  transition: opacity 0.5s var(--ease-out);
-}
-.card::before {
-  background: radial-gradient(420px circle at var(--mx, 50%) var(--my, 50%), var(--spot), transparent 65%);
-}
-.card::after {
-  padding: 1px;
-  background: radial-gradient(260px circle at var(--mx, 50%) var(--my, 50%), var(--spot-border), transparent 70%);
-  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
-  -webkit-mask-composite: xor;
-  mask-composite: exclude;
-}
-.card:hover::before,
-.card:hover::after {
-  opacity: 1;
 }
 .trend {
-  margin: -10px 0 -10px auto;
-  opacity: 0.9;
+  margin: -8px 0 -8px auto;
 }

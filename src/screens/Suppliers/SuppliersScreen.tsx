@@ -66,10 +66,8 @@ export const SuppliersScreen = () => {
     <section className={styles.directory} aria-labelledby="suppliers-directory-title">
       <header className={styles.head}>
         <div className={styles.headTitle}>
-          <span className={styles.eyebrow}>Directorio · {query.data ? `${int(query.data.count)} ${query.data.count === 1 ? "proveedor" : "proveedores"}` : "…"}</span>
-          <h2 id="suppliers-directory-title">
-            Quién nos <em>surte</em>
-          </h2>
+          <h2 id="suppliers-directory-title">Directorio</h2>
+          <span className={styles.headCount}>{query.data ? `${int(query.data.count)} ${query.data.count === 1 ? "proveedor" : "proveedores"}` : "…"}</span>
         </div>
         <div className={styles.toolbar}>
           <div className={styles.search}>

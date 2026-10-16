@@ -21,6 +21,8 @@ export type Product = {
   purchasePrice: number;
   salePrice: number;
   stock: number;
+  /** Unidades de lotes no vencidos: lo que se puede vender hoy (`stock` incluye lo vencido aún en bodega). */
+  availableStock: number;
   active: boolean;
   createdAt: string;
   updatedAt: string;

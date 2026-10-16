@@ -1,52 +1,38 @@
-import { useEffect, useState, type ReactNode } from "react";
-import { SplitText, TopoField } from "@/components/motion";
+import type { ReactNode } from "react";
+import { GlassFan } from "./GlassFan";
 import styles from "./HeroHeader.module.css";
 
 type Props = {
   eyebrow: string;
-  /** Titular; `*así*` en serif cursiva y `\n` para saltar de línea. */
+  /** Titular (saludo); `\n` y los asteriscos de acento se ignoran. */
   title: string;
   subtitle?: ReactNode;
+  /** Acciones en píldora a la derecha del saludo (como "Exportar reporte" en la referencia). */
   actions?: ReactNode;
-  /** Bloque a la derecha (por ejemplo, la cifra del día). */
-  aside?: ReactNode;
+  /** Píldoras blancas de información sobre las acciones (como "Name / ID / Status" en la referencia). */
+  info?: { label: string; value: string; tone?: "good" }[];
 };
 
-const clock = () => new Date().toLocaleTimeString("es-CO", { hour: "2-digit", minute: "2-digit", hour12: false });
-
-/** Portada oscura de una pantalla (Inicio): curvas de nivel, reloj y titular que entra por palabras. */
-export const HeroHeader = ({ eyebrow, title, subtitle, actions, aside }: Props) => {
-  const [now, setNow] = useState(clock);
-  useEffect(() => {
-    const id = window.setInterval(() => setNow(clock()), 15000);
-    return () => window.clearInterval(id);
-  }, []);
-
-  return (
-    <header className={styles.hero}>
-      <TopoField className={styles.topo} rings={14} signal={7} seed={1.7} />
-      <div className={styles.glow} aria-hidden="true" />
-      <span className={[styles.corner, styles.tl].join(" ")} aria-hidden="true" />
-      <span className={[styles.corner, styles.br].join(" ")} aria-hidden="true" />
-
-      <div className={styles.top}>
-        <span className={styles.eyebrow}>
-          <span className={styles.live} aria-hidden="true" />
-          {eyebrow}
-        </span>
-        <span className={styles.clock}>{now}</span>
-      </div>
-
-      <div className={styles.body}>
-        <div className={styles.main}>
-          <h1 className={styles.title}>
-            <SplitText key={title} text={title} delay={60} stagger={30} />
-          </h1>
-          {subtitle ? <div className={styles.subtitle}>{subtitle}</div> : null}
-          {actions ? <div className={styles.actions}>{actions}</div> : null}
-        </div>
-        {aside ? <div className={styles.aside}>{aside}</div> : null}
-      </div>
-    </header>
-  );
-};
+/** Encabezado del Inicio sobre la franja verde: saludo grande en blanco, abanico de vidrio al centro, información y acciones a la derecha. */
+export const HeroHeader = ({ eyebrow, title, subtitle, actions, info }: Props) => (
+  <header className={styles.hero}>
+    <GlassFan className={styles.fan} />
+    <div className={styles.main}>
+      <span className={styles.eyebrow}>{eyebrow}</span>
+      <h1 className={styles.title}>{title.replace(/\*/g, "").replace(/\n/g, " ")}</h1>
+      {subtitle ? <div className={styles.subtitle}>{subtitle}</div> : null}
+    </div>
+    <div className={styles.side}>
+      {info && info.length > 0 ? (
+        <ul className={styles.info}>
+          {info.map((i) => (
+            <li key={i.label}>
+              <span>{i.label}:</span> <b className={i.tone === "good" ? styles.good : ""}>{i.value}</b>
+            </li>
+          ))}
+        </ul>
+      ) : null}
+      {actions ? <div className={styles.actions}>{actions}</div> : null}
+    </div>
+  </header>
+);

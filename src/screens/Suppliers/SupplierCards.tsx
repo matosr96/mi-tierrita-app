@@ -1,5 +1,4 @@
-import type { CSSProperties } from "react";
-import { trackSpotlight } from "@/components/motion";
+import { Badge, Button, DataTable, type Column } from "@/components/ui";
 import { dateOnly } from "@/lib/format";
 import type { Supplier } from "@/types/api";
 import styles from "./SupplierCards.module.css";
@@ -12,77 +11,61 @@ type Props = {
   onEdit: (supplier: Supplier) => void;
 };
 
-const TINTS = 5;
+const Missing = () => <span className={styles.missing}>Sin registrar</span>;
 
-/** Iniciales de las dos primeras palabras (presentación). */
-const sealOf = (name: string): string =>
-  name
-    .trim()
-    .split(/\s+/)
-    .slice(0, 2)
-    .map((w) => w.charAt(0))
-    .join("")
-    .toUpperCase() || "·";
-
-/** Directorio como fichas de remisión: sello con iniciales, contacto en mono, estado y acciones. */
-export const SupplierCards = ({ suppliers, canEdit, onPurchase, onEdit }: Props) => (
-  <ul className={styles.grid}>
-    {suppliers.map((s, i) => (
-      <li key={s.id} className={[styles.card, styles[`t${s.id % TINTS}`], s.active ? "" : styles.inactive].join(" ")} style={{ "--i": Math.min(i, 14) } as CSSProperties} onPointerMove={trackSpotlight}>
-        <div className={styles.top}>
-          <span className={styles.seal} aria-hidden="true">
-            {sealOf(s.name)}
-          </span>
-          <div className={styles.who}>
-            <span className={styles.number}>Proveedor N.º {String(s.id).padStart(4, "0")}</span>
-            <h3 className={styles.name}>{s.name}</h3>
-            <span className={styles.since}>Desde {dateOnly(s.createdAt)}</span>
-          </div>
-          <span className={[styles.status, s.active ? styles.statusOn : ""].join(" ")}>
-            <span className={styles.statusDot} aria-hidden="true" />
-            {s.active ? "Activo" : "Inactivo"}
-          </span>
+/** Directorio de proveedores en tabla: nombre, NIT, teléfono, estado y acciones de la fila. */
+export const SupplierCards = ({ suppliers, canEdit, onPurchase, onEdit }: Props) => {
+  const columns: Column<Supplier>[] = [
+    {
+      key: "name",
+      header: "Proveedor",
+      render: (s) => (
+        <div className={styles.who}>
+          <span className={[styles.name, s.active ? "" : styles.inactive].join(" ")}>{s.name}</span>
+          <span className={styles.since}>Desde {dateOnly(s.createdAt)}</span>
         </div>
-
-        <div className={styles.perforation} aria-hidden="true" />
-
-        <dl className={styles.contact}>
-          <div>
-            <dt>NIT</dt>
-            <dd>{s.taxId ?? <span className={styles.missing}>sin registrar</span>}</dd>
-          </div>
-          <div>
-            <dt>Tel.</dt>
-            <dd>
-              {s.phone ? (
-                <a href={`tel:${s.phone.replace(/\s+/g, "")}`} className={styles.phone}>
-                  {s.phone}
-                </a>
-              ) : (
-                <span className={styles.missing}>sin registrar</span>
-              )}
-            </dd>
-          </div>
-        </dl>
-
-        {s.active || canEdit ? (
+      ),
+    },
+    { key: "taxId", header: "NIT", align: "left", render: (s) => (s.taxId ? <span className={styles.code}>{s.taxId}</span> : <Missing />) },
+    {
+      key: "phone",
+      header: "Teléfono",
+      align: "left",
+      render: (s) =>
+        s.phone ? (
+          <a href={`tel:${s.phone.replace(/\s+/g, "")}`} className={styles.phone}>
+            {s.phone}
+          </a>
+        ) : (
+          <Missing />
+        ),
+    },
+    { key: "status", header: "Estado", align: "left", render: (s) => <Badge tone={s.active ? "good" : "neutral"}>{s.active ? "Activo" : "Inactivo"}</Badge> },
+    {
+      key: "actions",
+      header: <span className={styles.srOnly}>Acciones</span>,
+      align: "right",
+      render: (s) =>
+        s.active || canEdit ? (
           <div className={styles.actions}>
             {s.active ? (
-              <button type="button" className={styles.purchase} onClick={() => onPurchase(s)}>
-                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
-                  <path d="M2 4.5 L7 2 L12 4.5 V9.5 L7 12 L2 9.5 Z M2 4.5 L7 7 L12 4.5 M7 7 V12" stroke="currentColor" strokeWidth="1.2" strokeLinejoin="round" />
-                </svg>
+              <Button variant="secondary" size="sm" onClick={() => onPurchase(s)} aria-label={`Registrar compra de ${s.name}`}>
                 Registrar compra
-              </button>
+              </Button>
             ) : null}
             {canEdit ? (
-              <button type="button" className={styles.edit} onClick={() => onEdit(s)}>
+              <Button variant="ghost" size="sm" onClick={() => onEdit(s)} aria-label={`Editar ${s.name}`}>
                 Editar
-              </button>
+              </Button>
             ) : null}
           </div>
-        ) : null}
-      </li>
-    ))}
-  </ul>
-);
+        ) : null,
+    },
+  ];
+
+  return (
+    <div className={styles.frame}>
+      <DataTable columns={columns} rows={suppliers} rowKey={(s) => s.id} />
+    </div>
+  );
+};

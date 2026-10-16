@@ -1,4 +1,3 @@
-import type { CSSProperties } from "react";
 import { ChartFrame, useChartHover } from "@/components/charts";
 import { money } from "@/lib/format";
 import styles from "./FinanceScreen.module.css";
@@ -58,7 +57,6 @@ export const TornadoBars = ({ rows, base, baseLabel }: Props) => {
           return (
             <g
               key={r.label}
-              style={{ "--i": i } as CSSProperties}
               className={styles.hoverItem}
               role="img"
               aria-label={`${r.label}: ${rowsOf(r)
@@ -75,7 +73,7 @@ export const TornadoBars = ({ rows, base, baseLabel }: Props) => {
                   </text>
                 </>
               ) : (
-                <rect x={x} y={y} width={w} height="16" rx="3" className={[fill, styles.growCenter].join(" ")} style={{ "--cx": `${CX}px` } as CSSProperties} />
+                <rect x={x} y={y} width={w} height="16" rx="3" className={fill} />
               )}
               <text x="190" y={y + 12} textAnchor="end" fontSize="12" className={styles.textInk}>
                 {r.label}

@@ -1,14 +1,13 @@
-/* Clientes y cartera: lienzos "Clientes" (ADMIN) y "SecClientes" (SALES). */
+/* Clientes y cartera: lista de clientes a la izquierda y resumen de cartera a la derecha. */
 .screen {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 16px;
   flex-grow: 1;
   min-height: 0;
   container: customers / inline-size;
 }
 
-/* Libro de cartera a la izquierda, tarjeta oscura de cartera a la derecha (fija al hacer scroll). */
 .layout {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(300px, 340px);
@@ -28,48 +27,36 @@
   container: book / inline-size;
   display: flex;
   flex-direction: column;
-  gap: 10px;
   min-width: 0;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  overflow: hidden;
 }
 .bookHead {
   display: flex;
-  align-items: flex-end;
+  align-items: center;
   justify-content: space-between;
-  gap: 14px 20px;
+  gap: 12px 20px;
   flex-wrap: wrap;
-  padding: 4px 2px 12px;
+  padding: 14px 16px;
   border-bottom: 1px solid var(--line);
 }
 .bookTitle {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-}
-.eyebrow {
-  font-family: var(--font-mono);
-  font-size: 10px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--muted);
-  font-variant-numeric: tabular-nums;
+  gap: 1px;
 }
 .bookTitle h2 {
-  font-family: var(--font-heading);
-  font-size: 30px;
-  font-weight: 300;
-  letter-spacing: -0.05em;
-  line-height: 1;
+  font-size: 15px;
+  font-weight: 600;
   color: var(--ink);
 }
-.bookTitle em {
-  font-family: var(--font-serif);
-  font-style: italic;
-  font-weight: 400;
-  letter-spacing: -0.01em;
-  color: var(--leaf);
-}
-:global(html[data-theme="dark"]) .bookTitle em {
-  color: var(--sprout);
+.count {
+  font-size: 13px;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
 }
 
 /* Búsqueda con lupa y chips. */
@@ -87,32 +74,31 @@
 }
 .search svg {
   position: absolute;
-  left: 12px;
+  left: 11px;
   top: 50%;
   transform: translateY(-50%);
   pointer-events: none;
 }
 .search input {
   height: 34px;
-  padding: 0 12px 0 32px;
-  font-size: 12.5px;
-  border-radius: 99px;
+  padding: 0 12px 0 31px;
+  font-size: 13px;
 }
 
-/* Rótulos de columna del libro (se ocultan cuando las filas se apilan). */
+/* Rótulos de columna (se ocultan cuando las filas se apilan). */
 .legend {
   display: grid;
   grid-template-columns: minmax(190px, 1.2fr) minmax(150px, 1.2fr) minmax(100px, 0.6fr) 200px;
   gap: 20px;
-  padding: 0 18px 0 20px;
-  font-family: var(--font-mono);
-  font-size: 9.5px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
+  padding: 8px 16px;
+  background: var(--surface-2);
+  border-bottom: 1px solid var(--line);
+  font-size: 12.5px;
+  font-weight: 500;
   color: var(--muted);
 }
 .legend span:first-child {
-  padding-left: 58px;
+  padding-left: 48px;
 }
 .legendRight {
   text-align: right;
@@ -122,6 +108,13 @@
     display: none;
   }
 }
+.pager {
+  padding: 0 12px 12px;
+  border-top: 1px solid var(--line);
+}
+.pager:empty {
+  display: none;
+}
 
 /* ---------- Abonos y formularios (detalle, modal de abono, alta/edición) ---------- */
 .section {
@@ -129,8 +122,6 @@
   flex-direction: column;
   gap: 14px;
 }
-
-/* Formulario de abono (en el detalle y en el modal "Registrar abono"). */
 .paymentForm {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
@@ -138,20 +129,21 @@
   align-items: start;
 }
 .paymentForm > button {
-  margin-top: 25px;
+  margin-top: 27px;
 }
 .paymentBox {
   display: flex;
   justify-content: space-between;
   gap: 10px;
-  font-size: 12.5px;
-  color: var(--ink-2);
+  font-size: 13px;
+  color: var(--muted);
   background: var(--surface-2);
   border: 1px solid var(--line);
   border-radius: var(--radius-sm);
   padding: 10px 12px;
 }
 .paymentBox strong {
+  font-weight: 600;
   color: var(--ink);
   font-variant-numeric: tabular-nums;
 }

@@ -74,7 +74,7 @@ export const ProfileScreen = () => {
 
   return (
     <>
-      <PageHeader title="Mi *perfil*" subtitle="Sus datos, su contraseña y lo que ha hecho en el sistema." />
+      <PageHeader title="Mi perfil" subtitle="Sus datos, su contraseña y lo que ha hecho en el sistema." />
 
       <div className={styles.layout}>
         <aside className={styles.idCard}>

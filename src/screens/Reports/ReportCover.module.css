@@ -1,280 +1,57 @@
-/* Portada de reporte: tapa siempre oscura con lomo, patrón generativo, titular ligero y metadatos en mono. */
+/* Tarjeta seleccionable de reporte: superficie blanca; la seleccionada lleva borde y fondo verde suave. */
 .cover {
-  --rx: 0deg;
-  --ry: 0deg;
-  --lift: 0px;
-  position: relative;
-  overflow: hidden;
-  isolation: isolate;
   display: flex;
   flex-direction: column;
   align-items: stretch;
-  gap: 10px;
-  min-height: 290px;
-  padding: 18px 20px 18px 30px;
+  gap: 4px;
+  padding: 14px 16px;
   text-align: left;
   font: inherit;
-  color: var(--dark-ink);
-  background: var(--app-bg);
-  border: 1px solid var(--dark-line);
-  border-radius: 6px calc(var(--radius) + 2px) calc(var(--radius) + 2px) 6px;
-  box-shadow: 0 1px 0 var(--dark-line) inset, 0 24px 44px -30px rgba(4, 12, 8, 0.85);
+  color: var(--ink);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
   cursor: pointer;
-  transform: perspective(1000px) rotateX(var(--rx)) rotateY(var(--ry)) translateY(var(--lift));
-  transition: transform 0.5s var(--ease-out), box-shadow 0.5s var(--ease-out), border-color 0.3s ease;
-  animation: coverIn 0.9s var(--ease-out) backwards;
-  animation-delay: calc(var(--n, 0) * 90ms + 120ms);
-}
-.cover::after {
-  /* brillo que sigue al cursor */
-  content: "";
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  pointer-events: none;
-  background: radial-gradient(320px circle at var(--mx, 50%) var(--my, -40%), rgba(185, 236, 111, 0.13), transparent 70%);
-  opacity: 0;
-  transition: opacity 0.4s ease;
+  transition: border-color var(--dur) var(--ease-out), background var(--dur) var(--ease-out);
 }
 @media (hover: hover) {
   .cover:hover {
-    --lift: -6px;
-    border-color: rgba(185, 236, 111, 0.3);
-    box-shadow: 0 1px 0 var(--dark-line) inset, 0 40px 60px -30px rgba(4, 12, 8, 0.9);
-    transition: transform 0.18s linear, box-shadow 0.5s var(--ease-out), border-color 0.3s ease;
-  }
-  .cover:hover::after {
-    opacity: 1;
+    border-color: var(--line-strong);
+    background: var(--hover);
   }
 }
 .cover:focus-visible {
   outline: 2px solid var(--sprout);
-  outline-offset: 3px;
+  outline-offset: 2px;
 }
-.selected {
+.selected,
+.selected:hover {
   border-color: var(--sprout);
-  box-shadow: 0 0 0 1px var(--sprout), 0 0 40px -12px rgba(185, 236, 111, 0.45), 0 24px 44px -30px rgba(4, 12, 8, 0.85);
+  background: var(--sprout-soft);
 }
-
-/* Patrón generativo, al fondo de la tapa. */
-.pattern {
-  position: absolute;
-  z-index: -3;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  width: 100%;
-  height: 64%;
-  transform-origin: bottom right;
-  transition: transform 0.9s var(--ease-out);
-}
-.cover:hover .pattern {
-  transform: scale(1.04) translate(-4px, -2px);
-}
-.shade {
-  position: absolute;
-  inset: 0;
-  z-index: -2;
-  pointer-events: none;
-  background: linear-gradient(180deg, transparent 30%, rgba(7, 17, 12, 0.8) 52%, rgba(7, 17, 12, 0.55) 78%, rgba(7, 17, 12, 0.2) 100%),
-    radial-gradient(70% 60% at 100% 100%, rgba(45, 106, 79, 0.35), transparent 70%);
-}
-/* Lomo del cuaderno a la izquierda. */
-.spine {
-  position: absolute;
-  left: 0;
-  top: 0;
-  bottom: 0;
-  width: 12px;
-  background: linear-gradient(90deg, rgba(255, 255, 255, 0.07), transparent);
-  border-right: 1px solid var(--dark-line);
-}
-.selected .spine {
-  background: linear-gradient(90deg, var(--sprout), rgba(185, 236, 111, 0.35));
-  border-right-color: var(--sprout);
-}
-
-.top {
+.head {
   display: flex;
+  align-items: center;
   justify-content: space-between;
-  align-items: center;
-  gap: 10px;
-  font-family: var(--font-mono);
-  font-size: 10px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-}
-.code {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  color: var(--sprout);
-}
-.code::before {
-  content: "";
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: var(--sprout);
-  box-shadow: 0 0 10px var(--sprout);
-}
-.audience {
-  color: var(--dark-muted);
-  text-align: right;
+  gap: 8px;
 }
 .title {
-  margin-top: 26px;
-  font-family: var(--font-heading);
-  font-size: clamp(30px, 2.8vw, 40px);
-  font-weight: 300;
-  letter-spacing: -0.05em;
-  line-height: 0.98;
-  color: var(--dark-ink);
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--ink);
 }
-.title em {
-  display: block;
-  font-family: var(--font-serif);
-  font-style: italic;
-  font-weight: 400;
-  font-size: 1.18em;
-  letter-spacing: -0.02em;
+.check {
+  flex-shrink: 0;
   color: var(--sprout);
 }
 .text {
-  font-size: 12.5px;
-  line-height: 1.55;
-  color: var(--dark-ink-2);
-  max-width: 34ch;
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--ink-2);
 }
 .foot {
-  margin-top: auto;
-  padding-top: 12px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 10px;
-  border-top: 1px solid var(--dark-line);
-  font-family: var(--font-mono);
-  font-size: 9.5px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-}
-.cadence {
-  color: var(--dark-muted);
-}
-.cta {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  height: 26px;
-  padding: 0 11px;
-  border-radius: 999px;
-  border: 1px solid var(--dark-line);
-  color: var(--dark-ink);
-  white-space: nowrap;
-  transition: background 0.3s var(--ease-out), color 0.3s var(--ease-out), border-color 0.3s ease;
-}
-.cta svg {
-  transition: transform 0.45s var(--ease-spring);
-}
-.cover:hover .cta {
-  border-color: var(--sprout);
-}
-.cover:hover .cta svg {
-  transform: translateX(3px);
-}
-.selected .cta {
-  background: var(--sprout);
-  border-color: var(--sprout);
-  color: var(--sprout-ink);
-}
-
-/* ---------- trazos de los patrones ---------- */
-.bar {
-  fill: var(--sprout);
-  opacity: var(--o, 0.2);
-  transform-box: fill-box;
-  transform-origin: bottom;
-  animation: grow 1s var(--ease-out) backwards;
-  animation-delay: calc(var(--i) * 30ms + 300ms);
-}
-.trend {
-  fill: none;
-  stroke: var(--sprout);
-  stroke-width: 1.2;
-  stroke-dasharray: 1;
-  opacity: 0.7;
-  vector-effect: non-scaling-stroke;
-  animation: draw 1.8s var(--ease-in-out) 0.7s backwards;
-}
-.cellEmpty,
-.cellFull,
-.cellHot {
-  animation: pop 0.6s var(--ease-out) backwards;
-  animation-delay: calc(var(--i) * 35ms + 250ms);
-}
-.cellEmpty {
-  fill: none;
-  stroke: var(--dark-line);
-}
-.cellFull {
-  fill: rgba(185, 236, 111, 0.16);
-  stroke: rgba(185, 236, 111, 0.28);
-}
-.cellHot {
-  fill: var(--sprout);
-  opacity: 0.55;
-}
-.ring,
-.ringHot {
-  fill: none;
-  stroke-dasharray: 1;
-  vector-effect: non-scaling-stroke;
-  animation: draw 1.6s var(--ease-in-out) backwards;
-  animation-delay: calc(var(--i) * 70ms + 250ms);
-}
-.ring {
-  stroke: rgba(185, 236, 111, 0.2);
-  stroke-width: 1;
-}
-.ringHot {
-  stroke: var(--sprout);
-  stroke-width: 1.6;
-  filter: drop-shadow(0 0 6px rgba(185, 236, 111, 0.6));
-}
-.tick {
-  stroke: rgba(185, 236, 111, 0.45);
-  stroke-width: 1;
-  vector-effect: non-scaling-stroke;
-}
-
-@keyframes coverIn {
-  from {
-    opacity: 0;
-    transform: perspective(1000px) rotateX(14deg) translateY(30px);
-  }
-}
-@keyframes grow {
-  from {
-    transform: scaleY(0);
-  }
-}
-@keyframes draw {
-  from {
-    stroke-dashoffset: 1;
-  }
-}
-@keyframes pop {
-  from {
-    opacity: 0;
-  }
-}
-@media (prefers-reduced-motion: reduce) {
-  .cover,
-  .cover:hover {
-    transform: none;
-  }
-  .cover:hover .pattern {
-    transform: none;
-  }
+  margin-top: 4px;
+  font-size: 13px;
+  color: var(--muted);
 }

@@ -4,7 +4,6 @@ import { useCustomerBalance, useCustomers } from "@/hooks/customers";
 import { useRegisterSale } from "@/hooks/sales";
 import { PageHeader } from "@/components/layout/AppShell";
 import { Badge, Button, Callout, Card, DataTable, EmptyState, ErrorState, Field, Input, Loading, Modal, QueryState, Select, type Column } from "@/components/ui";
-import { Odometer } from "@/components/motion";
 import { int, money } from "@/lib/format";
 import type { ApiError } from "@/lib/errors";
 import type { PaymentType, Product, SaleDetail, SaleLine } from "@/types/api";
@@ -32,6 +31,9 @@ const errorDetails = (err: ApiError, cart: CartLine[]): string | null => {
 };
 
 /** Etiqueta de disponibilidad del lienzo: "bajo" en rojo junto a la cantidad. */
+/** Lo que se puede vender hoy: FEFO no toma lotes vencidos aunque sigan sumando en `stock`. */
+const sellable = (p: Product): number => p.availableStock ?? p.stock;
+
 const stockTag = (stock: number) => (stock <= 0 ? <Badge tone="bad">sin stock</Badge> : stock < 5 ? <Badge tone="bad">bajo</Badge> : null);
 
 const SearchIcon = () => (
@@ -66,12 +68,12 @@ export const PointOfSale = ({ tabs }: { tabs: ReactNode }) => {
     setCart((prev) => {
       const existing = prev.find((l) => l.product.id === product.id);
       if (!existing) return [...prev, { product, quantity: 1 }];
-      return prev.map((l) => (l.product.id === product.id ? { ...l, quantity: Math.min(l.quantity + 1, product.stock) } : l));
+      return prev.map((l) => (l.product.id === product.id ? { ...l, quantity: Math.min(l.quantity + 1, sellable(product)) } : l));
     });
   };
   const setQuantity = (productId: number, raw: string) => {
     const value = Math.floor(Number(raw));
-    setCart((prev) => prev.map((l) => (l.product.id === productId ? { ...l, quantity: Number.isFinite(value) && value > 0 ? Math.min(value, l.product.stock) : 1 } : l)));
+    setCart((prev) => prev.map((l) => (l.product.id === productId ? { ...l, quantity: Number.isFinite(value) && value > 0 ? Math.min(value, sellable(l.product)) : 1 } : l)));
   };
   const removeLine = (productId: number) => setCart((prev) => prev.filter((l) => l.product.id !== productId));
 
@@ -102,8 +104,9 @@ export const PointOfSale = ({ tabs }: { tabs: ReactNode }) => {
       align: "right",
       render: (p) => (
         <span className={styles.stockCell}>
-          {int(p.stock)}
-          {stockTag(p.stock)}
+          {int(sellable(p))}
+          {stockTag(sellable(p))}
+          {p.stock > sellable(p) ? <Badge tone="warn">{`${int(p.stock - sellable(p))} vencidas`}</Badge> : null}
         </span>
       ),
     },
@@ -116,39 +119,11 @@ export const PointOfSale = ({ tabs }: { tabs: ReactNode }) => {
       render: (p) => {
         const inCart = cart.find((l) => l.product.id === p.id);
         return (
-          <Button variant="secondary" size="sm" className={styles.addBtn} disabled={p.stock <= 0 || (inCart !== undefined && inCart.quantity >= p.stock)} onClick={() => addToCart(p)}>
+          <Button variant="secondary" size="sm" className={styles.addBtn} disabled={sellable(p) <= 0 || (inCart !== undefined && inCart.quantity >= sellable(p))} onClick={() => addToCart(p)}>
             Agregar
           </Button>
         );
       },
-    },
-  ];
-
-  const cartColumns: Column<CartLine>[] = [
-    { key: "name", header: "Producto", render: (l) => l.product.name },
-    {
-      key: "qty",
-      header: "Cant.",
-      align: "right",
-      width: "90px",
-      render: (l) => (
-        <div className={styles.qty}>
-          <Input type="number" min={1} max={l.product.stock} step={1} value={l.quantity} aria-label={`Cantidad de ${l.product.name}`} onChange={(e) => setQuantity(l.product.id, e.target.value)} />
-        </div>
-      ),
-    },
-    { key: "price", header: "Precio", align: "right", render: (l) => money(l.product.salePrice) },
-    { key: "subtotal", header: "Subtotal", align: "right", render: (l) => money(l.quantity * l.product.salePrice) },
-    {
-      key: "remove",
-      header: "",
-      align: "right",
-      width: "1%",
-      render: (l) => (
-        <Button variant="ghost" size="sm" onClick={() => removeLine(l.product.id)} aria-label={`Quitar ${l.product.name}`}>
-          Quitar
-        </Button>
-      ),
     },
   ];
 
@@ -162,6 +137,8 @@ export const PointOfSale = ({ tabs }: { tabs: ReactNode }) => {
 
   const resultsCount = products.data ? (products.data.count === 1 ? "1 resultado" : `${int(products.data.count)} resultados`) : null;
   const errorText = registerSale.error ? errorDetails(registerSale.error, cart) : null;
+
+  const units = cart.reduce((n, l) => n + l.quantity, 0);
 
   return (
     <>
@@ -178,7 +155,7 @@ export const PointOfSale = ({ tabs }: { tabs: ReactNode }) => {
             {resultsCount ? <span className={styles.searchCount}>{resultsCount}</span> : null}
           </div>
 
-          <Card title="Resultados" subtitle="Toque un producto para agregarlo">
+          <Card title="Productos" subtitle="Agregue los productos de la venta" flush>
             <QueryState
               query={products}
               isEmpty={(page) => page.items.length === 0}
@@ -187,19 +164,40 @@ export const PointOfSale = ({ tabs }: { tabs: ReactNode }) => {
               {(page) => <DataTable columns={resultColumns} rows={page.items} rowKey={(p) => p.id} />}
             </QueryState>
           </Card>
-
-          <Card title="Carrito" subtitle={cart.length === 0 ? "Sin productos" : `${int(cart.length)} ${cart.length === 1 ? "producto" : "productos"}`} className={styles.grow}>
-            {cart.length === 0 ? (
-              <EmptyState title="El carrito está vacío" text="Busque un producto arriba y agréguelo para empezar la venta." />
-            ) : (
-              <DataTable columns={cartColumns} rows={cart} rowKey={(l) => l.product.id} />
-            )}
-          </Card>
         </div>
 
-        <div className={[styles.column, styles.sideColumn].join(" ")}>
-          <Card title="Cliente">
-            <div className={styles.customerFields}>
+        <aside className={[styles.column, styles.sideColumn].join(" ")} aria-label="Resumen de la venta">
+          <section className={styles.ticket} aria-labelledby="pos-cart-title">
+            <header className={styles.ticketHead}>
+              <h2 id="pos-cart-title">Carrito</h2>
+              <span className={styles.ticketCount}>{cart.length === 0 ? "Sin productos" : `${int(cart.length)} ${cart.length === 1 ? "producto" : "productos"} · ${int(units)} uds.`}</span>
+            </header>
+
+            {cart.length === 0 ? (
+              <p className={styles.cartEmpty}>Busque un producto y agréguelo para empezar la venta.</p>
+            ) : (
+              <ul className={styles.cartList}>
+                {cart.map((l) => (
+                  <li key={l.product.id} className={styles.cartLine}>
+                    <div className={styles.cartInfo}>
+                      <span className={styles.cartName}>{l.product.name}</span>
+                      <span className={styles.cartPrice}>{money(l.product.salePrice)} c/u</span>
+                    </div>
+                    <div className={styles.qty}>
+                      <Input type="number" min={1} max={sellable(l.product)} step={1} value={l.quantity} aria-label={`Cantidad de ${l.product.name}`} onChange={(e) => setQuantity(l.product.id, e.target.value)} />
+                    </div>
+                    <span className={styles.cartSubtotal}>{money(l.quantity * l.product.salePrice)}</span>
+                    <button type="button" className={styles.removeBtn} onClick={() => removeLine(l.product.id)} aria-label={`Quitar ${l.product.name}`}>
+                      <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+                        <path d="M3.5 3.5l7 7M10.5 3.5l-7 7" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+                      </svg>
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            )}
+
+            <div className={styles.ticketSection}>
               <Field label="Cliente" htmlFor="pos-customer">
                 {customers.isPending ? (
                   <Loading inline text="Cargando clientes…" />
@@ -256,41 +254,35 @@ export const PointOfSale = ({ tabs }: { tabs: ReactNode }) => {
                 </Select>
               </Field>
             </div>
-          </Card>
 
-          <div className={styles.summary}>
-            <div className={styles.summaryHead}>
-              <span>Resumen de la venta</span>
-              <span>{int(cart.reduce((n, l) => n + l.quantity, 0))} uds.</span>
-            </div>
-            <div className={styles.summaryRow}>
-              <span>Subtotal</span>
-              <span>{money(estimated)}</span>
-            </div>
-            <div className={styles.summaryRow}>
-              <span>Forma de pago</span>
-              <span>{PAYMENT_LABELS[paymentType]}</span>
-            </div>
-            <div className={styles.summaryTotal}>
-              <span>Total</span>
-              <strong>
-                <Odometer value={money(estimated)} />
-              </strong>
-            </div>
-            {registerSale.error ? (
-              <div className={styles.summaryError}>
+            <div className={styles.ticketSection}>
+              <div className={styles.summaryRow}>
+                <span>Subtotal</span>
+                <span>{money(estimated)}</span>
+              </div>
+              <div className={styles.summaryRow}>
+                <span>Forma de pago</span>
+                <span>{PAYMENT_LABELS[paymentType]}</span>
+              </div>
+              <div className={styles.summaryTotal}>
+                <span>
+                  Total <span className={styles.estimated}>estimado</span>
+                </span>
+                <strong>{money(estimated)}</strong>
+              </div>
+              {registerSale.error ? (
                 <Callout tone="bad">
                   <strong>{registerSale.error.message}</strong>
                   {errorText ? <span className={styles.errorDetails}>{errorText}</span> : null}
                 </Callout>
-              </div>
-            ) : null}
-            <Button variant="accent" size="lg" block className={styles.confirmBtn} loading={registerSale.isPending} disabled={!canConfirm} onClick={confirm}>
-              Confirmar venta
-            </Button>
-            <div className={styles.summaryNote}>Total estimado: el definitivo lo calcula el servidor al confirmar.</div>
-          </div>
-        </div>
+              ) : null}
+              <Button variant="primary" size="lg" block loading={registerSale.isPending} disabled={!canConfirm} onClick={confirm}>
+                Confirmar venta
+              </Button>
+              <p className={styles.summaryNote}>Total estimado: el definitivo lo calcula el servidor al confirmar.</p>
+            </div>
+          </section>
+        </aside>
       </div>
 
       <Modal
@@ -308,26 +300,26 @@ export const PointOfSale = ({ tabs }: { tabs: ReactNode }) => {
         {result ? (
           <div className={styles.section}>
             <SaleSuccess invoice={result.invoiceNumber} total={money(result.total)} />
-            <div className={styles.receipt}>
-            <div className={styles.factGrid}>
+            <dl className={styles.factGrid}>
               <div className={styles.fact}>
-                <span className={styles.factLabel}>Cliente</span>
-                <span className={styles.factValue}>{result.customerName ?? "Consumidor final"}</span>
+                <dt>Cliente</dt>
+                <dd>{result.customerName ?? "Consumidor final"}</dd>
               </div>
               <div className={styles.fact}>
-                <span className={styles.factLabel}>Forma de pago</span>
-                <span className={styles.factValue}>{PAYMENT_LABELS[result.paymentType]}</span>
+                <dt>Forma de pago</dt>
+                <dd>{PAYMENT_LABELS[result.paymentType]}</dd>
               </div>
               <div className={styles.fact}>
-                <span className={styles.factLabel}>Registró</span>
-                <span className={styles.factValue}>{result.username}</span>
+                <dt>Registró</dt>
+                <dd>{result.username}</dd>
               </div>
+            </dl>
+            <div className={styles.receiptTable}>
+              <DataTable columns={lineColumns} rows={result.lines} rowKey={(l) => l.id} />
             </div>
-            <DataTable columns={lineColumns} rows={result.lines} rowKey={(l) => l.id} />
             <div className={styles.total}>
               <span>Total</span>
               <strong>{money(result.total)}</strong>
-            </div>
             </div>
           </div>
         ) : null}

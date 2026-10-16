@@ -81,7 +81,7 @@ export const ContactsScreen = () => {
 
   return (
     <>
-      <PageHeader title="Contactos del *sitio*" subtitle={subtitle} />
+      <PageHeader title="Contactos del sitio" subtitle={subtitle} />
       <div className={styles.bar}>
         <Chips
           options={FILTERS}

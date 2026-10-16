@@ -1,64 +1,60 @@
-/* Barra de mando del historial: una franja de cristal con atajos de período y controles compactos. */
+/* Filtros del historial: una franja blanca con atajos de período y controles compactos. */
 .bar {
-  position: relative;
   display: flex;
   align-items: flex-end;
   flex-wrap: wrap;
-  gap: 12px 18px;
-  padding: 12px 16px 12px 18px;
+  gap: 12px 16px;
+  padding: 12px 16px;
   background: var(--surface);
   border: 1px solid var(--line);
-  border-radius: calc(var(--radius) + 4px);
+  border-radius: var(--radius);
   box-shadow: var(--shadow);
 }
 .group {
   display: flex;
   flex-direction: column;
-  gap: 7px;
+  gap: 6px;
 }
 .label,
 .bar label {
-  font-family: var(--font-mono);
-  font-size: 9.5px;
-  font-weight: 400;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
+  font-size: 12.5px;
+  font-weight: 500;
   color: var(--muted);
-}
-.bar :focus-within > label {
-  color: var(--ink);
 }
 .presets {
   display: inline-flex;
   gap: 2px;
-  padding: 3px;
+  padding: 2px;
   background: var(--segment-bg);
   border: 1px solid var(--line);
-  border-radius: 999px;
+  border-radius: var(--radius-sm);
 }
 .preset {
   border: none;
   background: transparent;
   color: var(--muted);
-  height: 28px;
-  padding: 0 12px;
-  border-radius: 999px;
-  font-size: 12px;
+  height: 30px;
+  padding: 0 11px;
+  border-radius: 5px;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 500;
   cursor: pointer;
   white-space: nowrap;
-  transition: color 0.25s ease, background 0.35s var(--ease-out), transform 0.2s var(--ease-out);
+  transition: color var(--dur) ease, background var(--dur) ease;
 }
 .preset:hover {
   color: var(--ink);
 }
-.preset:active {
-  transform: scale(0.95);
+.preset:focus-visible {
+  outline: 2px solid var(--sprout);
+  outline-offset: 1px;
 }
 .presetOn,
 .presetOn:hover {
-  background: var(--ink);
-  color: var(--surface);
-  font-weight: 500;
+  background: var(--surface);
+  color: var(--ink);
+  box-shadow: var(--shadow);
 }
 .divider {
   align-self: stretch;
@@ -91,10 +87,9 @@
   display: flex;
   flex-direction: column;
   gap: 6px;
-  width: 138px;
+  width: 140px;
 }
 .arrow {
-  font-family: var(--font-mono);
   color: var(--muted-2);
   height: 34px;
   display: flex;
@@ -103,10 +98,9 @@
 .bar input,
 .bar select {
   height: 34px;
-  padding: 0 11px;
-  font-size: 12.5px;
+  padding: 0 10px;
+  font-size: 13px;
   font-variant-numeric: tabular-nums;
-  border-radius: 999px;
 }
 .bar select {
   padding-right: 26px;
@@ -114,30 +108,35 @@
 .clear {
   border: none;
   background: transparent;
-  color: var(--ink-2);
-  font-family: var(--font-mono);
-  font-size: 10px;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
+  color: var(--link);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 500;
   height: 34px;
   padding: 0 4px;
   cursor: pointer;
-  text-decoration: underline;
-  text-decoration-color: var(--line-strong);
-  text-underline-offset: 4px;
-  transition: color 0.2s ease, text-decoration-color 0.2s ease;
+  border-radius: var(--radius-sm);
+  transition: color var(--dur) ease;
 }
 .clear:hover {
-  color: var(--ink);
-  text-decoration-color: var(--sprout);
+  color: var(--forest);
+  text-decoration: underline;
+}
+.clear:focus-visible {
+  outline: 2px solid var(--sprout);
+  outline-offset: 1px;
 }
 
 @media (max-width: 720px) {
   .divider {
     display: none;
   }
+  .fields {
+    flex-basis: 100%;
+  }
   .fields > div {
     flex: 1 1 140px;
+    min-width: 0;
   }
   .range {
     flex: 1 1 100% !important;
@@ -145,5 +144,10 @@
   .range > div {
     flex: 1;
     width: auto;
+    min-width: 0;
+  }
+  .range input {
+    width: 100%;
+    min-width: 0;
   }
 }

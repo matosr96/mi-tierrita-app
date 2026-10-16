@@ -1,4 +1,3 @@
-import { Odometer, TopoField } from "@/components/motion";
 import { QueryState } from "@/components/ui";
 import { VBarChart } from "@/components/charts";
 import { dateOnly, int, money, moneyCompact } from "@/lib/format";
@@ -13,20 +12,17 @@ const MAX_LABELED_BARS = 8;
 const MAX_BARS = 21;
 
 /**
- * Cierre del período: banda siempre oscura con la cifra estrella (total vendido) y el gráfico de ventas por día.
+ * Cierre del período: tarjeta con el total vendido (total vendido) y el gráfico de ventas por día.
  * Todas las cifras salen tal cual del reporte de ventas de la API (sin ventas anuladas).
  */
 export const PeriodLedger = ({ report, from, to }: { report: Query; from: string; to: string }) => {
   const singleDay = from === to;
   return (
     <div role="region" className={styles.band} aria-labelledby="ledger-title">
-      <TopoField className={styles.topo} rings={10} signal={6} seed={2.3} />
-      <div className={styles.glow} aria-hidden="true" />
-
       <header className={styles.head}>
-        <span id="ledger-title" className={styles.label}>
+        <h2 id="ledger-title" className={styles.title}>
           {singleDay ? "Cierre del día" : "Cierre del período"}
-        </span>
+        </h2>
         <span className={styles.range}>{singleDay ? dateOnly(from) : `${dateOnly(from)} – ${dateOnly(to)}`}</span>
       </header>
 
@@ -37,9 +33,7 @@ export const PeriodLedger = ({ report, from, to }: { report: Query; from: string
             <>
               <div className={styles.hero}>
                 <span className={styles.heroLabel}>Total vendido</span>
-                <strong className={styles.heroValue}>
-                  <Odometer value={moneyCompact(r.total)} />
-                </strong>
+                <strong className={styles.heroValue}>{moneyCompact(r.total)}</strong>
                 <span className={styles.heroHint}>
                   {int(r.salesCount)} {r.salesCount === 1 ? "ticket" : "tickets"} · {int(r.units)} {r.units === 1 ? "unidad" : "unidades"} · {money(r.total)}
                 </span>
@@ -63,8 +57,8 @@ export const PeriodLedger = ({ report, from, to }: { report: Query; from: string
 
               <div className={styles.chart}>
                 <div className={styles.chartHead}>
-                  <span className={styles.label}>Ventas por día</span>
-                  <span className={styles.chartHint}>pesos vendidos · sin anuladas</span>
+                  <h3 className={styles.chartTitle}>Ventas por día</h3>
+                  <span className={styles.chartHint}>Pesos vendidos, sin anuladas</span>
                 </div>
                 {rows.length === 0 ? (
                   <p className={styles.chartEmpty}>Cuando haya ventas registradas verá aquí el valor vendido por día.</p>

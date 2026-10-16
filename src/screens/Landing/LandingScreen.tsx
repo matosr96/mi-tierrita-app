@@ -1,16 +1,16 @@
 import { useEffect } from "react";
 import { LandingNav } from "./LandingNav";
 import { LandingHero } from "./LandingHero";
-import { LandingMarquee } from "./LandingMarquee";
 import { LandingCatalog } from "./LandingCatalog";
 import { LandingSystem } from "./LandingSystem";
 import { LandingVisit } from "./LandingVisit";
 import { LandingProject } from "./LandingProject";
 import { LandingContact } from "./LandingContact";
+import { LandingCta } from "./LandingCta";
 import { LandingFooter } from "./LandingFooter";
 import styles from "./Landing.module.css";
 
-/** Página pública de Mi Tierrita (v4.1 rediseñada): para clientes de la tienda y para presentar el proyecto. */
+/** Página pública de Mi Tierrita: tema blanco con animaciones, para clientes de la tienda y para presentar el proyecto. */
 export const LandingScreen = () => {
   useEffect(() => {
     const prev = document.title;
@@ -23,16 +23,17 @@ export const LandingScreen = () => {
   }, []);
 
   return (
-    <div className={styles.page}>
+    // data-motion: la página pública conserva sus animaciones (global.css las apaga en el resto de la app).
+    <div className={styles.page} data-motion>
       <LandingNav />
       <main>
         <LandingHero />
-        <LandingMarquee />
         <LandingCatalog />
         <LandingSystem />
         <LandingVisit />
         <LandingProject />
         <LandingContact />
+        <LandingCta />
       </main>
       <LandingFooter />
     </div>

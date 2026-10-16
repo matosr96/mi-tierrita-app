@@ -1,4 +1,3 @@
-import type { CSSProperties } from "react";
 import { ChartFrame, useChartHover } from "@/components/charts";
 import { money } from "@/lib/format";
 import styles from "./FinanceScreen.module.css";
@@ -59,26 +58,25 @@ export const InterestCapitalChart = ({ years, format, caption }: Props) => {
           return (
             <g
               key={y.year}
-              style={{ "--i": i } as CSSProperties}
               className={styles.hoverItem}
               role="img"
               aria-label={`Año ${y.year}: interés ${money(y.interest)}, capital ${money(y.principal)}`}
               {...hover.itemProps(i)}
             >
               <rect x={PX0 + slot * i} y={TOP - 10} width={slot} height={BASE - TOP + 30} className={styles.hit} />
-              {hInt > 0 ? <rect x={x} y={yInt} width={barW} height={Math.max(hInt - 2, 0)} rx="3" className={[styles.fillAccent, styles.stackTop].join(" ")} /> : null}
-              {hCap > 0 ? <rect x={x} y={yCap} width={barW} height={hCap} rx="3" className={[styles.fillGood, styles.growY].join(" ")} /> : null}
+              {hInt > 0 ? <rect x={x} y={yInt} width={barW} height={Math.max(hInt - 2, 0)} rx="3" className={styles.fillAccent} /> : null}
+              {hCap > 0 ? <rect x={x} y={yCap} width={barW} height={hCap} rx="3" className={styles.fillGood} /> : null}
               {hInt >= 18 ? (
-                <text x={cx} y={yInt + hInt / 2 + 4} textAnchor="middle" fontSize="11.5" fontWeight="600" className={[styles.textOnDark, styles.labelIn].join(" ")}>
+                <text x={cx} y={yInt + hInt / 2 + 4} textAnchor="middle" fontSize="11.5" fontWeight="600" className={styles.textOnDark}>
                   {format(y.interest)}
                 </text>
               ) : (
-                <text x={x + barW + 4} y={yInt + 8} fontSize="11" fontWeight="600" className={[styles.textAccent, styles.labelIn].join(" ")}>
+                <text x={x + barW + 4} y={yInt + 8} fontSize="11" fontWeight="600" className={styles.textAccent}>
                   {format(y.interest)}
                 </text>
               )}
               {hCap >= 18 ? (
-                <text x={cx} y={yCap + hCap / 2 + 4} textAnchor="middle" fontSize="11.5" fontWeight="600" className={[styles.textOnDark, styles.labelIn].join(" ")}>
+                <text x={cx} y={yCap + hCap / 2 + 4} textAnchor="middle" fontSize="11.5" fontWeight="600" className={styles.textOnDark}>
                   {format(y.principal)}
                 </text>
               ) : null}

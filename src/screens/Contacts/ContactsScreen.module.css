@@ -9,10 +9,11 @@
   gap: 10px;
 }
 .item {
-  padding: 16px 18px;
+  padding: 14px 18px;
   border-radius: var(--radius);
   border: 1px solid var(--line);
   background: var(--surface);
+  box-shadow: var(--shadow);
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -27,19 +28,17 @@
   flex-wrap: wrap;
 }
 .name {
-  font-weight: 500;
+  font-size: 14px;
+  font-weight: 600;
   color: var(--ink);
 }
 .topic {
-  font-family: var(--font-mono);
-  font-size: 10px;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
+  font-size: 13px;
   color: var(--muted);
 }
 .date {
   margin-left: auto;
-  font-size: 12px;
+  font-size: 13px;
   color: var(--muted);
 }
 .body {
@@ -63,7 +62,7 @@
   font-size: 13px;
 }
 .channels a {
-  color: var(--good);
+  color: var(--link);
   text-decoration: none;
 }
 .channels a:hover {

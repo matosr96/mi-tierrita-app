@@ -8,7 +8,7 @@ import styles from "./States.module.css";
 export const Loading = ({ text = "Cargando…", inline = false }: { text?: string; inline?: boolean }) =>
   inline ? (
     <div className={[styles.box, styles.inline].join(" ")} role="status">
-      <div className={styles.loader} aria-hidden="true">
+      <div className={styles.loader} aria-hidden="true" data-motion>
         <span />
         <span />
         <span />
@@ -17,8 +17,8 @@ export const Loading = ({ text = "Cargando…", inline = false }: { text?: strin
       <span className={styles.loadText}>{text}</span>
     </div>
   ) : (
-    // Esqueleto con brillo: insinúa la forma del contenido mientras llega.
-    <div className={styles.skeleton} role="status" aria-label={text}>
+    // Esqueleto con brillo suave (lo único que se anima): insinúa la forma del contenido mientras llega.
+    <div className={styles.skeleton} role="status" aria-label={text} data-motion>
       <span className={styles.skLine} style={{ width: "38%" }} />
       <span className={styles.skBlock} />
       <span className={styles.skLine} style={{ width: "92%" }} />
@@ -28,7 +28,7 @@ export const Loading = ({ text = "Cargando…", inline = false }: { text?: strin
     </div>
   );
 
-/** Marca de los estados vacíos: anillos concéntricos que respiran alrededor de una hoja. */
+/** Marca de los estados vacíos: una hoja dentro de un círculo. */
 const EmptyMark = () => (
   <svg className={styles.emptyMark} width="64" height="64" viewBox="0 0 64 64" fill="none" aria-hidden="true">
     <circle cx="32" cy="32" r="30" className={styles.ring3} />

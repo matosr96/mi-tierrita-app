@@ -2,7 +2,7 @@ import { Fragment, type CSSProperties } from "react";
 import styles from "./motion.module.css";
 
 type Props = {
-  /** Texto a revelar. `*así*` se pinta en serif cursiva y `\n` fuerza un salto de línea. */
+  /** Texto a revelar. `*así*` se pinta con el color de acento (--serif-color) y `\n` fuerza un salto de línea. */
   text: string;
   /** Retardo inicial en milisegundos. */
   delay?: number;

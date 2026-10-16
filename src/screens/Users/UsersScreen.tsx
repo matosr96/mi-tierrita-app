@@ -1,24 +1,23 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useUsers } from "@/hooks/users";
 import { useSessionStore } from "@/stores/session";
 import { int } from "@/lib/format";
 import { PageHeader } from "@/components/layout/AppShell";
-import { Odometer } from "@/components/motion";
 import { Button, EmptyState, Pagination, QueryState } from "@/components/ui";
 import { AccessMatrix } from "./AccessMatrix";
 import { ActivityFeed } from "./ActivityFeed";
 import { PersonCard } from "./PersonCard";
 import { UserFormModal } from "./UserFormModal";
-import { ChangePasswordModal } from "./ChangePasswordModal";
 import styles from "./UsersScreen.module.css";
 
-/** CU-03 Usuarios y roles (solo ADMIN) y CU-04 cambio de contraseña propia. */
+/** CU-03 Usuarios y roles (solo ADMIN). El cambio de contraseña propia (CU-04) vive en Mi perfil › Seguridad. */
 export const UsersScreen = () => {
   const me = useSessionStore((s) => s.user);
   const canCreate = me?.role === "ADMIN";
   const [page, setPage] = useState(1);
   const [showForm, setShowForm] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
+  const navigate = useNavigate();
   const query = useUsers({ page, limit: 20 });
 
   return (
@@ -26,28 +25,15 @@ export const UsersScreen = () => {
       <PageHeader
         title="Usuarios y roles"
         subtitle="Cuentas con acceso al sistema y lo que puede hacer cada rol."
-        actions={
-          <>
-            <Button variant="secondary" onClick={() => setShowPassword(true)}>
-              Cambiar mi contraseña
-            </Button>
-            {canCreate ? <Button onClick={() => setShowForm(true)}>Nuevo usuario</Button> : null}
-          </>
-        }
+        actions={canCreate ? <Button onClick={() => setShowForm(true)}>Nuevo usuario</Button> : null}
       />
 
       <section className={styles.team} aria-labelledby="team-title">
         <header className={styles.teamHead}>
-          <div>
-            <div className={styles.label}>Equipo · cuentas</div>
-            <h2 id="team-title" className={styles.title}>
-              Quién entra <em>al sistema</em>
-            </h2>
-          </div>
-          <div className={styles.count}>
-            <span className={styles.countValue}>{query.data ? <Odometer value={int(query.data.count)} /> : "—"}</span>
-            <span className={styles.countLabel}>cuentas</span>
-          </div>
+          <h2 id="team-title" className={styles.title}>
+            Equipo
+          </h2>
+          <span className={styles.count}>{query.data ? `${int(query.data.count)} ${query.data.count === 1 ? "cuenta" : "cuentas"}` : "…"}</span>
         </header>
 
         <QueryState
@@ -64,11 +50,11 @@ export const UsersScreen = () => {
           {(data) => (
             <>
               <ul className={styles.people}>
-                {data.items.map((u, i) => (
-                  <PersonCard key={u.id} user={u} index={i} isMe={me?.id === u.id} onChangePassword={() => setShowPassword(true)} />
+                {data.items.map((u) => (
+                  <PersonCard key={u.id} user={u} isMe={me?.id === u.id} onChangePassword={() => navigate("/perfil/seguridad")} />
                 ))}
                 {canCreate ? (
-                  <li className={styles.addItem} style={{ animationDelay: `${data.items.length * 55 + 80}ms` }}>
+                  <li className={styles.addItem}>
                     <button type="button" className={styles.add} onClick={() => setShowForm(true)}>
                       <span className={styles.addPlus} aria-hidden="true">
                         +
@@ -91,7 +77,6 @@ export const UsersScreen = () => {
       </div>
 
       {showForm ? <UserFormModal onClose={() => setShowForm(false)} /> : null}
-      {showPassword ? <ChangePasswordModal onClose={() => setShowPassword(false)} /> : null}
     </div>
   );
 };

@@ -17,7 +17,7 @@ type Props = {
   children: ReactNode;
 };
 
-/** Vista previa: barra de mando compacta (filtros y exportación a PDF y Excel) y el documento apoyado sobre el escritorio. */
+/** Vista previa: barra blanca con filtros y exportación a PDF y Excel, y debajo el documento. */
 export const ReportPreview = ({
   subtitle,
   filters,
@@ -40,10 +40,7 @@ export const ReportPreview = ({
         role="toolbar"
         aria-label="Parámetros del reporte"
       >
-        <span className={styles.tag}>
-          <span className={styles.dot} aria-hidden="true" />
-          Vista previa
-        </span>
+        <span className={styles.tag}>Vista previa</span>
         <div className={styles.filters}>{filters}</div>
         {exportName ? (
           <div className={styles.actions}>

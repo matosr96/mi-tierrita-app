@@ -9,7 +9,7 @@ const REPORT_LABEL: Record<ExportReportKind, string> = { sales: "Reporte de vent
 
 const columns: Column<ReportExport>[] = [
   { key: "date", header: "Fecha y hora", render: (e) => dateTime(e.createdAt) },
-  { key: "user", header: "Generado por", align: "left", render: (e) => <span className={styles.mono}>@{e.username}</span> },
+  { key: "user", header: "Generado por", align: "left", render: (e) => `@${e.username}` },
   {
     key: "report",
     header: "Reporte",

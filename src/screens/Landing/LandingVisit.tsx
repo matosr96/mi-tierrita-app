@@ -1,22 +1,20 @@
-import { Reveal, SplitText } from "@/components/motion";
+import { Reveal, SplitText } from "./motion";
 import { STORE } from "./content";
 import styles from "./Landing.module.css";
 
-/** Dónde queda la tienda. Solo muestra los datos confirmados en content.ts. */
+/** Dónde queda la tienda. Solo muestra los datos confirmados en content.ts (los vacíos ocultan su bloque). */
 export const LandingVisit = () => (
-  <section className={[styles.section, styles.visit].join(" ")} id="visitenos" aria-labelledby="visitenos-title">
+  <section className={styles.section} id="visitenos" aria-labelledby="visitenos-title">
     <div className={styles.visitGrid}>
-      <div>
-        <span className={styles.eyebrow}>
-          <span>03</span>Visítenos
-        </span>
-        <h2 id="visitenos-title" className={styles.visitTitle}>
+      <div className={styles.visitText}>
+        <span className={styles.eyebrow}>Visítenos</span>
+        <h2 id="visitenos-title" className={styles.sectionTitle}>
           <SplitText text={"Sahagún,\n*Córdoba.*"} />
         </h2>
         <p className={styles.sectionLead}>Una tienda del campo cordobés que atiende a ganaderos, avicultores y agricultores de Sahagún y sus veredas.</p>
       </div>
       <Reveal variant="rise" delay={150}>
-        <dl className={styles.visitFacts}>
+        <dl className={styles.visitCard}>
           <div>
             <dt>Dónde</dt>
             <dd>{STORE.address ? `${STORE.address} · ${STORE.city}` : `${STORE.city}, ${STORE.country}`}</dd>
@@ -48,6 +46,9 @@ export const LandingVisit = () => (
           <div>
             <dt>Coordenadas</dt>
             <dd>8.95° N · 75.44° O</dd>
+          </div>
+          <div className={styles.visitPing} aria-hidden="true">
+            <span />
           </div>
         </dl>
       </Reveal>

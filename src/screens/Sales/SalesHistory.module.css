@@ -1,9 +1,9 @@
-/* Historial: línea de tiempo a la izquierda y cierre del período fijo a la derecha. */
+/* Historial: lista de ventas a la izquierda y cierre del período a la derecha. */
 .layout {
   display: grid;
   grid-template-columns: minmax(0, 1.5fr) minmax(320px, 1fr);
   grid-template-areas: "timeline ledger";
-  gap: 14px;
+  gap: 16px;
   align-items: start;
 }
 .timeline {

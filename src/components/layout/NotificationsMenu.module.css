@@ -1,26 +1,29 @@
+/* Campana de notificaciones: botón discreto y panel blanco con borde fino, sin animaciones. */
 .root {
   position: relative;
 }
 .bell {
-  width: 36px;
-  height: 36px;
+  width: 44px;
+  height: 44px;
   flex-shrink: 0;
-  border: 1px solid transparent;
-  border-radius: 10px;
+  border: 1px solid var(--band-glass-line);
+  border-radius: 50%;
   background: transparent;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
   position: relative;
-  color: var(--ink-2);
-  transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+  color: var(--on-band);
+  transition: background var(--dur) var(--ease-out);
 }
 .bell:hover,
 .bell[aria-expanded="true"] {
-  background: var(--surface);
-  border-color: var(--line);
-  color: var(--ink);
+  background: var(--band-glass);
+}
+.bell:focus-visible {
+  outline: 2px solid var(--sprout);
+  outline-offset: 2px;
 }
 .count {
   position: absolute;
@@ -31,49 +34,49 @@
   padding: 0 3px;
   border-radius: 999px;
   background: var(--bad);
-  color: #fff;
-  font-family: var(--font-mono);
-  font-size: 9px;
+  color: var(--surface);
+  font-size: 10px;
+  font-weight: 600;
   line-height: 14px;
   text-align: center;
+  font-variant-numeric: tabular-nums;
   border: 1.5px solid var(--surface);
   box-sizing: content-box;
 }
 .panel {
   position: absolute;
-  top: calc(100% + 10px);
+  top: calc(100% + 8px);
   right: 0;
   z-index: 50;
-  width: min(380px, calc(100vw - 24px));
+  width: min(360px, calc(100vw - 24px));
   border-radius: var(--radius);
-  border: 1px solid var(--dark-line);
-  background: var(--app-bg);
-  color: var(--dark-ink);
-  box-shadow: 0 30px 60px -30px rgba(4, 12, 8, 0.75);
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--ink);
+  box-shadow: var(--shadow-panel);
   overflow: hidden;
-  animation: menuIn 0.2s var(--ease-out) backwards;
 }
 .head {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  padding: 14px 16px 12px;
-  border-bottom: 1px solid var(--dark-line);
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--line);
 }
 .title {
-  font-family: var(--font-mono);
-  font-size: 11px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ink);
 }
 .markAll {
   border: 0;
   background: none;
   padding: 0;
   cursor: pointer;
-  font-size: 12px;
-  color: var(--sprout);
+  font: inherit;
+  font-size: 13px;
+  color: var(--link);
 }
 .markAll:hover {
   text-decoration: underline;
@@ -91,29 +94,34 @@
   grid-template-columns: 8px minmax(0, 1fr) auto;
   align-items: center;
   gap: 10px;
-  padding: 11px 10px;
+  padding: 9px 10px;
   border: 0;
-  border-radius: 10px;
+  border-radius: var(--radius-sm);
   background: transparent;
-  color: var(--dark-ink-2);
+  color: var(--muted);
   text-align: left;
   font: inherit;
   font-size: 13px;
-  line-height: 1.35;
+  line-height: 1.4;
   cursor: pointer;
+  transition: background var(--dur) var(--ease-out);
 }
 .item:hover {
-  background: rgba(255, 255, 255, 0.06);
+  background: var(--hover);
+}
+.item:focus-visible {
+  outline: 2px solid var(--sprout);
+  outline-offset: -2px;
 }
 .unread {
-  background: rgba(185, 236, 111, 0.07);
-  color: var(--dark-ink);
+  color: var(--ink);
+  font-weight: 500;
 }
 .dot {
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: var(--dark-muted);
+  background: var(--muted-2);
 }
 .bad {
   background: var(--bad);
@@ -122,7 +130,7 @@
   background: var(--warn);
 }
 .neutral {
-  background: var(--dark-muted);
+  background: var(--muted-2);
 }
 .text {
   min-width: 0;
@@ -132,36 +140,31 @@
   flex-direction: column;
   align-items: center;
   gap: 8px;
-  padding: 26px 16px 18px;
+  padding: 24px 16px 18px;
 }
 .check {
-  width: 34px;
-  height: 34px;
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
   display: grid;
   place-items: center;
-  background: rgba(185, 236, 111, 0.12);
-  color: var(--sprout);
+  background: var(--sprout-soft);
+  color: var(--good);
 }
 .empty {
   margin: 0;
   padding: 0 16px;
   font-size: 13px;
-  color: var(--dark-ink-2);
+  color: var(--muted);
   text-align: center;
 }
 .foot {
   margin: 0;
-  padding: 10px 16px 12px;
-  border-top: 1px solid var(--dark-line);
-  font-size: 11px;
-  color: var(--dark-muted);
-}
-@keyframes menuIn {
-  from {
-    opacity: 0;
-    transform: translateY(-6px);
-  }
+  padding: 9px 14px 10px;
+  border-top: 1px solid var(--line);
+  background: var(--surface-2);
+  font-size: 12px;
+  color: var(--muted);
 }
 @media (max-width: 560px) {
   .panel {

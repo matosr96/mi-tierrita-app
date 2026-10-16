@@ -1,41 +1,28 @@
-/* Vista previa: barra de mando de una sola franja y escritorio punteado donde descansa el documento. */
+/* Vista previa: barra de herramientas blanca (filtros y exportación) y el documento debajo. */
 .preview {
   display: flex;
   flex-direction: column;
   gap: 10px;
 }
 .bar {
-  position: relative;
   display: flex;
   align-items: flex-end;
   flex-wrap: wrap;
-  gap: 12px 18px;
-  padding: 10px 12px 10px 16px;
+  gap: 12px 16px;
+  padding: 12px 14px;
   background: var(--surface);
   border: 1px solid var(--line);
-  border-radius: calc(var(--radius) + 4px);
+  border-radius: var(--radius);
   box-shadow: var(--shadow);
 }
 .tag {
   align-self: center;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding-right: 18px;
+  padding-right: 16px;
   border-right: 1px solid var(--line);
-  font-family: var(--font-mono);
-  font-size: 10px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
+  font-size: 14px;
+  font-weight: 600;
   color: var(--ink);
   white-space: nowrap;
-}
-.dot {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: var(--sprout);
-  box-shadow: 0 0 0 3px var(--sprout-soft);
 }
 .filters {
   flex: 1;
@@ -50,41 +37,14 @@
   gap: 8px;
   align-self: center;
 }
-/* Controles del kit en versión compacta dentro de la barra. */
-.bar label {
-  font-family: var(--font-mono);
-  font-size: 9.5px;
-  font-weight: 400;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--muted);
-}
-.bar input,
-.bar select {
-  height: 34px;
-  padding: 0 11px;
-  font-size: 12.5px;
-  border-radius: 999px;
-  font-variant-numeric: tabular-nums;
-}
 .caption {
-  padding: 0 4px;
-  font-family: var(--font-mono);
-  font-size: 10px;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
+  margin: 0;
+  padding: 0 2px;
+  font-size: 13px;
   color: var(--muted);
 }
 .desk {
-  position: relative;
-  isolation: isolate;
-  padding: clamp(18px, 3.4vw, 44px) clamp(14px, 3.4vw, 48px) clamp(30px, 4vw, 56px);
-  border-radius: var(--radius-panel);
-  background: radial-gradient(circle, var(--line-strong) 1px, transparent 1.4px) 0 0 / 18px 18px, var(--surface-3);
-  border: 1px solid var(--line);
-}
-:global(html[data-theme="dark"]) .desk {
-  background: radial-gradient(circle, var(--line) 1px, transparent 1.4px) 0 0 / 18px 18px, var(--ground);
+  min-width: 0;
 }
 @media (max-width: 720px) {
   .tag {

@@ -7,7 +7,6 @@ La app las tiñe en duotono verde, les aplica un zoom lento y las alterna cada p
 
 Página pública (héroe):
 - manos-recorte.webp: recorte (sin fondo, Vision de macOS) de «Fotografía bokeh de una persona que lleva tierra», de Gabriel Jimenez, Unsplash (unsplash.com/photos/jin4W1HqgL4), licencia Unsplash.
-- nubes.webp: «Mar de nubes», Unsplash (unsplash.com/photos/nv7WX42LKjU), licencia Unsplash.
 - universidad-de-cartagena.jpg: logo de la Universidad de Cartagena (programa de Ingeniería de Software).
 
 Página pública (catálogo, carpeta catalogo/; todas de Unsplash, licencia Unsplash, recortadas y pasadas a WebP):

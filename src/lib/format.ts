@@ -29,7 +29,11 @@ export const dateOnly = (iso: string | null | undefined): string => {
   if (y === undefined || m === undefined || d === undefined) return iso;
   return new Date(y, m - 1, d).toLocaleDateString("es-CO", { dateStyle: "medium" });
 };
-export const todayIso = (): string => new Date().toISOString().slice(0, 10);
+/** Fecha de hoy YYYY-MM-DD en la hora local del equipo (no en UTC: a las 8 p. m. en Colombia sigue siendo hoy). */
+export const todayIso = (): string => {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+};
 export const addDaysIso = (iso: string, days: number): string => {
   const d = new Date(`${iso}T00:00:00Z`);
   d.setUTCDate(d.getUTCDate() + days);

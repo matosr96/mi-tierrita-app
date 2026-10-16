@@ -20,18 +20,17 @@ HTTP; solo usa hooks. Un hook por operación (`src/hooks/<entidad>/useX.ts`), un
 
 1. **Toda pantalla contempla sus tres estados**: cargando, vacío (con llamada a la acción) y con datos.
    Usar `QueryState` / `Loading` / `EmptyState` / `ErrorState` de `@/components/ui`.
-2. **Ningún color suelto**: solo variables de `src/styles/theme.css`. Dirección visual "cinematográfica"
-   (referencia: reel de landings de @marcelodesignx, octubre de 2026): shell `--app-bg` verde casi negro
-   #07110C, panel de papel `--ground` #F2F1EB, tarjetas `--surface` con borde `--line` y radio `--radius`
-   14px, acento lima `--sprout` #B9EC6F (texto encima `--sprout-ink`), marca `--forest`/`--leaf`, semánticos
-   `--good`/`--warn`/`--bad` con sus `-soft`, `-line`, `-tag-bg`, `-tag-fg`; superficies siempre oscuras
-   (menú, login, toasts) con `--dark-*`. Tipografía: `--font-heading`/`--font-body` Geist (titulares en
-   peso 300 con tracking negativo), `--font-serif` Instrument Serif solo para acentos en cursiva (`<em>` o
-   `*así*` en `SplitText`), `--font-mono` Geist Mono para microetiquetas en mayúsculas, `--font-dots` Doto (matriz de puntos) solo para
-   la cifra estrella (precarga, pendientes de la portada, número de factura al confirmar una venta). Movimiento:
-   `--ease-out`, `--ease-in-out`, `--ease-spring`; las entradas usan `animation-fill-mode: backwards`
-   (nunca `both`/`forwards` en contenedores: un `transform` retenido rompe los modales `position: fixed`).
-   `global.css` anula todo con `prefers-reduced-motion`. Los SVG de iconos pueden llevar `currentColor`.
+2. **Ningún color suelto**: solo variables de `src/styles/theme.css`. Dirección visual inspirada en las referencias
+   **Clerio CRM** y **Pay Key** (Behance, octubre de 2026), en verde pastel de la marca: un solo tema claro; sin menú
+   lateral (navegación superior en píldora con íconos, secundarias en "Más", menú desplegable en pantallas angostas);
+   encabezado y barra sobre un degradado `--hero-from` → `--hero-to`; tarjetas `--surface` sin borde, radio `--radius`
+   22 px y sombra `--shadow`; botones, pestañas y filtros en píldora; acento `--sprout` (verde) con `--sprout-soft`;
+   semánticos `--good`/`--warn`/`--bad` con `-soft`, `-line`, `-tag-bg`, `-tag-fg`. Tipografía Urbanist en todo:
+   titulares y cifras grandes en peso 400–500 con tracking negativo; `--font-mono` solo para códigos (SKU, factura,
+   lote). Minigráficos de barras finas (`Sparkline`). Nada de etiquetas en mayúsculas espaciadas, texturas, curvas de
+   nivel ni superficies oscuras. Movimiento **mínimo y funcional** dentro de la app: solo transiciones cortas de estado
+   (`--dur`); `global.css` anula toda animación salvo en elementos con `data-motion` (indicadores de carga y la página
+   pública). Los SVG de iconos pueden llevar `currentColor`.
 3. **Estilos encapsulados**: cada pantalla/componente tiene su `X.module.css`; nada de CSS global nuevo.
 4. **El frontend no calcula**: totales, saldos e indicadores se muestran tal como los devuelve la API.
    Lo único que suma el cliente es una vista previa del carrito, marcada como estimada.
@@ -55,32 +54,20 @@ HTTP; solo usa hooks. Un hook por operación (`src/hooks/<entidad>/useX.ts`), un
 hint, tone neutral|good|warn|bad) y `StatGrid` · `Badge` (tone) · `DataTable<T>` (columns[{key, header,
 align, render, width}], rows, rowKey, onRowClick, footer) · `Loading`, `EmptyState`, `ErrorState`,
 `QueryState` · `Pagination` (page, onPage) · `Modal` (open, title, description, onClose, footer, wide) ·
-`Tabs` (segmentado con píldora que se desliza) y `Chips` (píldoras; activa verde bosque) ·
-`Callout` (veredicto: tone good|warn|bad con ícono que se dibuja, title 32px ligero, aside a la derecha) · `Toasts`.
-`StatCard` pasa los valores de texto con dígitos por `Odometer`; `DataTable` escalona la entrada de filas.
-Movimiento en `@/components/motion`: `Reveal` (aparece al entrar en pantalla), `SplitText` (titular por
-palabras; `*x*` serif cursiva, `\n` salto), `Odometer` (rodillos por dígito), `Preloader` (intro 0→100 %,
-una vez por sesión), `TopoField` (curvas de nivel que se dibujan una vez, para superficies oscuras), `TerrainField` (terreno 3D en malla de alambre del login, WebGL a mano: fases `idle`/`leaving` y `alert` para el
-escaneo rojo), `ShaderField` (fondo vivo en
-WebGL con los colores del tema; se pausa fuera de la vista), `PhotoBackdrop` (fotos en duotono con zoom lento;
-las rutas van en `src/lib/media.ts` y los archivos en `public/media/`), `trackSpotlight`
-(brillo que sigue al cursor; ya lo usan `Card` y `StatCard`), `useInView`. En `@/components/layout`:
-`HeroHeader` (portada oscura de Inicio: eyebrow, titular, subtítulo, acciones y `aside`) y `CommandPalette`
-(⌘K / Ctrl+K, montada en el shell). `RedirectIfSession` solo redirige si ya había sesión al llegar al login,
-para que la salida animada del login termine antes de navegar. Dentro de la app el movimiento es breve y de una sola vez
-(entradas ≤ 0,5 s, sin bucles decorativos ni WebGL: `ShaderField` y `PhotoBackdrop` quedan solo para superficies
-públicas); los únicos bucles permitidos señalan algo (alerta en rojo, estado en línea, cargando). Las `NavLink` usan
-View Transitions cortas (`view-transition-name: page`).
-Efectos ligados al scroll con CSS nativo (`animation-timeline: scroll()/view()`) siempre dentro de
-`@supports` y anulados con `prefers-reduced-motion`. La portada de Inicio responde "¿está todo bien?":
-`statusTitle` + `StatusAside` a partir de los pendientes de `screens/Home/attention.ts`.
-Superficies oscuras dentro del panel claro (héroe, ticket del punto de venta, tarjeta de decisión)
-reutilizan el kit redefiniendo `--ink`, `--surface`, `--line`… y `--btn-invert` en su contenedor. Gráficos SVG en `@/components/charts`:
-`HBarChart`, `VBarChart` ({label, value, alt}[], format; `alt` pinta la barra en naranja), `DonutChart` (data[{label,
-value, tone}], format, center, centerLabel), `Sparkline` (values; también vía `StatCard trend`), `LineChart` (points, formatX, formatY, marker,
-highlightX), `TornadoChart` (data[{label, low, high}], base, format). Encabezado de página: `PageHeader` (microetiqueta numerada según la ruta + h1 con `SplitText` + subtítulo +
-acciones) y `BrandMark` de `@/components/layout/AppShell`. Botones en píldora con rótulo que rueda al pasar
-el cursor: `primary` verde bosque que se rellena de lima, `secondary` con borde que se rellena de tinta.
+`Tabs` (control segmentado en píldora; `ariaLabel` opcional; también sobre la franja verde) y `Chips` (píldoras; activa verde suave) · `Callout` (veredicto: tone good|warn|bad con
+ícono, título 20 px, aside a la derecha) · `Toasts`. `DataTable` alinea el texto a la izquierda; las columnas
+numéricas declaran `align: "right"`. En `@/components/layout`: `PageHeader` (título, subtítulo y acciones; sin
+decoración), `HeroHeader` (encabezado del Inicio: eyebrow, titular, subtítulo, acciones y `aside` con los pendientes),
+`BrandMark` (de `AppShell`), `CommandPalette` (⌘K / Ctrl+K) y `NotificationsMenu`. `AppShell` pone en la píldora
+las rutas de `PRIMARY` (rótulos cortos) y el resto, más "Cerrar sesión", en "Más". El Inicio usa la rejilla `.dash`
+de tres columnas, la tarjeta destacada `StatusAside` (degradado verde con los pendientes; `watches` dice qué vigila para el rol) y `ActivityCard`. Cada pendiente aparece una sola vez en el Inicio (la campana y las insignias lo repiten fuera de él, a propósito). La portada de Inicio responde
+"¿está todo bien?": `statusTitle` + `StatusAside` a partir de los pendientes de `screens/Home/attention.ts`.
+Ya no existe `@/components/motion`: dentro de la app no hay titulares animados, odómetros, fondos WebGL ni efectos de
+scroll (la página pública es la única excepción).
+Gráficos SVG en `@/components/charts`: `HBarChart`, `VBarChart` ({label, value, alt}[], format; `alt` pinta la barra
+en naranja), `DonutChart` (data[{label, value, tone}], format, center, centerLabel), `Sparkline` (values; también vía
+`StatCard trend`), `LineChart` (points, formatX, formatY, marker, highlightX), `TornadoChart` (data[{label, low, high}],
+base, format).
 
 ## Exportes, notificaciones y perfil
 
@@ -105,16 +92,33 @@ el cursor: `primary` verde bosque que se rellena de lima, `secondary` con borde 
 
 ## Página pública (`src/screens/Landing`)
 
-Ruta pública `/sitio`; `/` sin sesión también la muestra (ver `RequireSession`). Se carga en su propio paquete
-(`lazy`), así que three.js solo se descarga para quien la abre. Todo el texto sale de `content.ts`; los datos de
-contacto vacíos (`STORE.whatsapp`, `email`, `hours`, `address`) ocultan su bloque: no publicar nada sin confirmar
-con la tienda. Escenas three.js: `photoScene.ts` (héroe de tres actos con fotos reales en capas: manos con tierra,
-nubes, granos que caen; la palabra calada y la neblina son SVG/CSS en `LandingHero`) y `storyScene.ts` ("El sistema por dentro":
-30 cajas que cuentan un guion de diez momentos ligado al scroll —compra, estante FEFO, sale primero el que vence,
-venta al mostrador, saldo y abono del cupo, escenarios con el piso VPN = 0— con etiquetas HTML proyectadas desde
-3D; `LandingSystem` sincroniza capítulo y paso con `BOUNDS`/`STEP_AT`). El catálogo usa fotos reales
-(`public/media/catalogo/<código>.webp`) que, al activarse (cursor, foco o centro de la pantalla en táctiles), se desenfoca y deja ver una escena SVG en tres pasos por línea
-(`LineStory.tsx`). Fotos y créditos en `public/media/LEEME.txt`.
+Ruta pública `/sitio`; `/` sin sesión también la muestra (ver `RequireSession`). Se carga en su propio paquete (`lazy`;
+sin three.js ni WebGL). Mismo lenguaje visual que la app, al estilo de la landing de **Clerio** en verde pastel: blanco y
+`--ground`, tarjetas blancas muy redondeadas sin borde con `--shadow`, titulares centrados en Urbanist 500 con tracking
+negativo (los `*acentos*` de `SplitText` solo cambian a `--serif-color`, verde), botones en píldora. Pero **conserva sus
+animaciones**: la raíz lleva `data-motion` (así `global.css` no las apaga) y los ayudantes de movimiento viven solo aquí,
+en `src/screens/Landing/motion/` (`Reveal`, `SplitText`, `useInView`); la app interna no los usa. Estructura: barra
+flotante en píldora (`LandingNav`: marca, secciones, «Ingresar al sistema»; menú desplegable bajo 900 px) → héroe
+centrado (`LandingHero` + `LandingHero.module.css`: titular, dos botones y `DashboardMock`, una pantalla del Inicio hecha
+con divs —ilustrativa, `aria-hidden`, con la leyenda "Vista ilustrativa del sistema · cifras de ejemplo"— sobre un halo
+pastel; el monitor pasa de inclinado en perspectiva a plano con el scroll vía la variable `--p`, tarjetas KPI flotantes
+que se mecen y una fila lenta de píldoras con las seis líneas) → catálogo (`LandingCatalog`: fotos reales
+`public/media/catalogo/<código>.webp` en tarjetas blancas; al activarlas un velo blanco deja ver la escena SVG en tres
+pasos de `LineStory.tsx`) → "El sistema por dentro" (`LandingSystem` + `SystemMocks`: un panel por capítulo de `CHAPTERS`
+con una minipantalla que repite FEFO, venta/cupo/abono y escenarios con VPN = 0 en tres pasos mientras está a la vista;
+los pasos también se eligen a mano) → Visítenos → Proyecto (logo de la universidad, `WORK_KIND`, `ACADEMIC`, `TEAM`) →
+Contacto (`LandingContact`, `POST /contact` con campo trampa `website`) → banda de cierre (`LandingCta`, degradado pastel
+con la foto de las manos) → pie claro con columnas, créditos y la palabra "Mi Tierrita" gigante recortada. Con
+`prefers-reduced-motion` el monitor queda plano y los capítulos quietos en su último paso. Todo el texto sale de
+`content.ts`; los datos de contacto vacíos (`STORE.whatsapp`, `email`, `hours`, `address`) ocultan su bloque: no publicar
+nada sin confirmar con la tienda. Fotos y créditos en `public/media/LEEME.txt`.
+
+## Stock vendible y fechas
+
+`Product.stock` es el stock físico (incluye lotes vencidos aún en bodega); `Product.availableStock` es lo que FEFO puede
+vender hoy. El punto de venta usa `availableStock`; Inventario muestra el físico y marca las unidades vencidas
+(`expiredUnits` de `screens/Inventory/stockStatus.ts`, donde también vive `LOW_STOCK`). `todayIso()` es la fecha local,
+no UTC; la API cuenta "hoy" en `BUSINESS_TZ` (America/Bogota). Auditoría de octubre de 2026 en `docs/auditoria/`.
 
 ## Hooks disponibles (`@/hooks/<entidad>`)
 

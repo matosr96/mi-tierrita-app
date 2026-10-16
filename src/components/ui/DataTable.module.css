@@ -1,11 +1,14 @@
 .wrap {
+  /* relative: los textos solo para lectores (position: absolute) quedan dentro del desplazamiento y no ensanchan la página. */
+  position: relative;
   overflow-x: auto;
 }
+/* Texto a la izquierda; las columnas numéricas declaran align "right". */
 .table th,
 .table td {
-  text-align: right;
-  padding: 10px 12px;
-  font-size: 12.5px;
+  text-align: left;
+  padding: 11px 14px;
+  font-size: 14px;
   border-bottom: 1px solid var(--line-soft);
   vertical-align: middle;
 }
@@ -15,21 +18,17 @@
   text-align: left;
 }
 .table thead th {
-  font-family: var(--font-mono);
-  font-size: 10px;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
+  font-size: 13px;
   color: var(--muted);
-  font-weight: 400;
+  font-weight: 500;
+  background: transparent;
   border-bottom: 1px solid var(--line);
   white-space: nowrap;
   padding-top: 8px;
   padding-bottom: 8px;
 }
 .table tbody tr {
-  animation: rowIn 0.35s var(--ease-out) backwards;
-  animation-delay: calc(min(var(--row, 0), 8) * 18ms);
-  transition: background 0.2s ease;
+  transition: background-color var(--dur) ease;
 }
 .table tbody tr:hover {
   background: var(--surface-2);
@@ -40,27 +39,7 @@
 .clickable tbody tr {
   cursor: pointer;
 }
-.clickable tbody td:first-child {
-  position: relative;
-  transition: padding 0.35s var(--ease-out);
-}
-.clickable tbody td:first-child::before {
-  content: "";
-  position: absolute;
-  left: 0;
-  top: 50%;
-  width: 2px;
-  height: 0;
-  background: var(--sprout);
-  transform: translateY(-50%);
-  transition: height 0.35s var(--ease-out);
-}
-.clickable tbody tr:hover td:first-child {
-  padding-left: 18px;
-}
-.clickable tbody tr:hover td:first-child::before {
-  height: 60%;
-}
+
 .table .right {
   text-align: right;
   font-variant-numeric: tabular-nums;
@@ -71,10 +50,4 @@
 .table tfoot td {
   font-weight: 600;
   border-top: 1px solid var(--line-strong);
-}
-@keyframes rowIn {
-  from {
-    opacity: 0;
-    transform: translateY(8px);
-  }
 }

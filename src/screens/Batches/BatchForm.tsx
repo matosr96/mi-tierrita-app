@@ -3,6 +3,7 @@ import { useRegisterBatch } from "@/hooks/batches";
 import { useSuppliers } from "@/hooks/suppliers";
 import { fieldErrors } from "@/lib/errors";
 import { Button, Field, FieldRow, Input, Select } from "@/components/ui";
+import { todayIso } from "@/lib/format";
 import styles from "./BatchForm.module.css";
 
 type Props = {
@@ -40,6 +41,7 @@ export const BatchForm = ({ productId, onDone, onCancel, submitLabel = "Registra
     if (productId === null) errs.productId = "Seleccione un producto.";
     if (quantity === "" || !Number.isInteger(qty) || qty <= 0) errs.quantity = "Ingrese una cantidad entera mayor que cero.";
     if (expiresAt === "") errs.expiresAt = "Ingrese la fecha de vencimiento.";
+    else if (expiresAt < todayIso()) errs.expiresAt = "El lote ya está vencido; no puede ingresar a bodega.";
     const cost = unitCost === "" ? undefined : round2(Number(unitCost));
     if (cost !== undefined && (Number.isNaN(cost) || cost < 0)) errs.unitCost = "Ingrese un costo válido.";
     setClientErrors(errs);
@@ -72,7 +74,7 @@ export const BatchForm = ({ productId, onDone, onCancel, submitLabel = "Registra
           <Input id="batch-quantity" type="number" min={1} step={1} inputMode="numeric" value={quantity} onChange={(e) => setQuantity(e.target.value)} invalid={Boolean(errors.quantity)} required />
         </Field>
         <Field label="Vence" htmlFor="batch-expires" error={errors.expiresAt}>
-          <Input id="batch-expires" type="date" value={expiresAt} onChange={(e) => setExpiresAt(e.target.value)} invalid={Boolean(errors.expiresAt)} required />
+          <Input id="batch-expires" type="date" min={todayIso()} value={expiresAt} onChange={(e) => setExpiresAt(e.target.value)} invalid={Boolean(errors.expiresAt)} required />
         </Field>
       </FieldRow>
       <FieldRow>

@@ -1,4 +1,3 @@
-import type { CSSProperties } from "react";
 import { ChartCrosshair, ChartFrame, useLineScrub } from "@/components/charts";
 import styles from "./FinanceScreen.module.css";
 
@@ -75,8 +74,8 @@ export const SensitivityChart = ({ points, baseX, breakEven, formatX, formatY, l
         ) : null}
         {xU !== null ? (
           <>
-            <rect x={PX0} y={PY0} width={Math.max(xU - PX0, 0)} height={PY1 - PY0} className={[styles.fillBad, styles.zoneIn].join(" ")} opacity="0.05" />
-            <line x1={xU} y1={PY0} x2={xU} y2={PY1} className={[styles.markWarn, styles.fadeDown].join(" ")} strokeWidth="2" strokeDasharray="5 4" />
+            <rect x={PX0} y={PY0} width={Math.max(xU - PX0, 0)} height={PY1 - PY0} className={styles.zoneBad} />
+            <line x1={xU} y1={PY0} x2={xU} y2={PY1} className={styles.markWarn} strokeWidth="2" strokeDasharray="5 4" />
             <text x={xU - 5} y="34" textAnchor="end" fontSize="11" fontWeight="600" className={styles.textWarnTag}>
               {formatX(breakEven as number)}
             </text>
@@ -85,7 +84,7 @@ export const SensitivityChart = ({ points, baseX, breakEven, formatX, formatY, l
             </text>
           </>
         ) : null}
-        <polyline points={polyline} fill="none" pathLength={1} className={[styles.strokeGood, styles.draw].join(" ")} strokeWidth="2.5" strokeLinejoin="round" strokeLinecap="round" />
+        <polyline points={polyline} fill="none" className={styles.strokeGood} strokeWidth="2.5" strokeLinejoin="round" strokeLinecap="round" />
         {sorted
           .filter((p) => labeled(p.value) && !isBase(p.value))
           .map((p) => (
@@ -94,15 +93,13 @@ export const SensitivityChart = ({ points, baseX, breakEven, formatX, formatY, l
               cx={sx(p.value)}
               cy={sy(p.npv)}
               r="4.5"
-              className={[styles.dotGood, styles.pop].join(" ")}
-              style={{ "--i": (sx(p.value) - PX0) / (PX1 - PX0) } as CSSProperties}
+              className={styles.dotGood}
               strokeWidth="2"
             />
           ))}
         {base ? (
           <>
-            <circle cx={sx(base.value)} cy={sy(base.npv)} r="6" className={styles.baseHalo} />
-            <circle cx={sx(base.value)} cy={sy(base.npv)} r="6" className={[styles.dotBase, styles.pop].join(" ")} style={{ "--i": 1 } as CSSProperties} strokeWidth="2" />
+            <circle cx={sx(base.value)} cy={sy(base.npv)} r="6" className={styles.dotBase} strokeWidth="2" />
             <text x={sx(base.value)} y={sy(base.npv) - 9.6} textAnchor="middle" fontSize="11.5" fontWeight="600" className={styles.textInk}>
               caso base
             </text>

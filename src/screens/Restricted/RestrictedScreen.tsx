@@ -6,10 +6,17 @@ import { findRoute } from "@/router/navigation";
 import styles from "./RestrictedScreen.module.css";
 
 const LockIcon = () => (
-  <svg width="30" height="30" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
     <rect x="4.5" y="10.5" width="15" height="10.5" rx="2.4" stroke="currentColor" strokeWidth="1.8" />
     <path d="M8.2 10.5 V7.4 a3.8 3.8 0 0 1 7.6 0 V10.5" stroke="currentColor" strokeWidth="1.8" />
     <circle cx="12" cy="15.8" r="1.5" fill="currentColor" />
+  </svg>
+);
+
+const SearchIcon = () => (
+  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+    <circle cx="10.5" cy="10.5" r="6.5" stroke="currentColor" strokeWidth="1.8" />
+    <path d="M15.5 15.5 L20 20" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
   </svg>
 );
 
@@ -59,9 +66,10 @@ export const NotFoundScreen = () => {
     <div className={styles.wrap}>
       <div className={styles.box}>
         <div className={styles.circle}>
-          <LockIcon />
+          <SearchIcon />
         </div>
         <h1>Página no encontrada</h1>
+        <p>La dirección no corresponde a ninguna pantalla del sistema.</p>
         <div className={styles.actions}>
           <Button onClick={() => navigate("/")}>Volver al inicio</Button>
         </div>

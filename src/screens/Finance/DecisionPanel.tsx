@@ -2,7 +2,6 @@ import { useState } from "react";
 import type { Range, ScenarioDetail } from "@/types/api";
 import { useSensitivity } from "@/hooks/financial";
 import { Badge, Callout, EmptyState, ErrorState, Loading, StatCard } from "@/components/ui";
-import { Odometer } from "@/components/motion";
 import { int, money, moneyCompact, pct, times } from "@/lib/format";
 import { breakEven, formatPoints, marginPoints } from "./financeShared";
 import { useSalesSensitivity } from "./useSalesSensitivity";
@@ -151,7 +150,7 @@ export const DecisionPanel = ({ scenario, onOpenAssumptions, onNew }: Props) => 
             maxLabel={DIALS.term.maxLabel}
           />
         </div>
-        <div className={[styles.simReadout, sim ? styles.simReadoutOn : ""].join(" ")} role="status" aria-live="polite">
+        <div className={styles.simReadout} role="status" aria-live="polite">
           {sim === null ? (
             <div className={styles.dialNote}>
               Arrastre la perilla de las ventas o de la rotación para leer el VPN que la API calculó con otro valor; el plazo no se simula porque la API no calcula sensibilidad al plazo. Para cambiar
@@ -167,9 +166,9 @@ export const DecisionPanel = ({ scenario, onOpenAssumptions, onNew }: Props) => 
           ) : (
             <>
               <div className={styles.simMain}>
-                <span className={styles.simLabel}>Simulación · VPN con {simFormat(simPoint.value)}</span>
+                <span className={styles.simLabel}>Simulación: VPN con {simFormat(simPoint.value)}</span>
                 <strong className={[styles.simValue, simPoint.npv > 0 ? styles.textGood : styles.textBad].join(" ")}>
-                  <Odometer value={moneyCompact(simPoint.npv)} />
+                  {moneyCompact(simPoint.npv)}
                 </strong>
               </div>
               <div className={styles.simAside}>

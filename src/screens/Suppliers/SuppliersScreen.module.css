@@ -3,36 +3,20 @@
   container: suppliers / inline-size;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 16px;
 }
 
-/* Aviso de consulta del lienzo de Bodega: fondo verde suave, borde verde claro, texto bosque. */
+/* Aviso de consulta para Bodega: fondo verde suave, borde verde claro, texto bosque. */
 .info {
   background: var(--good-soft);
   border: 1px solid var(--good-line);
+  border-radius: var(--radius);
   padding: 10px 14px;
-  font-size: 12.5px;
+  font-size: 13px;
   color: var(--forest-fg);
-  position: relative;
-  overflow: hidden;
-  border-radius: 12px;
-  padding-left: 18px;
-  animation: noticeIn 0.8s var(--ease-out) backwards;
-}
-.info::before {
-  content: "";
-  position: absolute;
-  left: 0;
-  top: 0;
-  bottom: 0;
-  width: 3px;
-  background: currentColor;
-  opacity: 0.7;
-  transform-origin: top;
-  animation: barIn 0.9s var(--ease-in-out) 0.3s backwards;
 }
 
-/* Directorio a la izquierda, recepciones por vencer (oscuro, fijo al hacer scroll) a la derecha. */
+/* Directorio a la izquierda, recepciones por vencer (fijo al hacer scroll) a la derecha. */
 .grid {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(300px, 360px);
@@ -53,43 +37,25 @@
 }
 .head {
   display: flex;
-  align-items: flex-end;
+  align-items: center;
   justify-content: space-between;
-  gap: 14px 20px;
+  gap: 12px 20px;
   flex-wrap: wrap;
-  padding: 4px 2px 12px;
-  border-bottom: 1px solid var(--line);
 }
 .headTitle {
   display: flex;
-  flex-direction: column;
+  align-items: baseline;
   gap: 8px;
 }
-.eyebrow {
-  font-family: var(--font-mono);
-  font-size: 10px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--muted);
-  font-variant-numeric: tabular-nums;
-}
 .headTitle h2 {
-  font-family: var(--font-heading);
-  font-size: 30px;
-  font-weight: 300;
-  letter-spacing: -0.05em;
-  line-height: 1;
+  font-size: 15px;
+  font-weight: 600;
   color: var(--ink);
 }
-.headTitle em {
-  font-family: var(--font-serif);
-  font-style: italic;
-  font-weight: 400;
-  letter-spacing: -0.01em;
-  color: var(--leaf);
-}
-:global(html[data-theme="dark"]) .headTitle em {
-  color: var(--sprout);
+.headCount {
+  font-size: 13px;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
 }
 
 .toolbar {
@@ -106,16 +72,13 @@
 }
 .search svg {
   position: absolute;
-  left: 12px;
+  left: 11px;
   top: 50%;
   transform: translateY(-50%);
   pointer-events: none;
 }
 .search input {
-  height: 34px;
-  padding: 0 12px 0 32px;
-  font-size: 12.5px;
-  border-radius: 99px;
+  padding-left: 32px;
 }
 @media (max-width: 640px) {
   .search {
@@ -139,7 +102,7 @@
   justify-content: space-between;
   gap: 12px;
   flex-wrap: wrap;
-  font-size: 12.5px;
+  font-size: 13px;
   color: var(--muted);
 }
 .summary {
@@ -154,27 +117,11 @@
   gap: 2px;
 }
 .summaryLabel {
-  font-size: 12px;
+  font-size: 12.5px;
   color: var(--muted);
 }
 .summaryValue {
   font-weight: 600;
   color: var(--ink);
   font-variant-numeric: tabular-nums;
-}
-
-@keyframes noticeIn {
-  from {
-    opacity: 0;
-    transform: translateX(-16px);
-    clip-path: inset(0 100% 0 0 round 12px);
-  }
-  to {
-    clip-path: inset(0 0 0 0 round 12px);
-  }
-}
-@keyframes barIn {
-  from {
-    transform: scaleY(0);
-  }
 }

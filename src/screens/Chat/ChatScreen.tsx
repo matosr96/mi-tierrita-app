@@ -104,7 +104,7 @@ export const ChatScreen = () => {
 
   return (
     <>
-      <PageHeader title="Chat del *equipo*" subtitle="Caja, bodega y administración coordinados: canal general, mensajes privados y quién está en línea." />
+      <PageHeader title="Chat del equipo" subtitle="Caja, bodega y administración coordinados: canal general, mensajes privados y quién está en línea." />
 
       <div className={styles.layout}>
         {/* ---------- conversaciones ---------- */}

@@ -21,7 +21,7 @@ const flowColumns: Column<CashFlowDetail>[] = [
   { key: "flow", header: "Flujo neto", align: "right", render: (d) => money(d.flow) },
 ];
 
-/** Indicadores del escenario tal como los calcula la API, con el mismo vocabulario de la terminal. */
+/** Indicadores del escenario tal como los calcula la API, con el mismo vocabulario de la pantalla de Finanzas. */
 const indicatorRows = (s: ScenarioDetail): [string, string][] => {
   const i = s.indicators;
   return [

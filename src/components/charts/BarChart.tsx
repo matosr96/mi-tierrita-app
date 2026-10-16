@@ -49,7 +49,7 @@ export const HBarChart = ({ data, format, formatTip = format, title }: Props) =>
               <text x={labelW - 8} y={y + 15} textAnchor="end" className={styles.label}>
                 {d.label}
               </text>
-              <rect x={labelW} y={y + 4} width={w} height={rowH - 10} rx={2} className={d.alt ? styles.barAlt : styles.bar} />
+              <rect x={labelW} y={y + 4} width={w} height={rowH - 10} rx={6} className={d.alt ? styles.barAlt : styles.bar} />
               <text x={labelW + w + 6} y={y + 15} className={styles.value}>
                 {format(d.value)}
               </text>
@@ -94,7 +94,7 @@ export const VBarChart = ({ data, format, formatTip = format, title }: Props) =>
           return (
             <g key={d.label} style={{ "--i": i } as CSSProperties} className={styles.item} role="img" aria-label={text ? `${d.label}: ${text}` : d.label} {...hover.itemProps(i)}>
               <rect x={pad.left + slot * i} y={pad.top / 2} width={slot} height={height - pad.top / 2} className={styles.hit} />
-              <rect x={x} y={y} width={barW} height={h} rx={2} className={d.alt ? styles.barAlt : styles.bar} />
+              <rect x={x} y={y} width={barW} height={h} rx={6} className={d.alt ? styles.barAlt : styles.bar} />
               <text x={x + barW / 2} y={y - 6} textAnchor="middle" className={styles.value}>
                 {format(d.value)}
               </text>

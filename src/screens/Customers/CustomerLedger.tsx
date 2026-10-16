@@ -1,7 +1,6 @@
 import type { CSSProperties } from "react";
 import { useCustomerBalance } from "@/hooks/customers";
 import { Badge } from "@/components/ui";
-import { trackSpotlight } from "@/components/motion";
 import { dateOnly, int, money } from "@/lib/format";
 import type { Customer, ReceivableRow } from "@/types/api";
 import { Monogram } from "./Monogram";
@@ -40,10 +39,10 @@ const OverdueBadge = ({ id }: { id: number }) => {
   return <Badge tone="bad">{balance.data ? `Vencida · ${int(balance.data.overdueDays)} días` : "Vencida"}</Badge>;
 };
 
-/** Cartera como libro: una fila por cliente con monograma, medidor de cupo usado, disponible y abono rápido. */
+/** Lista de cartera: una fila por cliente con iniciales, medidor de cupo usado, disponible y abono rápido. */
 export const CustomerLedger = ({ customers, receivables, onOpen, onPay }: Props) => (
   <ul className={styles.ledger}>
-    {customers.map((c, i) => {
+    {customers.map((c) => {
       const row = receivables?.get(c.id);
       const status = statusOf(c, row);
       // Proporción solo visual del medidor: saldo frente al cupo, ambos de la API.
@@ -51,20 +50,20 @@ export const CustomerLedger = ({ customers, receivables, onOpen, onPay }: Props)
       const cashOnly = c.creditLimit === 0 && c.balance === 0;
       const canPay = c.active && c.balance > 0;
       return (
-        <li key={c.id} data-row="" className={[styles.row, styles[status]].join(" ")} style={{ "--i": Math.min(i, 14), "--fill": fill } as CSSProperties} onPointerMove={trackSpotlight}>
+        <li key={c.id} data-row="" className={[styles.row, styles[status]].join(" ")} style={{ "--fill": fill } as CSSProperties}>
           <button type="button" className={styles.hit} onClick={() => onOpen(c.id)} aria-label={`Ver la cartera de ${c.name}`} />
 
           <div className={styles.who}>
-            <Monogram id={c.id} name={c.name} muted={!c.active} />
+            <Monogram name={c.name} muted={!c.active} />
             <div className={styles.identity}>
               <span className={styles.name}>{c.name}</span>
               <span className={styles.meta}>
                 <span>
-                  <abbr title="Documento">DOC</abbr> {c.documentId}
+                  Doc. <span className={styles.code}>{c.documentId}</span>
                 </span>
                 {c.phone ? (
                   <span>
-                    <abbr title="Teléfono">TEL</abbr> {c.phone}
+                    Tel. <span className={styles.code}>{c.phone}</span>
                   </span>
                 ) : null}
               </span>
@@ -74,7 +73,7 @@ export const CustomerLedger = ({ customers, receivables, onOpen, onPay }: Props)
 
           <div className={styles.credit}>
             {cashOnly ? (
-              <span className={styles.cash}>Solo contado · sin cupo</span>
+              <span className={styles.cash}>Solo contado, sin cupo</span>
             ) : (
               <>
                 <div className={styles.meterHead}>
@@ -98,11 +97,8 @@ export const CustomerLedger = ({ customers, receivables, onOpen, onPay }: Props)
           <div className={styles.end}>
             {status === "overdue" ? <OverdueBadge id={c.id} /> : <Badge tone={LABEL[status].tone}>{LABEL[status].text}</Badge>}
             {canPay ? (
-              <button type="button" className={styles.pay} onClick={() => onPay(c)}>
-                <span>Abonar</span>
-                <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
-                  <path d="M2 6 H10 M6.5 2.5 L10 6 L6.5 9.5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
+              <button type="button" className={styles.pay} onClick={() => onPay(c)} aria-label={`Abonar a ${c.name}`}>
+                Abonar
               </button>
             ) : null}
           </div>

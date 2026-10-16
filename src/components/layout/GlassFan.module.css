@@ -1,0 +1,39 @@
+/* Abanico de cápsulas de vidrio: cada cápsula gira alrededor de un punto bajo el centro. */
+.fan {
+  position: relative;
+  width: 420px;
+  height: 250px;
+  pointer-events: none;
+}
+.blade {
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  width: 76px;
+  height: 150px;
+  margin-left: -38px;
+  transform-origin: 50% 200px;
+  transform: translateY(-50px) rotate(var(--deg));
+  border-radius: 40px;
+  background: linear-gradient(160deg, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.45) 35%, rgba(255, 255, 255, 0.18) 70%, rgba(255, 255, 255, 0.55) 100%);
+  border: 2px solid rgba(255, 255, 255, 0.85);
+  box-shadow:
+    inset 0 -18px 24px -10px rgba(255, 255, 255, 0.6),
+    inset 10px 0 18px -10px rgba(255, 255, 255, 0.8),
+    0 18px 30px -18px rgba(16, 60, 34, 0.45);
+}
+/* Reflejo interior en forma de tubo. */
+.blade i {
+  position: absolute;
+  inset: 14px 18px;
+  border-radius: 30px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.75), rgba(255, 255, 255, 0.05) 60%);
+  opacity: 0.7;
+}
+.solid {
+  background: linear-gradient(160deg, #c8ecd5 0%, #5fbf86 40%, #2f9e5b 75%, #8fd6aa 100%);
+  border-color: rgba(214, 245, 226, 0.9);
+}
+.solid i {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.65), rgba(255, 255, 255, 0) 55%);
+}

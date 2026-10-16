@@ -1,4 +1,3 @@
-import type { CSSProperties } from "react";
 import styles from "./FinanceScreen.module.css";
 
 type Props = {
@@ -27,19 +26,19 @@ export const SafetyMarginChart = ({ from, to, current, currentLabel, breakEven, 
   const yLabel = breakEven !== null && Math.abs(xA - xU) < 70 ? 92 : 10;
   return (
     <svg className={styles.svg} viewBox="0 0 1060 96" height="96" role="img" aria-label="Posición actual frente al punto de equilibrio de las ventas">
-      {wNo > 0 ? <rect x={X0} y="30" width={wNo} height="26" rx="4" className={[styles.trackBad, styles.growX].join(" ")} /> : null}
-      {wSi > 0 ? <rect x={xU} y="30" width={wSi} height="26" rx="4" className={[styles.trackGood, styles.growX].join(" ")} style={{ "--i": 2 } as CSSProperties} /> : null}
+      {wNo > 0 ? <rect x={X0} y="30" width={wNo} height="26" rx="4" className={styles.trackBad} /> : null}
+      {wSi > 0 ? <rect x={xU} y="30" width={wSi} height="26" rx="4" className={styles.trackGood} /> : null}
       {breakEven !== null ? (
-        <g className={styles.fadeDown}>
+        <g>
           <line x1={xU} y1="22" x2={xU} y2="64" className={styles.markBad} strokeWidth="2.5" />
           <text x={xU} y="80" textAnchor="middle" fontSize="11.5" fontWeight="600" className={styles.textBad}>
             equilibrio {breakEvenLabel}
           </text>
         </g>
       ) : null}
-      <g className={styles.slideMarker} style={{ "--from": `${X0 - xA}px` } as CSSProperties}>
+      <g>
         <line x1={xA} y1="14" x2={xA} y2="72" className={styles.markForest} strokeWidth="3" />
-        <circle cx={xA} cy="14" r="5.5" className={[styles.fillForest, styles.beacon].join(" ")} />
+        <circle cx={xA} cy="14" r="5.5" className={styles.fillForest} />
         <text x={xA} y={yLabel} textAnchor="middle" fontSize="12" fontWeight="600" className={styles.textForest}>
           {currentLabel}
         </text>

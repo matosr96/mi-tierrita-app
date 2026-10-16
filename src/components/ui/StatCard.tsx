@@ -1,5 +1,4 @@
 import type { ReactNode } from "react";
-import { Odometer, trackSpotlight } from "@/components/motion";
 import { Sparkline } from "@/components/charts/Sparkline";
 import styles from "./StatCard.module.css";
 
@@ -12,11 +11,11 @@ type Props = {
   trend?: number[] | undefined;
 };
 
-/** Tarjeta de indicador: etiqueta mono, cifra grande que rueda como odómetro y nota; el tono pinta la línea inferior. */
+/** Tarjeta de indicador: etiqueta, cifra grande y nota; el tono colorea la cifra y una marca a la izquierda. */
 export const StatCard = ({ label, value, hint, tone = "neutral", trend }: Props) => (
-  <div className={[styles.card, tone !== "neutral" ? styles[tone] : ""].join(" ")} onPointerMove={trackSpotlight}>
+  <div className={[styles.card, tone !== "neutral" ? styles[tone] : ""].join(" ")}>
     <div className={styles.label}>
-      <span className={styles.dot} aria-hidden="true" />
+      {tone !== "neutral" ? <span className={styles.dot} aria-hidden="true" /> : null}
       {label}
       {trend && trend.length > 1 ? (
         <span className={styles.trend}>
@@ -24,9 +23,8 @@ export const StatCard = ({ label, value, hint, tone = "neutral", trend }: Props)
         </span>
       ) : null}
     </div>
-    <div className={styles.value}>{typeof value === "string" && /\d/.test(value) ? <Odometer value={value} /> : value}</div>
+    <div className={styles.value}>{value}</div>
     {hint !== undefined ? <div className={styles.hint}>{hint}</div> : null}
-    <span className={styles.line} aria-hidden="true" />
   </div>
 );
 

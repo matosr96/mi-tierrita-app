@@ -1,308 +1,163 @@
-/* Módulo de finanzas: geometría exacta de los lienzos Panel, Datos, Escenarios y Flujo. */
+/* Finanzas: encabezado blanco, selector de escenario, indicadores en fila y pestañas subrayadas. */
 
-/* ---------- página y banda del terminal de inversión ---------- */
+/* ---------- página y encabezado ---------- */
 .page {
   display: flex;
   flex-direction: column;
   gap: 16px;
 }
-.pageWide {
-  gap: 18px;
-}
-
-/* Superficie siempre oscura: el kit se reutiliza cambiando sus variables. */
-.terminal {
-  --ink: var(--dark-ink);
-  --ink-2: var(--dark-ink-2);
-  --muted: var(--dark-muted);
-  --surface: color-mix(in srgb, var(--dark-ink) 5%, transparent);
-  --hover: color-mix(in srgb, var(--dark-ink) 8%, transparent);
-  --line: var(--dark-line);
-  --line-strong: color-mix(in srgb, var(--dark-ink) 20%, transparent);
-  --forest: var(--sprout);
-  --on-forest: var(--sprout-ink);
-  --serif-color: var(--sprout);
-  --btn-invert: var(--app-bg);
-  position: relative;
-  isolation: isolate;
-  overflow: hidden;
-  background: var(--app-bg);
-  color: var(--dark-ink);
-  border: 1px solid var(--dark-line);
-  border-radius: var(--radius-panel);
-  padding: 16px clamp(18px, 2.6vw, 30px) 0;
+.head {
   display: flex;
   flex-direction: column;
-  gap: 16px;
-  box-shadow: var(--shadow-panel);
-  animation: termIn 0.8s var(--ease-out) backwards;
-}
-/* Retícula de terminal y un halo lima en la esquina. */
-.terminal::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  background-image: linear-gradient(var(--dark-line) 1px, transparent 1px), linear-gradient(90deg, var(--dark-line) 1px, transparent 1px);
-  background-size: 44px 44px;
-  mask-image: radial-gradient(120% 90% at 85% 0%, black, transparent 75%);
-  opacity: 0.5;
-  pointer-events: none;
-}
-.termGlow {
-  position: absolute;
-  z-index: -1;
-  right: -12%;
-  top: -60%;
-  width: 60%;
-  aspect-ratio: 1;
-  border-radius: 50%;
-  background: radial-gradient(closest-side, color-mix(in srgb, var(--sprout) 18%, transparent), transparent);
-  pointer-events: none;
-}
-@keyframes termIn {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-}
-@keyframes glowDrift {
-  to {
-    transform: translate(-12%, 8%) scale(1.1);
-  }
-}
-.termTop {
-  display: flex;
-  align-items: center;
   gap: 14px;
-  flex-wrap: wrap;
-  font-family: var(--font-mono);
-  font-size: 10.5px;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--dark-muted);
-}
-.termLive {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  color: var(--sprout);
-}
-.termLive i {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: var(--sprout);
-  box-shadow: 0 0 0 0 var(--sprout);
-}
-@keyframes livePulse {
-  0% {
-    box-shadow: 0 0 0 0 color-mix(in srgb, var(--sprout) 60%, transparent);
-  }
-  100% {
-    box-shadow: 0 0 0 9px transparent;
-  }
-}
-.termPath {
-  padding-left: 14px;
-  border-left: 1px solid var(--dark-line);
-}
-.termStamp {
-  margin-left: auto;
-  color: var(--dark-ink-2);
-}
-.termHead {
-  display: flex;
-  align-items: flex-end;
-  gap: 18px;
-  flex-wrap: wrap;
-}
-.termTitleBox {
-  flex: 1 1 380px;
-  min-width: 0;
-}
-.termTitle {
-  font-size: clamp(30px, 3.6vw, 50px);
-  font-weight: 300;
-  letter-spacing: -0.05em;
-  line-height: 1.02;
-  color: var(--dark-ink);
-}
-.termSubtitle {
-  margin-top: 8px;
-  max-width: 62ch;
-  font-size: 13px;
-  line-height: 1.55;
-  color: var(--dark-ink-2);
-}
-.termActions {
-  display: flex;
-  gap: 10px;
-  flex-wrap: wrap;
-}
-.termActions:empty {
-  display: none;
 }
 
-/* Selector de escenario: letras de la comparación como teclas de un terminal. */
+/* Selector de escenario: botones segmentados con la letra (A, B, C…) y el nombre. */
 .selector {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
+  flex-wrap: wrap;
   min-width: 0;
 }
 .selectorLabel {
-  font-family: var(--font-mono);
-  font-size: 10px;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--dark-muted);
-  flex-shrink: 0;
+  font-size: 13px;
+  color: var(--muted);
 }
 .selectorList {
   display: flex;
-  gap: 6px;
+  gap: 2px;
+  padding: 2px;
+  border-radius: var(--radius-sm);
+  background: var(--segment-bg);
   overflow-x: auto;
   scrollbar-width: none;
-  min-width: 0;
+  max-width: 100%;
+}
+.selectorList::-webkit-scrollbar {
+  display: none;
 }
 .selectorItem {
   display: inline-flex;
   align-items: center;
-  gap: 9px;
-  height: 34px;
-  padding: 0 14px 0 5px;
-  border-radius: 999px;
-  border: 1px solid var(--dark-line);
-  background: color-mix(in srgb, var(--dark-ink) 4%, transparent);
-  color: var(--dark-ink-2);
+  gap: 7px;
+  height: 30px;
+  padding: 0 10px;
+  border: 1px solid transparent;
+  border-radius: calc(var(--radius-sm) - 2px);
+  background: transparent;
+  color: var(--ink-2);
   font-family: inherit;
-  font-size: 12.5px;
+  font-size: 13px;
+  font-weight: 500;
   white-space: nowrap;
   cursor: pointer;
-  transition: background 0.3s var(--ease-out), color 0.3s var(--ease-out), border-color 0.3s var(--ease-out), transform 0.2s var(--ease-out);
+  transition: background-color var(--dur) ease, color var(--dur) ease, border-color var(--dur) ease;
 }
 .selectorItem:hover {
-  border-color: color-mix(in srgb, var(--dark-ink) 30%, transparent);
-  color: var(--dark-ink);
-}
-.selectorItem:active {
-  transform: scale(0.97);
+  color: var(--ink);
 }
 .selectorItem:focus-visible {
   outline: 2px solid var(--sprout);
-  outline-offset: 2px;
-}
-.selectorLetter {
-  display: grid;
-  place-items: center;
-  width: 24px;
-  height: 24px;
-  border-radius: 50%;
-  font-family: var(--font-mono);
-  font-size: 11px;
-  background: color-mix(in srgb, var(--dark-ink) 9%, transparent);
-  color: var(--dark-ink);
-  transition: background 0.3s var(--ease-out), color 0.3s var(--ease-out);
-}
-.selectorName {
-  max-width: 260px;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  outline-offset: 1px;
 }
 .selectorOn,
 .selectorOn:hover {
-  background: color-mix(in srgb, var(--sprout) 12%, transparent);
-  border-color: color-mix(in srgb, var(--sprout) 55%, transparent);
-  color: var(--dark-ink);
+  background: var(--surface);
+  border-color: var(--line);
+  color: var(--ink);
+  box-shadow: var(--shadow);
+}
+.selectorLetter {
+  display: inline-grid;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 5px;
+  background: var(--surface-3);
+  color: var(--ink-2);
+  font-size: 11.5px;
+  font-weight: 600;
 }
 .selectorOn .selectorLetter {
-  background: var(--sprout);
-  color: var(--sprout-ink);
+  background: var(--sprout-soft);
+  color: var(--forest);
+}
+.selectorName {
+  max-width: 220px;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-/* Cinta de indicadores del escenario en pantalla (valores de la API). */
+/* Fila de indicadores del escenario (vistas distintas al Panel). */
 .ticker {
   display: grid;
   grid-template-columns: repeat(6, minmax(0, 1fr));
-  border-top: 1px solid var(--dark-line);
   margin: 0;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
 }
 .tick {
-  padding: 12px 14px 14px 0;
   min-width: 0;
-  animation: tickUp 0.6s var(--ease-out) backwards;
+  padding: 12px 16px;
 }
 .tick + .tick {
-  padding-left: 14px;
-  border-left: 1px solid var(--dark-line);
+  border-left: 1px solid var(--line-soft);
 }
 .tick dt {
-  font-family: var(--font-mono);
-  font-size: 9.5px;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--dark-muted);
+  font-size: 13px;
+  color: var(--muted);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 .tick dd {
-  margin: 5px 0 0;
-  font-family: var(--font-heading);
-  font-size: clamp(16px, 1.5vw, 21px);
-  font-weight: 300;
-  letter-spacing: -0.03em;
+  margin: 2px 0 0;
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
   white-space: nowrap;
-  color: var(--dark-ink);
 }
 .tickGood {
-  color: var(--sprout) !important;
-}
-.tickBad {
-  color: var(--dark-bad) !important;
+  color: var(--good) !important;
 }
 .tickWarn {
-  color: var(--dark-warn) !important;
+  color: var(--warn) !important;
 }
-@keyframes tickUp {
-  from {
-    opacity: 0;
-    transform: translateY(6px);
-  }
+.tickBad {
+  color: var(--bad) !important;
 }
+
 @media (max-width: 1100px) {
   .ticker {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
-  .tick:nth-child(4) {
-    padding-left: 0;
+  .tick + .tick {
     border-left: none;
   }
   .tick:nth-child(n + 4) {
-    border-top: 1px solid var(--dark-line);
+    border-top: 1px solid var(--line-soft);
+  }
+  .tick:not(:nth-child(3n + 1)) {
+    border-left: 1px solid var(--line-soft);
   }
 }
 @media (max-width: 560px) {
   .ticker {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
-  .tick:nth-child(4) {
-    padding-left: 14px;
-    border-left: 1px solid var(--dark-line);
-  }
-  .tick:nth-child(odd) {
-    padding-left: 0;
+  .tick:not(:nth-child(3n + 1)) {
     border-left: none;
   }
   .tick:nth-child(n + 3) {
-    border-top: 1px solid var(--dark-line);
+    border-top: 1px solid var(--line-soft);
   }
-  .termStamp {
-    margin-left: 0;
-  }
-  .termPath {
-    display: none;
+  .tick:nth-child(even) {
+    border-left: 1px solid var(--line-soft);
   }
 }
 
@@ -311,15 +166,18 @@
   background: var(--surface);
   border: 1px solid var(--line);
   border-radius: var(--radius);
-  padding: 15px 18px;
+  box-shadow: var(--shadow);
+  padding: 16px 20px;
   min-width: 0;
 }
 .cardSoft {
-  background: var(--surface-2);
+  background: var(--surface);
 }
 .card h2 {
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--ink);
 }
 .cardHead {
   display: flex;
@@ -328,27 +186,27 @@
   flex-wrap: wrap;
 }
 .cardSub {
-  font-size: 12px;
+  font-size: 13px;
   color: var(--muted);
   flex-grow: 1;
 }
 .cardSubBlock {
-  font-size: 12px;
-  color: var(--ink-2);
-  margin-top: 3px;
-  margin-bottom: 8px;
+  font-size: 13px;
+  color: var(--muted);
+  margin-top: 2px;
+  margin-bottom: 10px;
 }
 .pushRight {
   margin-left: auto;
 }
 .note {
-  font-size: 12.5px;
+  font-size: 13px;
   color: var(--muted);
   line-height: 1.5;
   margin-top: 8px;
 }
 .noteSmall {
-  font-size: 11.5px;
+  font-size: 13px;
   color: var(--muted);
   line-height: 1.5;
 }
@@ -357,12 +215,20 @@
   background: transparent;
   color: var(--link);
   cursor: pointer;
-  font-size: 12px;
+  font-size: 13px;
+  font-weight: 500;
   padding: 0;
   font-family: inherit;
+  transition: color var(--dur) ease;
 }
 .linkBtn:hover {
   color: var(--forest-fg);
+  text-decoration: underline;
+}
+.linkBtn:focus-visible {
+  outline: 2px solid var(--sprout);
+  outline-offset: 2px;
+  border-radius: 3px;
 }
 
 /* ---------- texto y relleno semántico (también para los SVG) ---------- */
@@ -405,18 +271,19 @@
   height: auto;
   display: block;
   font-family: var(--font-body);
+  font-variant-numeric: tabular-nums;
 }
 .axis {
   stroke: var(--line-strong);
 }
 .axisInk {
-  stroke: var(--ink);
+  stroke: var(--ink-2);
 }
 .fillGood {
   fill: var(--good);
 }
 .fillLeaf {
-  fill: var(--leaf);
+  fill: var(--sprout);
 }
 .fillMuted2 {
   fill: var(--muted-2);
@@ -424,11 +291,11 @@
 .fillAccent {
   fill: var(--accent);
 }
-.fillBad {
-  fill: var(--bad);
-}
 .fillForest {
   fill: var(--forest);
+}
+.zoneBad {
+  fill: var(--bad-soft);
 }
 .strokeGood {
   stroke: var(--good);
@@ -445,7 +312,8 @@
   fill: var(--bad-tag-bg);
 }
 .trackGood {
-  fill: var(--sprout-soft);
+  fill: var(--good-soft);
+  stroke: var(--good-line);
 }
 .markBad {
   stroke: var(--bad);
@@ -460,11 +328,40 @@
   stroke: var(--muted-2);
 }
 
+/* ---------- lectura interactiva de los gráficos ---------- */
+.scrubbable {
+  cursor: crosshair;
+  touch-action: pan-y;
+  border-radius: var(--radius-sm);
+}
+.scrubbable:focus {
+  outline: none;
+}
+.scrubbable:focus-visible {
+  outline: 2px solid var(--sprout);
+  outline-offset: 4px;
+}
+.hoverItem {
+  cursor: pointer;
+  outline: none;
+  transition: opacity var(--dur) ease;
+}
+.dimming .hoverItem:not([data-on]) {
+  opacity: 0.35;
+}
+.hoverItem:focus-visible rect:not(.hit) {
+  stroke: var(--sprout);
+  stroke-width: 2;
+}
+.hit {
+  fill: transparent;
+}
+
 /* ---------- Panel ---------- */
 .decision {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 16px;
 }
 .verdict {
   display: contents;
@@ -474,20 +371,22 @@
   white-space: nowrap;
 }
 .asideLabel {
-  font-size: 11.5px;
-  color: var(--ink-2);
+  font-size: 13px;
+  color: var(--muted);
 }
 .asideValue {
   font-size: 20px;
-  font-weight: 400;
-  letter-spacing: -0.035em;
-  font-family: var(--font-heading);
+  font-weight: 600;
+  letter-spacing: -0.01em;
   color: var(--ink);
+  font-variant-numeric: tabular-nums;
 }
+
+/* Diales de los supuestos */
 .dialGrid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 26px;
+  gap: 28px;
 }
 .dial {
   min-width: 0;
@@ -496,23 +395,28 @@
   display: flex;
   align-items: baseline;
   gap: 8px;
-  margin-bottom: 11px;
+  margin-bottom: 8px;
 }
 .dialLabel {
-  font-size: 12.5px;
-  color: var(--ink-2);
+  font-size: 13px;
+  color: var(--muted);
   flex-grow: 1;
 }
 .dialValue {
-  font-size: 17px;
-  font-family: var(--font-heading);
+  font-size: 16px;
+  font-weight: 600;
   color: var(--ink);
+  font-variant-numeric: tabular-nums;
+  transition: color var(--dur) ease;
+}
+.dialValueSim {
+  color: var(--forest);
 }
 .track {
   position: relative;
   height: 4px;
   border-radius: 2px;
-  background: var(--line-strong);
+  background: var(--surface-3);
   margin: 9px 0;
 }
 .trackFill {
@@ -521,60 +425,135 @@
   top: 0;
   bottom: 0;
   border-radius: inherit;
-  background: linear-gradient(90deg, var(--leaf), var(--sprout));
-  animation: fillIn 1.4s var(--ease-in-out) 0.3s backwards;
+  background: var(--sprout);
 }
 .thumb {
   position: absolute;
   top: 50%;
-  width: 20px;
-  height: 20px;
+  width: 16px;
+  height: 16px;
   border-radius: 50%;
-  background: var(--forest);
-  border: 3px solid var(--surface);
-  box-shadow: 0 0 0 1px var(--line-strong), 0 4px 10px rgba(0, 0, 0, 0.18);
+  background: var(--surface);
+  border: 2px solid var(--sprout);
+  box-shadow: var(--shadow);
   transform: translate(-50%, -50%);
-  animation: thumbIn 1.4s var(--ease-in-out) 0.3s backwards;
-  transition: transform 0.4s var(--ease-spring);
+  transition: box-shadow var(--dur) ease;
 }
-.dial:hover .thumb {
-  transform: translate(-50%, -50%) scale(1.25);
-}
-@keyframes fillIn {
-  from {
-    width: 0;
-  }
-}
-@keyframes thumbIn {
-  from {
-    left: 0;
-  }
+.baseTick {
+  position: absolute;
+  top: -5px;
+  width: 2px;
+  height: 14px;
+  border-radius: 1px;
+  background: var(--muted-2);
+  transform: translateX(-50%);
 }
 .dialRange {
   display: flex;
   justify-content: space-between;
-  font-size: 10.5px;
+  font-size: 12px;
   color: var(--muted);
-  margin-top: 5px;
+  margin-top: 4px;
+  font-variant-numeric: tabular-nums;
 }
 .dialNote {
-  font-size: 11.5px;
+  font-size: 13px;
   color: var(--muted);
-  margin-top: 12px;
+  line-height: 1.5;
 }
+
+/* Diales que se arrastran (simulación con la sensibilidad de la API) */
+.trackHit {
+  padding: 9px 0;
+  cursor: grab;
+  touch-action: none;
+  outline: none;
+}
+.trackHit:active {
+  cursor: grabbing;
+}
+.trackHit .track {
+  margin: 0;
+}
+.dialLive .thumb {
+  transition: left var(--dur) var(--ease-out), box-shadow var(--dur) ease;
+}
+.dialLive .trackFill {
+  transition: width var(--dur) var(--ease-out);
+}
+.trackDragging .thumb,
+.trackDragging .trackFill {
+  transition-property: box-shadow;
+}
+.dialLive:hover .thumb {
+  box-shadow: 0 0 0 4px var(--sprout-soft);
+}
+.trackHit:focus-visible .thumb,
+.dialSimulating .thumb {
+  box-shadow: 0 0 0 4px var(--good-line);
+}
+
+.simReadout {
+  min-height: 56px;
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px solid var(--line);
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+.simMain {
+  display: grid;
+  gap: 2px;
+}
+.simLabel {
+  font-size: 13px;
+  color: var(--muted);
+}
+.simValue {
+  font-size: 24px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  line-height: 1.15;
+  font-variant-numeric: tabular-nums;
+}
+.simAside {
+  display: grid;
+  gap: 3px;
+  margin-left: auto;
+  text-align: right;
+  font-size: 13px;
+  color: var(--ink-2);
+}
+.simAside b {
+  font-weight: 600;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+.simHint {
+  font-size: 12px;
+  color: var(--muted);
+}
+
 .kpis {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 11px;
+  gap: 12px;
+}
+.margin .cardHead {
+  margin-bottom: 10px;
 }
 .marginValue {
   font-size: 15px;
+  font-weight: 600;
   white-space: nowrap;
+  font-variant-numeric: tabular-nums;
 }
 .bottom {
   display: grid;
   grid-template-columns: 1fr 1.4fr;
-  gap: 11px;
+  gap: 12px;
   align-items: stretch;
 }
 .monthly h2 {
@@ -587,13 +566,16 @@
 .checkList {
   display: flex;
   flex-direction: column;
-  gap: 9px;
-  margin-top: 11px;
+  margin: 10px 0 12px;
 }
 .checkItem {
   display: flex;
   gap: 10px;
   align-items: center;
+  padding: 8px 0;
+}
+.checkItem + .checkItem {
+  border-top: 1px solid var(--line-soft);
 }
 .dot {
   width: 7px;
@@ -611,26 +593,24 @@
   background: var(--good);
 }
 .checkText {
-  font-size: 12.5px;
+  font-size: 14px;
+  color: var(--ink);
   flex-grow: 1;
 }
 .checkOwner {
-  font-size: 11px;
+  font-size: 13px;
   color: var(--muted);
 }
 .checkOwnerGood {
-  font-size: 11px;
+  font-size: 13px;
   color: var(--good);
 }
 .checkFoot {
   margin-top: auto;
   padding-top: 10px;
-  font-size: 11.5px;
+  font-size: 13px;
   color: var(--muted);
   border-top: 1px solid var(--line);
-}
-.checks .checkList {
-  margin-bottom: 12px;
 }
 
 /* ---------- Formulario de escenario ---------- */
@@ -655,20 +635,29 @@
 }
 .formSectionHead h3 {
   font-size: 14px;
+  font-weight: 600;
+}
+.formSectionHead .note {
+  display: block;
+  margin-top: 2px;
 }
 .formError {
   padding: 10px 14px;
+  border: 1px solid var(--bad-line);
   border-radius: var(--radius-sm);
   background: var(--bad-soft);
   color: var(--bad-tag-fg);
-  font-size: 12.5px;
+  font-size: 13px;
 }
 .groupTitle {
-  font-size: 11px;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--muted);
+  font-size: 13px;
   font-weight: 600;
+  color: var(--ink-2);
+}
+
+/* Hoja del escenario para imprimir (ScenarioExport): fuera de la pantalla, solo la usa el diálogo de impresión. */
+.printOnly {
+  display: none;
 }
 
 /* ---------- responsivo ---------- */
@@ -685,15 +674,15 @@
     gap: 18px;
   }
 }
-/* Panel en móvil (lienzo PanelMovil): una columna, indicadores primero, luego la lectura y los supuestos. */
+/* Panel en móvil: una columna, indicadores primero, luego la lectura y los supuestos. */
 @media (max-width: 560px) {
   .decision {
-    gap: 11px;
+    gap: 12px;
   }
   .kpis {
     order: 1;
     grid-template-columns: 1fr 1fr;
-    gap: 9px;
+    gap: 8px;
   }
   .verdict {
     display: block;
@@ -705,7 +694,6 @@
   }
   .dials {
     order: 3;
-    background: var(--surface-2);
   }
   .dialGrid {
     grid-template-columns: 1fr;
@@ -716,288 +704,23 @@
   }
   .bottom {
     order: 5;
-    gap: 11px;
   }
-}
-
-/* ---------- animaciones de las gráficas ---------- */
-.growX,
-.growY,
-.stackTop,
-.growCenter {
-  transform-box: fill-box;
-  animation-duration: 1.1s;
-  animation-timing-function: var(--ease-out);
-  animation-fill-mode: backwards;
-  animation-delay: calc(var(--i, 0) * 90ms + 200ms);
-}
-.growX {
-  transform-origin: left center;
-  animation-name: growX;
-}
-.growY {
-  transform-origin: center bottom;
-  animation-name: growY;
-}
-/* El tramo de interés va encima del de capital: entra después, cayendo sobre él. */
-.stackTop {
-  transform-origin: center bottom;
-  animation-name: growY;
-  animation-delay: calc(var(--i, 0) * 90ms + 600ms);
-}
-.growCenter {
-  transform-box: view-box;
-  transform-origin: var(--cx) 0;
-  animation-name: growX;
-}
-.slideMarker {
-  transform-box: view-box;
-  animation: slideMarker 1.6s var(--ease-in-out) 0.3s backwards;
-}
-.beacon {
-  transform-box: fill-box;
-  transform-origin: center;
-}
-.fadeDown {
-  animation: fadeDown 0.8s var(--ease-out) 1s backwards;
-}
-.draw {
-  stroke-dasharray: 1;
-  stroke-dashoffset: 0;
-  animation: draw 1.8s var(--ease-in-out) 0.2s backwards;
-}
-.pop {
-  transform-box: fill-box;
-  transform-origin: center;
-  animation: pop 0.6s var(--ease-spring) backwards;
-  animation-delay: calc(var(--i, 0) * 1.6s + 0.3s);
-}
-.baseHalo {
-  fill: none;
-  stroke: var(--leaf);
-  stroke-width: 1.5;
-  transform-box: fill-box;
-  transform-origin: center;
-}
-.zoneIn {
-  animation: zoneIn 1.2s ease 0.6s backwards;
-}
-.labelIn {
-  animation: labelIn 0.7s var(--ease-out) backwards;
-  animation-delay: calc(var(--i, 0) * 90ms + 900ms);
-}
-@keyframes growX {
-  from {
-    transform: scaleX(0);
-  }
-}
-@keyframes growY {
-  from {
-    transform: scaleY(0);
-  }
-}
-@keyframes slideMarker {
-  from {
-    transform: translateX(var(--from));
-    opacity: 0;
-  }
-  20% {
-    opacity: 1;
-  }
-}
-@keyframes beacon {
-  0%,
-  100% {
-    transform: scale(1);
-  }
-  50% {
-    transform: scale(1.35);
-  }
-}
-@keyframes fadeDown {
-  from {
-    opacity: 0;
-    transform: translateY(-8px);
-  }
-}
-@keyframes draw {
-  from {
-    stroke-dashoffset: 1;
-  }
-}
-@keyframes pop {
-  from {
-    transform: scale(0);
-  }
-}
-@keyframes halo {
-  from {
-    transform: scale(1);
-    opacity: 0.8;
-  }
-  to {
-    transform: scale(3);
-    opacity: 0;
-  }
-}
-@keyframes zoneIn {
-  from {
-    opacity: 0;
-  }
-}
-@keyframes labelIn {
-  from {
-    opacity: 0;
-    transform: translateY(6px);
-  }
-}
-
-/* ---------- lectura interactiva de los gráficos ---------- */
-.scrubbable {
-  cursor: crosshair;
-  touch-action: pan-y;
-  border-radius: var(--radius-sm);
-}
-.scrubbable:focus {
-  outline: none;
-}
-.scrubbable:focus-visible {
-  outline: 2px solid var(--sprout);
-  outline-offset: 4px;
-}
-.hoverItem {
-  cursor: pointer;
-  outline: none;
-  transition: opacity 0.25s var(--ease-out);
-}
-.dimming .hoverItem:not([data-on]) {
-  opacity: 0.3;
-}
-.hoverItem:focus-visible rect:not(.hit) {
-  stroke: var(--sprout);
-  stroke-width: 2;
-}
-.hit {
-  fill: transparent;
-}
-
-/* ---------- diales que se arrastran (simulación con la sensibilidad de la API) ---------- */
-.trackHit {
-  padding: 9px 0;
-  cursor: grab;
-  touch-action: none;
-  outline: none;
-}
-.trackHit:active {
-  cursor: grabbing;
-}
-.trackHit .track {
-  margin: 0;
-}
-.dialLive .thumb {
-  transition: left 0.55s var(--ease-spring), transform 0.4s var(--ease-spring), box-shadow 0.25s var(--ease-out);
-}
-.dialLive .trackFill {
-  transition: width 0.55s var(--ease-spring);
-}
-.trackDragging .thumb,
-.trackDragging .trackFill {
-  transition-property: transform, box-shadow;
-}
-.dialLive:hover .thumb,
-.trackHit:focus-visible .thumb {
-  transform: translate(-50%, -50%) scale(1.25);
-}
-.trackHit:focus-visible .thumb,
-.dialSimulating .thumb {
-  box-shadow: 0 0 0 4px var(--sprout), var(--shadow-lift);
-}
-.dialSimulating .thumb {
-  transform: translate(-50%, -50%) scale(1.3);
-}
-.baseTick {
-  position: absolute;
-  top: -5px;
-  width: 2px;
-  height: 14px;
-  border-radius: 1px;
-  background: var(--ink-2);
-  transform: translateX(-50%);
-  opacity: 0.55;
-  animation: tickIn 0.25s var(--ease-out) backwards;
-}
-@keyframes tickIn {
-  from {
-    opacity: 0;
-  }
-}
-.dialValueSim {
-  color: var(--forest);
-  box-shadow: inset 0 -2px 0 var(--sprout);
-}
-.simReadout {
-  min-height: 58px;
-  margin-top: 14px;
-  padding-top: 12px;
-  border-top: 1px solid var(--line);
-  display: flex;
-  align-items: center;
-  gap: 20px;
-  flex-wrap: wrap;
-}
-.simReadout .dialNote {
-  margin-top: 0;
-}
-.simReadoutOn {
-  animation: simIn 0.3s var(--ease-out) backwards;
-}
-@keyframes simIn {
-  from {
-    opacity: 0.4;
-  }
-}
-.simMain {
-  display: grid;
-  gap: 2px;
-}
-.simLabel {
-  font-family: var(--font-mono);
-  font-size: 10px;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--muted);
-}
-.simValue {
-  font-family: var(--font-heading);
-  font-size: 28px;
-  font-weight: 300;
-  letter-spacing: -0.02em;
-  line-height: 1.1;
-}
-.simAside {
-  display: grid;
-  gap: 3px;
-  margin-left: auto;
-  text-align: right;
-  font-size: 12px;
-  color: var(--ink-2);
-}
-.simAside b {
-  font-family: var(--font-mono);
-  font-weight: 500;
-  color: var(--ink);
-}
-.simHint {
-  font-size: 11px;
-  color: var(--muted);
-}
-@media (max-width: 560px) {
   .simAside {
     margin-left: 0;
     text-align: left;
   }
+  .selectorName {
+    max-width: 140px;
+  }
 }
-/* Hoja del escenario para imprimir (ScenarioExport): fuera de la pantalla, solo la usa el diálogo de impresión. */
-.printOnly {
-  display: none;
+
+/* Pestañas del kit sobre la franja verde: píldora activa blanca, el resto en blanco sobre vidrio. */
+.tabsOnBand {
+  display: flex;
+}
+.tabsOnBand [role="tablist"] {
+  --surface: #ffffff;
+  --ink: var(--forest);
+  --muted: var(--on-band);
+  --segment-bg: var(--band-glass);
 }

@@ -1,19 +1,16 @@
-/* Ventas: lienzo "Ventas" (historial) y "Punto de venta" (SecVentas). El <main> del lienzo separa bloques 12px. */
+/* Ventas: punto de venta (búsqueda a la izquierda, carrito y cobro a la derecha). */
 .screen {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 16px;
   flex-grow: 1;
   min-height: 0;
 }
 
-/* Rejilla 1.6fr / 1fr del lienzo. */
 .layout {
   display: grid;
-  grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
-  gap: 12px;
-  flex-grow: 1;
-  min-height: 0;
+  grid-template-columns: minmax(0, 1.6fr) minmax(340px, 1fr);
+  gap: 16px;
   align-items: start;
 }
 .column {
@@ -21,61 +18,52 @@
   flex-direction: column;
   gap: 12px;
   min-width: 0;
-  min-height: 0;
-}
-.grow {
-  flex-grow: 1;
 }
 .sideColumn {
-  align-self: stretch;
+  position: sticky;
+  top: 76px;
 }
 
-/* ---------- Punto de venta ---------- */
+/* ---------- búsqueda ---------- */
 .searchBox {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
+  height: 44px;
+  padding: 0 14px;
   background: var(--surface);
-  border: 1px solid var(--line-strong);
-  border-radius: 999px;
-  height: 50px;
-  padding: 0 20px;
-  transition: border-color 0.25s ease, box-shadow 0.4s var(--ease-out);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  transition: border-color var(--dur) ease, box-shadow var(--dur) ease;
 }
 .searchBox:focus-within {
-  border-color: var(--ink);
-  box-shadow: 0 0 0 5px var(--sprout-soft), 0 18px 40px -24px rgba(0, 0, 0, 0.35);
-}
-.searchBox:focus-within .searchIcon {
-  color: var(--ink);
-  transform: scale(1.1) rotate(-8deg);
+  border-color: var(--sprout);
+  box-shadow: 0 0 0 3px var(--sprout-soft);
 }
 .searchIcon {
   flex-shrink: 0;
   color: var(--muted);
-  transition: transform 0.4s var(--ease-spring), color 0.25s ease;
 }
 .searchInput {
   flex-grow: 1;
   min-width: 0;
   border: none;
   background: transparent;
+  font: inherit;
   font-size: 14px;
-  font-family: inherit;
   color: var(--ink);
   padding: 0;
   outline: none;
 }
 .searchInput::placeholder {
-  color: var(--muted);
+  color: var(--muted-2);
 }
 .searchCount {
-  font-family: var(--font-mono);
-  font-size: 10px;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
+  font-size: 13px;
   color: var(--muted);
   white-space: nowrap;
+  font-variant-numeric: tabular-nums;
 }
 .srOnly {
   position: absolute;
@@ -85,398 +73,330 @@
   clip: rect(0 0 0 0);
 }
 .mono {
-  font-variant-numeric: tabular-nums;
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  color: var(--ink-2);
 }
 .stockCell {
   display: inline-flex;
   align-items: center;
   gap: 6px;
   justify-content: flex-end;
+  font-variant-numeric: tabular-nums;
 }
 .addBtn {
-  padding: 0 14px;
-  font-size: 13px;
-}
-.qty {
-  width: 72px;
-  margin-left: auto;
-}
-.qty input {
-  height: 30px;
-  padding: 0 8px;
-  font-size: 12.5px;
-  text-align: right;
+  white-space: nowrap;
 }
 
-/* Tarjeta Cliente: etiquetas 12,5px y controles de 40px como en el lienzo. */
-.customerFields {
+/* ---------- ticket (carrito, cliente y cobro) ---------- */
+.ticket {
   display: flex;
   flex-direction: column;
-  gap: 11px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
 }
-.customerFields label {
-  font-size: 12.5px;
+.ticketHead {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+  padding: 14px 16px 12px;
+  border-bottom: 1px solid var(--line);
 }
-.customerFields select {
-  height: 40px;
-  padding: 0 11px;
+.ticketHead h2 {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--ink);
+}
+.ticketCount {
   font-size: 13px;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+.cartEmpty {
+  padding: 22px 16px;
+  font-size: 13px;
+  color: var(--muted);
+  text-align: center;
+}
+.cartList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  max-height: 320px;
+  overflow-y: auto;
+}
+.cartLine {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 64px auto 28px;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px 10px 16px;
+  border-bottom: 1px solid var(--line-soft);
+}
+.cartInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+.cartName {
+  font-size: 14px;
+  color: var(--ink);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.cartPrice {
+  font-size: 12.5px;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+.cartSubtotal {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--ink);
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.qty input {
+  height: 32px;
+  padding: 0 8px;
+  font-size: 13px;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+.removeBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  transition: background var(--dur) ease, color var(--dur) ease;
+}
+.removeBtn:hover {
+  background: var(--bad-soft);
+  color: var(--bad);
+}
+.removeBtn:focus-visible {
+  outline: 2px solid var(--sprout);
+  outline-offset: 1px;
+}
+.ticketSection {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 14px 16px 16px;
+}
+.ticketSection + .ticketSection {
+  border-top: 1px solid var(--line);
 }
 
-/* Caja amarilla de cupo. */
+/* Cupo del cliente. */
 .creditBox {
   background: var(--warn-soft);
   border: 1px solid var(--warn-line);
-  border-radius: 8px;
-  padding: 11px 12px;
+  border-radius: var(--radius-sm);
+  padding: 10px 12px;
 }
 .creditRow {
   display: flex;
   justify-content: space-between;
   gap: 10px;
-  font-size: 12px;
+  font-size: 13px;
   color: var(--warn-tag-fg);
 }
 .creditRow + .creditRow {
   margin-top: 4px;
 }
 .creditRow strong {
-  color: var(--warn-tag-fg);
+  font-weight: 600;
   font-variant-numeric: tabular-nums;
 }
 .creditMain {
   padding-top: 6px;
   border-top: 1px solid var(--warn-line);
 }
-.creditWarning {
-  font-size: 11.5px;
-  color: var(--bad-tag-fg);
+.creditWarning,
+.creditOverdue {
+  font-size: 12.5px;
   margin-top: 8px;
   line-height: 1.5;
+}
+.creditWarning {
+  color: var(--bad-tag-fg);
 }
 .creditOverdue {
-  font-size: 11.5px;
   color: var(--warn-tag-fg);
-  margin-top: 8px;
-  line-height: 1.5;
 }
 
-/* Panel verde oscuro de resumen (colores del lienzo sobre la marca, fijos como en Signin). */
-.summary {
-  /* Ticket siempre oscuro, en ambos temas. */
-  --btn-invert: var(--app-bg);
-  position: relative;
-  overflow: hidden;
-  isolation: isolate;
-  background: var(--app-bg);
-  color: var(--dark-ink);
-  border-radius: calc(var(--radius) + 4px);
-  padding: 20px 20px 18px;
-  margin-top: auto;
-  box-shadow: 0 30px 60px -30px rgba(4, 12, 8, 0.7);
-}
-.summary::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  background: radial-gradient(70% 60% at 100% 0%, rgba(185, 236, 111, 0.12), transparent 70%),
-    radial-gradient(60% 70% at 0% 100%, rgba(45, 106, 79, 0.4), transparent 70%);
-}
-.summaryHead {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-family: var(--font-mono);
-  font-size: 10px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--dark-muted);
-  padding-bottom: 12px;
-  margin-bottom: 12px;
-  border-bottom: 1px dashed var(--dark-line);
-}
-.summaryHead span:last-child {
-  color: var(--sprout);
-}
+/* Totales. */
 .summaryRow {
   display: flex;
   justify-content: space-between;
   gap: 12px;
-  font-size: 12.5px;
-  color: var(--dark-ink-2);
+  font-size: 13px;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
 }
-.summaryRow + .summaryRow {
-  margin-top: 6px;
+.summaryRow span:last-child {
+  color: var(--ink-2);
 }
 .summaryTotal {
   display: flex;
   justify-content: space-between;
   align-items: baseline;
   gap: 12px;
-  margin-top: 14px;
-  padding-top: 14px;
-  border-top: 1px dashed var(--dark-line);
+  padding-top: 12px;
+  border-top: 1px solid var(--line-soft);
 }
 .summaryTotal > span {
-  font-family: var(--font-mono);
-  font-size: 10.5px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--dark-ink-2);
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--ink);
+}
+.estimated {
+  margin-left: 4px;
+  font-size: 12.5px;
+  font-weight: 400;
+  color: var(--muted);
 }
 .summaryTotal strong {
-  font-family: var(--font-heading);
-  font-size: 38px;
-  font-weight: 300;
-  letter-spacing: -0.05em;
-  line-height: 1;
-  color: var(--dark-ink);
+  font-size: 28px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+  color: var(--ink);
   font-variant-numeric: tabular-nums;
 }
-.confirmBtn {
-  margin-top: 18px;
-}
 .summaryNote {
-  font-size: 11px;
-  color: var(--dark-muted);
-  margin-top: 10px;
+  font-size: 12.5px;
+  color: var(--muted);
   text-align: center;
 }
-.summaryError {
-  margin-top: 12px;
-}
 .errorDetails {
-  font-size: 12.5px;
+  display: block;
+  font-size: 13px;
   color: var(--ink-2);
 }
 
-/* ---------- Fichas (modal de éxito) ---------- */
+/* ---------- modal de venta registrada ---------- */
 .section {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 16px;
+}
+.success {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+  padding: 14px 16px;
+  background: var(--good-soft);
+  border: 1px solid var(--good-line);
+  border-radius: var(--radius);
+}
+.successMark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: var(--good);
+  color: var(--on-forest);
+}
+.successText {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+  min-width: 160px;
+}
+.successLabel {
+  font-size: 13px;
+  color: var(--forest-fg);
+}
+.successInvoice {
+  font-family: var(--font-mono);
+  font-size: 18px;
+  font-weight: 500;
+  color: var(--ink);
+}
+.successTotal {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+}
+.successTotal > span {
+  font-size: 13px;
+  color: var(--muted);
+}
+.successTotal strong {
+  font-size: 24px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
 }
 .factGrid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
   gap: 12px 16px;
+  margin: 0;
 }
 .fact {
   display: flex;
   flex-direction: column;
   gap: 2px;
 }
-.factLabel {
-  font-size: 11.5px;
-  color: var(--ink-2);
+.fact dt {
+  font-size: 13px;
+  color: var(--muted);
 }
-.factValue {
-  font-weight: 600;
+.fact dd {
+  margin: 0;
+  font-weight: 500;
   color: var(--ink);
-  font-variant-numeric: tabular-nums;
+}
+.receiptTable {
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  overflow: hidden;
 }
 .total {
   display: flex;
   justify-content: space-between;
   align-items: baseline;
-  border-top: 1px solid var(--line-strong);
-  padding-top: 11px;
+  padding-top: 4px;
+}
+.total span {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--ink);
 }
 .total strong {
-  font-family: var(--font-heading);
-  font-size: 24px;
-  color: var(--forest-fg);
+  font-size: 22px;
+  font-weight: 600;
+  color: var(--ink);
   font-variant-numeric: tabular-nums;
 }
 
 @media (max-width: 1080px) {
   .layout {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
-}
-
-/* ---------- celebración de la venta confirmada ---------- */
-.success {
-  --btn-invert: var(--app-bg);
-  position: relative;
-  overflow: hidden;
-  display: flex;
-  align-items: center;
-  gap: 18px;
-  flex-wrap: wrap;
-  padding: 20px 22px;
-  border-radius: 16px;
-  background: var(--app-bg);
-  color: var(--dark-ink);
-  border: 1px solid var(--dark-line);
-}
-.success::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(50% 120% at 8% 50%, rgba(185, 236, 111, 0.22), transparent 70%);
-  animation: successGlow 1.6s var(--ease-out) backwards;
-  pointer-events: none;
-}
-.successMark {
-  position: relative;
-  width: 64px;
-  height: 64px;
-  flex-shrink: 0;
-}
-.successCircle {
-  stroke: var(--sprout);
-  stroke-width: 2;
-  stroke-dasharray: 1;
-  stroke-dashoffset: 0;
-  fill: rgba(185, 236, 111, 0.08);
-  transform-origin: center;
-  transform: rotate(-90deg);
-  animation: drawStroke 0.7s var(--ease-in-out) 0.15s backwards;
-}
-.successCheck {
-  stroke: var(--sprout);
-  stroke-width: 3.2;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-  stroke-dasharray: 1;
-  stroke-dashoffset: 0;
-  animation: drawStroke 0.5s var(--ease-out) 0.75s backwards;
-}
-.ripple {
-  position: absolute;
-  inset: 0;
-  border-radius: 50%;
-  border: 1px solid var(--sprout);
-  animation: ripple 1.4s var(--ease-out) 0.8s backwards;
-  opacity: 0;
-}
-.spark {
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  width: 4px;
-  height: 4px;
-  margin: -2px;
-  border-radius: 50%;
-  background: var(--sprout);
-  opacity: 0;
-  animation: spark 0.9s var(--ease-out) 0.8s backwards;
-}
-.successText {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  flex: 1;
-  min-width: 160px;
-  animation: successIn 0.7s var(--ease-out) 0.5s backwards;
-}
-.successLabel {
-  font-family: var(--font-mono);
-  font-size: 10px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--sprout);
-}
-.successInvoice {
-  font-family: var(--font-dots);
-  font-weight: 900;
-  font-size: 30px;
-  letter-spacing: 0.02em;
-  line-height: 1.1;
-  color: var(--dark-ink);
-}
-.successTotal {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  animation: successIn 0.7s var(--ease-out) 0.65s backwards;
-}
-.successTotal > span {
-  font-family: var(--font-mono);
-  font-size: 10px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--dark-muted);
-}
-.successTotal strong {
-  font-size: 34px;
-  font-weight: 300;
-  letter-spacing: -0.05em;
-  color: var(--dark-ink);
-}
-/* El detalle sale como un ticket impreso: se desenrolla de arriba abajo con borde troquelado. */
-.receipt {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  padding: 18px 20px 22px;
-  background: var(--surface-2);
-  border: 1px solid var(--line);
-  border-radius: 12px 12px 4px 4px;
-  animation: print 1.1s steps(18, end) 0.9s backwards;
-}
-.receipt::after {
-  content: "";
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: -6px;
-  height: 6px;
-  background: radial-gradient(circle at 6px 0, var(--surface-2) 5px, transparent 5.5px) 0 0 / 12px 6px repeat-x;
-}
-@keyframes drawStroke {
-  from {
-    stroke-dashoffset: 1;
-  }
-}
-@keyframes ripple {
-  0% {
-    opacity: 0;
-    transform: scale(1);
-  }
-  5% {
-    opacity: 0.8;
-  }
-  100% {
-    opacity: 0;
-    transform: scale(2.4);
-  }
-}
-@keyframes spark {
-  0% {
-    opacity: 0;
-    transform: rotate(var(--a)) translateX(0) scale(1);
-  }
-  8% {
-    opacity: 1;
-  }
-  100% {
-    opacity: 0;
-    transform: rotate(var(--a)) translateX(var(--d)) scale(0.4);
-  }
-}
-@keyframes successIn {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-}
-@keyframes successGlow {
-  from {
-    opacity: 0;
-    transform: scale(0.6);
-  }
-}
-@keyframes print {
-  from {
-    clip-path: inset(0 0 100% 0);
-  }
-  to {
-    clip-path: inset(0 0 0 0);
+  .sideColumn {
+    position: static;
   }
 }

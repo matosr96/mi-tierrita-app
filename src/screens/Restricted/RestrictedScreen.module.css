@@ -1,46 +1,46 @@
+/* Acceso restringido y página no encontrada: mensaje centrado con ícono y acciones. */
 .wrap {
   flex-grow: 1;
   display: flex;
   align-items: center;
   justify-content: center;
   min-height: 60vh;
+  padding: 24px 16px;
 }
 .box {
-  max-width: 460px;
+  max-width: 440px;
   text-align: center;
 }
 .circle {
-  width: 68px;
-  height: 68px;
+  width: 48px;
+  height: 48px;
   border-radius: 50%;
-  background: var(--surface-3);
+  background: var(--surface);
   display: flex;
   align-items: center;
   justify-content: center;
-  margin: 0 auto 22px;
-  color: var(--ink-2);
+  margin: 0 auto 16px;
+  color: var(--muted);
   border: 1px solid var(--line);
-}
-@keyframes float {
-  to {
-    transform: translateY(-6px);
-  }
+  box-shadow: var(--shadow);
 }
 .box h1 {
-  font-size: clamp(26px, 3vw, 36px);
-  font-weight: 300;
-  letter-spacing: -0.045em;
-  line-height: 1.08;
+  font-size: 20px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  line-height: 1.3;
+  color: var(--ink);
 }
 .box p {
-  font-size: 13.5px;
-  color: var(--ink-2);
-  line-height: 1.65;
-  margin-top: 12px;
+  font-size: 14px;
+  color: var(--muted);
+  line-height: 1.6;
+  margin-top: 8px;
 }
 .actions {
   display: flex;
-  gap: 10px;
+  flex-wrap: wrap;
+  gap: 8px;
   justify-content: center;
-  margin-top: 22px;
+  margin-top: 20px;
 }

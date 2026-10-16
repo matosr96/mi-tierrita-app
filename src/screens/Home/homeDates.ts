@@ -1,6 +1,6 @@
 import { greeting, int, longToday } from "@/lib/format";
 
-/** "Buenos días,\n*Nombre.*" según la hora: el nombre va en serif cursiva en la portada. */
+/** "Buenos días,\n*Nombre.*" según la hora (la portada ignora los asteriscos y el salto). */
 export const greetingFor = (firstName: string): string => `${greeting()},\n*${firstName}.*`;
 
 /** "Martes 22 de septiembre · cierre de septiembre en 8 días": dato de calendario, no de la API. */
@@ -18,12 +18,21 @@ export const monthName = (): string => new Date().toLocaleDateString("es-CO", { 
 /** Hora "10:42" de una marca de tiempo ISO, como en la columna Hora del lienzo. */
 export const timeOnly = (iso: string): string => new Date(iso).toLocaleTimeString("es-CO", { hour: "2-digit", minute: "2-digit" });
 
+/** Solo la hora si fue hoy; si no, "22 sep · 03:10 p. m." para no hacer pasar por de hoy algo de otro día. */
+export const whenShort = (iso: string): string => {
+  const d = new Date(iso);
+  const now = new Date();
+  const sameDay = d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth() && d.getDate() === now.getDate();
+  if (sameDay) return timeOnly(iso);
+  return `${d.getDate()} ${d.toLocaleDateString("es-CO", { month: "short" }).replace(".", "")} · ${timeOnly(iso)}`;
+};
+
 /**
  * Titular de la portada que responde "¿está todo bien?": todo en orden o cuántas cosas piden atención.
- * Mientras carga, el saludo de siempre.
+ * Mientras carga, un aviso neutro (el saludo ya está en el encabezado de la página).
  */
 export const statusTitle = (count: number | null, firstName: string): string => {
-  if (count === null) return greetingFor(firstName);
+  if (count === null) return "Revisando los pendientes del día…";
   if (count === 0) return `Todo en orden,\n*${firstName}.*`;
   if (count === 1) return "Una cosa requiere\n*su atención hoy.*";
   return `${int(count)} cosas requieren\n*su atención hoy.*`;
@@ -32,8 +41,6 @@ export const statusTitle = (count: number | null, firstName: string): string => 
 /** "Buenas noches, Ana · martes 13 de octubre · cierre de octubre en 18 días". */
 export const statusSubtitle = (firstName: string): string => `${greeting()}, ${firstName} · ${monthCloseLine()}`;
 
-/** Lleva la vista hasta el bloque de pendientes. */
-export const scrollToPending = () => document.getElementById("pendientes")?.scrollIntoView({ behavior: "smooth", block: "center" });
 
 /** Mismo corte del mes anterior (del 1 al mismo día, o al último si el mes es más corto), para comparar. */
 export const previousMonthCut = (todayIso: string): { from: string; to: string } => {

@@ -1,6 +1,5 @@
 import type { CSSProperties } from "react";
 import { useCustomer, useCustomerBalance } from "@/hooks/customers";
-import { Odometer, TopoField } from "@/components/motion";
 import { Badge, Button, Loading, Modal, QueryState } from "@/components/ui";
 import { dateOnly, dateTime, int, money } from "@/lib/format";
 import type { Customer } from "@/types/api";
@@ -12,7 +11,7 @@ type Props = { customerId: number | null; onClose: () => void; onEdit: (customer
 
 const balanceTone = (balance: number, availableCredit: number) => (availableCredit < 0 ? styles.toneBad : balance > 0 ? styles.toneWarn : styles.toneGood);
 
-/** Estado de cartera de un cliente (RF-04.4) y registro de abonos (CU-12): héroe oscuro con el saldo, ficha y abono. */
+/** Estado de cartera de un cliente (RF-04.4) y registro de abonos (CU-12): resumen del saldo, ficha y abono. */
 export const CustomerDetailModal = ({ customerId, onClose, onEdit }: Props) => {
   const customer = useCustomer(customerId);
   const balance = useCustomerBalance(customerId);
@@ -38,9 +37,8 @@ export const CustomerDetailModal = ({ customerId, onClose, onEdit }: Props) => {
         {(cust) => (
           <div className={styles.wrap}>
             <section className={styles.hero} aria-label="Saldo del cliente">
-              <TopoField className={styles.topo} rings={10} signal={5} seed={cust.id * 0.77} />
               <div className={styles.heroTop}>
-                <Monogram id={cust.id} name={cust.name} size="lg" muted={!cust.active} onDark />
+                <Monogram name={cust.name} size="lg" muted={!cust.active} />
                 <div className={styles.heroWho}>
                   <span className={styles.label}>Estado de cartera</span>
                   <div className={styles.tags}>
@@ -64,7 +62,7 @@ export const CustomerDetailModal = ({ customerId, onClose, onEdit }: Props) => {
                 <>
                   <span className={styles.balanceLabel}>Saldo pendiente</span>
                   <div className={[styles.balance, balanceTone(balance.data.balance, balance.data.availableCredit)].join(" ")}>
-                    <Odometer value={money(balance.data.balance)} />
+                    {money(balance.data.balance)}
                   </div>
                   {balance.data.creditLimit > 0 ? (
                     <div
@@ -121,7 +119,7 @@ export const CustomerDetailModal = ({ customerId, onClose, onEdit }: Props) => {
 
             <section className={styles.pay}>
               <header className={styles.payHead}>
-                <span className={styles.payLabel}>Registrar abono</span>
+                <h3 className={styles.payLabel}>Registrar abono</h3>
                 <span className={styles.payHint}>El saldo baja con cada abono</span>
               </header>
               <PaymentForm customerId={cust.id} active={cust.active} />

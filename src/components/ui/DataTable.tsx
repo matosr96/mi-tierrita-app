@@ -1,4 +1,4 @@
-import type { CSSProperties, ReactNode } from "react";
+import type { ReactNode } from "react";
 import styles from "./DataTable.module.css";
 
 export type Column<T> = { key: string; header: ReactNode; align?: "left" | "right" | "center"; render: (row: T) => ReactNode; width?: string };
@@ -21,8 +21,8 @@ export const DataTable = <T,>({ columns, rows, rowKey, onRowClick, footer }: Pro
         </tr>
       </thead>
       <tbody>
-        {rows.map((row, i) => (
-          <tr key={rowKey(row)} onClick={onRowClick ? () => onRowClick(row) : undefined} style={{ "--row": Math.min(i, 14) } as CSSProperties}>
+        {rows.map((row) => (
+          <tr key={rowKey(row)} onClick={onRowClick ? () => onRowClick(row) : undefined}>
             {columns.map((c) => (
               <td key={c.key} className={cls(c.align)}>
                 {c.render(row)}

@@ -1,134 +1,83 @@
 .button {
-  position: relative;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
-  height: 38px;
-  padding: 0 17px;
-  border-radius: 999px;
+  height: 40px;
+  padding: 0 18px;
   border: 1px solid transparent;
-  font-size: 13px;
+  border-radius: 999px;
+  font-size: 14px;
   font-weight: 500;
-  letter-spacing: -0.01em;
-  cursor: pointer;
+  line-height: 1;
   white-space: nowrap;
-  overflow: hidden;
-  isolation: isolate;
-  transition: background 0.3s var(--ease-out), border-color 0.3s var(--ease-out), color 0.3s var(--ease-out), box-shadow 0.3s var(--ease-out),
-    transform 0.2s var(--ease-out), opacity 0.2s;
-}
-.button:active:not(:disabled) {
-  transform: scale(0.97);
+  cursor: pointer;
+  transition: background-color var(--dur) ease, border-color var(--dur) ease, color var(--dur) ease;
 }
 .button:disabled {
   opacity: 0.5;
   cursor: not-allowed;
 }
 .loading:disabled {
-  opacity: 0.85;
+  opacity: 0.8;
+  cursor: progress;
 }
-
-/* Rótulo que rueda */
-.roll {
-  position: relative;
-  display: inline-flex;
-  flex-direction: column;
-  height: 1.3em;
-  line-height: 1.3em;
-  overflow: hidden;
-}
-.roll > span {
-  display: block;
-  transition: transform 0.5s var(--ease-out);
-}
-.button:hover:not(:disabled) .roll > span {
-  transform: translateY(-100%);
-}
-
-/* Relleno que sube desde abajo al pasar el cursor */
-.primary::before,
-.secondary::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  border-radius: inherit;
-  transform: translateY(101%);
-  transition: transform 0.5s var(--ease-out);
-}
-.button:hover:not(:disabled)::before {
-  transform: translateY(0);
-}
-
 .primary {
-  background: var(--forest);
-  color: var(--on-forest);
-}
-.primary::before {
   background: var(--sprout);
+  color: var(--sprout-ink);
 }
 .primary:hover:not(:disabled) {
-  color: var(--sprout-ink);
-  box-shadow: 0 10px 30px -10px var(--sprout);
+  background: var(--leaf);
 }
 .secondary {
   background: var(--surface);
-  color: var(--ink);
   border-color: var(--line-strong);
-  font-weight: 400;
-  padding: 0 15px;
-}
-.secondary::before {
-  background: var(--ink);
+  color: var(--ink);
 }
 .secondary:hover:not(:disabled) {
-  color: var(--btn-invert, var(--surface));
-  border-color: var(--ink);
+  background: var(--hover);
 }
 .ghost {
   background: transparent;
   color: var(--ink-2);
-  font-weight: 400;
 }
 .ghost:hover:not(:disabled) {
   background: var(--hover);
   color: var(--ink);
 }
 .danger {
-  background: var(--bad-tag-bg);
-  color: var(--bad-tag-fg);
+  background: var(--surface);
+  border-color: var(--bad-line);
+  color: var(--bad);
 }
 .danger:hover:not(:disabled) {
-  background: var(--bad);
-  color: var(--surface);
+  background: var(--bad-soft);
 }
 .accent {
-  background: var(--sprout);
-  color: var(--sprout-ink);
-  font-weight: 600;
+  background: var(--forest);
+  color: var(--on-forest);
 }
 .accent:hover:not(:disabled) {
-  box-shadow: 0 10px 30px -8px var(--sprout);
+  background: var(--forest-fg);
 }
 .sm {
-  height: 30px;
-  padding: 0 12px;
-  font-size: 12.5px;
+  height: 32px;
+  padding: 0 13px;
+  font-size: 13px;
 }
 .lg {
-  height: 48px;
-  padding: 0 24px;
-  font-size: 14.5px;
+  height: 46px;
+  padding: 0 22px;
+  font-size: 15px;
 }
 .block {
   width: 100%;
 }
 .spinner {
-  width: 13px;
-  height: 13px;
+  width: 14px;
+  height: 14px;
   border-radius: 50%;
-  border: 1.5px solid currentColor;
+  border: 2px solid currentColor;
   border-right-color: transparent;
   animation: spin 0.7s linear infinite;
 }

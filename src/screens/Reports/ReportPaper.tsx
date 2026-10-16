@@ -8,7 +8,7 @@ export type Param = { label: string; value: string };
 type Props = {
   /** Código del documento (R-01…). */
   code: string;
-  /** Titular en dos partes: «Reporte de» + acento en serif cursiva. */
+  /** Titular en dos partes («Reporte de» + «ventas»); se leen como un solo título. */
   title: string;
   accent: string;
   /** Datos de emisión (rango, fecha de corte, quién lo genera), uno por renglón de la línea de metadatos. */
@@ -24,15 +24,11 @@ type Props = {
 const toneClass = (tone: Indicator["tone"]): string => (tone === "good" ? styles.good : tone === "warn" ? styles.warn : tone === "bad" ? styles.bad : undefined) ?? "";
 
 /**
- * Documento impreso de la vista previa: membrete, titular con doble regla, metadatos en mono, secciones numeradas,
- * aparte de indicadores como libro mayor y pie de página. Las hojas de atrás y las marcas de corte dan el tacto de papel.
+ * Documento de la vista previa (y del PDF, que clona este <article>): membrete, título, datos de emisión, secciones,
+ * columna de indicadores como libro mayor y pie de página. Hoja A4 blanca y sobria.
  */
 export const ReportPaper = ({ code, title, accent, meta, summary, params, indicators, note, children }: Props) => (
   <article className={styles.paper} aria-label={`${title} ${accent}`}>
-    <span className={[styles.crop, styles.tl].join(" ")} aria-hidden="true" />
-    <span className={[styles.crop, styles.tr].join(" ")} aria-hidden="true" />
-    <span className={[styles.crop, styles.bl].join(" ")} aria-hidden="true" />
-    <span className={[styles.crop, styles.br].join(" ")} aria-hidden="true" />
 
     <header className={styles.head}>
       <div className={styles.letterhead}>
@@ -43,7 +39,7 @@ export const ReportPaper = ({ code, title, accent, meta, summary, params, indica
         <span className={styles.code}>Documento {code}</span>
       </div>
       <h3 className={styles.title}>
-        {title} <em>{accent}</em>
+        {title} {accent}
       </h3>
       <ul className={styles.meta}>
         {meta.filter(Boolean).map((m) => (

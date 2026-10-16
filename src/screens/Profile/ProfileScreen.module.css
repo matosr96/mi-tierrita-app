@@ -4,71 +4,66 @@
   gap: 14px;
   align-items: start;
 }
-/* Tarjeta de identidad: superficie oscura, como la del prototipo. */
+/* Tarjeta de identidad: superficie blanca con borde fino. */
 .idCard {
   position: sticky;
   top: 84px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 8px;
-  padding: 28px 22px 22px;
-  border-radius: calc(var(--radius) + 6px);
-  border: 1px solid var(--dark-line);
-  background: radial-gradient(80% 60% at 50% 0%, rgba(45, 106, 79, 0.45), transparent 70%), var(--app-bg);
-  color: var(--dark-ink);
+  gap: 6px;
+  padding: 24px 20px 20px;
+  border-radius: var(--radius);
+  border: 1px solid var(--line);
+  background: var(--surface);
+  box-shadow: var(--shadow);
+  color: var(--ink);
   text-align: center;
 }
 .avatar {
-  width: 76px;
-  height: 76px;
-  border-radius: 20px;
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
   display: grid;
   place-items: center;
-  background: var(--sprout);
-  color: var(--sprout-ink);
-  font-family: var(--font-heading);
-  font-size: 30px;
-  font-weight: 500;
-  letter-spacing: -0.03em;
-  margin-bottom: 8px;
+  background: var(--sprout-soft);
+  color: var(--forest);
+  font-size: 22px;
+  font-weight: 600;
+  margin-bottom: 6px;
 }
 .name {
   margin: 0;
-  color: var(--dark-ink);
+  color: var(--ink);
   font-family: var(--font-heading);
-  font-weight: 300;
-  font-size: 24px;
-  letter-spacing: -0.04em;
-  line-height: 1.1;
+  font-weight: 600;
+  font-size: 18px;
+  letter-spacing: -0.01em;
+  line-height: 1.25;
 }
 .handle {
-  font-family: var(--font-mono);
-  font-size: 11px;
-  color: var(--dark-ink-2);
+  font-size: 13px;
+  color: var(--muted);
   margin-bottom: 4px;
 }
 .facts {
   width: 100%;
-  margin: 18px 0 0;
-  padding-top: 16px;
-  border-top: 1px solid var(--dark-line);
+  margin: 16px 0 0;
+  padding-top: 14px;
+  border-top: 1px solid var(--line);
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 12px;
   text-align: left;
 }
 .facts dt {
-  font-family: var(--font-mono);
-  font-size: 9px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--dark-muted);
+  font-size: 13px;
+  color: var(--muted);
 }
 .facts dd {
-  margin: 4px 0 0;
-  font-size: 13px;
-  color: var(--dark-ink);
+  margin: 2px 0 0;
+  font-size: 14px;
+  color: var(--ink);
 }
 .main,
 .stack {
@@ -84,7 +79,7 @@
 }
 .note {
   margin: 0;
-  font-size: 12px;
+  font-size: 13px;
   color: var(--muted);
 }
 .rules {
@@ -94,13 +89,13 @@
   display: flex;
   flex-wrap: wrap;
   gap: 6px 18px;
-  font-size: 12px;
+  font-size: 13px;
   color: var(--muted);
 }
 .rules li {
   display: inline-flex;
   gap: 6px;
-  transition: color 0.2s ease;
+  transition: color var(--dur) ease;
 }
 .ruleOk {
   color: var(--good);
@@ -132,5 +127,5 @@
   flex-direction: column;
   gap: 4px;
   font-size: 13px;
-  color: var(--dark-ink-2);
+  color: var(--ink-2);
 }

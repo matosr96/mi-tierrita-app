@@ -7,7 +7,7 @@ import { ExpiryBadge } from "@/screens/Batches/ExpiryBadge";
 import { BatchForm } from "@/screens/Batches/BatchForm";
 import styles from "./InventoryScreen.module.css";
 
-type Props = { product: Product | null; canRegister: boolean; onClose: () => void; viewTransitionName?: string };
+type Props = { product: Product | null; canRegister: boolean; onClose: () => void };
 
 const columns: Column<ProductBatch>[] = [
   { key: "lot", header: "Lote", render: (b) => <span className={styles.code}>#{b.id}</span> },
@@ -19,7 +19,7 @@ const columns: Column<ProductBatch>[] = [
 ];
 
 /** Lotes de un producto en orden FEFO, con registro de entrada para bodega y administración. */
-export const ProductBatchesModal = ({ product, canRegister, onClose, viewTransitionName }: Props) => {
+export const ProductBatchesModal = ({ product, canRegister, onClose }: Props) => {
   const batches = useProductBatches(product?.id ?? null);
   const [showForm, setShowForm] = useState(false);
 
@@ -28,7 +28,7 @@ export const ProductBatchesModal = ({ product, canRegister, onClose, viewTransit
   }, [product]);
 
   return (
-    <Modal open={product !== null} title={product?.name ?? ""} description={product ? `${product.sku} · ${product.categoryName} · stock actual ${int(product.stock)}` : undefined} onClose={onClose} wide viewTransitionName={viewTransitionName}>
+    <Modal open={product !== null} title={product?.name ?? ""} description={product ? `${product.sku} · ${product.categoryName} · stock actual ${int(product.stock)}` : undefined} onClose={onClose} wide>
       <section className={styles.section}>
         <div className={styles.sectionHead}>
           <h3>Lotes (primero en vencer, primero en salir)</h3>

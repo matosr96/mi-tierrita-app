@@ -4,7 +4,7 @@ import styles from "./Tabs.module.css";
 export type TabOption<T extends string> = { value: T; label: string };
 
 /** Control segmentado (pestañas de una pantalla) con una píldora que se desliza hasta la pestaña activa. */
-export const Tabs = <T extends string>({ options, value, onChange }: { options: TabOption<T>[]; value: T; onChange: (v: T) => void }) => {
+export const Tabs = <T extends string>({ options, value, onChange, ariaLabel }: { options: TabOption<T>[]; value: T; onChange: (v: T) => void; ariaLabel?: string }) => {
   const ref = useRef<HTMLDivElement>(null);
   const [pill, setPill] = useState<{ left: number; width: number } | null>(null);
 
@@ -12,6 +12,9 @@ export const Tabs = <T extends string>({ options, value, onChange }: { options: 
     const measure = () => {
       const active = ref.current?.querySelector<HTMLElement>('[aria-selected="true"]');
       setPill(active ? { left: active.offsetLeft, width: active.offsetWidth } : null);
+      // En pantallas angostas la barra se desplaza: la pestaña activa queda a la vista.
+      const box = ref.current;
+      if (active && box && box.scrollWidth > box.clientWidth) box.scrollLeft = Math.max(0, active.offsetLeft - 16);
     };
     measure();
     // Las fuentes web cambian el ancho de los rótulos al terminar de cargar.
@@ -21,7 +24,7 @@ export const Tabs = <T extends string>({ options, value, onChange }: { options: 
   }, [value, options.length]);
 
   return (
-    <div className={styles.tabs} role="tablist" ref={ref}>
+    <div className={styles.tabs} role="tablist" aria-label={ariaLabel} ref={ref}>
       {pill ? <span className={styles.pill} style={{ transform: `translateX(${pill.left}px)`, width: pill.width }} aria-hidden="true" /> : null}
       {options.map((o) => (
         <button key={o.value} type="button" role="tab" aria-selected={o.value === value} className={[styles.tab, o.value === value ? styles.active : ""].join(" ")} onClick={() => onChange(o.value)}>

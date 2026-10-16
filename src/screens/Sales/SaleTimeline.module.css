@@ -1,41 +1,27 @@
-/* Línea de tiempo del historial: días con encabezado fijo y tickets troquelados sobre un riel vertical. */
+/* Historial de ventas: tarjeta blanca con las ventas agrupadas por día, una fila por venta. */
 .wrap {
-  position: relative;
   background: var(--surface);
   border: 1px solid var(--line);
-  border-radius: calc(var(--radius) + 4px);
-  padding: 20px 20px 16px;
+  border-radius: var(--radius);
   box-shadow: var(--shadow);
   min-width: 0;
+  overflow: hidden;
 }
 .head {
   display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 6px 18px;
-  padding-bottom: 14px;
+  flex-direction: column;
+  gap: 2px;
+  padding: 14px 16px 12px;
   border-bottom: 1px solid var(--line);
 }
 .title {
-  font-family: var(--font-heading);
-  font-size: 26px;
-  font-weight: 300;
-  letter-spacing: -0.045em;
-  line-height: 1.05;
+  font-size: 15px;
+  font-weight: 600;
   color: var(--ink);
 }
-.title em {
-  font-family: var(--font-serif);
-  font-style: italic;
-  font-weight: 400;
-  letter-spacing: -0.01em;
-  color: var(--forest-fg);
-}
 .lead {
-  font-size: 12.5px;
-  color: var(--ink-2);
-  max-width: 44ch;
+  font-size: 13px;
+  color: var(--muted);
   line-height: 1.5;
 }
 .emptyActions {
@@ -45,43 +31,32 @@
   justify-content: center;
 }
 
+.pager {
+  padding: 0 12px 12px;
+  border-top: 1px solid var(--line);
+}
+.pager:empty {
+  display: none;
+}
+
 /* ---------- días ---------- */
 .days {
   display: flex;
   flex-direction: column;
-  gap: 4px;
-  margin-top: 4px;
-}
-.day {
-  position: relative;
 }
 .dayHead {
-  position: sticky;
-  top: 60px;
-  z-index: 2;
   display: flex;
   align-items: center;
-  gap: 10px;
-  margin: 0 -20px;
-  padding: 12px 20px 10px;
-  background: var(--glass);
-  backdrop-filter: blur(14px) saturate(1.4);
-  -webkit-backdrop-filter: blur(14px) saturate(1.4);
-  border-bottom: 1px solid var(--line-soft);
-  font-family: var(--font-mono);
-  font-size: 10.5px;
-  font-weight: 400;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
+  gap: 8px;
+  padding: 8px 16px;
+  background: var(--surface-2);
+  border-bottom: 1px solid var(--line);
+  font-size: 13px;
+  font-weight: 500;
   color: var(--ink-2);
 }
-.dayDot {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: var(--sprout);
-  box-shadow: 0 0 0 3px var(--sprout-soft);
-  flex-shrink: 0;
+.day + .day .dayHead {
+  border-top: 1px solid var(--line);
 }
 .dayName {
   flex: 1;
@@ -90,176 +65,86 @@
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+.dayName::first-letter {
+  text-transform: uppercase;
+}
 .dayTag {
-  padding: 3px 9px;
+  padding: 1px 8px;
   border-radius: 999px;
-  background: var(--ink);
-  color: var(--surface);
-  font-size: 9.5px;
-  letter-spacing: 0.12em;
+  background: var(--sprout-soft);
+  color: var(--forest-fg);
+  font-size: 12px;
+  font-weight: 500;
 }
 
-/* ---------- riel y tickets ---------- */
+/* ---------- filas ---------- */
 .list {
-  position: relative;
   list-style: none;
   margin: 0;
-  padding: 12px 0 14px 26px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
+  padding: 0;
 }
-.list::before {
-  content: "";
-  position: absolute;
-  left: 8px;
-  top: 0;
-  bottom: 0;
-  width: 1px;
-  background: linear-gradient(var(--line-strong), var(--line-strong) 70%, transparent);
+.item + .item {
+  border-top: 1px solid var(--line-soft);
 }
-.item {
-  position: relative;
-  animation: ticketIn 0.7s var(--ease-out) backwards;
-  animation-delay: calc(var(--i, 0) * 45ms + 80ms);
-}
-.node {
-  position: absolute;
-  left: -22px;
-  top: 50%;
-  width: 9px;
-  height: 9px;
-  margin-top: -4.5px;
-  border-radius: 50%;
-  background: var(--surface);
-  border: 1.5px solid var(--leaf);
-  transition: transform 0.4s var(--ease-spring), background 0.25s ease;
-}
-.nodeVoid {
-  border-color: var(--bad);
-}
-.item:hover .node,
-.item:focus-within .node {
-  transform: scale(1.35);
-  background: var(--sprout);
-}
-
 .ticket {
-  position: relative;
   width: 100%;
   display: grid;
-  grid-template-columns: 72px minmax(0, 1fr) auto auto 18px;
+  grid-template-columns: 52px minmax(0, 1fr) auto auto 16px;
   align-items: center;
-  gap: 16px;
-  padding: 0 16px 0 0;
-  min-height: 68px;
+  gap: 14px;
+  padding: 10px 16px;
   text-align: left;
   font: inherit;
   color: var(--ink);
-  background: radial-gradient(260px circle at var(--mx, -400px) var(--my, -400px), var(--spot), transparent 70%), var(--surface-2);
-  border: 1px solid var(--line);
-  border-radius: 12px;
+  background: var(--surface);
+  border: none;
   cursor: pointer;
-  transition: border-color 0.25s ease, transform 0.45s var(--ease-out), box-shadow 0.45s var(--ease-out);
+  transition: background var(--dur) ease;
 }
 .ticket:hover {
-  border-color: var(--spot-border);
-  transform: translateX(4px);
-  box-shadow: var(--shadow-lift);
+  background: var(--hover);
 }
 .ticket:focus-visible {
   outline: 2px solid var(--sprout);
-  outline-offset: 2px;
-}
-
-/* Talón con la hora, separado por un troquel con muescas arriba y abajo. */
-.stub {
-  position: relative;
-  align-self: stretch;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 2px;
-  border-right: 1px dashed var(--line-strong);
-}
-.stub::before,
-.stub::after {
-  content: "";
-  position: absolute;
-  right: -7px;
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  background: var(--surface);
-  border: 1px solid var(--line);
-}
-.stub::before {
-  top: -7px;
-}
-.stub::after {
-  bottom: -7px;
+  outline-offset: -2px;
 }
 .time {
-  font-family: var(--font-mono);
-  font-size: 15px;
-  letter-spacing: -0.02em;
-  color: var(--ink);
-  font-variant-numeric: tabular-nums;
-}
-.stubLabel {
-  font-family: var(--font-mono);
-  font-size: 8.5px;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
+  font-size: 13px;
   color: var(--muted);
+  font-variant-numeric: tabular-nums;
 }
 .body {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 1px;
   min-width: 0;
-  padding: 10px 0;
 }
 .invoice {
   font-family: var(--font-mono);
-  font-size: 10.5px;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
+  font-size: 12.5px;
   color: var(--muted);
 }
 .customer {
-  font-size: 14.5px;
+  font-size: 14px;
   font-weight: 500;
-  letter-spacing: -0.01em;
   color: var(--ink);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 .by {
-  font-size: 11.5px;
-  color: var(--ink-2);
+  font-size: 12.5px;
+  color: var(--muted);
 }
 .pay {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  height: 24px;
-  padding: 0 10px;
+  height: 22px;
+  padding: 0 8px;
   border-radius: 999px;
-  font-family: var(--font-mono);
-  font-size: 9.5px;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
+  font-size: 12px;
+  font-weight: 500;
   white-space: nowrap;
-}
-.pay::before {
-  content: "";
-  width: 5px;
-  height: 5px;
-  border-radius: 50%;
-  background: currentColor;
 }
 .payCash {
   background: var(--good-soft);
@@ -275,24 +160,19 @@
   display: flex;
   flex-direction: column;
   align-items: flex-end;
-  gap: 2px;
-  min-width: 104px;
+  gap: 1px;
+  min-width: 96px;
 }
 .amount strong {
-  font-family: var(--font-heading);
-  font-size: 20px;
-  font-weight: 300;
-  letter-spacing: -0.04em;
+  font-size: 14px;
+  font-weight: 600;
   color: var(--ink);
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
 }
 .stateOk,
 .stateVoid {
-  font-family: var(--font-mono);
-  font-size: 9px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
+  font-size: 12.5px;
 }
 .stateOk {
   color: var(--muted);
@@ -301,64 +181,41 @@
   color: var(--bad);
 }
 .chevron {
-  color: var(--muted-2);
   display: flex;
-  transition: transform 0.45s var(--ease-spring), color 0.25s ease;
+  color: var(--muted-2);
+  transition: color var(--dur) ease;
 }
 .ticket:hover .chevron {
   color: var(--ink);
-  transform: translateX(3px);
 }
 
-/* Anulada: rayado tenue y total tachado. */
-.voided {
-  background: repeating-linear-gradient(-45deg, transparent 0 8px, var(--bad-soft) 8px 9px), var(--surface-2);
-}
-.voided .customer,
-.voided .time {
+/* Anulada: texto atenuado y total tachado. */
+.voided .customer {
   color: var(--ink-2);
 }
 .voided .amount strong {
   color: var(--muted);
   text-decoration: line-through;
   text-decoration-color: var(--bad);
-  text-decoration-thickness: 1px;
-}
-
-@keyframes ticketIn {
-  from {
-    opacity: 0;
-    transform: translateY(12px);
-  }
 }
 
 @media (max-width: 640px) {
-  .wrap {
-    padding: 16px 14px 12px;
-  }
-  .dayHead {
-    margin: 0 -14px;
-    padding: 12px 14px 10px;
-  }
   .ticket {
-    grid-template-columns: 62px minmax(0, 1fr) auto;
+    grid-template-columns: 44px minmax(0, 1fr) auto;
     grid-template-areas:
-      "stub body amount"
-      "stub pay amount";
+      "time body amount"
+      "time pay amount";
     gap: 4px 12px;
-    padding-right: 12px;
   }
-  .stub {
-    grid-area: stub;
+  .time {
+    grid-area: time;
   }
   .body {
     grid-area: body;
-    padding-bottom: 0;
   }
   .pay {
     grid-area: pay;
     justify-self: start;
-    margin-bottom: 10px;
   }
   .amount {
     grid-area: amount;
@@ -366,10 +223,5 @@
   }
   .chevron {
     display: none;
-  }
-}
-@media (prefers-reduced-motion: reduce) {
-  .ticket:hover {
-    transform: none;
   }
 }

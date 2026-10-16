@@ -3,8 +3,7 @@ import { useAudits } from "@/hooks/audits";
 import { useUsers } from "@/hooks/users";
 import { int } from "@/lib/format";
 import { PageHeader } from "@/components/layout/AppShell";
-import { Odometer, TopoField } from "@/components/motion";
-import { Button, EmptyState, Input, Pagination, QueryState, Select } from "@/components/ui";
+import { Button, EmptyState, Field, Input, Pagination, QueryState, Select } from "@/components/ui";
 import type { AuditQuery } from "@/types/api";
 import { METHOD_LEGEND } from "./auditMethod";
 import { AuditTimeline } from "./AuditTimeline";
@@ -23,7 +22,7 @@ const useDebounced = <T,>(value: T, ms: number): T => {
 
 const KIND_CLASS = { create: styles.kCreate, update: styles.kUpdate, remove: styles.kRemove };
 
-/** CU-18 Auditoría de escrituras (solo ADMIN): bitácora en vivo con barra de comandos para filtrar. */
+/** CU-18 Auditoría de escrituras (solo ADMIN): barra de filtros y bitácora agrupada por día. */
 export const AuditsScreen = () => {
   const [page, setPage] = useState(1);
   const [userId, setUserId] = useState("");
@@ -57,34 +56,11 @@ export const AuditsScreen = () => {
     <div className={styles.page}>
       <PageHeader title="Auditoría" subtitle="Registro de escrituras: quién hizo qué, cuándo y sobre qué recurso." />
 
-      <section className={styles.terminal} aria-labelledby="audit-log-title">
-        <TopoField className={styles.topo} rings={10} signal={5} seed={4.2} />
-
-        <header className={styles.head}>
-          <div className={styles.headText}>
-            <div className={styles.label}>
-              <span className={styles.live} aria-hidden="true" />
-              Bitácora en vivo · solo escrituras
-            </div>
-            <h2 id="audit-log-title" className={styles.title}>
-              Cada cambio deja <em>rastro</em>
-            </h2>
-            <p className={styles.lead}>Solo se auditan POST, PUT y DELETE; las consultas no dejan rastro.</p>
-          </div>
-          <div className={styles.counter}>
-            <span className={styles.count}>{query.data ? <Odometer value={int(query.data.count)} /> : "—"}</span>
-            <span className={styles.countLabel}>{hasFilters ? "escrituras con estos filtros" : "escrituras registradas"}</span>
-          </div>
-        </header>
-
-        <div className={styles.command} role="search" aria-label="Filtros de la auditoría">
-          <span className={styles.prompt} aria-hidden="true">
-            ›
-          </span>
-          <label className={styles.cmdField}>
-            <span className={styles.cmdKey}>usuario</span>
+      <div className={styles.filters} role="search" aria-label="Filtros de la auditoría">
+        <div className={styles.filterUser}>
+          <Field label="Usuario" htmlFor="audit-user">
             <Select
-              className={styles.control}
+              id="audit-user"
               value={userId}
               onChange={(e) => {
                 setUserId(e.target.value);
@@ -98,11 +74,13 @@ export const AuditsScreen = () => {
                 </option>
               ))}
             </Select>
-          </label>
-          <label className={[styles.cmdField, styles.cmdGrow].join(" ")}>
-            <span className={styles.cmdKey}>recurso</span>
+          </Field>
+        </div>
+        <div className={styles.filterGrow}>
+          <Field label="Recurso" htmlFor="audit-resource">
             <Input
-              className={styles.control}
+              id="audit-resource"
+              className={styles.mono}
               placeholder="/sales o /products/12"
               value={resource}
               onChange={(e) => {
@@ -110,11 +88,12 @@ export const AuditsScreen = () => {
                 setPage(1);
               }}
             />
-          </label>
-          <label className={styles.cmdField}>
-            <span className={styles.cmdKey}>desde</span>
+          </Field>
+        </div>
+        <div className={styles.filterDate}>
+          <Field label="Desde" htmlFor="audit-from">
             <Input
-              className={styles.control}
+              id="audit-from"
               type="date"
               value={from}
               max={to || undefined}
@@ -123,11 +102,12 @@ export const AuditsScreen = () => {
                 setPage(1);
               }}
             />
-          </label>
-          <label className={styles.cmdField}>
-            <span className={styles.cmdKey}>hasta</span>
+          </Field>
+        </div>
+        <div className={styles.filterDate}>
+          <Field label="Hasta" htmlFor="audit-to">
             <Input
-              className={styles.control}
+              id="audit-to"
               type="date"
               value={to}
               min={from || undefined}
@@ -136,29 +116,43 @@ export const AuditsScreen = () => {
                 setPage(1);
               }}
             />
-          </label>
-          {hasFilters ? (
-            <Button variant="ghost" size="sm" onClick={clear}>
+          </Field>
+        </div>
+        {hasFilters ? (
+          <div className={styles.filterClear}>
+            <Button variant="ghost" onClick={clear}>
               Limpiar filtros
             </Button>
-          ) : null}
-        </div>
+          </div>
+        ) : null}
+      </div>
 
-        <div className={styles.legendRow}>
-          <ul className={styles.legend} aria-label="Colores por método">
-            {METHOD_LEGEND.map((m) => (
-              <li key={m.kind} className={[styles.legendItem, KIND_CLASS[m.kind]].join(" ")}>
-                <span className={styles.legendDot} aria-hidden="true" />
-                {m.method} <span className={styles.legendLabel}>{m.label}</span>
-              </li>
-            ))}
-          </ul>
-          {query.data && query.data.pages > 1 ? (
-            <span className={styles.pageTag}>
-              pág. {int(query.data.page)} / {int(query.data.pages)}
-            </span>
-          ) : null}
-        </div>
+      <section className={styles.log} aria-labelledby="audit-log-title">
+        <header className={styles.head}>
+          <div className={styles.headText}>
+            <h2 id="audit-log-title" className={styles.title}>
+              Escrituras
+            </h2>
+            <p className={styles.subtitle}>
+              {query.data ? `${int(query.data.count)} ${hasFilters ? "con estos filtros" : "registradas"}` : "…"} · solo se auditan POST, PUT y DELETE; las consultas no dejan rastro.
+            </p>
+          </div>
+          <div className={styles.headSide}>
+            <ul className={styles.legend} aria-label="Colores por método">
+              {METHOD_LEGEND.map((m) => (
+                <li key={m.kind} className={[styles.legendItem, KIND_CLASS[m.kind]].join(" ")}>
+                  <span className={styles.legendDot} aria-hidden="true" />
+                  <span className={styles.legendMethod}>{m.method}</span> {m.label}
+                </li>
+              ))}
+            </ul>
+            {query.data && query.data.pages > 1 ? (
+              <span className={styles.pageTag}>
+                Página {int(query.data.page)} de {int(query.data.pages)}
+              </span>
+            ) : null}
+          </div>
+        </header>
 
         <div className={styles.screen}>
           <QueryState
@@ -181,11 +175,9 @@ export const AuditsScreen = () => {
             {(data) => (
               <>
                 <AuditTimeline key={data.page} items={data.items} />
-                <div className={styles.eof} aria-hidden="true">
-                  <span>fin de la página</span>
-                  <span className={styles.caret} />
+                <div className={styles.pager}>
+                  <Pagination page={data} onPage={setPage} />
                 </div>
-                <Pagination page={data} onPage={setPage} />
               </>
             )}
           </QueryState>

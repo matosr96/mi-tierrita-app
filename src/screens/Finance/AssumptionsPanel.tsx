@@ -1,6 +1,5 @@
-import type { CSSProperties, ReactNode } from "react";
+import type { ReactNode } from "react";
 import type { ScenarioDetail } from "@/types/api";
-import { SplitText } from "@/components/motion";
 import { dateTime, int, money, num2, pct, times } from "@/lib/format";
 import { breakEven } from "./financeShared";
 import { useSalesSensitivity } from "./useSalesSensitivity";
@@ -9,7 +8,7 @@ import styles from "./AssumptionsPanel.module.css";
 type Props = { scenario: ScenarioDetail; letter: string };
 
 type TagKind = "real" | "assumed" | "critical" | "computed" | "scenario" | "source";
-const TAG_LABEL: Record<TagKind, string> = { real: "dato real", assumed: "supuesto", critical: "supuesto crítico", computed: "calculado · API", scenario: "escenario", source: "anclado a fuente" };
+const TAG_LABEL: Record<TagKind, string> = { real: "Dato real", assumed: "Supuesto", critical: "Supuesto crítico", computed: "Calculado por la API", scenario: "Escenario", source: "Anclado a fuente" };
 const TAG_CLASS: Record<TagKind, string | undefined> = {
   real: styles.tagReal,
   assumed: styles.tagAssumed,
@@ -23,7 +22,7 @@ const Tag = ({ kind }: { kind: TagKind }) => <span className={[styles.tag, TAG_C
 
 type ReadoutProps = { label: string; tag?: TagKind; prefix?: string; value: string; suffix?: string; hint?: ReactNode; wide?: boolean; text?: boolean; computed?: boolean };
 
-/** Lectura de instrumento: microetiqueta, cifra grande en trazo ligero, unidades en mono y una regla de marcas. */
+/** Dato de la ficha: etiqueta, origen, cifra con sus unidades y una nota opcional. */
 const Readout = ({ label, tag, prefix, value, suffix, hint, wide, text, computed }: ReadoutProps) => (
   <div className={[styles.readout, wide ? styles.wide : "", computed ? styles.computed : ""].join(" ")}>
     <div className={styles.rHead}>
@@ -35,20 +34,16 @@ const Readout = ({ label, tag, prefix, value, suffix, hint, wide, text, computed
       <span className={styles.rNum}>{value}</span>
       {suffix ? <span className={styles.rUnit}>{suffix}</span> : null}
     </div>
-    {text ? null : <span className={styles.rScale} aria-hidden="true" />}
     {hint ? <p className={styles.rHint}>{hint}</p> : null}
   </div>
 );
 
-type SectionProps = { n: number; title: string; lede: string; children: ReactNode };
+type SectionProps = { title: string; lede: string; children: ReactNode };
 
-const Section = ({ n, title, lede, children }: SectionProps) => (
-  <section className={styles.section} style={{ "--n": n } as CSSProperties}>
+const Section = ({ title, lede, children }: SectionProps) => (
+  <section className={styles.section}>
     <header className={styles.sectionHead}>
-      <span className={styles.sectionNum}>{String(n).padStart(2, "0")}</span>
-      <h2 className={styles.sectionTitle}>
-        <SplitText text={title} stagger={45} />
-      </h2>
+      <h2 className={styles.sectionTitle}>{title}</h2>
       <p className={styles.sectionLede}>{lede}</p>
     </header>
     <div className={styles.grid}>{children}</div>
@@ -67,10 +62,6 @@ export const AssumptionsPanel = ({ scenario, letter }: Props) => {
   return (
     <div className={styles.sheet}>
       <div className={styles.notice} role="note">
-        <span className={styles.noticeTag}>
-          <i aria-hidden="true" />
-          Aviso
-        </span>
         <p>
           <strong>Los 17 valores base son supuestos del estudio.</strong> Contrástelos con los registros de Agus y con cotizaciones formales antes de generar el reporte para el banco. Los escenarios no se editan: cada cambio crea uno nuevo, recalculado por la API y registrado con su usuario.
         </p>
@@ -78,13 +69,13 @@ export const AssumptionsPanel = ({ scenario, letter }: Props) => {
 
       <div className={styles.layout}>
         <div className={styles.sections}>
-          <Section n={1} title="Empresa y *decisión*" lede="Qué se evalúa y para quién.">
+          <Section title="Empresa y decisión" lede="Qué se evalúa y para quién.">
             <Readout label="Empresa" tag="real" value="Agropecuaria Mi Tierrita" text />
             <Readout label="Decisión evaluada" tag="real" value="Ampliar y remodelar el local con crédito bancario" text />
             <Readout label="Escenario" tag="scenario" value={scenario.name} text wide hint={`Creado por ${scenario.username} el ${dateTime(scenario.createdAt)}.`} />
           </Section>
 
-          <Section n={2} title="Operación *actual*" lede="El negocio tal como está hoy, sin la ampliación.">
+          <Section title="Operación actual" lede="El negocio tal como está hoy, sin la ampliación.">
             <Readout label="Ventas promedio mensuales" tag="assumed" prefix="$" value={int(a.monthlySales)} suffix="COP / mes" wide hint="Validar con el promedio de facturación de Agus de los últimos 12 meses." />
             <Readout label="Costo de ventas" value={pctField(a.costOfSalesPct)} suffix="%" />
             <Readout label="Gastos fijos mensuales" prefix="$" value={int(a.fixedExpensesMonth)} />
@@ -92,7 +83,7 @@ export const AssumptionsPanel = ({ scenario, letter }: Props) => {
             <Readout label="Crecimiento base de ventas" value={pctField(a.baseSalesGrowth)} suffix="% anual" />
           </Section>
 
-          <Section n={3} title="Inversión y efecto *esperado*" lede="Lo que cuesta la obra y lo que se espera que produzca.">
+          <Section title="Inversión y efecto esperado" lede="Lo que cuesta la obra y lo que se espera que produzca.">
             <Readout label="Obra civil y remodelación" prefix="$" value={int(a.constructionInvestment)} />
             <Readout label="Estantería y equipos" prefix="$" value={int(a.equipmentInvestment)} />
 
@@ -131,7 +122,7 @@ export const AssumptionsPanel = ({ scenario, letter }: Props) => {
             <Readout label="Inversión total" value={money(ind.totalInvestment)} computed />
           </Section>
 
-          <Section n={4} title="*Financiación*" lede="Cuánto presta el banco, a qué tasa y en cuánto tiempo.">
+          <Section title="Financiación" lede="Cuánto presta el banco, a qué tasa y en cuánto tiempo.">
             <Readout label="Monto del crédito" tag="computed" prefix="$" value={int(ind.credit)} />
             <Readout label="Plazo" value={int(scenario.termMonths)} suffix="meses" />
             <Readout label="Financiado con crédito" value={pctField(scenario.creditPct)} suffix="% de la obra" />
@@ -168,7 +159,7 @@ export const AssumptionsPanel = ({ scenario, letter }: Props) => {
             <Readout label="Cuota mensual" value={money(ind.installment)} computed />
           </Section>
 
-          <Section n={5} title="Parámetros de *evaluación*" lede="Con qué vara se mide si la ampliación conviene.">
+          <Section title="Parámetros de evaluación" lede="Con qué vara se mide si la ampliación conviene.">
             <Readout label="TMAR" value={pctField(a.tmarEA)} suffix="% EA" />
             <Readout label="Horizonte" value={int(a.horizonYears)} suffix="años" />
             <Readout label="Inflación anual" value={pctField(a.inflation)} suffix="%" />
@@ -178,7 +169,7 @@ export const AssumptionsPanel = ({ scenario, letter }: Props) => {
             </p>
           </Section>
 
-          <Section n={6} title="Últimos *cambios*" lede="Los escenarios son inmutables.">
+          <Section title="Últimos cambios" lede="Los escenarios son inmutables.">
             <div className={styles.log}>
               <div className={styles.logRow}>
                 <span className={styles.logDate}>{dateTime(scenario.createdAt)}</span>
@@ -194,7 +185,7 @@ export const AssumptionsPanel = ({ scenario, letter }: Props) => {
 
         <aside className={styles.aside} aria-label="Ficha del escenario">
           <div className={styles.asideCard}>
-            <span className={styles.asideEyebrow}>Ficha técnica</span>
+            <h2 className={styles.asideTitle}>Ficha técnica</h2>
             <div className={styles.asideId}>
               <span className={styles.asideLetter}>{letter}</span>
               <div className={styles.asideName}>
@@ -223,7 +214,7 @@ export const AssumptionsPanel = ({ scenario, letter }: Props) => {
               </div>
             </dl>
             <div className={styles.legend}>
-              <span className={styles.asideEyebrow}>Origen de cada dato</span>
+              <span className={styles.legendTitle}>Origen de cada dato</span>
               <div className={styles.legendList}>
                 <Tag kind="real" />
                 <Tag kind="assumed" />

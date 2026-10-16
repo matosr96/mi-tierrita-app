@@ -1,6 +1,9 @@
 import { dateOnly, int, money } from "@/lib/format";
+import { LOW_STOCK, expiredUnits } from "@/screens/Inventory/stockStatus";
 import type { Customer, InventoryReport, Product, ProductBatch, ReceivablesReport } from "@/types/api";
-import type { AttentionItem } from "./AttentionList";
+
+/** Un pendiente: tono, texto, a dónde lleva y la etiqueta corta de la derecha. */
+export type AttentionItem = { key: string; tone: "bad" | "warn" | "neutral"; text: string; to: string; tag: string };
 
 /** Pendientes del administrador a partir de los reportes de inventario y cartera (solo agrupa lo que da la API). */
 export const adminAttention = (inv: InventoryReport | undefined, rec: ReceivablesReport | undefined): AttentionItem[] => {
@@ -31,7 +34,6 @@ export const pendingItems = (customers: Customer[]): AttentionItem[] =>
   );
 
 /** "Qué hacer hoy": lotes vencidos o por vencer y productos sin existencias o con pocas. */
-export const LOW_STOCK = 5;
 
 export const todoItems = (batches: ProductBatch[], products: Product[]): AttentionItem[] => {
   const items: AttentionItem[] = [];
@@ -44,8 +46,14 @@ export const todoItems = (batches: ProductBatch[], products: Product[]): Attenti
   for (const p of products.filter((x) => x.stock === 0).slice(0, 2)) {
     items.push({ key: `out-${p.id}`, tone: "bad", text: `Sin existencias de ${p.name}`, to: "/inventario", tag: "Reponer" });
   }
-  for (const p of products.filter((x) => x.stock > 0 && x.stock < LOW_STOCK).slice(0, 2)) {
-    items.push({ key: `low-${p.id}`, tone: "warn", text: `${p.stock === 1 ? "Queda 1 unidad" : `Quedan ${int(p.stock)} unidades`} de ${p.name}`, to: "/inventario", tag: "Avisar" });
+  // Lo que queda se cuenta en unidades vendibles: unidades vencidas no "quedan" (ya salen arriba como "Retirar").
+  const sellable = (x: Product) => x.stock - expiredUnits(x);
+  for (const p of products.filter((x) => x.stock > 0 && sellable(x) === 0).slice(0, 2)) {
+    items.push({ key: `void-${p.id}`, tone: "bad", text: `Todo lo que queda de ${p.name} está vencido`, to: "/inventario", tag: "Reponer" });
+  }
+  for (const p of products.filter((x) => sellable(x) > 0 && sellable(x) < LOW_STOCK).slice(0, 2)) {
+    const n = sellable(p);
+    items.push({ key: `low-${p.id}`, tone: "warn", text: `${n === 1 ? "Queda 1 unidad" : `Quedan ${int(n)} unidades`} de ${p.name}`, to: "/inventario", tag: "Avisar" });
   }
   return items.slice(0, 6);
 };

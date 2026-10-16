@@ -1,7 +1,6 @@
 import { useState, type CSSProperties } from "react";
 import { useCustomers } from "@/hooks/customers";
 import { useReceivablesReport } from "@/hooks/reports";
-import { Odometer, TopoField } from "@/components/motion";
 import { Button } from "@/components/ui";
 import { int, money, moneyCompact } from "@/lib/format";
 import type { ReceivableRow } from "@/types/api";
@@ -10,7 +9,7 @@ import styles from "./CarteraAside.module.css";
 /** Barras de "mayores saldos" que caben en la tarjeta. */
 const BARS = 28;
 
-/** Tarjeta oscura de cartera (ADMIN, CU-20): cifras de GET /reports/receivables tal como llegan y los mayores saldos. */
+/** Tarjeta de cartera (ADMIN, CU-20): cifras de GET /reports/receivables tal como llegan y los mayores saldos. */
 export const AdminCartera = ({ onOpen }: { onOpen: (customerId: number) => void }) => {
   const report = useReceivablesReport();
   const active = useCustomers({ active: true, limit: 1 });
@@ -25,11 +24,12 @@ export const AdminCartera = ({ onOpen }: { onOpen: (customerId: number) => void 
 
   return (
     <aside className={styles.aside} aria-labelledby="cartera-title">
-      <TopoField className={styles.topo} rings={11} signal={6} seed={2.3} />
-      <div className={styles.label}>Cartera{r ? ` · corte a ${int(r.overdueDays)} días` : ""}</div>
-      <h2 id="cartera-title" className={styles.title}>
-        Lo que <em>nos deben</em>
-      </h2>
+      <header className={styles.head}>
+        <h2 id="cartera-title" className={styles.title}>
+          Cartera por cobrar
+        </h2>
+        {r ? <span className={styles.sub}>Corte de vencimiento a {int(r.overdueDays)} días</span> : null}
+      </header>
 
       {report.isError ? (
         <div className={styles.error}>
@@ -40,8 +40,9 @@ export const AdminCartera = ({ onOpen }: { onOpen: (customerId: number) => void 
         </div>
       ) : (
         <>
+          <span className={styles.heroLabel}>Saldo total</span>
           <div className={styles.hero} aria-live="polite">
-            {r ? <Odometer value={moneyCompact(r.totalBalance)} /> : <span className={styles.heroPending}>$ ··</span>}
+            {r ? moneyCompact(r.totalBalance) : <span className={styles.heroPending}>—</span>}
           </div>
           <p className={styles.heroHint}>{r ? `${int(r.customersWithBalance)} ${r.customersWithBalance === 1 ? "cliente" : "clientes"} con crédito` : "Consultando la cartera…"}</p>
 
@@ -66,20 +67,20 @@ export const AdminCartera = ({ onOpen }: { onOpen: (customerId: number) => void 
           <div className={styles.barsHead}>
             <span>Mayores saldos</span>
             <span className={styles.barsLegend}>
-              <i className={styles.dotBad} aria-hidden="true" /> vencida
+              <i className={styles.dotBad} aria-hidden="true" /> Vencida
             </span>
           </div>
           {r && top.length === 0 ? (
             <p className={styles.barsEmpty}>Nadie debe hoy: la cartera está en cero.</p>
           ) : (
             <div className={styles.bars} role="list" aria-label="Clientes con mayor saldo" onPointerLeave={() => setHover(null)}>
-              {top.map((row, i) => (
+              {top.map((row) => (
                 <button
                   key={row.customerId}
                   type="button"
                   role="listitem"
                   className={[styles.bar, row.overdue ? styles.barBad : ""].join(" ")}
-                  style={{ "--h": max > 0 ? row.balance / max : 0, "--i": i } as CSSProperties}
+                  style={{ "--h": max > 0 ? row.balance / max : 0 } as CSSProperties}
                   aria-label={`${row.name}: saldo ${money(row.balance)}${row.overdue ? ", cartera vencida" : ""}`}
                   onPointerEnter={() => setHover(row)}
                   onFocus={() => setHover(row)}

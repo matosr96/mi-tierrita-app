@@ -7,7 +7,7 @@ import { int } from "@/lib/format";
 import { useNotificationsStore } from "@/stores/notifications";
 import { useSessionStore } from "@/stores/session";
 import { adminAttention, pendingItems, todoItems } from "@/screens/Home/attention";
-import type { AttentionItem } from "@/screens/Home/AttentionList";
+import type { AttentionItem } from "@/screens/Home/attention";
 
 export type Notification = AttentionItem & { id: string; unread: boolean };
 

@@ -1,109 +1,55 @@
-/* Cierre del período: banda firma siempre oscura; el kit (estados, gráfico) se reutiliza cambiando sus variables. */
+/* Cierre del período: tarjeta blanca con el total vendido, el desglose y el gráfico de ventas por día. */
 .band {
-  --ink: var(--dark-ink);
-  --ink-2: var(--dark-ink-2);
-  --muted: var(--dark-muted);
-  --muted-2: var(--dark-muted);
-  --line: var(--dark-line);
-  --line-soft: var(--dark-line);
-  --line-strong: var(--dark-line);
-  --surface: var(--dark-glass);
-  --hover: rgba(255, 255, 255, 0.06);
-  --good: var(--sprout);
-  --forest: var(--sprout);
-  --on-forest: var(--sprout-ink);
-  --btn-invert: var(--app-bg);
-  position: relative;
-  overflow: hidden;
-  isolation: isolate;
   display: flex;
   flex-direction: column;
-  gap: 18px;
-  padding: 20px 22px 18px;
-  background: var(--app-bg);
-  color: var(--dark-ink);
-  border: 1px solid var(--dark-line);
-  border-radius: calc(var(--radius) + 6px);
-  box-shadow: 0 30px 60px -34px rgba(4, 12, 8, 0.75);
-}
-.topo {
-  position: absolute;
-  z-index: -2;
-  right: -320px;
-  top: -360px;
-  width: 820px;
-  height: 820px;
-  opacity: 0.55;
-}
-.glow {
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  pointer-events: none;
-  background: radial-gradient(70% 45% at 100% 0%, rgba(185, 236, 111, 0.12), transparent 70%),
-    radial-gradient(80% 60% at 0% 100%, rgba(45, 106, 79, 0.38), transparent 70%);
+  gap: 16px;
+  padding: 16px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
 }
 .head {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: baseline;
   gap: 12px;
   padding-bottom: 12px;
-  border-bottom: 1px dashed var(--dark-line);
+  border-bottom: 1px solid var(--line);
 }
-.label {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  font-family: var(--font-mono);
-  font-size: 10px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--dark-ink-2);
-}
-.head .label::before {
-  content: "";
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: var(--sprout);
-  box-shadow: 0 0 10px var(--sprout);
+.title {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--ink);
 }
 .range {
-  font-family: var(--font-mono);
-  font-size: 10px;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--sprout);
+  font-size: 13px;
+  color: var(--muted);
   text-align: right;
+  font-variant-numeric: tabular-nums;
 }
 
 .hero {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 4px;
 }
 .heroLabel {
-  font-family: var(--font-mono);
-  font-size: 10px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--dark-muted);
+  font-size: 13px;
+  color: var(--muted);
 }
 .heroValue {
-  font-family: var(--font-dots);
-  font-weight: 800;
-  font-size: clamp(40px, 4.4vw, 58px);
-  line-height: 1;
-  letter-spacing: 0.01em;
-  color: var(--sprout);
-  text-shadow: 0 0 24px rgba(185, 236, 111, 0.25);
+  font-size: 32px;
+  font-weight: 600;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  color: var(--ink);
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
 }
 .heroHint {
-  font-size: 12px;
-  color: var(--dark-ink-2);
+  font-size: 13px;
+  color: var(--muted);
   font-variant-numeric: tabular-nums;
 }
 
@@ -111,46 +57,39 @@
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   margin: 0;
-  border-top: 1px solid var(--dark-line);
-  border-bottom: 1px solid var(--dark-line);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
 }
 .cell {
-  position: relative;
   display: flex;
   flex-direction: column;
-  gap: 4px;
-  padding: 12px 12px 12px 0;
+  gap: 2px;
+  padding: 10px 12px;
   min-width: 0;
 }
 .cell + .cell {
-  padding-left: 14px;
-  border-left: 1px solid var(--dark-line);
+  border-left: 1px solid var(--line);
 }
 .cell dt {
-  font-family: var(--font-mono);
-  font-size: 9.5px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--dark-muted);
+  font-size: 12.5px;
+  color: var(--muted);
 }
 .cell dd {
   margin: 0;
-  font-family: var(--font-heading);
-  font-size: 22px;
-  font-weight: 300;
-  letter-spacing: -0.045em;
-  color: var(--dark-ink);
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--ink);
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 .cellWarn dd {
-  color: var(--dark-warn);
+  color: var(--warn);
 }
 .cellHint {
-  font-size: 10.5px;
-  color: var(--dark-muted);
+  font-size: 12px;
+  color: var(--muted);
 }
 
 .chart {
@@ -165,25 +104,25 @@
   gap: 10px;
   flex-wrap: wrap;
 }
+.chartTitle {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ink);
+}
 .chartHint {
-  font-size: 11px;
-  color: var(--dark-muted);
+  font-size: 12.5px;
+  color: var(--muted);
 }
 .chartEmpty,
 .chartNote {
-  font-size: 12px;
+  font-size: 13px;
   line-height: 1.5;
-  color: var(--dark-muted);
+  color: var(--muted);
 }
 .chartEmpty {
-  padding: 26px 0;
+  padding: 24px 12px;
   text-align: center;
-  border: 1px dashed var(--dark-line);
+  background: var(--surface-2);
+  border: 1px dashed var(--line-strong);
   border-radius: var(--radius-sm);
-}
-
-@keyframes pulse {
-  50% {
-    opacity: 0.35;
-  }
 }

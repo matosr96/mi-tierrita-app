@@ -1,0 +1,471 @@
+/* Minipantallas de "El sistema por dentro": cada paso (data-step 0 · 1 · 2) cambia el estado con transiciones. */
+.panel {
+  display: grid;
+  gap: 16px;
+  width: 100%;
+  padding: 20px;
+  border-radius: var(--radius);
+  background: var(--surface);
+  box-shadow: var(--shadow-panel);
+  text-align: left;
+  color: var(--ink);
+}
+.panelHead {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+.panelHead > span:first-child {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+.panelHead strong {
+  font-size: 15px;
+  font-weight: 600;
+}
+.panelHead small {
+  color: var(--muted);
+  font-size: 12.5px;
+}
+.chip {
+  flex-shrink: 0;
+  padding: 5px 12px;
+  border-radius: 999px;
+  background: var(--sprout-soft);
+  color: var(--forest-fg);
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+  animation: pop 0.4s var(--ease-out);
+}
+.panel code {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--ink-2);
+}
+
+/* ---------- FEFO ---------- */
+.scale {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--muted);
+  font-size: 11.5px;
+  opacity: 0.45;
+  transition: opacity 0.5s ease;
+}
+.scale i {
+  flex: 1;
+  height: 4px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--bad), var(--warn), var(--good));
+  transform-origin: left;
+  transform: scaleX(0.25);
+  transition: transform 0.9s var(--ease-out);
+}
+.panel[data-step="1"] .scale,
+.panel[data-step="2"] .scale {
+  opacity: 1;
+}
+.panel[data-step="1"] .scale i,
+.panel[data-step="2"] .scale i {
+  transform: none;
+}
+.lots {
+  list-style: none;
+  margin: 0;
+  padding: 8px 0 0;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+}
+.lot {
+  position: relative;
+  display: grid;
+  gap: 8px;
+  padding: 12px 12px 14px;
+  border-radius: var(--radius-sm);
+  background: var(--surface-2);
+  box-shadow: inset 0 0 0 1px var(--line);
+  transition:
+    transform 0.6s var(--ease-out),
+    box-shadow 0.4s ease,
+    opacity 0.4s ease,
+    background 0.4s ease;
+}
+.lot small {
+  color: var(--muted);
+  font-size: 11.5px;
+  line-height: 1.3;
+}
+.lotBar {
+  height: 6px;
+  border-radius: 999px;
+  background: var(--line);
+  overflow: hidden;
+}
+.lotBar i {
+  display: block;
+  height: 100%;
+  width: var(--fill);
+  border-radius: inherit;
+  background: var(--good);
+  transform-origin: left;
+  transition: transform 0.8s var(--ease-out);
+  transition-delay: calc(var(--i) * 80ms);
+}
+.lot[data-tone="warn"] .lotBar i {
+  background: var(--warn);
+}
+.lot[data-tone="bad"] .lotBar i {
+  background: var(--bad);
+}
+.panel[data-step="0"] .lot[data-new="1"] {
+  background: var(--sprout-soft);
+  box-shadow: inset 0 0 0 1.5px var(--sprout);
+  animation: arrive 0.8s var(--ease-out);
+}
+.panel[data-step="1"] .lot {
+  animation: settle 0.6s var(--ease-out) backwards;
+  animation-delay: calc(var(--i) * 90ms);
+}
+.panel[data-step="2"] .lot[data-out="1"] {
+  transform: translateY(-12px);
+  background: var(--surface);
+  box-shadow: inset 0 0 0 1.5px var(--sprout), var(--shadow-lift);
+}
+.panel[data-step="2"] .lot[data-tone="bad"] {
+  opacity: 0.55;
+}
+.lotTag,
+.lotStamp {
+  position: absolute;
+  left: 50%;
+  top: -12px;
+  translate: -50% 0;
+  padding: 3px 9px;
+  border-radius: 999px;
+  font-size: 10.5px;
+  font-style: normal;
+  font-weight: 600;
+  white-space: nowrap;
+  opacity: 0;
+  transform: translateY(6px);
+  transition:
+    opacity 0.35s ease,
+    transform 0.5s var(--ease-out);
+}
+.lotTag {
+  background: var(--sprout);
+  color: var(--sprout-ink);
+}
+.lotStamp {
+  background: var(--bad-tag-bg);
+  color: var(--bad-tag-fg);
+}
+.panel[data-step="2"] .lotTag,
+.panel[data-step="2"] .lotStamp {
+  opacity: 1;
+  transform: none;
+}
+
+/* ---------- Cartera ---------- */
+.ticket {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: var(--radius-sm);
+  background: var(--surface-2);
+  box-shadow: inset 0 0 0 1px var(--line);
+  transition: opacity 0.4s ease;
+}
+.ticket > span {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+.ticket small {
+  color: var(--muted);
+  font-size: 12px;
+}
+.ticket strong {
+  font-size: 16px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+.panel[data-step="0"] .ticket {
+  animation: arrive 0.7s var(--ease-out);
+  box-shadow: inset 0 0 0 1.5px var(--sprout);
+}
+.panel[data-step="2"] .ticket {
+  opacity: 0.6;
+}
+.balance {
+  display: grid;
+  gap: 8px;
+}
+.balanceRow {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+}
+.balanceRow small {
+  color: var(--muted);
+  font-size: 12.5px;
+}
+.balanceValue {
+  font-family: var(--font-heading);
+  font-size: 28px;
+  font-weight: 400;
+  letter-spacing: -0.03em;
+  animation: numberIn 0.5s var(--ease-out);
+}
+.track {
+  position: relative;
+  height: 12px;
+  border-radius: 999px;
+  background: var(--surface-3);
+}
+.track i {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: var(--fill);
+  border-radius: inherit;
+  background: var(--sprout);
+  transition:
+    width 0.9s var(--ease-out),
+    background 0.4s ease;
+}
+.panel[data-step="1"] .track i {
+  background: var(--warn);
+}
+.track b {
+  position: absolute;
+  right: 0;
+  top: -5px;
+  bottom: -5px;
+  width: 2px;
+  border-radius: 2px;
+  background: var(--ink-2);
+}
+.trackLegend {
+  display: flex;
+  justify-content: space-between;
+  color: var(--muted-2);
+  font-size: 11px;
+}
+.payment {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px 10px 10px;
+  border-radius: 999px;
+  background: var(--good-soft);
+  opacity: 0;
+  transform: translateY(10px);
+  transition:
+    opacity 0.4s ease,
+    transform 0.6s var(--ease-out);
+}
+.payment > span:last-child {
+  display: grid;
+}
+.payment strong {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--forest-fg);
+}
+.payment small {
+  color: var(--muted);
+  font-size: 11.5px;
+}
+.paymentIcon {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: var(--surface);
+  color: var(--good);
+  font-weight: 700;
+}
+.panel[data-step="2"] .payment {
+  opacity: 1;
+  transform: none;
+}
+
+/* ---------- Escenarios ---------- */
+.chart {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+  padding-top: 18px;
+}
+.zero {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: calc(18px + 128px);
+  height: 0;
+  border-top: 2px dashed var(--muted-2);
+  opacity: 0.35;
+  z-index: 1;
+  transition: opacity 0.4s ease, border-color 0.4s ease;
+}
+.zero small {
+  position: absolute;
+  right: 0;
+  top: -22px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--ink-2);
+  font-size: 11px;
+  font-weight: 600;
+}
+.panel[data-step="1"] .zero,
+.panel[data-step="2"] .zero {
+  opacity: 1;
+  border-color: var(--ink-2);
+}
+.col {
+  position: relative;
+  display: grid;
+  grid-template-rows: 128px 60px auto;
+  justify-items: center;
+}
+.colUp,
+.colDown {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+.colUp {
+  align-items: flex-end;
+}
+.colDown {
+  align-items: flex-start;
+}
+.colUp i,
+.colDown i {
+  display: block;
+  width: min(44px, 70%);
+  background: var(--sprout);
+  opacity: 0.45;
+  transition:
+    background 0.4s ease,
+    opacity 0.4s ease;
+}
+.colUp i {
+  height: calc(var(--v) * 100%);
+  border-radius: 12px 12px 4px 4px;
+  transform-origin: bottom;
+}
+.colDown i {
+  height: calc(var(--v) * 100%);
+  border-radius: 4px 4px 12px 12px;
+  transform-origin: top;
+}
+.col small {
+  margin-top: 8px;
+  color: var(--muted);
+  font-size: 11.5px;
+  text-align: center;
+  line-height: 1.25;
+}
+.panel[data-step="0"] .col i {
+  animation: grow 0.9s var(--ease-out) backwards;
+  animation-delay: calc(var(--i) * 120ms);
+}
+.panel[data-step="1"] .col[data-tone="bad"] i,
+.panel[data-step="2"] .col[data-tone="bad"] i {
+  background: var(--bad);
+  opacity: 0.85;
+}
+.panel[data-step="2"] .col[data-tone="good"] i {
+  background: var(--sprout);
+  opacity: 1;
+}
+.panel[data-step="2"] .col[data-tone="neutral"] i {
+  opacity: 0.25;
+}
+.best,
+.worst {
+  position: absolute;
+  left: 50%;
+  translate: -50% 0;
+  padding: 3px 9px;
+  border-radius: 999px;
+  font-size: 10.5px;
+  font-style: normal;
+  font-weight: 600;
+  white-space: nowrap;
+  opacity: 0;
+  transform: translateY(6px);
+  transition:
+    opacity 0.35s ease,
+    transform 0.5s var(--ease-out);
+}
+.best {
+  top: calc(128px * (1 - var(--v)) - 26px);
+  background: var(--sprout);
+  color: var(--sprout-ink);
+}
+.worst {
+  top: calc(128px + 60px * var(--v) + 6px);
+  background: var(--bad-tag-bg);
+  color: var(--bad-tag-fg);
+}
+.panel[data-step="2"] .best,
+.panel[data-step="1"] .worst,
+.panel[data-step="2"] .worst {
+  opacity: 1;
+  transform: none;
+}
+
+@keyframes pop {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+}
+@keyframes arrive {
+  from {
+    opacity: 0;
+    transform: translateX(24px);
+  }
+}
+@keyframes settle {
+  40% {
+    transform: translateY(-5px);
+  }
+}
+@keyframes numberIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+@keyframes grow {
+  from {
+    transform: scaleY(0);
+  }
+}
+
+@media (max-width: 520px) {
+  .panel {
+    padding: 16px;
+  }
+  .lots {
+    grid-template-columns: repeat(2, 1fr);
+    row-gap: 22px;
+  }
+  .chip {
+    display: none;
+  }
+}

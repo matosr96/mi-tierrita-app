@@ -2,8 +2,8 @@ import { useMemo, useState } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { useScenario, useScenarios } from "@/hooks/financial";
 import type { ScenarioDetail } from "@/types/api";
-import { Odometer, SplitText } from "@/components/motion";
-import { Button, EmptyState, ErrorState, Loading, QueryState } from "@/components/ui";
+import { PageHeader } from "@/components/layout/AppShell";
+import { Button, EmptyState, ErrorState, Loading, QueryState, Tabs, type TabOption } from "@/components/ui";
 import { dateOnly, money, moneyCompact, pct, times } from "@/lib/format";
 import { DecisionPanel } from "./DecisionPanel";
 import { AssumptionsPanel } from "./AssumptionsPanel";
@@ -11,24 +11,23 @@ import { ScenariosPanel } from "./ScenariosPanel";
 import { ScenarioExport } from "./ScenarioExport";
 import { CashFlowPanel } from "./CashFlowPanel";
 import { ScenarioFormModal } from "./ScenarioFormModal";
-import { FinanceTabs, type FinanceTabOption } from "./FinanceTabs";
 import { letterOf } from "./financeShared";
 import styles from "./FinanceScreen.module.css";
 
 export type FinanceTab = "panel" | "supuestos" | "escenarios" | "flujo";
 
-const TAB_OPTIONS: FinanceTabOption<FinanceTab>[] = [
-  { value: "panel", label: "Panel", hint: "Decisión" },
-  { value: "supuestos", label: "Datos y supuestos", hint: "Ficha técnica" },
-  { value: "escenarios", label: "Escenarios", hint: "Comparación y riesgo" },
-  { value: "flujo", label: "Flujo y amortización", hint: "Año a año · mes a mes" },
+const TAB_OPTIONS: TabOption<FinanceTab>[] = [
+  { value: "panel", label: "Panel" },
+  { value: "supuestos", label: "Datos y supuestos" },
+  { value: "escenarios", label: "Escenarios" },
+  { value: "flujo", label: "Flujo y amortización" },
 ];
 
-/** Título y subtítulo de cada vista (el Panel usa el nombre del escenario). `*x*` va en serif cursiva. */
+/** Título y subtítulo de cada vista (el Panel usa el nombre del escenario). */
 const TAB_META: Record<Exclude<FinanceTab, "panel">, { title: string; subtitle: string }> = {
-  supuestos: { title: "Datos del caso y *supuestos*", subtitle: "Cada campo indica su origen. Un cambio recalcula todos los indicadores y queda registrado con su usuario." },
-  escenarios: { title: "Escenarios y *sensibilidad*", subtitle: "Qué alternativa conviene y cuánto margen de error tolera antes de dejar de convenir." },
-  flujo: { title: "Flujo de caja y *amortización*", subtitle: "Detalle año por año de la ampliación y mes por mes del crédito." },
+  supuestos: { title: "Datos del caso y supuestos", subtitle: "Cada campo indica su origen. Un cambio recalcula todos los indicadores y queda registrado con su usuario." },
+  escenarios: { title: "Escenarios y sensibilidad", subtitle: "Qué alternativa conviene y cuánto margen de error tolera antes de dejar de convenir." },
+  flujo: { title: "Flujo de caja y amortización", subtitle: "Detalle año por año de la ampliación y mes por mes del crédito." },
 };
 
 const isTab = (v: string | undefined): v is FinanceTab => v === "panel" || v === "supuestos" || v === "escenarios" || v === "flujo";
@@ -97,13 +96,11 @@ export const FinanceScreen = () => {
       { label: "Aporte propio", value: money(ind.ownContribution) },
     ];
     return (
-      <dl className={styles.ticker} key={detail.data.id} aria-label="Indicadores del escenario calculados por la API">
-        {cells.map((c, i) => (
-          <div key={c.label} className={styles.tick} style={{ animationDelay: `${120 + i * 60}ms` }}>
+      <dl className={styles.ticker} aria-label="Indicadores del escenario calculados por la API">
+        {cells.map((c) => (
+          <div key={c.label} className={styles.tick}>
             <dt>{c.label}</dt>
-            <dd className={toneClass(c.tone)}>
-              <Odometer value={c.value} />
-            </dd>
+            <dd className={toneClass(c.tone)}>{c.value}</dd>
           </div>
         ))}
       </dl>
@@ -111,7 +108,12 @@ export const FinanceScreen = () => {
   };
 
   const meta = tab === "panel" ? null : TAB_META[tab];
-  const heading = selected ? (tab === "panel" ? selected.name : (meta?.title ?? "")) : "Finanzas y *crédito*";
+  const heading = selected ? (tab === "panel" ? selected.name : (meta?.title ?? "")) : "Finanzas y crédito";
+  const subtitle = selected
+    ? tab === "panel"
+      ? `Ampliación del local con crédito bancario · Escenario ${selectedLetter ?? "A"} · ${selected.username} · ${dateOnly(selected.createdAt)}`
+      : (meta?.subtitle ?? "")
+    : "Ampliación del local con crédito bancario";
 
   const body = () => {
     if (scenarios.isPending) return <Loading text="Cargando escenarios…" />;
@@ -144,31 +146,9 @@ export const FinanceScreen = () => {
   };
 
   return (
-    <div className={[styles.page, tab === "panel" ? "" : styles.pageWide].join(" ")}>
-      <header className={styles.terminal}>
-        <div className={styles.termGlow} aria-hidden="true" />
-        <div className={styles.termTop}>
-          <span className={styles.termLive}>
-            <i aria-hidden="true" />
-            Terminal de inversión
-          </span>
-          <span className={styles.termPath}>Ampliación del local con crédito bancario</span>
-          {selected ? (
-            <span className={styles.termStamp}>
-              Escenario {selectedLetter} · {selected.username} · {dateOnly(selected.createdAt)}
-            </span>
-          ) : null}
-        </div>
-
-        <div className={styles.termHead}>
-          <div className={styles.termTitleBox}>
-            <h1 className={styles.termTitle}>
-              <SplitText key={`${tab}-${selected?.id ?? 0}`} text={heading} />
-            </h1>
-            {meta && selected ? <p className={styles.termSubtitle}>{meta.subtitle}</p> : null}
-          </div>
-          <div className={styles.termActions}>{actions()}</div>
-        </div>
+    <div className={styles.page}>
+      <header className={styles.head}>
+        <PageHeader title={heading} subtitle={subtitle} actions={actions()} />
 
         {presets.length > 0 && selectedId !== null ? (
           <div className={styles.selector} role="group" aria-label="Escenario en pantalla">
@@ -177,7 +157,7 @@ export const FinanceScreen = () => {
               {presets.map((s, i) => {
                 const on = s.id === selectedId;
                 return (
-                  <button key={s.id} type="button" aria-pressed={on} className={[styles.selectorItem, on ? styles.selectorOn : ""].join(" ")} onClick={() => selectScenario(s.id)}>
+                  <button key={s.id} type="button" aria-pressed={on} title={s.name} className={[styles.selectorItem, on ? styles.selectorOn : ""].join(" ")} onClick={() => selectScenario(s.id)}>
                     <span className={styles.selectorLetter}>{letterOf(i)}</span>
                     <span className={styles.selectorName}>{s.name}</span>
                   </button>
@@ -189,7 +169,9 @@ export const FinanceScreen = () => {
 
         {tab === "panel" ? null : ticker()}
 
-        <FinanceTabs options={TAB_OPTIONS} value={tab} onChange={goTab} />
+        <div className={styles.tabsOnBand}>
+          <Tabs options={TAB_OPTIONS} value={tab} onChange={goTab} ariaLabel="Vistas de la evaluación" />
+        </div>
       </header>
 
       {body()}

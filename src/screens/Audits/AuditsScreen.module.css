@@ -1,363 +1,137 @@
-/* Auditoría: bitácora en vivo sobre una superficie siempre oscura, con barra de comandos para filtrar. */
+/* Auditoría: barra de filtros blanca y bitácora de escrituras agrupada por día. */
 .page {
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 16px;
 }
 
-.terminal {
-  /* Superficie siempre oscura: el kit se reutiliza cambiando sus variables. */
-  --ink: var(--dark-ink);
-  --ink-2: var(--dark-ink-2);
-  --muted: var(--dark-muted);
-  --muted-2: var(--dark-ink-2);
-  --surface: color-mix(in srgb, var(--dark-ink) 5%, transparent);
-  --hover: color-mix(in srgb, var(--dark-ink) 8%, transparent);
-  --line: var(--dark-line);
-  --line-soft: var(--dark-line);
-  --line-strong: color-mix(in srgb, var(--dark-ink) 18%, transparent);
-  --leaf: var(--sprout);
-  --forest: var(--sprout);
-  --on-forest: var(--sprout-ink);
-  --sprout-soft: color-mix(in srgb, var(--sprout) 18%, transparent);
-  --btn-invert: var(--app-bg);
-  position: relative;
+/* Barra de filtros */
+.filters {
+  display: flex;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 14px 16px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+.filterUser {
+  flex: 0 1 220px;
+  min-width: 180px;
+}
+.filterGrow {
+  flex: 1 1 200px;
+  min-width: 0;
+}
+.filterDate {
+  flex: 0 1 160px;
+  min-width: 140px;
+}
+.filterClear {
+  flex: none;
+}
+.mono.mono {
+  font-family: var(--font-mono);
+  font-size: 13px;
+}
+
+/* Bitácora */
+.log {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
   overflow: hidden;
-  isolation: isolate;
-  color: var(--dark-ink);
-  background: var(--app-bg);
-  border: 1px solid var(--dark-line);
-  border-radius: calc(var(--radius) + 6px);
-  padding: 22px clamp(16px, 2.6vw, 30px) 20px;
-  box-shadow: 0 30px 60px -36px color-mix(in srgb, var(--app-bg) 80%, transparent);
-  animation: termIn 0.8s var(--ease-out) backwards;
 }
-.topo {
-  position: absolute;
-  z-index: -1;
-  top: -380px;
-  right: -300px;
-  width: 900px;
-  height: 900px;
-  opacity: 0.35;
-  pointer-events: none;
-}
-.terminal::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  pointer-events: none;
-  background: radial-gradient(60% 50% at 100% 0%, color-mix(in srgb, var(--sprout) 9%, transparent), transparent 70%),
-    linear-gradient(180deg, transparent 0 60%, var(--app-bg));
-}
-/* Líneas de barrido muy tenues, como un monitor. */
-.terminal::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  pointer-events: none;
-  background: repeating-linear-gradient(180deg, color-mix(in srgb, var(--dark-ink) 2.5%, transparent) 0 1px, transparent 1px 4px);
-  mask-image: linear-gradient(180deg, var(--app-bg), transparent 85%);
-}
-
-/* Encabezado */
 .head {
   display: flex;
   justify-content: space-between;
-  align-items: flex-end;
-  gap: 24px;
+  align-items: flex-start;
+  gap: 12px 24px;
   flex-wrap: wrap;
+  padding: 16px 16px 14px;
+  border-bottom: 1px solid var(--line);
 }
-.label {
-  display: flex;
-  align-items: center;
-  gap: 9px;
-  font-family: var(--font-mono);
-  font-size: 10px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--dark-ink-2);
-}
-.live {
-  position: relative;
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: var(--sprout);
-  box-shadow: 0 0 10px var(--sprout);
-}
-.live::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border-radius: 50%;
-  border: 1px solid var(--sprout);
-  animation: ping 1.8s var(--ease-out) infinite;
-}
-.title {
-  font-family: var(--font-heading);
-  font-size: clamp(24px, 3vw, 32px);
-  font-weight: 300;
-  letter-spacing: -0.045em;
-  line-height: 1.08;
-  color: var(--dark-ink);
-  margin-top: 12px;
-}
-.title em {
-  font-family: var(--font-serif);
-  font-style: italic;
-  font-weight: 400;
-  letter-spacing: -0.01em;
-  color: var(--sprout);
-}
-.lead {
-  margin-top: 8px;
-  font-size: 12.5px;
-  line-height: 1.55;
-  color: var(--dark-ink-2);
-}
-.counter {
+.headText {
   display: flex;
   flex-direction: column;
-  align-items: flex-end;
-  gap: 4px;
-}
-.count {
-  font-family: var(--font-heading);
-  font-size: clamp(40px, 5vw, 56px);
-  font-weight: 300;
-  letter-spacing: -0.05em;
-  line-height: 0.95;
-  font-variant-numeric: tabular-nums;
-  color: var(--sprout);
-}
-.countLabel {
-  font-family: var(--font-mono);
-  font-size: 10px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--dark-muted);
-}
-
-/* Barra de comandos */
-.command {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 6px 4px;
-  margin-top: 20px;
-  padding: 6px 8px 6px 14px;
-  border-radius: 12px;
-  background: color-mix(in srgb, var(--dark-ink) 4%, transparent);
-  border: 1px solid var(--dark-line);
-  transition: border-color 0.3s ease, box-shadow 0.4s var(--ease-out);
-}
-.command:focus-within {
-  border-color: color-mix(in srgb, var(--sprout) 45%, transparent);
-  box-shadow: 0 0 0 4px color-mix(in srgb, var(--sprout) 10%, transparent);
-}
-.prompt {
-  font-family: var(--font-mono);
-  font-size: 18px;
-  line-height: 1;
-  color: var(--sprout);
-  margin-right: 6px;
-}
-.cmdField {
-  display: flex;
-  align-items: center;
   gap: 2px;
   min-width: 0;
-  padding: 0 4px 0 10px;
-  border-radius: 8px;
-  transition: background 0.25s ease;
 }
-.cmdField + .cmdField {
-  border-left: 1px solid var(--dark-line);
-  border-radius: 0 8px 8px 0;
+.title {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--ink);
 }
-.cmdField:hover,
-.cmdField:focus-within {
-  background: color-mix(in srgb, var(--dark-ink) 5%, transparent);
+.subtitle {
+  font-size: 13px;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
 }
-.cmdGrow {
-  flex: 1 1 120px;
-}
-.cmdKey {
-  flex: none;
-  font-family: var(--font-mono);
-  font-size: 10px;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--dark-muted);
-}
-.cmdKey::after {
-  content: ":";
-}
-.cmdField:focus-within .cmdKey {
-  color: var(--sprout);
-}
-.control.control {
-  height: 34px;
-  border: none;
-  background: transparent;
-  box-shadow: none;
-  font-family: var(--font-mono);
-  font-size: 12.5px;
-  padding: 0 8px;
-  color: var(--dark-ink);
-  color-scheme: dark;
-}
-.control.control:focus {
-  box-shadow: none;
-}
-.control::placeholder {
-  color: var(--dark-muted);
-}
-.cmdGrow .control {
-  min-width: 0;
-  flex: 1;
-}
-select.control {
-  width: 160px;
-  text-overflow: ellipsis;
-}
-input[type="date"].control {
-  width: 124px;
-  padding-right: 4px;
-}
-select.control option {
-  background: var(--app-bg);
-  color: var(--dark-ink);
+.headSide {
+  display: flex;
+  align-items: center;
+  gap: 8px 18px;
+  flex-wrap: wrap;
+  padding-top: 2px;
 }
 
-/* Leyenda */
-.legendRow {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 12px;
-  flex-wrap: wrap;
-  margin: 16px 0 10px;
-  padding-bottom: 12px;
-  border-bottom: 1px dashed var(--dark-line);
-}
 .legend {
   display: flex;
-  gap: 16px;
+  gap: 14px;
   flex-wrap: wrap;
   list-style: none;
   margin: 0;
   padding: 0;
 }
 .kCreate {
-  --k: var(--sprout);
+  --k: var(--good);
 }
 .kUpdate {
-  --k: var(--dark-warn);
+  --k: var(--warn);
 }
 .kRemove {
-  --k: var(--dark-bad);
+  --k: var(--bad);
 }
 .legendItem {
   display: inline-flex;
   align-items: center;
-  gap: 7px;
-  font-family: var(--font-mono);
-  font-size: 10.5px;
-  letter-spacing: 0.1em;
-  color: var(--k);
+  gap: 6px;
+  font-size: 13px;
+  color: var(--muted);
 }
 .legendDot {
   width: 7px;
   height: 7px;
   border-radius: 50%;
   background: var(--k);
-  box-shadow: 0 0 8px color-mix(in srgb, var(--k) 70%, transparent);
 }
-.legendLabel {
-  color: var(--dark-muted);
-  text-transform: uppercase;
+.legendMethod {
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  color: var(--ink-2);
 }
 .pageTag {
-  font-family: var(--font-mono);
-  font-size: 10.5px;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--dark-muted);
+  font-size: 13px;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
 }
 
 .screen {
   min-height: 160px;
 }
-.eof {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin: 12px 0 0 calc(78px + 14px + 2px);
-  font-family: var(--font-mono);
-  font-size: 10px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--dark-muted);
-}
-.caret {
-  width: 7px;
-  height: 13px;
-  background: var(--sprout);
-}
-
-@keyframes termIn {
-  from {
-    opacity: 0;
-    transform: translateY(14px) scale(0.99);
-  }
-}
-@keyframes ping {
-  0% {
-    transform: scale(1);
-    opacity: 0.9;
-  }
-  80%,
-  100% {
-    transform: scale(3);
-    opacity: 0;
-  }
-}
-@keyframes blink {
-  50% {
-    opacity: 0;
-  }
+.pager {
+  padding: 0 16px 14px;
+  border-top: 1px solid var(--line);
 }
 
 @media (max-width: 640px) {
-  .counter {
-    align-items: flex-start;
-  }
-  .cmdField,
-  .cmdField + .cmdField {
+  .filterUser,
+  .filterGrow,
+  .filterDate {
     flex: 1 1 100%;
-    border-left: none;
-    border-radius: 8px;
-  }
-  .cmdField .control {
-    flex: 1;
-    width: auto;
-  }
-  .prompt {
-    display: none;
-  }
-  .eof {
-    margin-left: 56px;
-  }
-}
-@media (prefers-reduced-motion: reduce) {
-  .terminal,
-  .live::after,
-  .prompt,
-  .caret {
-    animation: none;
+    min-width: 0;
   }
 }

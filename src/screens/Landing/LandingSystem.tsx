@@ -1,178 +1,106 @@
-import { useEffect, useRef, useState, type CSSProperties } from "react";
-import { SplitText } from "@/components/motion";
-import { CHAPTERS } from "./content";
+import { useEffect, useState, type CSSProperties } from "react";
+import { SplitText, useInView } from "./motion";
+import { CHAPTERS, type Chapter } from "./content";
+import { CarteraMock, FefoMock, ScenariosMock } from "./SystemMocks";
 import styles from "./Landing.module.css";
 
-/** Límites de cada capítulo en el avance del scroll (coinciden con el guion de storyScene). */
-const BOUNDS = [0, 0.345, 0.685, 1];
-/** Momento (paso 1, 2 o 3) dentro de cada capítulo. */
-const STEP_AT = [
-  [0.13, 0.23],
-  [0.45, 0.555],
-  [0.77, 0.87],
-];
-const stepIndex = (p: number, chapter: number) => {
-  const [a, b] = STEP_AT[chapter]!;
-  return p < a! ? 0 : p < b! ? 1 : 2;
-};
-
-/** Texto y tono de las etiquetas que flotan sobre la escena. */
-const LABEL_TEXT: Record<string, { text: string; tone: "plain" | "warn" | "good" | "bad" | "hot" }> = {
-  compra: { text: "Compra nueva · cada lote con su vencimiento", tone: "plain" },
-  antes: { text: "Vence antes", tone: "warn" },
-  despues: { text: "Vence después", tone: "good" },
-  sale: { text: "Sale primero · FEFO", tone: "hot" },
-  factura: { text: "Factura de la venta", tone: "plain" },
-  saldo: { text: "Saldo del cliente · dentro del cupo", tone: "warn" },
-  abono: { text: "Abono · el saldo baja", tone: "good" },
-  cero: { text: "VPN = 0", tone: "hot" },
-  negativo: { text: "No conviene · VPN negativo", tone: "bad" },
-  conviene: { text: "Conviene", tone: "hot" },
-};
-const chapterIndex = (p: number) => (p < BOUNDS[1]! ? 0 : p < BOUNDS[2]! ? 1 : 2);
-const within = (p: number, i: number) => Math.min(Math.max((p - BOUNDS[i]!) / (BOUNDS[i + 1]! - BOUNDS[i]!), 0), 1);
-
-const LEGENDS = [
-  [
-    ["lgBad", "Vencido"],
-    ["lgWarn", "Por vencer"],
-    ["lgOk", "Al día"],
-  ],
-  [
-    ["lgOk", "Contado"],
-    ["lgWarn", "Crédito"],
-  ],
-  [["lgOk", "Escenario que conviene"]],
-] as const;
+const MOCKS = [FefoMock, CarteraMock, ScenariosMock];
+/** Duración de cada paso de la animación (coincide con la barra de avance del paso activo en el CSS). */
+const STEP_MS = 3400;
 
 /**
- * "El sistema por dentro": la escena 3D queda fija mientras se hace scroll. Los capítulos se relevan en un escenario
- * de altura fija (el que sale sube y se desenfoca, el que entra llega desde abajo) y un riel marca el avance.
+ * Un capítulo: texto a un lado y, al otro, una minipantalla que repite en bucle los tres pasos del capítulo mientras
+ * está en pantalla. Los pasos también se pueden elegir a mano; con movimiento reducido se queda en el último.
  */
-export const LandingSystem = () => {
-  const ref = useRef<HTMLElement>(null);
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const railRef = useRef<HTMLOListElement>(null);
-  const labelRefs = useRef<Record<string, HTMLSpanElement | null>>({});
-  const [active, setActive] = useState(0);
+const ChapterRow = ({ chapter, index }: { chapter: Chapter; index: number }) => {
+  const [ref, seen] = useInView<HTMLElement>("0px 0px -20% 0px");
   const [step, setStep] = useState(0);
+  const [visible, setVisible] = useState(false);
+  const [tick, setTick] = useState(0);
+  const Mock = MOCKS[index] ?? FefoMock;
+
+  // Solo anima mientras la fila está a la vista.
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || typeof IntersectionObserver === "undefined") return;
+    const io = new IntersectionObserver(([entry]) => setVisible(Boolean(entry?.isIntersecting)), { threshold: 0.25 });
+    io.observe(el);
+    return () => io.disconnect();
+  }, [ref]);
 
   useEffect(() => {
-    let disposed = false;
-    let scene: { setProgress: (p: number) => void; destroy: () => void } | null = null;
-    const measure = () => {
-      const el = ref.current;
-      if (!el) return;
-      const r = el.getBoundingClientRect();
-      const p = Math.min(Math.max(-r.top / (r.height - window.innerHeight), 0), 1);
-      scene?.setProgress(p);
-      const ch = chapterIndex(p);
-      setActive(ch);
-      setStep(stepIndex(p, ch));
-      // El relleno del riel se actualiza sin re-renderizar.
-      railRef.current?.querySelectorAll<HTMLElement>("[data-fill]").forEach((fill, i) => fill.style.setProperty("--fill", String(within(p, i))));
-    };
-    void import("./storyScene").then(({ createStoryScene }) => {
-      if (disposed || !canvasRef.current) return;
-      scene = createStoryScene(canvasRef.current, (labels) => {
-        for (const l of labels) {
-          const el = labelRefs.current[l.id];
-          if (!el) continue;
-          // La etiqueta no se sale del lienzo aunque su ancla quede en el borde.
-          el.dataset.w ??= String(el.offsetWidth);
-          const half = Number(el.dataset.w) / 2;
-          const w = el.parentElement?.clientWidth ?? 0;
-          const x = w > half * 2 + 16 ? Math.min(Math.max(l.x, half + 8), w - half - 8) : l.x;
-          el.style.transform = `translate3d(${x}px, ${l.y}px, 0)`;
-          el.dataset.on = l.visible ? "1" : "0";
-        }
-      });
-      measure();
-    });
-    measure();
-    window.addEventListener("scroll", measure, { passive: true });
-    window.addEventListener("resize", measure);
-    return () => {
-      disposed = true;
-      window.removeEventListener("scroll", measure);
-      window.removeEventListener("resize", measure);
-      scene?.destroy();
-    };
-  }, []);
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      setStep(2);
+      return;
+    }
+    if (!visible) return;
+    const id = window.setInterval(() => setStep((s) => (s + 1) % 3), STEP_MS);
+    return () => window.clearInterval(id);
+  }, [visible, tick]);
 
   return (
-    <section ref={ref} className={styles.system} id="sistema" aria-labelledby="sistema-title">
-      <div className={styles.systemSticky}>
-        <canvas ref={canvasRef} className={styles.systemCanvas} aria-hidden="true" />
-        <div className={styles.storyLabels} aria-hidden="true">
-          {Object.entries(LABEL_TEXT).map(([id, l]) => (
-            <span key={id} ref={(el) => void (labelRefs.current[id] = el)} className={[styles.storyLabel, styles[`tone_${l.tone}`]].join(" ")} data-on="0">
-              <i />
-              {l.text}
-            </span>
+    <article ref={ref} className={styles.chapter} data-in={seen ? "1" : "0"} style={{ "--i": index } as CSSProperties}>
+      <div className={styles.chapterText}>
+        <span className={styles.chapterEyebrow}>{chapter.eyebrow}</span>
+        <h3>
+          {chapter.title} <span>{chapter.accent}</span>
+        </h3>
+        <p>{chapter.text}</p>
+        <ul className={styles.points}>
+          {chapter.points.map((p) => (
+            <li key={p}>
+              <i aria-hidden="true">✓</i>
+              {p}
+            </li>
           ))}
-        </div>
-        <div className={styles.systemText}>
-          <span className={styles.eyebrow}>
-            <span>02</span>El sistema por dentro
-          </span>
-          <h2 id="sistema-title" className={styles.systemTitle}>
-            <SplitText text={"Leer el negocio,\n*decidir si crecer.*"} />
-          </h2>
-
-          <ol ref={railRef} className={styles.rail} aria-label="Capítulos">
-            {CHAPTERS.map((c, i) => (
-              <li key={c.code} className={i === active ? styles.railOn : i < active ? styles.railDone : ""}>
-                <span className={styles.railCode}>{c.code}</span>
-                <span className={styles.railLabel}>{c.eyebrow}</span>
-                <span className={styles.railTrack}>
-                  <span data-fill style={{ "--fill": 0 } as CSSProperties} />
-                </span>
-              </li>
-            ))}
-          </ol>
-
-          <div className={styles.stage} aria-live="polite">
-            {CHAPTERS.map((c, i) => (
-              <article
-                key={c.code}
-                className={[styles.scene, i === active ? styles.sceneOn : i < active ? styles.scenePast : styles.sceneNext].join(" ")}
-                aria-hidden={i !== active}
-              >
-                <h3>
-                  {c.title} <em>{c.accent}</em>
-                </h3>
-                <div className={styles.nowStep}>
-                  <span className={styles.nowStepNum}>Paso {(i === active ? step : 0) + 1} de 3</span>
-                  <span key={i === active ? step : 0} className={styles.nowStepText}>
-                    {c.steps[i === active ? step : 0]}
-                  </span>
-                </div>
-                <p>{c.text}</p>
-                <ul>
-                  {c.points.map((pt, k) => (
-                    <li key={pt} style={{ "--k": k } as CSSProperties}>
-                      {pt}
-                    </li>
-                  ))}
-                </ul>
-              </article>
-            ))}
-          </div>
-        </div>
-
-        <div className={styles.systemLegend} aria-hidden="true">
-          <span className={styles.legendStep}>
-            {String(active + 1).padStart(2, "0")} / {String(CHAPTERS.length).padStart(2, "0")}
-          </span>
-          {LEGENDS[active]!.map(([cls, label]) => (
-            <span key={label} className={styles.legendItem}>
-              <i className={styles[cls]} />
-              {label}
-            </span>
-          ))}
-        </div>
+        </ul>
       </div>
-    </section>
+      <div className={styles.chapterVisual}>
+        <div className={styles.mockStage} data-step={step} aria-hidden="true">
+          <Mock step={step} />
+        </div>
+        <ol className={styles.steps} aria-label={`Pasos: ${chapter.title} ${chapter.accent}`}>
+          {chapter.steps.map((s, i) => (
+            <li key={s}>
+              <button
+                type="button"
+                className={styles.step}
+                data-active={i === step ? "1" : "0"}
+                aria-current={i === step ? "step" : undefined}
+                onClick={() => {
+                  setStep(i);
+                  setTick((t) => t + 1);
+                }}
+              >
+                <span className={styles.stepNum}>{i + 1}</span>
+                <span className={styles.stepText}>{s}</span>
+                <span className={styles.stepBar} aria-hidden="true" />
+              </button>
+            </li>
+          ))}
+        </ol>
+      </div>
+    </article>
   );
 };
+
+/** "El sistema por dentro": los tres módulos que de verdad hace el sistema, cada uno con su minipantalla animada. */
+export const LandingSystem = () => (
+  <section className={[styles.section, styles.system].join(" ")} id="sistema" aria-labelledby="sistema-title">
+    <div className={styles.sectionHead}>
+      <span className={styles.eyebrow}>El sistema por dentro</span>
+      <h2 id="sistema-title" className={styles.sectionTitle}>
+        <SplitText text={"Llevar la tienda no debería\n*ser otro trabajo.*"} />
+      </h2>
+      <p className={styles.sectionLead}>
+        Mi Tierrita SIG ordena la bodega, el mostrador y la cartera, y ayuda a decidir si conviene crecer. Así funciona, en tres pasos por módulo.
+      </p>
+    </div>
+    <div className={styles.chapters}>
+      {CHAPTERS.map((c, i) => (
+        <ChapterRow key={c.code} chapter={c} index={i} />
+      ))}
+    </div>
+    <p className={styles.mockNote}>Pantallas ilustrativas · cifras de ejemplo</p>
+  </section>
+);

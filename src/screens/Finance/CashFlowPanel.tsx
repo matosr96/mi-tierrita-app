@@ -2,7 +2,6 @@ import { useMemo, useState, type CSSProperties, type ReactNode } from "react";
 import { useAmortization } from "@/hooks/financial";
 import type { AmortizationRow, ScenarioDetail } from "@/types/api";
 import { EmptyState, QueryState, Tabs, type TabOption } from "@/components/ui";
-import { SplitText } from "@/components/motion";
 import { int, money, moneyCompact, pct } from "@/lib/format";
 import { InterestCapitalChart } from "./InterestCapitalChart";
 import styles from "./CashFlowPanel.module.css";
@@ -107,12 +106,8 @@ export const CashFlowPanel = ({ scenario }: Props) => {
       <section className={styles.hero}>
         <div className={styles.heroHead}>
           <div>
-            <span className={styles.eyebrow}>
-              <b>01</b>Línea de tiempo · {scenario.name}
-            </span>
-            <h2 className={styles.heroTitle}>
-              <SplitText text="Año por año, *qué entra y qué sale*" />
-            </h2>
+            <span className={styles.eyebrow}>Línea de tiempo · {scenario.name}</span>
+            <h2 className={styles.heroTitle}>Año por año, qué entra y qué sale</h2>
           </div>
           <div className={styles.toggle} role="group" aria-label="Serie de la línea de tiempo">
             {(["investor", "flow"] as const).map((k) => (
@@ -136,7 +131,7 @@ export const CashFlowPanel = ({ scenario }: Props) => {
                     key={y}
                     type="button"
                     className={[styles.col, on ? styles.colOn : "", v < 0 ? styles.colNeg : ""].join(" ")}
-                    style={{ "--h": share(v, maxAbs), "--i": y } as CSSProperties}
+                    style={{ "--h": share(v, maxAbs) } as CSSProperties}
                     aria-pressed={on}
                     aria-label={`Año ${y}: ${money(v)}`}
                     onMouseEnter={() => setActiveYear(y)}
@@ -182,9 +177,7 @@ export const CashFlowPanel = ({ scenario }: Props) => {
       {yearsCount > 0 ? (
         <section className={styles.block}>
           <header className={styles.blockHead}>
-            <span className={styles.eyebrow}>
-              <b>02</b>Tabla 5
-            </span>
+            <span className={styles.eyebrow}>Tabla 5</span>
             <h2 className={styles.blockTitle}>Flujo de caja incremental del proyecto</h2>
             <p className={styles.blockSub}>{scenario.name} · solo lo que agrega la ampliación · pesos colombianos</p>
           </header>
@@ -230,9 +223,7 @@ export const CashFlowPanel = ({ scenario }: Props) => {
           return (
             <>
               <section className={styles.strip} aria-label="Condiciones del crédito">
-                <span className={styles.eyebrow}>
-                  <b>03</b>Crédito
-                </span>
+                <h2 className={styles.stripTitle}>Crédito</h2>
                 <dl className={styles.stripList}>
                   <div>
                     <dt>Monto</dt>
@@ -329,7 +320,7 @@ export const CashFlowPanel = ({ scenario }: Props) => {
                               <tr className={styles.gap}>
                                 <td colSpan={6}>
                                   <button type="button" className={styles.gapBtn} onClick={() => setView("todos")}>
-                                    meses {int(PREVIEW_MONTHS + 1)} a {int(n - 1)} · ver todos
+                                    Meses {int(PREVIEW_MONTHS + 1)} a {int(n - 1)} · ver todos
                                   </button>
                                 </td>
                               </tr>

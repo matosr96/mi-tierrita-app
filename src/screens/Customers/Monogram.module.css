@@ -1,70 +1,24 @@
-/* Monograma del cliente: círculo con iniciales en Geist ligera, anillo punteado y tono por id. */
+/* Monograma del cliente: círculo suave con las iniciales. */
 .mono {
-  --tone: var(--leaf);
-  position: relative;
   display: inline-grid;
   place-items: center;
   flex-shrink: 0;
-  width: 44px;
-  height: 44px;
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
-  font-family: var(--font-heading);
-  font-size: 15px;
-  font-weight: 400;
-  letter-spacing: -0.02em;
-  color: var(--tone);
-  background: color-mix(in srgb, var(--tone) 13%, var(--surface));
-  border: 1px solid color-mix(in srgb, var(--tone) 28%, transparent);
-}
-.ring {
-  position: absolute;
-  inset: -5px;
-  border-radius: 50%;
-  border: 1px dashed color-mix(in srgb, var(--tone) 30%, transparent);
-  transition: transform 1.2s var(--ease-out);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--forest-fg);
+  background: var(--sprout-soft);
+  border: 1px solid var(--good-line);
 }
 .lg {
-  width: 72px;
-  height: 72px;
-  font-size: 26px;
-  font-weight: 300;
-}
-.lg .ring {
-  inset: -8px;
+  width: 48px;
+  height: 48px;
+  font-size: 16px;
 }
 .muted {
-  --tone: var(--muted);
-}
-.t0 {
-  --tone: var(--leaf);
-}
-.t1 {
-  --tone: var(--warn);
-}
-.t2 {
-  --tone: var(--good);
-}
-.t3 {
-  --tone: var(--accent);
-}
-.t4 {
-  --tone: var(--link);
-}
-.t5 {
-  --tone: var(--ink-2);
-}
-/* Sobre superficies oscuras: lima sobre vidrio oscuro, sin importar el tono del id. */
-.onDark {
-  --tone: var(--sprout);
-  background: color-mix(in srgb, var(--sprout) 10%, transparent);
-}
-.onDark.muted {
-  --tone: var(--dark-ink-2);
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  :global([data-row]:hover) .ring,
-  .mono:hover .ring {
-    transform: rotate(90deg);
-  }
+  color: var(--muted);
+  background: var(--surface-3);
+  border-color: var(--line);
 }

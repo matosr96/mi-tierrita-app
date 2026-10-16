@@ -1,28 +1,12 @@
-import { useEffect, useRef, useState, type CSSProperties, type PointerEvent } from "react";
-import { Reveal, SplitText } from "@/components/motion";
+import { useEffect, useRef, useState, type CSSProperties } from "react";
+import { Reveal, SplitText } from "./motion";
 import { LINES, type ProductLine } from "./content";
 import { LineStory } from "./LineStory";
 import styles from "./Landing.module.css";
 
-/** Inclina la tarjeta hacia el cursor y mueve el brillo con él. */
-const tilt = (e: PointerEvent<HTMLElement>) => {
-  const el = e.currentTarget;
-  const r = el.getBoundingClientRect();
-  const px = (e.clientX - r.left) / r.width;
-  const py = (e.clientY - r.top) / r.height;
-  el.style.setProperty("--rx", `${(0.5 - py) * 8}deg`);
-  el.style.setProperty("--ry", `${(px - 0.5) * 10}deg`);
-  el.style.setProperty("--mx", `${px * 100}%`);
-  el.style.setProperty("--my", `${py * 100}%`);
-};
-const untilt = (e: PointerEvent<HTMLElement>) => {
-  e.currentTarget.style.setProperty("--rx", "0deg");
-  e.currentTarget.style.setProperty("--ry", "0deg");
-};
-
 /**
- * Tarjeta de una línea: en reposo muestra la foto; activa (cursor encima, foco, o en pantallas táctiles cuando llega
- * al centro) la foto se desenfoca y la escena dibuja en tres pasos para qué sirve. Cada activación la reinicia.
+ * Tarjeta blanca de una línea: foto real arriba y texto abajo. Activa (cursor encima, foco, o en pantallas táctiles
+ * cuando llega al centro) la foto se cubre de blanco y una escena SVG cuenta en tres pasos para qué sirve.
  */
 const LineCard = ({ line, index }: { line: ProductLine; index: number }) => {
   const ref = useRef<HTMLElement>(null);
@@ -49,27 +33,24 @@ const LineCard = ({ line, index }: { line: ProductLine; index: number }) => {
       data-active={active ? "1" : "0"}
       tabIndex={0}
       onPointerEnter={(e) => e.pointerType === "mouse" && activate(true)}
-      onPointerMove={tilt}
-      onPointerLeave={(e) => {
-        untilt(e);
-        if (e.pointerType === "mouse") activate(false);
-      }}
+      onPointerLeave={(e) => e.pointerType === "mouse" && activate(false)}
       onFocus={() => activate(true)}
       onBlur={() => activate(false)}
       style={{ "--i": index } as CSSProperties}
     >
-      <img className={styles.linePhoto} src={`/media/catalogo/${line.code}.webp`} alt="" loading="lazy" decoding="async" />
-      <div className={styles.lineShade} aria-hidden="true" />
-      <div className={styles.lineLens}>
-        <LineStory key={run} code={line.code} active={active} />
+      <div className={styles.lineMedia}>
+        <img className={styles.linePhoto} src={`/media/catalogo/${line.code}.webp`} alt="" width={1200} height={1601} loading="lazy" decoding="async" />
+        <div className={styles.lineLens}>
+          <LineStory key={run} code={line.code} active={active} />
+        </div>
+        <span className={styles.lineCode}>L-{line.code}</span>
+        <span className={styles.lineHint} aria-hidden="true">
+          Para qué sirve
+        </span>
       </div>
-      <span className={styles.lineCode}>L-{line.code}</span>
-      <span className={styles.lineHint} aria-hidden="true">
-        Para qué sirve
-      </span>
       <div className={styles.lineBody}>
         <h3>
-          {line.name} <em>{line.accent}</em>
+          {line.name} <span>{line.accent}</span>
         </h3>
         <p>{line.text}</p>
         <ul>
@@ -86,17 +67,15 @@ const LineCard = ({ line, index }: { line: ProductLine; index: number }) => {
 export const LandingCatalog = () => (
   <section className={styles.section} id="catalogo" aria-labelledby="catalogo-title">
     <div className={styles.sectionHead}>
-      <span className={styles.eyebrow}>
-        <span>01</span>Lo que encuentra en la tienda
-      </span>
+      <span className={styles.eyebrow}>Lo que encuentra en la tienda</span>
       <h2 id="catalogo-title" className={styles.sectionTitle}>
-        <SplitText text={"Catálogo por *líneas.*"} />
+        <SplitText text={"Todo para la finca,\n*catálogo por líneas.*"} />
       </h2>
       <p className={styles.sectionLead}>Seis líneas para la finca, el corral y el cultivo. Pregunte en el mostrador por marcas y presentaciones.</p>
     </div>
     <div className={styles.lines}>
       {LINES.map((line, i) => (
-        <Reveal key={line.code} delay={i * 80} variant="rise">
+        <Reveal key={line.code} delay={(i % 3) * 90} variant="rise">
           <LineCard line={line} index={i} />
         </Reveal>
       ))}

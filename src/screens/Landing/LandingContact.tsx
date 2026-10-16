@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from "react";
-import { Reveal, SplitText } from "@/components/motion";
+import { Reveal, SplitText } from "./motion";
 import { useSendContact } from "@/hooks/contact";
 import { fieldErrors } from "@/lib/errors";
 import styles from "./Landing.module.css";
@@ -41,16 +41,22 @@ export const LandingContact = () => {
   const general = localError ?? (send.error && Object.keys(errs).length === 0 ? send.error.message : null);
 
   return (
-    <section className={[styles.section, styles.contact].join(" ")} id="contacto" aria-labelledby="contacto-title">
+    <section className={styles.section} id="contacto" aria-labelledby="contacto-title">
       <div className={styles.contactGrid}>
-        <div>
-          <span className={styles.eyebrow}>
-            <span>05</span>Pedidos y cotizaciones
-          </span>
+        <div className={styles.contactText}>
+          <span className={styles.eyebrow}>Pedidos y cotizaciones</span>
           <h2 id="contacto-title" className={styles.sectionTitle}>
             <SplitText text={"¿Necesita una cotización\n*o un pedido grande?*"} />
           </h2>
           <p className={styles.sectionLead}>Cuéntenos qué producto busca, cantidades y para cuándo. Le respondemos con disponibilidad y precio.</p>
+          <ul className={styles.points}>
+            <li>
+              <i aria-hidden="true">✓</i>Su mensaje llega a la bandeja de la tienda
+            </li>
+            <li>
+              <i aria-hidden="true">✓</i>Le respondemos por teléfono, WhatsApp o correo
+            </li>
+          </ul>
         </div>
         <Reveal variant="rise" delay={150}>
           {send.isSuccess ? (

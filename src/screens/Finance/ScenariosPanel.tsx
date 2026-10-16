@@ -2,7 +2,6 @@ import { useMemo, type CSSProperties, type ReactNode } from "react";
 import { useBivariate, useCompareScenarios, useTornado } from "@/hooks/financial";
 import type { ScenarioDetail, ScenarioSummary } from "@/types/api";
 import { Badge, EmptyState, QueryState } from "@/components/ui";
-import { SplitText } from "@/components/motion";
 import { money, moneyCompact, num2, pct, times, years } from "@/lib/format";
 import { breakEven, formatPoints, letterOf, marginPoints, sameValue, scenarioStatuses, signedText, TORNADO_LABELS, type ScenarioStatus } from "./financeShared";
 import { useSalesSensitivity } from "./useSalesSensitivity";
@@ -107,12 +106,7 @@ const CellText = ({ cell }: { cell: Cell }) => {
   return <span className={toneClass(cell.tone)}>{node}</span>;
 };
 
-const Eyebrow = ({ n, children }: { n: string; children: ReactNode }) => (
-  <span className={styles.eyebrow}>
-    <b>{n}</b>
-    {children}
-  </span>
-);
+const Eyebrow = ({ children }: { children: ReactNode }) => <span className={styles.eyebrow}>{children}</span>;
 
 /** Pestaña "Escenarios": cara a cara, comparación completa, sensibilidad de ventas (héroe), tornado y bivariante. */
 export const ScenariosPanel = ({ scenario, scenarios, onSelect }: Props) => {
@@ -140,10 +134,8 @@ export const ScenariosPanel = ({ scenario, scenarios, onSelect }: Props) => {
       <>
         <section className={styles.block}>
           <header className={styles.blockHead}>
-            <Eyebrow n="01">Cara a cara</Eyebrow>
-            <h2 className={styles.blockTitle}>
-              <SplitText text={recommended ? `Conviene el escenario *${letterOf(list.indexOf(recommended))}*` : "Ninguna alternativa *convence*"} />
-            </h2>
+            <Eyebrow>Cara a cara</Eyebrow>
+            <h2 className={styles.blockTitle}>{recommended ? `Conviene el escenario ${letterOf(list.indexOf(recommended))}` : "Ninguna alternativa convence"}</h2>
             <p className={styles.blockSub}>{list.length > 1 ? "Elija una tarjeta para ver ese escenario en todas las pestañas." : "Cree otro escenario para comparar alternativas."}</p>
           </header>
           <div className={styles.versus} style={{ "--cols": Math.min(list.length, 3) } as CSSProperties}>
@@ -157,7 +149,6 @@ export const ScenariosPanel = ({ scenario, scenarios, onSelect }: Props) => {
                   key={s.id}
                   type="button"
                   className={[styles.vsCard, isRec ? styles.vsRec : "", isCurrent ? styles.vsCurrent : ""].join(" ")}
-                  style={{ "--i": i } as CSSProperties}
                   onClick={() => onSelect?.(s.id)}
                   aria-pressed={isCurrent}
                   disabled={!onSelect}
@@ -165,7 +156,7 @@ export const ScenariosPanel = ({ scenario, scenarios, onSelect }: Props) => {
                   <span className={styles.vsTop}>
                     <span className={styles.vsLetter}>{letterOf(i)}</span>
                     {st ? <Badge tone={st.tone}>{st.label}</Badge> : null}
-                    {isCurrent ? <span className={styles.vsNow}>en pantalla</span> : null}
+                    {isCurrent ? <span className={styles.vsNow}>En pantalla</span> : null}
                   </span>
                   <span className={styles.vsName}>{s.name}</span>
                   <span className={styles.vsHero}>
@@ -203,7 +194,7 @@ export const ScenariosPanel = ({ scenario, scenarios, onSelect }: Props) => {
 
         <section className={styles.block}>
           <header className={styles.blockHead}>
-            <Eyebrow n="02">Comparación completa</Eyebrow>
+            <h2 className={styles.blockTitleSm}>Comparación completa</h2>
             <p className={styles.blockSub}>
               {other ? `La columna de diferencia toma el escenario ${letterOf(refIndex)} como referencia. ` : ""}
               {list.length > 1 ? (
@@ -284,18 +275,15 @@ export const ScenariosPanel = ({ scenario, scenarios, onSelect }: Props) => {
       )}
 
       <section className={styles.hero}>
-        <div className={styles.heroGlow} aria-hidden="true" />
         <div className={styles.heroSide}>
-          <Eyebrow n="03">Sensibilidad · escenario {currentLetter}</Eyebrow>
-          <h2 className={styles.heroTitle}>
-            <SplitText text={"Cuánto pueden *fallar*\nlas ventas"} />
-          </h2>
+          <Eyebrow>Sensibilidad del escenario {currentLetter}</Eyebrow>
+          <h2 className={styles.heroTitle}>Cuánto pueden fallar las ventas</h2>
           <QueryState query={sensitivity} isEmpty={(d) => d.points.length === 0} empty={<EmptyState title="Sin puntos" text="La API no devolvió puntos para el aumento de ventas." />}>
             {() => (
               <>
                 <div className={[styles.heroFigure, styles[`hero_${marginTone}`] ?? ""].join(" ")}>
                   <span className={styles.heroLabel}>{margin === null ? "Margen" : margin >= 0 ? "Margen de error" : "Faltan"}</span>
-                  <span className={styles.heroDots}>{margin === null ? "—" : `${margin >= 0 ? "+" : "−"}${formatPoints(margin, 2)}`}</span>
+                  <span className={styles.heroValue}>{margin === null ? "—" : `${margin >= 0 ? "+" : "−"}${formatPoints(margin, 2)}`}</span>
                   <span className={styles.heroUnit}>puntos porcentuales</span>
                 </div>
                 <dl className={styles.heroFacts}>
@@ -351,7 +339,7 @@ export const ScenariosPanel = ({ scenario, scenarios, onSelect }: Props) => {
       <div className={styles.pair}>
         <section className={styles.block}>
           <header className={styles.blockHead}>
-            <Eyebrow n="04">Tornado</Eyebrow>
+            <Eyebrow>Tornado</Eyebrow>
             <h2 className={styles.blockTitleSm}>Qué supuesto mueve más el resultado</h2>
           </header>
           <QueryState query={tornado} isEmpty={(d) => d.bars.length === 0} empty={<EmptyState title="Sin tornado" text="La API no devolvió barras." />}>
@@ -383,7 +371,7 @@ export const ScenariosPanel = ({ scenario, scenarios, onSelect }: Props) => {
 
         <section className={styles.block}>
           <header className={styles.blockHead}>
-            <Eyebrow n="05">Bivariante</Eyebrow>
+            <Eyebrow>Bivariante</Eyebrow>
             <h2 className={styles.blockTitleSm}>Las dos variables juntas</h2>
             <p className={styles.blockSub}>VPN del proyecto por aumento de ventas (filas) y rotación del inventario (columnas)</p>
           </header>

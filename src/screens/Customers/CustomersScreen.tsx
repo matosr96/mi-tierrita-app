@@ -22,13 +22,13 @@ const FILTERS: { value: Filter; label: string }[] = [
   { value: "inactive", label: "Inactivos" },
 ];
 
-const TITLES: Record<Filter, { lead: string; accent: string }> = {
-  all: { lead: "Libro de", accent: "clientes" },
-  balance: { lead: "Clientes con", accent: "crédito" },
-  inactive: { lead: "Clientes", accent: "inactivos" },
+const TITLES: Record<Filter, string> = {
+  all: "Clientes",
+  balance: "Clientes con crédito",
+  inactive: "Clientes inactivos",
 };
 
-/** Clientes y cartera (CU-12): libro de cartera con cupo usado y abono rápido, y tarjeta oscura con las cifras de cartera. */
+/** Clientes y cartera (CU-12): libro de cartera con cupo usado y abono rápido, y tarjeta lateral con las cifras de cartera. */
 export const CustomersScreen = () => {
   const user = useSessionStore((s) => s.user);
   const isAdmin = user?.role === "ADMIN";
@@ -60,10 +60,8 @@ export const CustomersScreen = () => {
     <section className={styles.book} aria-labelledby="customers-book-title">
       <header className={styles.bookHead}>
         <div className={styles.bookTitle}>
-          <span className={styles.eyebrow}>Cartera · {customers.data ? `${int(customers.data.count)} ${customers.data.count === 1 ? "registro" : "registros"}` : "…"}</span>
-          <h2 id="customers-book-title">
-            {TITLES[filter].lead} <em>{TITLES[filter].accent}</em>
-          </h2>
+          <h2 id="customers-book-title">{TITLES[filter]}</h2>
+          <span className={styles.count}>{customers.data ? `${int(customers.data.count)} ${customers.data.count === 1 ? "registro" : "registros"}` : "Cargando…"}</span>
         </div>
         <div className={styles.toolbar}>
           <div className={styles.search}>
@@ -130,7 +128,9 @@ export const CustomersScreen = () => {
         {(p) => (
           <>
             <CustomerLedger customers={p.items} receivables={receivables} onOpen={setSelectedId} onPay={openPayment} />
-            <Pagination page={p} onPage={setPage} />
+            <div className={styles.pager}>
+              <Pagination page={p} onPage={setPage} />
+            </div>
           </>
         )}
       </QueryState>

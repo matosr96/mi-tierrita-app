@@ -1,4 +1,4 @@
-/* Reportes: portadas por reporte y piezas compartidas por los tres paneles (filtros y tablas del documento). */
+/* Reportes: tarjetas por reporte y piezas compartidas por los tres paneles (filtros y tablas del documento). */
 .page {
   display: flex;
   flex-direction: column;
@@ -6,8 +6,8 @@
 }
 .covers {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 14px;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 12px;
 }
 
 /* ---------- filtros (dentro de la barra de mando) ---------- */
@@ -24,11 +24,9 @@
   gap: 6px;
 }
 .filterLabel {
-  font-family: var(--font-mono);
-  font-size: 9.5px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--muted);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--ink-2);
 }
 .chipsRow {
   display: flex;
@@ -36,25 +34,20 @@
   flex-wrap: wrap;
   gap: 8px 12px;
 }
-.chipsRow button {
-  height: 30px;
-  padding: 0 12px;
-  font-size: 12px;
-}
 .filterHint {
-  font-size: 12px;
+  font-size: 13px;
   color: var(--muted);
 }
 
 /* ---------- contenido del documento ---------- */
 .chartNote {
-  font-size: 12px;
+  font-size: 13px;
   color: var(--muted);
   margin-top: 6px;
 }
 .mono {
   font-family: var(--font-mono);
-  font-size: 11.5px;
+  font-size: 12px;
   color: var(--ink-2);
 }
 .name {
@@ -64,7 +57,7 @@
 .footRow td {
   font-weight: 600;
   background: var(--surface-3);
-  border-top: 2px solid var(--ink);
+  border-top: 1px solid var(--line-strong);
 }
 .historyReport {
   display: flex;
@@ -76,6 +69,6 @@
   color: var(--ink);
 }
 .historyReport span {
-  font-size: 12px;
+  font-size: 13px;
   color: var(--muted);
 }

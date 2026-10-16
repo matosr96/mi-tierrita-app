@@ -1,58 +1,48 @@
 import { Link } from "react-router-dom";
-import { Odometer } from "@/components/motion";
-import type { AttentionItem } from "./AttentionList";
+import type { AttentionItem } from "./attention";
 import styles from "./HomeScreen.module.css";
 
 type Props = {
+  /** Titular del estado del día (por ejemplo, "Una cosa requiere su atención hoy."). */
+  title: string;
   /** null mientras carga. */
   items: AttentionItem[] | null;
   /** Total de pendientes si es mayor que la lista (por ejemplo, clientes con saldo). */
-  total?: number;
-  onSeeAll: () => void;
+  total?: number | undefined;
+  /** A dónde lleva el botón principal. */
+  to: string;
+  /** Qué vigila esta tarjeta para el rol (se muestra cuando no hay pendientes). */
+  watches: string;
 };
 
-/** Lado derecho de la portada: cuántas cosas piden atención (cifra en matriz de puntos) y las tres primeras. */
-export const StatusAside = ({ items, total, onSeeAll }: Props) => {
-  const now = new Date();
-  const days = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
-  const progress = now.getDate() / days;
-  const month = now.toLocaleDateString("es-CO", { month: "long" });
+/**
+ * Tarjeta destacada con degradado verde (como "Revenue is accelerating" en la referencia): el estado del día y los
+ * pendientes, cada uno con enlace a su pantalla.
+ */
+export const StatusAside = ({ title, items, total, to, watches }: Props) => {
   const count = items === null ? null : (total ?? items.length);
-
   return (
-    <div className={styles.status}>
-      <div className={styles.statusTop}>
-        <span className={[styles.statusCount, count === 0 ? styles.statusClear : ""].join(" ")}>{count === null ? "··" : <Odometer value={String(count).padStart(2, "0")} />}</span>
-        <span className={styles.statusLabel}>
-          {count === null ? "Revisando…" : count === 0 ? "Sin pendientes" : count === 1 ? "Pendiente hoy" : "Pendientes hoy"}
-        </span>
-      </div>
+    <section id="pendientes" className={styles.spot} aria-label="Pendientes de hoy" aria-busy={count === null}>
+      <span className={styles.spotEyebrow}>{count === null ? "Revisando…" : count === 0 ? "Sin pendientes" : count === 1 ? "1 pendiente" : `${count} pendientes`}</span>
+      <h2 className={styles.spotTitle}>{title.replace(/\*/g, "").replace(/\n/g, " ")}</h2>
       {items && items.length > 0 ? (
-        <ul className={styles.statusList}>
-          {items.slice(0, 3).map((item) => (
+        <ul className={styles.spotList}>
+          {items.slice(0, 5).map((item) => (
             <li key={item.key}>
-              <Link to={item.to} className={styles.statusItem}>
-                <span className={[styles.statusDot, item.tone === "bad" ? styles.statusDotBad : styles.statusDotWarn].join(" ")} aria-hidden="true" />
-                {item.text}
+              <Link to={item.to} className={styles.spotItem}>
+                <span className={[styles.dot, item.tone === "bad" ? styles.dotBad : item.tone === "warn" ? styles.dotWarn : styles.dotNeutral].join(" ")} aria-hidden="true" />
+                <span className={styles.itemText}>{item.text}</span>
+                <span className={styles.spotTag}>{item.tag}</span>
               </Link>
             </li>
           ))}
         </ul>
+      ) : count === 0 ? (
+        <p className={styles.spotText}>Todo en orden por ahora. Aquí aparecerán {watches}.</p>
       ) : null}
-      {count !== null && count > 0 ? (
-        <button type="button" className={styles.statusMore} onClick={onSeeAll}>
-          Ver el detalle <span aria-hidden="true">↓</span>
-        </button>
-      ) : null}
-      <div className={styles.statusMonth} aria-label={`${Math.round(progress * 100)} % de ${month} transcurrido`}>
-        <span>{month}</span>
-        <span className={styles.statusBar}>
-          <span style={{ transform: `scaleX(${progress})` }} />
-        </span>
-        <span>
-          {now.getDate()}/{days}
-        </span>
-      </div>
-    </div>
+      <Link to={to} className={styles.spotBtn}>
+        Ver detalle <span aria-hidden="true">→</span>
+      </Link>
+    </section>
   );
 };

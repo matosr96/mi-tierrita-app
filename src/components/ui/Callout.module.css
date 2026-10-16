@@ -2,20 +2,11 @@
   position: relative;
   overflow: hidden;
   border-radius: var(--radius);
-  padding: 20px 22px;
+  padding: 16px 18px;
   border: 1px solid var(--line);
   display: flex;
   gap: 18px;
   align-items: center;
-}
-.callout::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(105deg, transparent 30%, rgba(255, 255, 255, 0.35) 50%, transparent 70%);
-  transform: translateX(-100%);
-  animation: sheen 1.6s var(--ease-in-out) 0.5s backwards;
-  pointer-events: none;
 }
 .good {
   background: var(--good-soft);
@@ -37,15 +28,15 @@
   flex-direction: column;
   gap: 4px;
   flex: 1;
-  font-size: 13.5px;
+  font-size: 14px;
   color: var(--ink-2);
 }
 .title {
   font-family: var(--font-heading);
-  font-size: clamp(24px, 2.4vw, 32px);
-  font-weight: 300;
-  line-height: 1.08;
-  letter-spacing: -0.045em;
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: -0.015em;
   color: var(--ink);
 }
 .mark {

@@ -1,70 +1,26 @@
-/* Usuarios y roles: equipo en tarjetas con monograma, matriz de permisos oscura y feed de actividad. */
+/* Usuarios y roles: equipo en tarjetas blancas, matriz de permisos y actividad reciente. */
 .page {
   display: flex;
   flex-direction: column;
-  gap: 18px;
+  gap: 16px;
 }
 
 /* Equipo */
 .teamHead {
   display: flex;
-  justify-content: space-between;
-  align-items: flex-end;
-  gap: 16px;
-  margin-bottom: 16px;
-}
-.label {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-family: var(--font-mono);
-  font-size: 10px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--muted);
-}
-.label::before {
-  content: "";
-  width: 6px;
-  height: 6px;
-  border-radius: 2px;
-  background: var(--forest);
-}
-.title {
-  font-family: var(--font-heading);
-  font-size: clamp(24px, 3vw, 30px);
-  font-weight: 300;
-  letter-spacing: -0.045em;
-  line-height: 1.1;
-  margin-top: 10px;
-  color: var(--ink);
-}
-.title em {
-  font-family: var(--font-serif);
-  font-style: italic;
-  font-weight: 400;
-  letter-spacing: -0.01em;
-}
-.count {
-  display: flex;
   align-items: baseline;
   gap: 8px;
+  margin-bottom: 12px;
 }
-.countValue {
-  font-family: var(--font-heading);
-  font-size: 44px;
-  font-weight: 300;
-  letter-spacing: -0.05em;
-  line-height: 1;
-  font-variant-numeric: tabular-nums;
+.title {
+  font-size: 15px;
+  font-weight: 600;
   color: var(--ink);
 }
-.countLabel {
-  font-family: var(--font-mono);
-  font-size: 10px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
+.count {
+  font-size: 13px;
   color: var(--muted);
+  font-variant-numeric: tabular-nums;
 }
 
 .people {
@@ -72,94 +28,71 @@
   margin: 0;
   padding: 0;
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(232px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
   gap: 12px;
 }
 .addItem {
   display: flex;
-  animation: addIn 0.7s var(--ease-out) backwards;
 }
 .add {
   flex: 1;
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
-  justify-content: flex-end;
+  align-items: center;
+  justify-content: center;
   gap: 4px;
-  min-height: 200px;
-  padding: 18px;
+  min-height: 150px;
+  padding: 16px;
   border-radius: var(--radius);
   border: 1px dashed var(--line-strong);
   background: transparent;
   color: var(--ink-2);
-  text-align: left;
+  text-align: center;
+  font: inherit;
   cursor: pointer;
-  transition: border-color 0.3s ease, background 0.3s ease, color 0.3s ease;
+  transition:
+    border-color var(--dur) ease,
+    background-color var(--dur) ease;
 }
-.add:hover,
+.add:hover {
+  border-color: var(--sprout);
+  background: var(--surface);
+}
 .add:focus-visible {
-  border-color: var(--forest);
-  background: var(--sprout-soft);
-  color: var(--ink);
-  outline: none;
+  outline: 2px solid var(--sprout);
+  outline-offset: 2px;
 }
 .addPlus {
   display: grid;
   place-items: center;
-  width: 44px;
-  height: 44px;
-  margin-bottom: auto;
-  border-radius: 14px;
-  font-size: 24px;
-  font-weight: 300;
-  color: var(--sprout-ink);
-  background: var(--sprout);
-  transition: transform 0.5s var(--ease-spring);
-}
-.add:hover .addPlus {
-  transform: rotate(90deg) scale(1.06);
+  width: 28px;
+  height: 28px;
+  margin-bottom: 4px;
+  border-radius: 50%;
+  font-size: 18px;
+  line-height: 1;
+  color: var(--forest);
+  background: var(--sprout-soft);
 }
 .addText {
-  font-family: var(--font-heading);
-  font-size: 18px;
-  font-weight: 300;
-  letter-spacing: -0.03em;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ink);
 }
 .addHint {
-  font-size: 12px;
+  font-size: 13px;
   color: var(--muted);
 }
 
 .split {
   display: grid;
   grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
-  gap: 14px;
+  gap: 16px;
   align-items: start;
 }
 @media (max-width: 1080px) {
   .split {
     grid-template-columns: 1fr;
-  }
-}
-@media (max-width: 560px) {
-  .teamHead {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-}
-
-@keyframes addIn {
-  from {
-    opacity: 0;
-    transform: translateY(14px);
-  }
-}
-@media (prefers-reduced-motion: reduce) {
-  .addItem {
-    animation: none;
-  }
-  .add:hover .addPlus {
-    transform: none;
   }
 }
 
