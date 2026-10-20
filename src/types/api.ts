@@ -236,10 +236,56 @@ export type ReportExport = { id: number; userId: number; username: string; repor
 export type RecordExportInput = { report: ExportReportKind; format: ExportFormat; description: string };
 
 /** `recipientId` null: canal general; con valor: mensaje privado. */
-export type ChatMessage = { id: number; userId: number; username: string; firstName: string; lastName: string; role: Role; recipientId: number | null; body: string; createdAt: string };
+/* ---------- Chat del equipo (canal general y privados) ---------- */
+export type ChatPerson = { id: number; firstName: string; lastName: string };
+export type ChatMention = ChatPerson & { username: string };
+export type ChatAttachment = { id: number; name: string; mime: string; size: number };
+/** Mensaje citado; `privateReply`: la cita viene del canal general y la respuesta es privada. */
+export type ChatQuote = { id: number; author: ChatPerson; body: string; attachments: number; inThread: boolean; privateReply: boolean; deleted: boolean };
+export type ChatThreadSummary = { replies: number; unread: number; lastReplyAt: string; participants: ChatPerson[] };
+/** Enviado (en el servidor), entregado (llegó a la app de todos) y visto (todos lo leyeron). */
+export type ChatDeliveryStatus = "sent" | "delivered" | "read";
+export type ChatReceiptsSummary = { status: ChatDeliveryStatus; total: number; delivered: number; read: number };
+export type ChatMessage = {
+  id: number;
+  clientId: string | null;
+  userId: number;
+  username: string;
+  firstName: string;
+  lastName: string;
+  role: Role;
+  recipientId: number | null;
+  body: string;
+  createdAt: string;
+  threadRootId: number | null;
+  /** Última edición del texto; null si nunca se editó. */
+  editedAt: string | null;
+  /** Eliminado: conserva su lugar, sin texto ni adjuntos. */
+  deleted: boolean;
+  replyTo: ChatQuote | null;
+  thread: ChatThreadSummary | null;
+  pinned: { at: string; by: { id: number; name: string } } | null;
+  mentions: ChatMention[];
+  attachments: ChatAttachment[];
+  /** Solo en los mensajes propios. */
+  receipts: ChatReceiptsSummary | null;
+  unread: boolean;
+  mentionsMe: boolean;
+};
+export type ChatPage = { items: ChatMessage[]; hasMoreBefore: boolean; hasMoreAfter: boolean; root?: ChatMessage };
+export type SendChatMessageInput = { body: string; recipientId?: number; replyToId?: number; threadRootId?: number; attachmentIds?: number[]; clientId: string };
+export type ChatReceiptEntry = { user: ChatPerson & { role: Role; active: boolean }; deliveredAt: string | null; readAt: string | null };
+export type ChatReceipts = { messageId: number; status: ChatDeliveryStatus; read: ChatReceiptEntry[]; delivered: ChatReceiptEntry[]; pending: ChatReceiptEntry[] };
 export type ChatPreview = { body: string; createdAt: string; mine: boolean } | null;
-export type ChatMember = { id: number; firstName: string; lastName: string; username: string; role: Role; online: boolean; lastSeenAt: string | null; unread: number; lastMessage: ChatPreview };
-export type ChatTeam = { general: { unread: number; lastMessage: ChatPreview }; members: ChatMember[]; onlineCount: number };
+export type ChatMember = { id: number; firstName: string; lastName: string; username: string; role: Role; online: boolean; lastSeenAt: string | null; unread: number; mentions: number; lastMessage: ChatPreview };
+export type ChatTeam = { general: { unread: number; mentions: number; lastMessage: ChatPreview }; members: ChatMember[]; onlineCount: number; unreadTotal: number };
+/** Aviso en vivo (`GET /chat/stream`); `peerId` null = canal general. */
+export type ChatLiveEvent =
+  | { type: "ready" }
+  | { type: "bye" }
+  | { type: "team" }
+  | { type: "update"; ids: number[]; peerId: number | null }
+  | { type: "message"; id: number; peerId: number | null; threadRootId: number | null; authorId: number; authorName: string; preview: string; attachments: number; mentionsMe: boolean };
 
 export type ContactStatus = "NEW" | "READ" | "ARCHIVED";
 export type ContactMessage = { id: number; name: string; phone: string | null; email: string | null; topic: string | null; body: string; status: ContactStatus; createdAt: string };

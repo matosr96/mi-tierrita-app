@@ -1,0 +1,330 @@
+.msg {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  max-width: min(80%, 580px);
+  padding-left: 38px;
+  border-radius: var(--radius-sm);
+  transition: background var(--dur) ease;
+}
+.first {
+  margin-top: 10px;
+}
+.mine {
+  align-self: flex-end;
+  align-items: flex-end;
+  padding-left: 0;
+}
+.highlight .bubble {
+  outline: 2px solid var(--sprout);
+  outline-offset: 2px;
+}
+.meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 4px -38px;
+  font-size: 13px;
+  color: var(--muted);
+}
+.mine .meta {
+  margin-left: 0;
+}
+.meta strong {
+  font-weight: 500;
+  color: var(--ink);
+}
+.role {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  max-width: 100%;
+}
+.mine .row {
+  flex-direction: row-reverse;
+}
+.bubble {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+  padding: 8px 12px 6px;
+  border-radius: 18px;
+  background: var(--surface-3);
+  color: var(--ink);
+}
+.mine .bubble {
+  background: var(--sprout-soft);
+}
+.pinned {
+  box-shadow: inset 0 0 0 1px var(--good-line);
+}
+.pinTag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--forest);
+}
+.pinTag svg {
+  width: 12px;
+  height: 12px;
+}
+.text {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.45;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.quote {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  max-width: 100%;
+  padding: 5px 9px;
+  border: 0;
+  border-left: 3px solid var(--sprout);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--ink-2);
+  text-align: left;
+  font: inherit;
+  cursor: pointer;
+}
+.quote strong {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--forest);
+}
+.quote em {
+  font-style: normal;
+  font-weight: 500;
+  color: var(--muted);
+}
+.quote span {
+  font-size: 13px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.files {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.foot {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 4px;
+  align-self: flex-end;
+  font-size: 11px;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+.ticksBtn {
+  display: inline-flex;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+/* Acciones: aparecen al pasar el cursor o al llegar con el teclado; siempre visibles en pantallas táctiles. */
+.toolbar {
+  display: flex;
+  gap: 2px;
+  padding: 2px;
+  border-radius: 999px;
+  background: var(--surface);
+  box-shadow: var(--shadow);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--dur) ease;
+}
+.msg:hover .toolbar,
+.msg:focus-within .toolbar {
+  opacity: 1;
+  pointer-events: auto;
+}
+/* En pantallas táctiles no hay "pasar el cursor": las acciones quedan visibles, debajo de la burbuja. */
+@media (hover: none) {
+  .row,
+  .mine .row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2px;
+  }
+  .mine .row {
+    align-items: flex-end;
+  }
+  .toolbar {
+    opacity: 0.85;
+    pointer-events: auto;
+    box-shadow: none;
+    background: transparent;
+  }
+}
+.toolbar button {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+}
+.toolbar button:hover,
+.toolbar button[aria-pressed="true"] {
+  background: var(--hover);
+  color: var(--forest);
+}
+
+.thread {
+  display: inline-flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 4px;
+  padding: 4px 10px 4px 6px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--ink-2);
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+}
+.thread:hover {
+  border-color: var(--good-line);
+}
+.thread strong {
+  font-weight: 600;
+  color: var(--link);
+}
+.thread small {
+  color: var(--muted);
+}
+.threadPeople {
+  display: inline-flex;
+}
+.threadPeople > * + * {
+  margin-left: -6px;
+}
+.threadUnread {
+  padding: 0 7px;
+  border-radius: 999px;
+  background: var(--sprout);
+  color: var(--sprout-ink);
+  font-weight: 600;
+}
+.failed {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 4px;
+  font-size: 12px;
+  color: var(--bad);
+}
+.failed button {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--link);
+  font: inherit;
+  text-decoration: underline;
+  cursor: pointer;
+}
+@media (max-width: 900px) {
+  .msg {
+    max-width: 94%;
+  }
+}
+
+.deleted {
+  font-style: italic;
+  color: var(--muted);
+}
+.editor {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: min(440px, 62vw);
+}
+.editor textarea {
+  resize: none;
+  field-sizing: content;
+  min-height: 40px;
+  max-height: 160px;
+  padding: 7px 10px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--line-strong);
+  background: var(--surface);
+  color: var(--ink);
+  font: inherit;
+  font-size: 14px;
+}
+.editor textarea:focus {
+  outline: 2px solid var(--sprout);
+  outline-offset: 1px;
+}
+.editor span {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+}
+.editor small {
+  margin-right: auto;
+  font-size: 11px;
+  color: var(--muted);
+}
+.editor button {
+  padding: 3px 12px;
+  border: 1px solid var(--line-strong);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--ink-2);
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+}
+.editor .saveBtn {
+  border-color: var(--sprout);
+  background: var(--sprout);
+  color: var(--sprout-ink);
+}
+.editor button:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+.queued {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 4px;
+  font-size: 12px;
+  color: var(--muted);
+}
+.queued button {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--link);
+  font: inherit;
+  text-decoration: underline;
+  cursor: pointer;
+}

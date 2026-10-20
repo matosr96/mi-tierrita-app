@@ -3,6 +3,7 @@ import { useCustomers } from "@/hooks/customers";
 import { useProducts } from "@/hooks/products";
 import { useInventoryReport, useReceivablesReport } from "@/hooks/reports";
 import { useContactMessages } from "@/hooks/contact";
+import { useChatTeam } from "@/hooks/chat";
 import { int } from "@/lib/format";
 import { useNotificationsStore } from "@/stores/notifications";
 import { useSessionStore } from "@/stores/session";
@@ -32,13 +33,30 @@ export const useNotifications = () => {
     newContacts > 0
       ? [{ key: "contact", tone: "neutral", text: `${int(newContacts)} ${newContacts === 1 ? "mensaje nuevo" : "mensajes nuevos"} desde la página pública`, to: "/contactos", tag: "Responder" }]
       : [];
-  const items: AttentionItem[] = isAdmin
+  // Chat: sin leer y menciones (misma caché que la insignia del menú, refrescada por los avisos en vivo).
+  const chat = useChatTeam(30_000, { enabled: role !== undefined });
+  const chatUnread = chat.data?.unreadTotal ?? 0;
+  const chatMentions = chat.data ? chat.data.general.mentions + chat.data.members.reduce((n, m) => n + m.mentions, 0) : 0;
+  const chatItem: AttentionItem[] =
+    chatUnread > 0
+      ? [
+          {
+            key: "chat",
+            tone: chatMentions > 0 ? "warn" : "neutral",
+            text: `${int(chatUnread)} ${chatUnread === 1 ? "mensaje sin leer" : "mensajes sin leer"} en el chat${chatMentions > 0 ? ` (${int(chatMentions)} ${chatMentions === 1 ? "mención" : "menciones"})` : ""}`,
+            to: "/chat",
+            tag: "Leer",
+          },
+        ]
+      : [];
+  const roleItems: AttentionItem[] = isAdmin
     ? [...contactItem, ...adminAttention(inventory.data, receivables.data)]
     : role === "SALES"
       ? pendingItems(customers.data?.items ?? [])
       : role === "WAREHOUSE"
         ? todoItems(expiring.data?.items ?? [], products.data?.items ?? [])
         : [];
+  const items = [...chatItem, ...roleItems];
   const isPending = isAdmin ? inventory.isPending || receivables.isPending : role === "SALES" ? customers.isPending : products.isPending || expiring.isPending;
 
   const list: Notification[] = items.map((n) => {

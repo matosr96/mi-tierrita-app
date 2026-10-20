@@ -54,11 +54,11 @@ export const useNavBadges = (): Partial<Record<NonNullable<NavItem["badge"]>, nu
     staleTime: 60_000,
   });
 
-  // Mensajes sin leer del chat; esta consulta periódica también mantiene a la persona "en línea".
-  const chat = useChatTeam(20_000, { enabled: role !== undefined });
+  // Mensajes sin leer del chat (se refresca con los avisos en vivo); la consulta periódica mantiene a la persona "en línea".
+  const chat = useChatTeam(30_000, { enabled: role !== undefined });
 
   return {
-    chat: chat.data ? chat.data.general.unread + chat.data.members.reduce((n, m) => n + m.unread, 0) : undefined,
+    chat: chat.data?.unreadTotal,
     contact: contact.data?.count,
     inventory: isAdmin ? inventory.data?.outOfStock : products.data?.items.filter((p) => p.stock === 0).length,
     batches: batches.data?.count,

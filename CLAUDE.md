@@ -84,9 +84,24 @@ base, format).
   auditoría (administrador) o las ventas propias (secretaria).
 - **Historial de reportes**: cada PDF o Excel descargado se registra con `useRecordExport` (`ReportPreview` lo hace
   solo si recibe `record`; Finanzas desde `ScenarioExport`) y se lista en `ExportHistory` (prototipo 09).
-- **Comunicación**: `/chat` (todos los roles; canal general y privados con `?con=<id>`; `useChatMessages(peerId)` pide solo
-  lo nuevo cada 4 s con `?after=`; `useChatTeam` da presencia y no leídos, y su consulta periódica desde el menú mantiene
-  a la persona "en línea") y
+- **Comunicación**: `/chat` (todos los roles; `?con=<id>` privado, `&hilo=<id>` hilo abierto, `&m=<id>` mensaje a mostrar).
+  **En vivo**: `useChatRealtime` (montado una vez en `AppShell`) abre `GET /chat/stream` con `openChatStream` (SSE por
+  `fetch`, reconecta solo), refresca `useChatTeam`, reparte los avisos con `onChatEvent` (`stores/chatLive`, que también
+  guarda qué conversación se está viendo) y avisa de lo nuevo: aviso breve dentro de la app o notificación del navegador
+  con la pestaña en segundo plano (permiso con "Activar avisos del navegador"). Sin conexión en vivo, consulta cada 6 s.
+  `useChatMessages({ peerId, threadRootId }, { active, around })` lleva una conversación o un hilo: historial hacia atrás,
+  saltar a un mensaje, envío optimista con `clientId` (sin conexión queda "en espera" y se reenvía solo al volver la red,
+  al reconectar el aviso en vivo o cada 15 s, sin duplicar; si el servidor lo rechaza: "No se envió · Reintentar"),
+  `replace(m)` para aplicar al instante un mensaje editado o eliminado, y marca como
+  visto solo con la conversación a la vista y la ventana al frente. Pantalla en `screens/Chat/` (un componente por
+  archivo): `ConversationList` (bandeja + búsqueda en todos los mensajes), `MessageList`/`MessageItem` (chulitos `Ticks`:
+  reloj, enviado, entregado a todos, visto por todos en `--sprout`; cita; menciones; adjuntos; resumen del hilo; acciones
+  responder, hilo, responder por privado, fijar, información, editar en línea, eliminar con confirmación, copiar;
+  "editado" y "Se eliminó este mensaje"), `Composer` (cita, adjuntos con botón/pegar/
+  arrastrar, sugerencias al escribir "@", borrador por conversación), `ThreadPanel`, `SearchPanel` (buscar en la conversación abierta), `PinnedBar`/`PinsPanel`,
+  `ReceiptsModal` (leído / entregado / pendiente, en vivo, solo en mensajes propios). Fijar en #general solo se ofrece a
+  ADMIN; editar solo al autor; eliminar al autor y, en #general, también a ADMIN. La insignia del menú, la campana y el título de la pestaña ("(3) …") usan `unreadTotal` del equipo. Ojo: los
+  hijos directos del contenido de `AppShell` llevan `position: relative`; un `Modal` debe ir dentro de un contenedor. Y
   `/contactos` (ADMIN; bandeja del formulario público, insignia del menú y aviso en la campana con los nuevos).
   El formulario de la página pública envía a `POST /contact` con un campo trampa `website`.
 
@@ -163,6 +178,7 @@ no UTC; la API cuenta "hoy" en `BUSINESS_TZ` (America/Bogota). Auditoría de oct
 - sales: `useSales(query)`, `useSale(id)`, `useRegisterSale`, `useVoidSale`
 - audits: `useAudits(query)`
 - reports: `useSalesReport({from, to, groupBy})`, `useInventoryReport(days)`, `useReceivablesReport(overdueDays)`
+- chat: `useChatTeam(intervalMs?)`, `useChatMessages(scope, options)`, `useChatRealtime()`, `useChatReceipts(id)`, `useChatPins(peerId)`, `usePinChatMessage` ({id, pinned}), `useChatSearch(q, scope)`, `useUploadChatAttachment` ({file, onProgress}), `useChatAttachment(id)`, `useDownloadChatAttachment` ({file, open?}), `useEditChatMessage` ({id, body}), `useDeleteChatMessage` (id)
 - financial: `useScenarios()`, `useScenario(id)`, `useCreateScenario`, `useCompareScenarios(ids)`, `useAmortization(id)`, `useSensitivity(id, variable, range?)`, `useBivariate(id, varX, varY)`, `useTornado(id)`
 
 Las consultas son `useQuery` de TanStack (data, isPending, isError, error, refetch); las mutaciones son

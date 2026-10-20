@@ -12,6 +12,7 @@ import { CommandPalette } from "./CommandPalette";
 import { TitaPanel } from "@/components/ai/TitaPanel";
 import { TitaAvatar } from "@/components/ai/TitaAvatar";
 import { useAiStatus } from "@/hooks/ai";
+import { useChatRealtime } from "@/hooks/chat";
 import { useAiStore } from "@/stores/ai";
 import styles from "./AppShell.module.css";
 
@@ -68,6 +69,14 @@ export const AppShell = () => {
   aiEnabledRef.current = ai.enabled;
   const current = findRoute(location.pathname);
   const pageKey = current?.path ?? location.pathname;
+  // Chat en vivo para toda la app: contadores, avisos y notificaciones de mensajes nuevos.
+  useChatRealtime();
+  const chatUnread = badges.chat ?? 0;
+  // Mensajes sin leer también en el título de la pestaña: "(3) Mi Tierrita".
+  useEffect(() => {
+    const base = document.title.replace(/^\(\d+\) /, "");
+    document.title = chatUnread > 0 ? `(${chatUnread}) ${base}` : base;
+  }, [chatUnread, location.pathname]);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {

@@ -1,0 +1,16 @@
+.mention {
+  padding: 0 3px;
+  border-radius: 6px;
+  background: var(--sprout-soft);
+  color: var(--forest);
+  font-weight: 600;
+}
+/* La mención propia: el mismo verde, un poco más marcada; sin sombreados aparte. */
+.me {
+  font-weight: 700;
+}
+.link {
+  color: var(--link);
+  text-decoration: underline;
+  overflow-wrap: anywhere;
+}

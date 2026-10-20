@@ -1,0 +1,61 @@
+.panel {
+  display: flex;
+  flex-direction: column;
+  height: max(460px, calc(100vh - 300px));
+  border-radius: var(--radius);
+  border: 1px solid var(--line);
+  background: var(--surface);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+.head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--line);
+}
+.head h3 {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--ink);
+}
+.head span {
+  font-size: 12px;
+  color: var(--muted);
+}
+.head button {
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--muted);
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+}
+.head button:hover {
+  background: var(--hover);
+  color: var(--ink);
+}
+.body {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+@media (max-width: 1180px) {
+  .panel {
+    position: fixed;
+    inset: auto 12px 12px 12px;
+    top: 80px;
+    z-index: 40;
+    height: auto;
+    box-shadow: var(--shadow-panel);
+  }
+}

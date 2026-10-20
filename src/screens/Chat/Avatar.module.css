@@ -1,0 +1,32 @@
+.avatar {
+  position: relative;
+  width: 30px;
+  height: 30px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: var(--surface-3);
+  color: var(--ink-2);
+  font-size: 11px;
+  font-weight: 600;
+}
+.sm {
+  width: 22px;
+  height: 22px;
+  font-size: 9px;
+}
+/* Punto de presencia sobre el avatar. */
+.presence {
+  position: absolute;
+  right: -1px;
+  bottom: -1px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--muted-2);
+  border: 2px solid var(--surface);
+}
+.isOnline {
+  background: var(--good);
+}

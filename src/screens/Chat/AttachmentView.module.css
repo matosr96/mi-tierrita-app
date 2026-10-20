@@ -1,0 +1,72 @@
+.photo {
+  display: block;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  background: var(--surface-3);
+  cursor: zoom-in;
+  max-width: min(280px, 100%);
+}
+.photo img {
+  display: block;
+  max-width: 100%;
+  max-height: 240px;
+  object-fit: cover;
+}
+.placeholder {
+  display: grid;
+  place-items: center;
+  width: 200px;
+  height: 120px;
+  font-size: 12px;
+  color: var(--muted);
+}
+.file {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  max-width: 100%;
+  padding: 8px 10px;
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  color: var(--ink-2);
+}
+.fileText {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.fileText strong {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 220px;
+}
+.fileText small {
+  font-size: 12px;
+  color: var(--muted);
+}
+.fileBtn {
+  flex-shrink: 0;
+  padding: 4px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--line-strong);
+  background: var(--surface);
+  color: var(--ink-2);
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+}
+.fileBtn:hover:not(:disabled) {
+  background: var(--hover);
+  color: var(--ink);
+}
+.fileBtn:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
