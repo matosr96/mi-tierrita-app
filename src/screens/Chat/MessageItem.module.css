@@ -39,14 +39,11 @@
   color: var(--muted);
 }
 
+/* La burbuja es la referencia de la barra de acciones, que se apoya sobre su borde superior. */
 .row {
+  position: relative;
   display: flex;
-  align-items: center;
-  gap: 6px;
   max-width: 100%;
-}
-.mine .row {
-  flex-direction: row-reverse;
 }
 .bubble {
   display: flex;
@@ -142,15 +139,25 @@
 
 /* Acciones: aparecen al pasar el cursor o al llegar con el teclado; siempre visibles en pantallas táctiles. */
 .toolbar {
+  position: absolute;
+  top: -16px;
+  left: 10px;
+  z-index: 2;
   display: flex;
   gap: 2px;
   padding: 2px;
+  border: 1px solid var(--line);
   border-radius: 999px;
   background: var(--surface);
   box-shadow: var(--shadow);
   opacity: 0;
   pointer-events: none;
   transition: opacity var(--dur) ease;
+}
+/* Crece hacia el centro de la conversación: en los propios desde la derecha, en los ajenos desde la izquierda. */
+.mine .toolbar {
+  left: auto;
+  right: 10px;
 }
 .msg:hover .toolbar,
 .msg:focus-within .toolbar {
@@ -168,9 +175,12 @@
   .mine .row {
     align-items: flex-end;
   }
-  .toolbar {
+  .toolbar,
+  .mine .toolbar {
+    position: static;
     opacity: 0.85;
     pointer-events: auto;
+    border: 0;
     box-shadow: none;
     background: transparent;
   }
