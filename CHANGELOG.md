@@ -17,6 +17,10 @@ Formato basado en [Keep a Changelog](https://keepachangelog.com/es/1.1.0/). Fech
 - Ficha de persona: al tocar un avatar o un nombre (chat, comentarios, Usuarios, actividad, venta) se abre con rol, contacto, presencia y acciones según el rol de quien mira.
 - Modo oscuro opcional (Mi perfil → Apariencia: Claro, Oscuro o Del dispositivo); la impresión siempre sale en claro.
 - Modos de vista Tarjetas / Lista / Tabla (`ViewSwitch`, recordados en este navegador) en Inventario, Clientes y Proveedores; las tablas se apilan en tarjetas rotuladas bajo 640 px (los reportes conservan el desplazamiento horizontal).
+- Conteos de inventario (`/conteos`, ADMIN y bodega): programar, hoja de conteo cómoda en el celular con guardado a medias, envío y, para la administración, revisión y aplicación del ajuste contra el stock actual.
+- Nómina (`/nomina`, solo Administrador): empleados, periodos mensuales o quincenales con edición en línea de horas extra, bonificaciones, auxilio de transporte y descuentos en borrador, aprobar, marcar pagado, eliminar borrador y exportar a Excel; aviso de que es una liquidación simplificada y no reemplaza la nómina electrónica de la DIAN.
+- Pedidos (`/pedidos`): a proveedores (ADMIN y bodega) y de clientes (ADMIN y secretaria), con recepción parcial o completa que crea los lotes, entrega con la venta del punto de venta («Registrar la venta» lo abre prellenado y vuelve al pedido), cancelación con confirmación, filtros por estado y vencidos resaltados.
+- Pedidos, nómina y conteos en la campana, el calendario y las sugerencias y el manual de Tita; los diálogos se pintan sobre la barra superior en el celular.
 
 ### Cambiado
 - Contraste AA en los grises de texto, el verde de los botones, los colores de estado y la franja del encabezado; ningún color suelto fuera de `theme.css`.

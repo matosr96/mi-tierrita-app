@@ -25,6 +25,9 @@ export const keys = {
   push: ["push"] as const,
   library: ["library"] as const,
   calendar: ["calendar"] as const,
+  orders: ["orders"] as const,
+  stockCounts: ["stockCounts"] as const,
+  payroll: ["payroll"] as const,
 };
 
 type MutationOptions<TData> = {

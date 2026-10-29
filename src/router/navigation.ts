@@ -35,6 +35,12 @@ export const ICONS = {
   /** Calendario: hoja de mes con argollas y días en cuadrícula (trazo propio, distinto del de lotes). */
   calendar: '<rect x="3" y="4.5" width="16" height="14.5" rx="2"/><line x1="3" y1="8.8" x2="19" y2="8.8"/><line x1="7.5" y1="2.5" x2="7.5" y2="6.2"/><line x1="14.5" y1="2.5" x2="14.5" y2="6.2"/><path d="M6.6 12.2 h1.6 M10.2 12.2 h1.6 M13.8 12.2 h1.6 M6.6 15.6 h1.6 M10.2 15.6 h1.6"/>',
   library: '<path d="M3.5 4.5 h5 a2 2 0 0 1 2 2 v12 a1.5 1.5 0 0 0 -1.5 -1.5 h-5.5 z"/><path d="M18.5 4.5 h-5 a2 2 0 0 0 -2 2 v12 a1.5 1.5 0 0 1 1.5 -1.5 h5.5 z"/><line x1="6" y1="8" x2="8.5" y2="8"/><line x1="13.5" y1="8" x2="16" y2="8"/>',
+  /** Conteos: tablilla con dos casillas marcadas (trazo propio). */
+  stockCounts: '<rect x="4.5" y="4" width="13" height="15.5" rx="2"/><rect x="8" y="2.5" width="6" height="3" rx="1"/><path d="M7.4 10.4 l1.3 1.3 l2.4 -2.6"/><line x1="12.8" y1="10.6" x2="15" y2="10.6"/><path d="M7.4 14.9 l1.3 1.3 l2.4 -2.6"/><line x1="12.8" y1="15.1" x2="15" y2="15.1"/>',
+  /** Nómina: billete con su moneda al centro (trazo propio, distinto del de finanzas). */
+  payroll: '<rect x="2.5" y="5.5" width="17" height="11" rx="1.8"/><circle cx="11" cy="11" r="2.4"/><line x1="5.4" y1="8.6" x2="7" y2="8.6"/><line x1="15" y1="13.4" x2="16.6" y2="13.4"/>',
+  /** Pedidos: caja abierta con un reloj al lado (lo que se espera para una fecha; trazo propio). */
+  orders: '<path d="M2.5 8.5 h11 v9 a1.5 1.5 0 0 1 -1.5 1.5 h-8 a1.5 1.5 0 0 1 -1.5 -1.5 z"/><path d="M2.5 8.5 l2 -4.5 h7 l2 4.5"/><line x1="8" y1="4" x2="8" y2="8.5"/><circle cx="16.3" cy="15" r="3.7"/><path d="M16.3 13.1 v2.1 l1.4 .9"/>',
   signout: '<path d="M8.6 3.5 H5 a1.6 1.6 0 0 0 -1.6 1.6 v11.8 a1.6 1.6 0 0 0 1.6 1.6 h3.6"/><path d="M13.8 7.4 L17.4 11 L13.8 14.6"/><line x1="17.1" y1="11" x2="8.8" y2="11"/>',
 } as const;
 
@@ -48,9 +54,11 @@ export const NAV_GROUPS: NavGroup[] = [
     items: [
       { path: "/inventario", label: "Inventario", icon: ICONS.inventory, roles: ALL, badge: "inventory" },
       { path: "/lotes", label: "Lotes y vencimientos", icon: ICONS.batches, roles: ["ADMIN", "WAREHOUSE"], badge: "batches" },
+      { path: "/conteos", label: "Conteos", icon: ICONS.stockCounts, roles: ["ADMIN", "WAREHOUSE"] },
       { path: "/ventas", label: "Ventas", icon: ICONS.sales, roles: ["ADMIN", "SALES"] },
       { path: "/clientes", label: "Clientes y cartera", icon: ICONS.customers, roles: ["ADMIN", "SALES"], badge: "customers" },
       { path: "/proveedores", label: "Proveedores", icon: ICONS.suppliers, roles: ["ADMIN", "WAREHOUSE"] },
+      { path: "/pedidos", label: "Pedidos", icon: ICONS.orders, roles: ALL },
       { path: "/calendario", label: "Calendario", icon: ICONS.calendar, roles: ALL },
     ],
   },
@@ -60,6 +68,7 @@ export const NAV_GROUPS: NavGroup[] = [
       { path: "/finanzas", label: "Finanzas y crédito", icon: ICONS.finance, roles: ["ADMIN"], lockedFor: ["SALES"] },
       { path: "/reportes", label: "Reportes", icon: ICONS.reports, roles: ["ADMIN", "SALES"] },
       { path: "/biblioteca", label: "Biblioteca", icon: ICONS.library, roles: ALL },
+      { path: "/nomina", label: "Nómina", icon: ICONS.payroll, roles: ["ADMIN"] },
     ],
   },
   {

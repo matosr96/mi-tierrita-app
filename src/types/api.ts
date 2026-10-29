@@ -395,6 +395,8 @@ export type AiSaleProposal = {
   lines: { productId: number; productName: string; quantity: number; unitPrice: number; available: number }[];
   estimatedTotal: number;
   warnings: string[];
+  /** Venta que prepara la pantalla Pedidos para cobrar un encargo (no la sugirió Tita: no se marca como IA). */
+  orderId?: number;
 };
 export type AiPaymentProposal = { type: "payment"; customerId: number; customerName: string; amount: number; balance: number };
 export type AiPurchaseProposal = { type: "purchase"; supplierId: number | null; supplierName: string | null; productId: number; productName: string; quantity: number; unitCost: number; expiresAt: string };
@@ -413,7 +415,7 @@ export type AiAttachment =
   | { kind: "text"; name: string; text: string };
 export type AiReply = { reply: string; sources: AiSource[]; proposals: AiProposal[]; conversationId: number; messageId: number; userMessageId: number };
 /** Pantalla desde la que se le habla a Tita (contexto del prompt). */
-export type AiScreen = "inicio" | "inventario" | "lotes" | "ventas" | "clientes" | "proveedores" | "finanzas" | "reportes" | "tita" | "chat" | "contactos" | "usuarios" | "auditoria" | "alarmas" | "perfil";
+export type AiScreen = "inicio" | "inventario" | "lotes" | "ventas" | "clientes" | "proveedores" | "finanzas" | "reportes" | "tita" | "chat" | "contactos" | "usuarios" | "auditoria" | "alarmas" | "perfil" | "pedidos" | "nomina" | "conteos" | "calendario" | "biblioteca";
 export type AiChatRequest = { messages: AiChatTurn[]; asincrono?: boolean; conversationId?: number; screen?: AiScreen };
 /** Primer paso de la respuesta en dos pasos (202): la tarea que hay que consultar cada 1,5 s. */
 export type AiTaskAccepted = { tareaId: string; conversationId: number; userMessageId: number };
@@ -480,7 +482,16 @@ export type Alarm = {
 export type AlarmInput = { title: string; description?: string; timeOfDay: string; repeat: AlarmRepeat; weekdays?: number[]; date?: string; area?: AlarmArea };
 export type AlarmFire = { id: number; alarmId: number; title: string; description: string | null; area: AlarmArea | null; firedAt: string; seenAt: string | null };
 
-export type DueKind = "batch_expiring" | "batch_expired" | "receivable_overdue" | "receivable_due_soon";
+export type DueKind =
+  | "batch_expiring"
+  | "batch_expired"
+  | "receivable_overdue"
+  | "receivable_due_soon"
+  | "order_overdue"
+  | "order_due_soon"
+  | "payroll_due"
+  | "count_overdue"
+  | "count_due";
 export type DueItem = { kind: DueKind; id: number; title: string; detail: string; dueOn: string; href: string };
 export type DueNotices = { count: number; summary: string; items: DueItem[] };
 
@@ -488,7 +499,7 @@ export type PushPublicKey = { enabled: boolean; publicKey: string | null };
 export type PushSubscriptionInput = { endpoint: string; keys: { p256dh: string; auth: string }; userAgent?: string };
 
 /* ---------- calendario reutilizable (brief de octubre de 2026, punto 31) ---------- */
-export type CalendarKind = "batch" | "receivable" | "alarm" | "closing";
+export type CalendarKind = "batch" | "receivable" | "alarm" | "closing" | "order" | "payroll" | "count";
 export type CalendarPriority = "alta" | "media" | "baja";
 export type CalendarStatus = "pending" | "overdue" | "done";
 /** Ítem con fecha (`GET /calendar`): `date` en YYYY-MM-DD (hora del negocio); `area` en texto; `href` es la pantalla a la que lleva. */
@@ -520,3 +531,176 @@ export type LibraryQuery = PageQuery & { kind?: LibraryKind; q?: string };
 export type CreateLinkInput = { title: string; description?: string; url: string; roles?: Role[] };
 export type UploadLibraryDocumentInput = { file: File; title: string; description?: string; roles?: Role[]; onProgress?: (fraction: number) => void };
 export type UpdateLibraryItemInput = { title?: string; description?: string; url?: string; roles?: Role[] };
+
+// ---------------------------------------------------------------- conteos de inventario
+export type StockCountStatus = "PLANNED" | "IN_PROGRESS" | "SUBMITTED" | "APPLIED" | "CANCELLED";
+export type StockCountScope = "ALL" | "CATEGORY";
+/** Calculado en la API: conteo abierto atrasado, de hoy o próximo; null si ya se envió o cerró. */
+export type StockCountDue = "OVERDUE" | "TODAY" | "UPCOMING" | null;
+export type StockCount = {
+  id: number;
+  title: string;
+  scheduledDate: string;
+  scope: StockCountScope;
+  categoryId: number | null;
+  categoryName: string | null;
+  status: StockCountStatus;
+  note: string | null;
+  createdBy: number;
+  createdByName: string;
+  startedAt: string | null;
+  startedBy: number | null;
+  startedByName: string | null;
+  submittedAt: string | null;
+  submittedBy: number | null;
+  submittedByName: string | null;
+  appliedAt: string | null;
+  appliedBy: number | null;
+  appliedByName: string | null;
+  cancelledAt: string | null;
+  cancelledBy: number | null;
+  cancelledByName: string | null;
+  createdAt: string;
+  totalLines: number;
+  countedLines: number;
+  due: StockCountDue;
+};
+export type StockCountLine = {
+  id: number;
+  productId: number;
+  productName: string;
+  sku: string;
+  categoryName: string;
+  expectedQuantity: number;
+  countedQuantity: number | null;
+  difference: number | null;
+  appliedDifference: number | null;
+  note: string | null;
+};
+export type StockCountSummary = { totalLines: number; countedLines: number; pendingLines: number; linesWithDifference: number; shortageUnits: number; surplusUnits: number };
+export type StockCountDetail = StockCount & { lines: StockCountLine[]; summary: StockCountSummary };
+export type StockCountQuery = PageQuery & { status?: StockCountStatus; from?: string; to?: string };
+export type CreateStockCountInput = { title: string; scheduledDate: string; scope: StockCountScope; categoryId?: number; note?: string };
+export type UpdateStockCountInput = { title?: string; scheduledDate?: string; note?: string | null };
+export type StockCountLineInput = { productId: number; countedQuantity: number | null; note?: string | null };
+export type AdjustmentPreviewLine = {
+  productId: number;
+  productName: string;
+  sku: string;
+  expectedQuantity: number;
+  countedQuantity: number;
+  currentStock: number;
+  difference: number;
+  kind: "SHORTAGE" | "SURPLUS";
+  stockChangedSinceStart: boolean;
+  deductions: { productBatchId: number; expiresAt: string; expired: boolean; quantity: number }[];
+  exceedsStock: boolean;
+  lastUnitCost: number | null;
+  needsExpiry: boolean;
+};
+export type AdjustmentPreview = {
+  countId: number;
+  status: StockCountStatus;
+  lines: AdjustmentPreviewLine[];
+  summary: { shortageLines: number; surplusLines: number; shortageUnits: number; surplusUnits: number; unchangedLines: number; changedSinceStart: number };
+};
+export type ApplyStockCountInput = { surplusLots: { productId: number; expiresAt: string }[] };
+export type AppliedStockCount = StockCountDetail & { adjustments: { productId: number; productName: string; sku: string; difference: number; batches: { productBatchId: number; quantity: number }[] }[] };
+
+// ------------------------------------------------------------------ Nómina (simplificada; solo ADMIN)
+export type PayFrequency = "MONTHLY" | "BIWEEKLY";
+export type PayrollStatus = "DRAFT" | "APPROVED" | "PAID";
+export type PayrollEmployee = {
+  id: number;
+  firstName: string;
+  lastName: string;
+  documentId: string;
+  position: string;
+  baseSalary: number;
+  payFrequency: PayFrequency;
+  active: boolean;
+  userId: number | null;
+  createdAt: string;
+  updatedAt: string;
+};
+export type PayrollEmployeeQuery = PageQuery & { active?: boolean; frequency?: PayFrequency };
+export type CreatePayrollEmployeeInput = { firstName: string; lastName: string; documentId: string; position: string; baseSalary: number; payFrequency: PayFrequency; userId?: number };
+export type UpdatePayrollEmployeeInput = Partial<Omit<CreatePayrollEmployeeInput, "userId">> & { active?: boolean; userId?: number | null };
+export type PayrollPerson = { id: number; firstName: string; lastName: string };
+export type PayrollPeriod = {
+  id: number;
+  frequency: PayFrequency;
+  periodStart: string;
+  periodEnd: string;
+  payDate: string;
+  status: PayrollStatus;
+  /** Lo decide el servidor: solo un borrador se edita o se elimina. */
+  editable: boolean;
+  totalGross: number;
+  totalDeductions: number;
+  totalNet: number;
+  employeeCount: number;
+  createdBy: PayrollPerson;
+  approvedBy: PayrollPerson | null;
+  paidBy: PayrollPerson | null;
+  approvedAt: string | null;
+  paidAt: string | null;
+  createdAt: string;
+};
+export type PayrollLine = {
+  id: number;
+  employeeId: number;
+  employee: { firstName: string; lastName: string; documentId: string; position: string };
+  base: number;
+  overtime: number;
+  bonuses: number;
+  transport: number;
+  health: number;
+  pension: number;
+  otherDeductions: number;
+  gross: number;
+  deductions: number;
+  net: number;
+};
+export type PayrollPeriodDetail = PayrollPeriod & { lines: PayrollLine[] };
+export type PayrollPeriodQuery = PageQuery & { status?: PayrollStatus; year?: number };
+export type CreatePayrollPeriodInput = { frequency: PayFrequency; periodStart: string; periodEnd: string; payDate: string };
+export type UpdatePayrollLineInput = { overtime?: number; bonuses?: number; transport?: number; otherDeductions?: number };
+
+/** Pedidos (`/orders`): a proveedor (SUPPLIER, ADMIN y bodega) o de cliente (CUSTOMER, ADMIN y secretaria). */
+export type OrderKind = "SUPPLIER" | "CUSTOMER";
+export type OrderStatus = "PENDING" | "PARTIAL" | "RECEIVED" | "DELIVERED" | "CANCELLED";
+export type Order = {
+  id: number;
+  kind: OrderKind;
+  supplierId: number | null;
+  supplierName: string | null;
+  customerId: number | null;
+  customerName: string | null;
+  counterpartName: string;
+  status: OrderStatus;
+  dueDate: string;
+  note: string | null;
+  total: number;
+  lineCount: number;
+  open: boolean;
+  overdue: boolean;
+  daysToDue: number;
+  createdBy: number;
+  createdByUsername: string;
+  createdAt: string;
+  updatedAt: string;
+  closedAt: string | null;
+  closedBy: number | null;
+  closedByUsername: string | null;
+  saleId: number | null;
+  saleInvoiceNumber: string | null;
+};
+export type OrderLine = { id: number; productId: number; productName: string; sku: string; quantity: number; unitPrice: number; lineTotal: number; receivedQuantity: number; pendingQuantity: number };
+export type OrderDetail = Order & { lines: OrderLine[] };
+export type OrderQuery = PageQuery & { kind?: OrderKind; status?: string; from?: string; to?: string; q?: string };
+export type OrderLineInput = { productId: number; quantity: number; unitPrice?: number };
+export type CreateOrderInput = { kind: OrderKind; supplierId?: number; customerId?: number; dueDate: string; note?: string; lines: OrderLineInput[] };
+export type UpdateOrderInput = { supplierId?: number; customerId?: number; dueDate?: string; note?: string | null; lines?: OrderLineInput[] };
+export type ReceiveOrderInput = { lines: { lineId: number; quantity: number; unitCost?: number; expiresAt: string }[] };
+export type ReceiveOrderResult = { order: OrderDetail; batches: ProductBatch[] };

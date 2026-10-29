@@ -22,6 +22,9 @@ import { ContactsScreen } from "@/screens/Contacts/ContactsScreen";
 import { LibraryScreen } from "@/screens/Library/LibraryScreen";
 import { AlarmsScreen } from "@/screens/Alarms/AlarmsScreen";
 import { CalendarScreen } from "@/screens/Calendar/CalendarScreen";
+import { OrdersScreen } from "@/screens/Orders/OrdersScreen";
+import { PayrollScreen } from "@/screens/Payroll/PayrollScreen";
+import { StockCountsScreen } from "@/screens/StockCounts/StockCountsScreen";
 import { TitaManualScreen } from "@/screens/Help/TitaManualScreen";
 import { NotFoundScreen } from "@/screens/Restricted/RestrictedScreen";
 
@@ -70,11 +73,14 @@ export const router = createBrowserRouter([
           { element: <RequireRole roles={rolesFor("/finanzas")} />, children: [{ path: "/finanzas", element: <FinanceScreen /> }, { path: "/finanzas/:tab", element: <FinanceScreen /> }] },
           protectedRoute("/reportes", <ReportsScreen />),
           protectedRoute("/biblioteca", <LibraryScreen />),
+          protectedRoute("/nomina", <PayrollScreen />),
           protectedRoute("/tita", <TitaScreen />),
           protectedRoute("/chat", <ChatScreen />),
           protectedRoute("/contactos", <ContactsScreen />),
           protectedRoute("/alarmas", <AlarmsScreen />),
+          protectedRoute("/pedidos", <OrdersScreen />),
           protectedRoute("/calendario", <CalendarScreen />),
+          protectedRoute("/conteos", <StockCountsScreen />),
           protectedRoute("/usuarios", <UsersScreen />),
           protectedRoute("/auditoria", <AuditsScreen />),
           // Mi perfil: cualquier rol, fuera del menú (se abre desde el usuario de la barra superior).

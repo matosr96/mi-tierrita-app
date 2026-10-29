@@ -30,7 +30,8 @@ Productos con stock físico, stock vendible (lo que no está vencido) y precio. 
 
 ### Calendario
 Vista de **Mes** y de **Agenda** con lo que tiene fecha: lotes por vencer y vencidos (administración y bodega), cobros
-de cartera (administración y secretaria), sus alarmas y los cierres de mes. Filtre por prioridad y por área. Lo vencido
+de cartera (administración y secretaria), pedidos por llegar o entregar (según su rol), pagos de nómina
+(administración), conteos de inventario (administración y bodega), sus alarmas y los cierres de mes. Filtre por prioridad y por área. Lo vencido
 se marca en rojo; arriba está el resumen de pendientes, vencidos y cerrados. Toque un ítem para ir a su pantalla.
 
 ### Alarmas
@@ -48,6 +49,14 @@ la escucharon. Toque su propio mensaje para ver **a quién se entregó, quién l
 con fecha y hora. **Buscar mensajes** busca por palabras o por día en el mini calendario; **Info** muestra multimedia,
 archivos, audios, enlaces, fijados y personas de la conversación. Escriba **@Tita** y una pregunta para que Tita
 responda en la conversación. En el celular el chat ocupa toda la pantalla.
+
+### Pedidos
+Dos pestañas, según su rol. **A proveedores** (administración y bodega): proveedor, productos, cantidades, costo esperado
+y fecha de llegada; al llegar la mercancía use **Recibir** e indique por línea lo que llegó, el costo real y el
+vencimiento del lote (puede recibir por partes: el pedido queda «parcial»). **De clientes** (administración y secretaria):
+los encargos con fecha de entrega; **Registrar la venta** abre el punto de venta con los productos y luego **Marcar
+entregado** lo cierra con esa venta. Los atrasados se marcan en rojo y los que vencen en dos días en ámbar; también
+llegan a la campana y al calendario.
 
 ### Biblioteca
 Documentos y enlaces importantes de la tienda, con vista previa en pantalla (PDF, imágenes y texto) sin descargarlos.
@@ -75,6 +84,14 @@ Ve todo lo común y además:
   guardarlo cuando el navegador lo permite. Las gráficas son tocables (abren su detalle) y las leyendas muestran u ocultan
   series. El **historial de reportes** dice quién generó cada archivo, cuándo, con qué filtros y su folio.
 - **Contactos del sitio**: mensajes del formulario de la página pública.
+- **Nómina**: empleados (cargo, salario base mensual, pago mensual o quincenal) y periodos. Al crear un periodo salen las
+  líneas de los empleados activos con el salario prorrateado; en borrador se anotan horas extra, bonificaciones, auxilio
+  de transporte (el valor del decreto vigente lo escribe usted) y otros descuentos. El sistema calcula salud y pensión
+  del trabajador (4 % cada una) y el neto. Luego **Aprobar** y **Marcar pagado**; el detalle se descarga en Excel. Es una
+  liquidación simplificada: no calcula prestaciones ni reemplaza la nómina electrónica de la DIAN.
+- **Conteos de inventario**: los mismos que bodega (abajo) y además **Aplicar ajuste**: antes de aplicarlo ve los
+  faltantes y sobrantes contra el stock actual; los faltantes se descuentan de los lotes que vencen primero y para cada
+  sobrante se indica el vencimiento del lote nuevo.
 - **Usuarios y roles**: crear cuentas y ver el equipo. **Auditoría**: todas las escrituras con quién, cuándo y qué cambió;
   desde la ficha de una persona, «Ver actividad» abre su auditoría filtrada.
 
@@ -84,8 +101,10 @@ Ve lo común y además:
 - **Ventas**: punto de venta (contado o crédito) e historial de ventas.
 - **Clientes y cartera**: crear y editar clientes, registrar abonos, ver saldos y cupos, comentarios por cliente.
 - **Reportes**: solo el **reporte de ventas** (con portada, QR y su historial propio).
+- **Pedidos de clientes**: crear encargos, registrar la venta y marcarlos entregados.
 - **Finanzas** aparece con candado: no tiene acceso.
-- No ve lotes, proveedores, usuarios ni auditoría. En el calendario ve cobros, alarmas y cierres (no lotes).
+- No ve lotes, proveedores, pedidos a proveedores, nómina, conteos, usuarios ni auditoría. En el calendario ve cobros,
+  encargos de clientes, alarmas y cierres.
 
 ## 4. Bodega
 
@@ -93,8 +112,12 @@ Ve lo común y además:
 - **Lotes y vencimientos**: registrar lotes, ver lo que vence y retirar lo vencido.
 - **Proveedores**: registrar compras (también desde la foto de la factura) y crear proveedores.
 - **Inventario**: crear y editar productos y categorías.
-- No ve ventas, clientes, cartera, reportes, finanzas, usuarios ni auditoría. En el calendario ve lotes, alarmas y
-  cierres (no cobros).
+- **Pedidos a proveedores**: crearlos y recibirlos (el lote y el stock se registran al recibir).
+- **Conteos de inventario**: programar un conteo (todo el inventario o una categoría), **Iniciar** (el sistema toma la
+  foto del stock), anotar lo contado producto por producto en la hoja (cómoda en el celular; Enter pasa al siguiente),
+  **Guardar avance** y **Enviar**. La administración revisa y aplica el ajuste.
+- No ve ventas, clientes, cartera, encargos de clientes, reportes, finanzas, nómina, usuarios ni auditoría. En el
+  calendario ve lotes, pedidos a proveedores, conteos, alarmas y cierres.
 
 ## 5. Qué hacer si algo falla
 - «Sin conexión»: la app reintenta sola cuando vuelve la red (los mensajes del chat quedan «en espera» y se reenvían).

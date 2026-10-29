@@ -42,6 +42,21 @@ export const ERROR_MESSAGES: Record<string, string> = {
   "674": "Este dispositivo no estaba registrado para avisos.",
   "690": "El documento o enlace no existe.",
   "691": "La persona no tiene foto de perfil.",
+  "700": "El pedido no existe.",
+  "701": "El pedido ya no está pendiente: no se puede editar.",
+  "702": "La cantidad recibida supera lo que falta por recibir en esa línea.",
+  "703": "El pedido ya está cerrado (recibido, entregado o cancelado). Actualice la pantalla.",
+  "704": "La venta no es del cliente del pedido o está anulada.",
+  "710": "El conteo de inventario no existe.",
+  "711": "El conteo ya no está en un estado que permita esa acción. Actualice la pantalla.",
+  "712": "Faltan productos por contar. Registre la cantidad de todas las líneas antes de enviar.",
+  "713": "Indique la fecha de vencimiento del lote de ajuste de cada sobrante.",
+  "714": "Un faltante es mayor que las unidades en lotes del producto. Revise el inventario.",
+  "705": "El empleado no existe.",
+  "706": "El periodo de nómina no existe.",
+  "707": "El periodo ya no admite ese cambio: solo un borrador se edita, aprueba o elimina, y solo uno aprobado se marca pagado.",
+  "708": "Ya existe un periodo de esa frecuencia con la misma fecha de inicio.",
+  "709": "No hay empleados activos con esa frecuencia de pago.",
 };
 
 export type ApiError = { code: string; message: string; details?: unknown };
