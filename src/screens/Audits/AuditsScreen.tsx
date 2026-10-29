@@ -1,3 +1,4 @@
+import { useSearchParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { useAudits } from "@/hooks/audits";
 import { useUsers } from "@/hooks/users";
@@ -25,7 +26,9 @@ const KIND_CLASS = { create: styles.kCreate, update: styles.kUpdate, remove: sty
 /** CU-18 Auditoría de escrituras (solo ADMIN): barra de filtros y bitácora agrupada por día. */
 export const AuditsScreen = () => {
   const [page, setPage] = useState(1);
-  const [userId, setUserId] = useState("");
+  // «Ver actividad» desde la ficha de persona llega con ?userId=.
+  const [params] = useSearchParams();
+  const [userId, setUserId] = useState(() => (/^\d+$/.test(params.get("userId") ?? "") ? (params.get("userId") as string) : ""));
   const [resource, setResource] = useState("");
   const [from, setFrom] = useState("");
   const [to, setTo] = useState("");

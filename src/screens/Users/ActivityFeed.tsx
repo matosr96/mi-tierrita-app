@@ -5,6 +5,7 @@ import { EmptyState, QueryState } from "@/components/ui";
 import { METHOD_VERB, methodKind } from "@/screens/Audits/auditMethod";
 import { AuditMethodBadge } from "@/screens/Audits/AuditMethodBadge";
 import { ResourcePath } from "@/screens/Audits/AuditTimeline";
+import { PersonName } from "@/components/people/PersonName";
 import styles from "./ActivityFeed.module.css";
 
 const ACTIVITY_LIMIT = 5;
@@ -37,7 +38,9 @@ export const ActivityFeed = () => {
                 </span>
                 <div className={styles.body}>
                   <p className={styles.sentence}>
-                    <strong className={styles.user}>{a.username}</strong> {METHOD_VERB[methodKind(a.method)]} <ResourcePath resource={a.resource} />
+                    <strong className={styles.user}>
+                      <PersonName userId={a.userId}>{a.username}</PersonName>
+                    </strong> {METHOD_VERB[methodKind(a.method)]} <ResourcePath resource={a.resource} />
                   </p>
                   <div className={styles.meta}>
                     <AuditMethodBadge method={a.method} />

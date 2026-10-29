@@ -1,0 +1,22 @@
+/* Nombre o avatar tocable: hereda el texto, subrayado solo al pasar el cursor o con el foco. */
+.name {
+  display: inline-flex;
+  align-items: center;
+  gap: inherit;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: inherit;
+  cursor: pointer;
+  border-radius: 6px;
+}
+.name:hover {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.name:focus-visible {
+  outline: 2px solid var(--sprout);
+  outline-offset: 2px;
+}

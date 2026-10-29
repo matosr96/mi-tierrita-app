@@ -1,0 +1,151 @@
+/* Ficha de persona: tarjeta blanca flotante (escritorio) u hoja inferior (móvil). */
+.scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 89;
+  background: var(--overlay);
+}
+.card {
+  position: fixed;
+  z-index: 90;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 18px;
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  box-shadow: var(--shadow-panel);
+  color: var(--ink);
+}
+.card:focus {
+  outline: none;
+}
+.sheet {
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 22px 18px calc(18px + env(safe-area-inset-bottom));
+  border-radius: var(--radius) var(--radius) 0 0;
+}
+.top {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding-right: 28px;
+}
+.photo {
+  position: relative;
+  flex-shrink: 0;
+}
+.dot {
+  position: absolute;
+  right: 1px;
+  bottom: 1px;
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  border: 2px solid var(--surface);
+  background: var(--muted-2);
+}
+.on {
+  background: var(--good);
+}
+.who {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.who strong {
+  font-family: var(--font-heading);
+  font-size: 18px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+}
+.who span {
+  font-size: 13px;
+  color: var(--ink-2);
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.online {
+  color: var(--good) !important;
+  font-weight: 500;
+}
+.muted {
+  margin: 0;
+  font-size: 13px;
+  color: var(--muted);
+}
+.contact {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 4px 12px;
+  margin: 0;
+  font-size: 13.5px;
+}
+.contact dt {
+  color: var(--muted);
+}
+.contact dd {
+  margin: 0;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.contact a {
+  color: var(--link);
+}
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.primary,
+.secondary {
+  display: inline-flex;
+  align-items: center;
+  height: 34px;
+  padding: 0 14px;
+  border-radius: 999px;
+  font-size: 13.5px;
+  font-weight: 500;
+  text-decoration: none;
+  transition: background-color var(--dur) ease;
+}
+.primary {
+  background: var(--sprout);
+  color: var(--sprout-ink);
+}
+.primary:hover {
+  background: var(--leaf);
+}
+.secondary {
+  background: var(--surface-2);
+  color: var(--ink-2);
+}
+.secondary:hover {
+  background: var(--hover);
+}
+.primary:focus-visible,
+.secondary:focus-visible,
+.close:focus-visible {
+  outline: 2px solid var(--sprout);
+  outline-offset: 2px;
+}
+.close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--ink-2);
+  cursor: pointer;
+}
+.close:hover {
+  background: var(--hover);
+}

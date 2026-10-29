@@ -30,3 +30,21 @@
 .isOnline {
   background: var(--good);
 }
+
+/* Avatar tocable: abre la ficha de la persona. */
+.clickable {
+  border: 0;
+  padding: 0;
+  font: inherit;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.clickable:hover {
+  background: var(--sprout-soft);
+  color: var(--forest);
+}
+.clickable:focus-visible {
+  outline: 2px solid var(--sprout);
+  outline-offset: 2px;
+}
