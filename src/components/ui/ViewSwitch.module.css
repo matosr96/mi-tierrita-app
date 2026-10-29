@@ -1,0 +1,51 @@
+/* Selector de vista en píldora: mismo lenguaje que Tabs, con icono y rótulo (solo icono en pantallas angostas). */
+.switch {
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+  gap: 2px;
+  padding: 4px;
+  border-radius: 999px;
+  background: var(--segment-bg);
+}
+.option {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 32px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--muted);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: color var(--dur) ease, background-color var(--dur) ease, box-shadow var(--dur) ease;
+}
+.option:hover {
+  color: var(--ink);
+}
+.option:focus-visible {
+  outline: 2px solid var(--sprout);
+  outline-offset: 1px;
+}
+.active,
+.active:hover {
+  background: var(--surface);
+  color: var(--ink);
+  box-shadow: var(--shadow);
+}
+.active svg {
+  color: var(--sprout);
+}
+@media (max-width: 560px) {
+  .option {
+    padding: 0 10px;
+  }
+  .text {
+    display: none;
+  }
+}

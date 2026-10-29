@@ -1,0 +1,122 @@
+/* Clientes en tarjetas: rejilla de tarjetas blancas con borde fino; toda la tarjeta abre la ficha. */
+.grid {
+  list-style: none;
+  margin: 0;
+  padding: 12px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(230px, 100%), 1fr));
+  gap: 10px;
+}
+.tile {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 0;
+  padding: 14px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  transition: border-color var(--dur) ease, background-color var(--dur) ease;
+}
+.tile:hover,
+.tile:focus-within {
+  border-color: var(--line-strong);
+  background: var(--surface-2);
+}
+.inactive .name {
+  color: var(--muted);
+}
+.hit {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  border: 0;
+  padding: 0;
+  border-radius: inherit;
+  background: transparent;
+  cursor: pointer;
+}
+.hit:focus-visible {
+  outline: 2px solid var(--sprout);
+  outline-offset: -2px;
+}
+.head,
+.figures,
+.foot {
+  position: relative;
+  z-index: 1;
+  pointer-events: none;
+}
+.head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+.identity {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+.name {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ink);
+  overflow-wrap: anywhere;
+}
+.doc {
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  color: var(--muted);
+}
+.figures {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin: 0;
+}
+.figures dt {
+  font-size: 12.5px;
+  color: var(--muted);
+}
+.figures dd {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+}
+.foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: auto;
+}
+.pay {
+  pointer-events: auto;
+  display: inline-flex;
+  align-items: center;
+  height: 30px;
+  padding: 0 12px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--line-strong);
+  background: var(--surface);
+  color: var(--ink);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color var(--dur) ease, border-color var(--dur) ease;
+}
+.pay:hover {
+  background: var(--hover);
+  border-color: var(--muted-2);
+}
+.pay:focus-visible {
+  outline: 2px solid var(--sprout);
+  outline-offset: 2px;
+}

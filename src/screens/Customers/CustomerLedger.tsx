@@ -1,12 +1,10 @@
 import type { CSSProperties } from "react";
-import { useCustomerBalance } from "@/hooks/customers";
-import { Badge } from "@/components/ui";
-import { dateOnly, int, money } from "@/lib/format";
+import { dateOnly, money } from "@/lib/format";
 import type { Customer, ReceivableRow } from "@/types/api";
 import { Monogram } from "./Monogram";
+import { CustomerStatusBadge } from "./CustomerStatusBadge";
+import { customerStatusOf } from "./customerStatus";
 import styles from "./CustomerLedger.module.css";
-
-type Status = "inactive" | "overdue" | "over" | "balance" | "clear";
 
 type Props = {
   customers: Customer[];
@@ -16,35 +14,12 @@ type Props = {
   onPay: (customer: Customer) => void;
 };
 
-/** Estado de la fila con la misma prioridad del lienzo: Inactivo, Vencida (reporte), Excedió cupo, Con saldo, Al día. */
-const statusOf = (c: Customer, row: ReceivableRow | undefined): Status => {
-  if (!c.active) return "inactive";
-  if (row?.overdue) return "overdue";
-  if (c.availableCredit < 0) return "over";
-  if (c.balance > 0) return "balance";
-  return "clear";
-};
-
-const LABEL: Record<Status, { text: string; tone: "neutral" | "good" | "warn" | "bad" }> = {
-  inactive: { text: "Inactivo", tone: "neutral" },
-  overdue: { text: "Vencida", tone: "bad" },
-  over: { text: "Excedió cupo", tone: "bad" },
-  balance: { text: "Con saldo", tone: "warn" },
-  clear: { text: "Al día", tone: "good" },
-};
-
-/** Los días sin abonar los da GET /customers/:id/balance; solo se pide para las filas vencidas. */
-const OverdueBadge = ({ id }: { id: number }) => {
-  const balance = useCustomerBalance(id);
-  return <Badge tone="bad">{balance.data ? `Vencida · ${int(balance.data.overdueDays)} días` : "Vencida"}</Badge>;
-};
-
 /** Lista de cartera: una fila por cliente con iniciales, medidor de cupo usado, disponible y abono rápido. */
 export const CustomerLedger = ({ customers, receivables, onOpen, onPay }: Props) => (
   <ul className={styles.ledger}>
     {customers.map((c) => {
       const row = receivables?.get(c.id);
-      const status = statusOf(c, row);
+      const status = customerStatusOf(c, row);
       // Proporción solo visual del medidor: saldo frente al cupo, ambos de la API.
       const fill = c.creditLimit > 0 ? Math.min(1, Math.max(0, c.balance / c.creditLimit)) : c.balance > 0 ? 1 : 0;
       const cashOnly = c.creditLimit === 0 && c.balance === 0;
@@ -95,7 +70,7 @@ export const CustomerLedger = ({ customers, receivables, onOpen, onPay }: Props)
           </div>
 
           <div className={styles.end}>
-            {status === "overdue" ? <OverdueBadge id={c.id} /> : <Badge tone={LABEL[status].tone}>{LABEL[status].text}</Badge>}
+            <CustomerStatusBadge id={c.id} status={status} />
             {canPay ? (
               <button type="button" className={styles.pay} onClick={() => onPay(c)} aria-label={`Abonar a ${c.name}`}>
                 Abonar

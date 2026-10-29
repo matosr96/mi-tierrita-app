@@ -1,10 +1,27 @@
-/* Directorio de proveedores: tabla sobre superficie blanca con borde fino. */
-.frame {
+/* Directorio en tarjetas: rejilla de tarjetas blancas sin borde, con sombra suave. */
+.grid {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(240px, 100%), 1fr));
+  gap: 10px;
+}
+.tile {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 0;
+  padding: 16px;
   background: var(--surface);
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
+  border-radius: var(--radius-sm);
   box-shadow: var(--shadow);
-  overflow: hidden;
+}
+.head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
 }
 .who {
   display: flex;
@@ -14,7 +31,7 @@
 }
 .name {
   font-size: 14px;
-  font-weight: 500;
+  font-weight: 600;
   color: var(--ink);
   overflow-wrap: anywhere;
 }
@@ -25,12 +42,27 @@
   font-size: 13px;
   color: var(--muted);
 }
+.facts {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin: 0;
+}
+.facts dt {
+  font-size: 12.5px;
+  color: var(--muted);
+}
+.facts dd {
+  margin: 0;
+  font-size: 13.5px;
+  color: var(--ink);
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
 .code {
   font-family: var(--font-mono);
   font-size: 13px;
-  color: var(--ink);
   font-variant-numeric: tabular-nums;
-  white-space: nowrap;
 }
 .missing {
   font-size: 13px;
@@ -39,9 +71,7 @@
 .phone {
   color: var(--ink);
   text-decoration: none;
-  white-space: nowrap;
   font-variant-numeric: tabular-nums;
-  transition: color var(--dur) ease;
 }
 .phone:hover {
   color: var(--link);
@@ -53,19 +83,10 @@
   border-radius: 4px;
 }
 .actions {
-  display: inline-flex;
-  justify-content: flex-end;
+  display: flex;
+  flex-wrap: wrap;
   gap: 6px;
-  white-space: nowrap;
-}
-.srOnly {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  white-space: nowrap;
-  border: 0;
+  margin-top: auto;
+  padding-top: 10px;
+  border-top: 1px solid var(--line-soft);
 }

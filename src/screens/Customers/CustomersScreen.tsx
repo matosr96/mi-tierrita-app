@@ -1,15 +1,18 @@
 import { useEffect, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import { useAiStore } from "@/stores/ai";
 import { useSessionStore } from "@/stores/session";
 import { useCustomer, useCustomers } from "@/hooks/customers";
 import { PageHeader } from "@/components/layout/AppShell";
-import { Button, Chips, EmptyState, Input, Pagination, QueryState } from "@/components/ui";
+import { Button, Chips, EmptyState, Input, Pagination, QueryState, ViewSwitch, useViewMode, type ViewMode } from "@/components/ui";
 import { int } from "@/lib/format";
 import type { Customer, CustomerQuery, ReceivableRow } from "@/types/api";
 import { AdminCartera } from "./AdminCartera";
 import { SalesCartera } from "./SalesCartera";
 import { AdminReceivables } from "./AdminReceivables";
 import { CustomerLedger } from "./CustomerLedger";
+import { CustomerCards } from "./CustomerCards";
+import { CustomerTable } from "./CustomerTable";
 import { CustomerDetailModal } from "./CustomerDetailModal";
 import { CustomerFormModal } from "./CustomerFormModal";
 import { PaymentModal } from "./PaymentModal";
@@ -29,6 +32,9 @@ const TITLES: Record<Filter, string> = {
   inactive: "Clientes inactivos",
 };
 
+/** Vista preferida del libro (`mi-tierrita:clientes-vista`); por defecto la lista de cartera de siempre. */
+const VIEW_MODES: ViewMode[] = ["cards", "list", "table"];
+
 /** Clientes y cartera (CU-12): libro de cartera con cupo usado y abono rápido, y tarjeta lateral con las cifras de cartera. */
 export const CustomersScreen = () => {
   const user = useSessionStore((s) => s.user);
@@ -37,8 +43,21 @@ export const CustomersScreen = () => {
   const [search, setSearch] = useState("");
   const debouncedSearch = useDebounced(search.trim());
   const [filter, setFilter] = useState<Filter>("all");
+  const [view, setView] = useViewMode("clientes", VIEW_MODES, "list");
   const [page, setPage] = useState(1);
-  const [selectedId, setSelectedId] = useState<number | null>(null);
+  // `?c=<id>` abre la ficha de ese cliente (enlaces desde la columna «Origen» del reporte de cartera).
+  // También lo usa la paleta (Ctrl+K): si cambia el parámetro con la pantalla abierta, se abre la nueva ficha.
+  const [params, setParams] = useSearchParams();
+  const customerParam = Number(params.get("c"));
+  const paramId = Number.isInteger(customerParam) && customerParam > 0 ? customerParam : null;
+  const [selectedId, setSelectedId] = useState<number | null>(paramId);
+  useEffect(() => {
+    if (paramId !== null) setSelectedId(paramId);
+  }, [paramId]);
+  const closeDetail = () => {
+    setSelectedId(null);
+    if (params.has("c")) setParams({}, { replace: true });
+  };
   const [payment, setPayment] = useState<{ open: boolean; customer: Customer | null; amount?: number; aiSuggested?: boolean }>({ open: false, customer: null });
   // Borrador de abono del asistente: se toma una sola vez al entrar y abre el abono prellenado cuando llega el cliente.
   const [aiPayment] = useState(() => useAiStore.getState().peekDraft("payment"));
@@ -98,15 +117,18 @@ export const CustomersScreen = () => {
               setPage(1);
             }}
           />
+          <ViewSwitch value={view} onChange={setView} modes={VIEW_MODES} ariaLabel="Vista de clientes" />
         </div>
       </header>
 
-      <div className={styles.legend} aria-hidden="true">
-        <span>Cliente</span>
-        <span>Saldo frente al cupo</span>
-        <span className={styles.legendRight}>Disponible</span>
-        <span className={styles.legendRight}>Estado</span>
-      </div>
+      {view === "list" ? (
+        <div className={styles.legend} aria-hidden="true">
+          <span>Cliente</span>
+          <span>Saldo frente al cupo</span>
+          <span className={styles.legendRight}>Disponible</span>
+          <span className={styles.legendRight}>Estado</span>
+        </div>
+      ) : null}
 
       <QueryState
         query={customers}
@@ -137,7 +159,13 @@ export const CustomersScreen = () => {
       >
         {(p) => (
           <>
-            <CustomerLedger customers={p.items} receivables={receivables} onOpen={setSelectedId} onPay={openPayment} />
+            {view === "cards" ? (
+              <CustomerCards customers={p.items} receivables={receivables} onOpen={setSelectedId} onPay={openPayment} />
+            ) : view === "table" ? (
+              <CustomerTable customers={p.items} receivables={receivables} onOpen={setSelectedId} onPay={openPayment} />
+            ) : (
+              <CustomerLedger customers={p.items} receivables={receivables} onOpen={setSelectedId} onPay={openPayment} />
+            )}
             <div className={styles.pager}>
               <Pagination page={p} onPage={setPage} />
             </div>
@@ -176,7 +204,7 @@ export const CustomersScreen = () => {
         {isAdmin ? <AdminCartera onOpen={setSelectedId} /> : <SalesCartera />}
       </div>
 
-      <CustomerDetailModal customerId={form.open ? null : selectedId} onClose={() => setSelectedId(null)} onEdit={(c) => setForm({ open: true, customer: c })} />
+      <CustomerDetailModal customerId={form.open ? null : selectedId} onClose={closeDetail} onEdit={(c) => setForm({ open: true, customer: c })} />
       <PaymentModal
         open={payment.open}
         customer={payment.customer}

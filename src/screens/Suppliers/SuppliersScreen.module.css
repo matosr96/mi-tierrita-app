@@ -24,8 +24,9 @@
   align-items: start;
 }
 @container suppliers (max-width: 900px) {
+  /* minmax(0, …): los nombres en una sola línea de «Recepciones por vencer» no deben ensanchar la columna. */
   .grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
 }
 

@@ -151,3 +151,8 @@
     align-items: flex-start;
   }
 }
+
+/* Pestañas del detalle del producto (lotes, comentarios, historial). */
+.modalTabs {
+  margin-bottom: 14px;
+}

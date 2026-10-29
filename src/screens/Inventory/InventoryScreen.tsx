@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import { PageHeader } from "@/components/layout/AppShell";
-import { Badge, Button, Card, Checkbox, Chips, DataTable, EmptyState, Input, Modal, Pagination, QueryState, Tabs, type Column } from "@/components/ui";
+import { Badge, Button, Card, Checkbox, Chips, DataTable, EmptyState, Input, Modal, Pagination, QueryState, ViewSwitch, useViewMode, type Column, type ViewMode } from "@/components/ui";
 import { useCategories } from "@/hooks/categories";
 import { useDeactivateProduct, useProducts } from "@/hooks/products";
 import { int, money } from "@/lib/format";
@@ -15,33 +16,15 @@ import { ProductFormModal } from "./ProductFormModal";
 import { ProductBatchesModal } from "./ProductBatchesModal";
 import { CategoriesModal } from "./CategoriesModal";
 import { ProductMosaic } from "./ProductMosaic";
+import { ProductList } from "./ProductList";
 import { expiredUnits, stockStatus } from "./stockStatus";
 import styles from "./InventoryScreen.module.css";
 
 const PAGE_SIZE = 20;
 
-type View = "table" | "mosaic";
-const VIEW_KEY = "mi-tierrita:inventario-vista";
-const viewOptions: { value: View; label: string }[] = [
-  { value: "table", label: "Tabla" },
-  { value: "mosaic", label: "Tarjetas" },
-];
-
-/** Vista preferida de este navegador (comodidad por usuario; si el almacenamiento falla, tabla). */
-const readView = (): View => {
-  try {
-    return window.localStorage.getItem(VIEW_KEY) === "mosaic" ? "mosaic" : "table";
-  } catch {
-    return "table";
-  }
-};
-const saveView = (v: View) => {
-  try {
-    window.localStorage.setItem(VIEW_KEY, v);
-  } catch {
-    /* sin almacenamiento: la preferencia dura solo esta visita */
-  }
-};
+/** Vista preferida (`mi-tierrita:inventario-vista`); los valores antiguos «table» y «mosaic» siguen valiendo. */
+const VIEW_MODES: ViewMode[] = ["cards", "list", "table"];
+const OPEN_HINT: Record<ViewMode, string> = { cards: "una tarjeta", list: "una fila", table: "una fila" };
 
 /** CU-05 / RF-02 Inventario: existencias por producto, lotes y mantenimiento del catálogo según el rol. */
 export const InventoryScreen = () => {
@@ -51,9 +34,17 @@ export const InventoryScreen = () => {
   const canEdit = role === "ADMIN" || role === "WAREHOUSE";
 
   const [page, setPage] = useState(1);
-  const [category, setCategory] = useState(0);
-  const [search, setSearch] = useState("");
-  const [debounced, setDebounced] = useState("");
+  // `?categoria=<id>` filtra por esa categoría (enlaces desde la columna «Origen» del reporte de inventario).
+  const [params] = useSearchParams();
+  const categoryParam = Number(params.get("categoria"));
+  const [category, setCategory] = useState(() => (Number.isInteger(categoryParam) && categoryParam > 0 ? categoryParam : 0));
+  // `?buscar=<sku>`: la paleta (Ctrl+K) abre el inventario ya filtrado por el producto elegido.
+  const paramSearch = params.get("buscar") ?? "";
+  const [search, setSearch] = useState(paramSearch);
+  const [debounced, setDebounced] = useState(paramSearch.trim());
+  useEffect(() => {
+    if (paramSearch !== "") setSearch(paramSearch);
+  }, [paramSearch]);
   const [showInactive, setShowInactive] = useState(false);
   const [formOpen, setFormOpen] = useState(false);
   const [editing, setEditing] = useState<Product | null>(null);
@@ -61,7 +52,7 @@ export const InventoryScreen = () => {
   const [categoriesOpen, setCategoriesOpen] = useState(false);
   const [registerOpen, setRegisterOpen] = useState(false);
   const [deactivating, setDeactivating] = useState<Product | null>(null);
-  const [view, setView] = useState<View>(readView);
+  const [view, setView] = useViewMode("inventario", VIEW_MODES, "table");
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -185,17 +176,8 @@ export const InventoryScreen = () => {
       <div className={styles.grid}>
         <Card
           title="Existencias"
-          subtitle={products.data ? `${int(products.data.count)} ${products.data.count === 1 ? "producto" : "productos"} · clic en ${view === "mosaic" ? "una tarjeta" : "una fila"} para ver sus lotes` : undefined}
-          actions={
-            <Tabs
-              options={viewOptions}
-              value={view}
-              onChange={(v) => {
-                setView(v);
-                saveView(v);
-              }}
-            />
-          }
+          subtitle={products.data ? `${int(products.data.count)} ${products.data.count === 1 ? "producto" : "productos"} · clic en ${OPEN_HINT[view]} para ver sus lotes` : undefined}
+          actions={<ViewSwitch value={view} onChange={setView} modes={VIEW_MODES} ariaLabel="Vista de existencias" />}
         >
           <QueryState
             query={products}
@@ -228,8 +210,10 @@ export const InventoryScreen = () => {
           >
             {(data) => (
               <>
-                {view === "mosaic" ? (
+                {view === "cards" ? (
                   <ProductMosaic products={data.items} canEdit={canEdit} isAdmin={isAdmin} onOpen={setBatchesProduct} onEdit={openEdit} onDeactivate={setDeactivating} />
+                ) : view === "list" ? (
+                  <ProductList products={data.items} onOpen={setBatchesProduct} />
                 ) : (
                   <DataTable columns={columns} rows={data.items} rowKey={(p) => p.id} onRowClick={setBatchesProduct} />
                 )}

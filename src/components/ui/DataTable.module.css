@@ -51,3 +51,85 @@
   font-weight: 600;
   border-top: 1px solid var(--line-strong);
 }
+
+/* Modo apilado (bajo 640 px, salvo `scroll`): cada fila es una tarjeta y cada celda lleva su rótulo delante. Solo en
+   pantalla: al imprimir la tabla conserva su forma. */
+@media screen and (max-width: 640px) {
+  .stack .table,
+  .stack .table tbody,
+  .stack .table tfoot,
+  .stack .table tr {
+    display: block;
+    width: 100%;
+  }
+  /* La cabecera queda solo para lectores de pantalla. */
+  .stack .table thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+  .stack .table tbody tr {
+    margin-bottom: 8px;
+    padding: 2px 14px;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-sm);
+  }
+  .stack .table tbody tr:hover {
+    background: var(--surface-2);
+  }
+  .stack .table td {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    min-width: 0;
+    padding: 8px 0;
+    text-align: right;
+    overflow-wrap: anywhere;
+    border-bottom: 1px solid var(--line-soft);
+  }
+  .stack .table td > * {
+    min-width: 0;
+  }
+  .stack .table td::before {
+    content: attr(data-label);
+    flex-shrink: 0;
+    max-width: 48%;
+    text-align: left;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--muted);
+  }
+  .stack .table td[data-label=""]::before {
+    content: none;
+  }
+  .stack .table td[data-label=""] {
+    justify-content: flex-end;
+  }
+  .stack .table td:empty {
+    display: none;
+  }
+  .stack .table tr td:last-child {
+    border-bottom: none;
+  }
+  /* Totales: otra tarjeta, en gris suave, con los mismos rótulos. */
+  .stack .table tfoot tr {
+    padding: 2px 14px;
+    background: var(--surface-2);
+    border: 1px solid var(--line-strong);
+    border-radius: var(--radius-sm);
+  }
+  .stack .table tfoot td {
+    border-top: none;
+  }
+  .stack .table tfoot td[data-label=""] {
+    justify-content: flex-start;
+  }
+}

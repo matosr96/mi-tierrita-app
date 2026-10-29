@@ -1,0 +1,88 @@
+/* Lista compacta del catálogo: una fila por producto separada por reglas finas; toda la fila abre los lotes. */
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.list li + li {
+  border-top: 1px solid var(--line-soft);
+}
+.row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 96px 110px;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 10px 8px;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color var(--dur) ease;
+}
+.row:hover {
+  background: var(--hover);
+}
+.row:focus-visible {
+  outline: 2px solid var(--sprout);
+  outline-offset: -2px;
+}
+.inactive {
+  opacity: 0.6;
+}
+.who {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  min-width: 0;
+}
+.name {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ink);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.sku {
+  flex-shrink: 0;
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  color: var(--muted);
+}
+.figure {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 1px;
+}
+.label {
+  font-size: 12px;
+  color: var(--muted);
+}
+.value {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.zero {
+  color: var(--bad);
+}
+@media (max-width: 520px) {
+  .row {
+    grid-template-columns: minmax(0, 1fr) auto auto;
+  }
+  .who {
+    flex-direction: column;
+    gap: 1px;
+  }
+  .name {
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+}

@@ -1,6 +1,7 @@
-import { Badge, Button, DataTable, type Column } from "@/components/ui";
+import { Badge } from "@/components/ui";
 import { dateOnly } from "@/lib/format";
 import type { Supplier } from "@/types/api";
+import { SupplierActions } from "./SupplierActions";
 import styles from "./SupplierCards.module.css";
 
 type Props = {
@@ -11,61 +12,38 @@ type Props = {
   onEdit: (supplier: Supplier) => void;
 };
 
-const Missing = () => <span className={styles.missing}>Sin registrar</span>;
-
-/** Directorio de proveedores en tabla: nombre, NIT, teléfono, estado y acciones de la fila. */
-export const SupplierCards = ({ suppliers, canEdit, onPurchase, onEdit }: Props) => {
-  const columns: Column<Supplier>[] = [
-    {
-      key: "name",
-      header: "Proveedor",
-      render: (s) => (
-        <div className={styles.who}>
-          <span className={[styles.name, s.active ? "" : styles.inactive].join(" ")}>{s.name}</span>
-          <span className={styles.since}>Desde {dateOnly(s.createdAt)}</span>
-        </div>
-      ),
-    },
-    { key: "taxId", header: "NIT", align: "left", render: (s) => (s.taxId ? <span className={styles.code}>{s.taxId}</span> : <Missing />) },
-    {
-      key: "phone",
-      header: "Teléfono",
-      align: "left",
-      render: (s) =>
-        s.phone ? (
-          <a href={`tel:${s.phone.replace(/\s+/g, "")}`} className={styles.phone}>
-            {s.phone}
-          </a>
-        ) : (
-          <Missing />
-        ),
-    },
-    { key: "status", header: "Estado", align: "left", render: (s) => <Badge tone={s.active ? "good" : "neutral"}>{s.active ? "Activo" : "Inactivo"}</Badge> },
-    {
-      key: "actions",
-      header: <span className={styles.srOnly}>Acciones</span>,
-      align: "right",
-      render: (s) =>
-        s.active || canEdit ? (
-          <div className={styles.actions}>
-            {s.active ? (
-              <Button variant="secondary" size="sm" onClick={() => onPurchase(s)} aria-label={`Registrar compra de ${s.name}`}>
-                Registrar compra
-              </Button>
-            ) : null}
-            {canEdit ? (
-              <Button variant="ghost" size="sm" onClick={() => onEdit(s)} aria-label={`Editar ${s.name}`}>
-                Editar
-              </Button>
-            ) : null}
+/** Directorio de proveedores en tarjetas: nombre, estado, NIT, teléfono y acciones. */
+export const SupplierCards = ({ suppliers, canEdit, onPurchase, onEdit }: Props) => (
+  <ul className={styles.grid}>
+    {suppliers.map((s) => (
+      <li key={s.id} className={styles.tile}>
+        <div className={styles.head}>
+          <div className={styles.who}>
+            <span className={[styles.name, s.active ? "" : styles.inactive].join(" ")}>{s.name}</span>
+            <span className={styles.since}>Desde {dateOnly(s.createdAt)}</span>
           </div>
-        ) : null,
-    },
-  ];
-
-  return (
-    <div className={styles.frame}>
-      <DataTable columns={columns} rows={suppliers} rowKey={(s) => s.id} />
-    </div>
-  );
-};
+          <Badge tone={s.active ? "good" : "neutral"}>{s.active ? "Activo" : "Inactivo"}</Badge>
+        </div>
+        <dl className={styles.facts}>
+          <div>
+            <dt>NIT</dt>
+            <dd>{s.taxId ? <span className={styles.code}>{s.taxId}</span> : <span className={styles.missing}>Sin registrar</span>}</dd>
+          </div>
+          <div>
+            <dt>Teléfono</dt>
+            <dd>
+              {s.phone ? (
+                <a href={`tel:${s.phone.replace(/\s+/g, "")}`} className={styles.phone}>
+                  {s.phone}
+                </a>
+              ) : (
+                <span className={styles.missing}>Sin registrar</span>
+              )}
+            </dd>
+          </div>
+        </dl>
+        <SupplierActions supplier={s} canEdit={canEdit} onPurchase={onPurchase} onEdit={onEdit} className={styles.actions} />
+      </li>
+    ))}
+  </ul>
+);

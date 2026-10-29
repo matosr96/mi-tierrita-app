@@ -5,13 +5,15 @@ import { useAiStatus } from "@/hooks/ai";
 import { useSessionStore } from "@/stores/session";
 import { int } from "@/lib/format";
 import { PageHeader } from "@/components/layout/AppShell";
-import { Button, Chips, EmptyState, Input, Pagination, QueryState } from "@/components/ui";
+import { Button, Chips, EmptyState, Input, Pagination, QueryState, ViewSwitch, useViewMode, type ViewMode } from "@/components/ui";
 import type { Supplier } from "@/types/api";
 import { SupplierFormModal } from "./SupplierFormModal";
 import { PurchaseModal } from "./PurchaseModal";
 import { InvoiceImportModal } from "./InvoiceImportModal";
 import { SupplierCounts } from "./SupplierCounts";
 import { SupplierCards } from "./SupplierCards";
+import { SupplierList } from "./SupplierList";
+import { SupplierTable } from "./SupplierTable";
 import { ExpiringPanel } from "./ExpiringPanel";
 import { useAiStore } from "@/stores/ai";
 import styles from "./SuppliersScreen.module.css";
@@ -23,6 +25,9 @@ const ACTIVE_OPTIONS: { value: ActiveFilter; label: string }[] = [
   { value: "inactive", label: "Inactivos" },
   { value: "all", label: "Todos" },
 ];
+
+/** Vista preferida del directorio (`mi-tierrita:proveedores-vista`); por defecto la tabla de siempre. */
+const VIEW_MODES: ViewMode[] = ["cards", "list", "table"];
 
 /** Ventana de vencimiento de los lotes recibidos que se muestran junto al directorio. */
 const EXPIRING_DAYS = 30;
@@ -49,6 +54,7 @@ export const SuppliersScreen = () => {
   const [page, setPage] = useState(1);
   const [filter, setFilter] = useState<ActiveFilter>("active");
   const [search, setSearch] = useState("");
+  const [view, setView] = useViewMode("proveedores", VIEW_MODES, "table");
   const [form, setForm] = useState<{ open: boolean; supplier: Supplier | null }>({ open: false, supplier: null });
   const [purchase, setPurchase] = useState<{ open: boolean; supplier: Supplier | null }>({ open: false, supplier: null });
 
@@ -99,6 +105,7 @@ export const SuppliersScreen = () => {
               setPage(1);
             }}
           />
+          <ViewSwitch value={view} onChange={setView} modes={VIEW_MODES} ariaLabel="Vista de proveedores" />
         </div>
       </header>
 
@@ -109,12 +116,19 @@ export const SuppliersScreen = () => {
       >
         {(data) => {
           const rows = data.items.filter((s) => matches(s, search));
+          const viewProps = { suppliers: rows, canEdit: isAdmin, onPurchase: openPurchase, onEdit: (s: Supplier) => setForm({ open: true, supplier: s }) };
           return (
             <>
               {rows.length === 0 ? (
                 <EmptyState title="Sin coincidencias" text={`Ningún proveedor de esta página coincide con «${search.trim()}».`} />
               ) : (
-                <SupplierCards suppliers={rows} canEdit={isAdmin} onPurchase={openPurchase} onEdit={(s) => setForm({ open: true, supplier: s })} />
+                view === "cards" ? (
+                  <SupplierCards {...viewProps} />
+                ) : view === "list" ? (
+                  <SupplierList {...viewProps} />
+                ) : (
+                  <SupplierTable {...viewProps} />
+                )
               )}
               <Pagination page={data} onPage={setPage} />
             </>
