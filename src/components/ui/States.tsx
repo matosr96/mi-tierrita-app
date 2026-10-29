@@ -52,7 +52,7 @@ export const EmptyState = ({ title, text, action }: { title: string; text?: stri
 export const ErrorState = ({ error, onRetry }: { error: unknown; onRetry?: () => void }) => {
   const e: ApiError = toApiError(error);
   return (
-    <div className={styles.box}>
+    <div className={styles.box} role="alert">
       <span className={styles.title}>No se pudo cargar</span>
       <span>{e.message}</span>
       {onRetry ? (

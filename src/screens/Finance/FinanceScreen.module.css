@@ -722,8 +722,8 @@
   display: flex;
 }
 .tabsOnBand [role="tablist"] {
-  --surface: #ffffff;
-  --ink: var(--forest);
+  --surface: var(--band-pill);
+  --ink: var(--band-pill-ink);
   --muted: var(--on-band);
   --segment-bg: var(--band-glass);
 }

@@ -175,7 +175,14 @@ table {
 @media print {
   @page {
     size: A4;
-    margin: 12mm;
+    margin: 12mm 12mm 16mm;
+    /* «Página X de Y» en el margen inferior (cajas de margen de CSS Paged Media; Chrome 131+). */
+    @bottom-right {
+      content: "Página " counter(page) " de " counter(pages);
+      font-family: "Urbanist", system-ui, sans-serif;
+      font-size: 9pt;
+      color: var(--paper-muted);
+    }
   }
   html[data-printing] body > :not(#print-root) {
     display: none !important;
@@ -185,7 +192,7 @@ table {
   }
   html[data-printing],
   html[data-printing] body {
-    background: #fff !important;
+    background: var(--white) !important;
   }
   #print-root * {
     animation: none !important;
@@ -199,5 +206,25 @@ table {
     transform: none !important;
     max-width: none !important;
     width: 100% !important;
+  }
+  /* Tablas largas: el encabezado se repite en cada página, las filas no se parten y los totales cierran la tabla. */
+  #print-root thead {
+    display: table-header-group;
+  }
+  #print-root tfoot {
+    display: table-footer-group;
+  }
+  #print-root tr {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+  #print-root [data-print-block] {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+  /* La portada ocupa su propia página. */
+  #print-root [data-print-cover] {
+    break-after: page;
+    page-break-after: always;
   }
 }

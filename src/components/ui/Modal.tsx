@@ -5,6 +5,25 @@ type Props = { open: boolean; title: string; description?: string; onClose: () =
 
 /** `viewTransitionName` (opcional) nombra el diálogo solo mientras dura un morfismo de View Transitions; sin él, el diálogo usa su propia entrada. */
 
+/** Diálogos abiertos a la vez (un modal puede abrir otro). */
+let openDialogs = 0;
+
+/**
+ * Mientras haya algún diálogo abierto el cuerpo lo indica (`data-modal-open`): así el orbe flotante de Tita y otros
+ * elementos fijos se apartan y no tapan los botones del pie en pantallas angostas. Lo usan `Modal` y los diálogos propios.
+ */
+export const useModalOpenFlag = (open: boolean) => {
+  useEffect(() => {
+    if (!open) return;
+    openDialogs += 1;
+    document.body.dataset["modalOpen"] = "1";
+    return () => {
+      openDialogs = Math.max(0, openDialogs - 1);
+      if (openDialogs === 0) delete document.body.dataset["modalOpen"];
+    };
+  }, [open]);
+};
+
 const FOCUSABLE = 'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
 
 export const Modal = ({ open, title, description, onClose, children, footer, wide = false, viewTransitionName }: Props) => {
@@ -18,6 +37,8 @@ export const Modal = ({ open, title, description, onClose, children, footer, wid
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, [open, onClose]);
+
+  useModalOpenFlag(open);
 
   // Control que abrió el diálogo: se toma al render de apertura, antes de que un campo con autoFocus se lleve el foco.
   const openerRef = useRef<HTMLElement | null>(null);

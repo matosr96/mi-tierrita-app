@@ -9,8 +9,9 @@
 :root {
   /* marca */
   --forest: #1d6b3e;
-  --leaf: #24804a;
-  --sprout: #2f9e5b;
+  --leaf: #1d7240;
+  /* --sprout oscurecido un paso (oct. 2026) para que el texto blanco de los botones pase AA (4,5:1). */
+  --sprout: #23874d;
   --sprout-ink: #ffffff;
   --sprout-soft: #e6f4ea;
   --forest-fg: #17532f;
@@ -27,14 +28,15 @@
   --line-strong: #d6ddd8;
   --hover: #f2f6f3;
   /* franja de color del encabezado (como el azul de Clerio, en verde): barra superior y título en blanco encima */
-  --hero-from: #5aa97c;
-  --hero-to: #9fd3b2;
+  /* Franja más profunda arriba: los títulos blancos grandes quedan por encima de 3:1 (AA texto grande). */
+  --hero-from: #367d55;
+  --hero-to: #86c09c;
   --band-height: 470px;
   /* degradado pastel suave (página pública, inicio de sesión) */
   --pastel-from: #dff1e5;
   --pastel-to: #f4f7f5;
   --on-band: #ffffff;
-  --on-band-muted: rgba(255, 255, 255, 0.78);
+  --on-band-muted: rgba(255, 255, 255, 0.9);
   --band-glass: rgba(255, 255, 255, 0.2);
   --band-glass-line: rgba(255, 255, 255, 0.5);
   --overlay: rgba(17, 24, 20, 0.32);
@@ -46,11 +48,12 @@
   /* texto */
   --ink: #1c2420;
   --ink-2: #4b5650;
-  --muted: #7a847e;
-  --muted-2: #a7afaa;
+  /* Grises de texto con contraste AA sobre blanco y sobre --ground (5,8:1 y 4,8:1). */
+  --muted: #5d6862;
+  --muted-2: #6b7570;
   --link: #15803d;
   /* semánticos */
-  --good: #24935a;
+  --good: #1d7f4b;
   --good-soft: #e6f4ea;
   --good-line: #b7e4c7;
   --warn: #b45309;
@@ -58,7 +61,7 @@
   --warn-line: #f5d38a;
   --warn-tag-bg: #fef3c7;
   --warn-tag-fg: #92400e;
-  --bad: #d4554f;
+  --bad: #c2423c;
   --bad-soft: #fdeeed;
   --bad-line: #fecaca;
   --bad-tag-bg: #fde8e7;
@@ -66,7 +69,7 @@
   --accent: #c2410c;
   /* barra lateral (clara) */
   --nav-ink: #47514b;
-  --nav-muted: #9aa29d;
+  --nav-muted: #6b746f;
   --nav-exit: #6b746f;
   --nav-line: #e4e7e4;
   --nav-hover: #f1f3f1;
@@ -115,5 +118,180 @@
   --dur: 0.15s;
   --dur-slow: 0.2s;
   --stagger: 0ms;
+  /* blanco fijo (no cambia con el tema): reflejos de vidrio, texto sobre la franja y píldoras sobre ella */
+  --white: #ffffff;
+  --shadow-ink: #10301e;
+  --band-pill: #ffffff;
+  --band-pill-ink: #1d6b3e;
+  --band-leaf: #eef7f1;
+  /* abanico de vidrio del Inicio y maqueta de la página pública */
+  --fan-1: #c8ecd5;
+  --fan-2: #5fbf86;
+  --fan-3: #2f9e5b;
+  --fan-4: #8fd6aa;
+  /* Tita, la mascota: tierra, ojos y mejillas */
+  --tita-soil: #c9a57f;
+  --tita-ink: #12301f;
+  --tita-cheek: #f2a7a0;
   color-scheme: light;
+}
+
+/*
+ * Modo oscuro (brief de octubre de 2026, punto 36). El tema claro sigue siendo el predeterminado; la persona elige
+ * «Oscuro» o «Del dispositivo» en Mi perfil (`html[data-theme]`, ver `lib/theme.ts`). Solo cambian las variables: las
+ * pantallas no conocen el tema. El papel de los reportes (`--paper-*`) y el logo siguen claros, como en la impresión.
+ */
+:root[data-theme="dark"] {
+  --forest: #a6e3bf;
+  --leaf: #3fb26f;
+  --sprout: #4cc07e;
+  --sprout-ink: #0f1a13;
+  --sprout-soft: #1d3527;
+  --forest-fg: #a6e3bf;
+  --on-forest: #0f1a13;
+  --app-bg: #0f1512;
+  --ground: #0f1512;
+  --surface: #1a221d;
+  --surface-2: #1f2923;
+  --surface-3: #243029;
+  --segment-bg: #202a24;
+  --line: #2a352e;
+  --line-soft: #232d27;
+  --line-strong: #36433b;
+  --hover: #25302a;
+  --hero-from: #1f4a33;
+  --hero-to: #15241b;
+  --pastel-from: #1a2c21;
+  --pastel-to: #0f1512;
+  --on-band: #ffffff;
+  --on-band-muted: rgba(255, 255, 255, 0.82);
+  --band-glass: rgba(255, 255, 255, 0.1);
+  --band-glass-line: rgba(255, 255, 255, 0.24);
+  --band-pill: #e7f3ec;
+  --band-pill-ink: #14462a;
+  --overlay: rgba(0, 0, 0, 0.55);
+  --glass: rgba(26, 34, 29, 0.92);
+  --skeleton: #242e28;
+  --skeleton-shine: rgba(255, 255, 255, 0.06);
+  --ink: #e7ede9;
+  --ink-2: #c3ccc6;
+  --muted: #9fa9a3;
+  --muted-2: #85908a;
+  --link: #6fd39a;
+  --good: #5fcf8f;
+  --good-soft: #17301f;
+  --good-line: #2b5a3c;
+  --warn: #f0b45a;
+  --warn-soft: #2e2412;
+  --warn-line: #5c4720;
+  --warn-tag-bg: #3a2c12;
+  --warn-tag-fg: #f3c77d;
+  --bad: #f08a84;
+  --bad-soft: #33191a;
+  --bad-line: #5e2c2b;
+  --bad-tag-bg: #3d1d1c;
+  --bad-tag-fg: #f5a39e;
+  --accent: #f39a62;
+  --nav-ink: #c3ccc6;
+  --nav-muted: #8f9993;
+  --nav-exit: #9fa9a3;
+  --nav-line: #2a352e;
+  --nav-hover: #222c26;
+  --nav-active: #1a221d;
+  --nav-active-rail: #4cc07e;
+  --nav-badge-bg: #3d1d1c;
+  --nav-badge-fg: #f5a39e;
+  --nav-badge-dot: #f08a84;
+  --nav-brand: #e7ede9;
+  --dark-ink: #e7ede9;
+  --dark-ink-2: #c3ccc6;
+  --dark-muted: #9fa9a3;
+  --dark-line: #2a352e;
+  --dark-glass: rgba(26, 34, 29, 0.92);
+  --dark-surface: #1a221d;
+  --dark-bad: #f08a84;
+  --dark-warn: #f0b45a;
+  --shadow-ink: #000000;
+  --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 10px 30px -18px rgba(0, 0, 0, 0.7);
+  --shadow-lift: 0 14px 34px -16px rgba(0, 0, 0, 0.7);
+  --shadow-panel: 0 24px 60px -24px rgba(0, 0, 0, 0.8);
+  color-scheme: dark;
+}
+@media (prefers-color-scheme: dark) {
+  :root[data-theme="system"] {
+    --forest: #a6e3bf;
+    --leaf: #3fb26f;
+    --sprout: #4cc07e;
+    --sprout-ink: #0f1a13;
+    --sprout-soft: #1d3527;
+    --forest-fg: #a6e3bf;
+    --on-forest: #0f1a13;
+    --app-bg: #0f1512;
+    --ground: #0f1512;
+    --surface: #1a221d;
+    --surface-2: #1f2923;
+    --surface-3: #243029;
+    --segment-bg: #202a24;
+    --line: #2a352e;
+    --line-soft: #232d27;
+    --line-strong: #36433b;
+    --hover: #25302a;
+    --hero-from: #1f4a33;
+    --hero-to: #15241b;
+    --pastel-from: #1a2c21;
+    --pastel-to: #0f1512;
+    --on-band: #ffffff;
+    --on-band-muted: rgba(255, 255, 255, 0.82);
+    --band-glass: rgba(255, 255, 255, 0.1);
+    --band-glass-line: rgba(255, 255, 255, 0.24);
+    --band-pill: #e7f3ec;
+    --band-pill-ink: #14462a;
+    --overlay: rgba(0, 0, 0, 0.55);
+    --glass: rgba(26, 34, 29, 0.92);
+    --skeleton: #242e28;
+    --skeleton-shine: rgba(255, 255, 255, 0.06);
+    --ink: #e7ede9;
+    --ink-2: #c3ccc6;
+    --muted: #9fa9a3;
+    --muted-2: #85908a;
+    --link: #6fd39a;
+    --good: #5fcf8f;
+    --good-soft: #17301f;
+    --good-line: #2b5a3c;
+    --warn: #f0b45a;
+    --warn-soft: #2e2412;
+    --warn-line: #5c4720;
+    --warn-tag-bg: #3a2c12;
+    --warn-tag-fg: #f3c77d;
+    --bad: #f08a84;
+    --bad-soft: #33191a;
+    --bad-line: #5e2c2b;
+    --bad-tag-bg: #3d1d1c;
+    --bad-tag-fg: #f5a39e;
+    --accent: #f39a62;
+    --nav-ink: #c3ccc6;
+    --nav-muted: #8f9993;
+    --nav-exit: #9fa9a3;
+    --nav-line: #2a352e;
+    --nav-hover: #222c26;
+    --nav-active: #1a221d;
+    --nav-active-rail: #4cc07e;
+    --nav-badge-bg: #3d1d1c;
+    --nav-badge-fg: #f5a39e;
+    --nav-badge-dot: #f08a84;
+    --nav-brand: #e7ede9;
+    --dark-ink: #e7ede9;
+    --dark-ink-2: #c3ccc6;
+    --dark-muted: #9fa9a3;
+    --dark-line: #2a352e;
+    --dark-glass: rgba(26, 34, 29, 0.92);
+    --dark-surface: #1a221d;
+    --dark-bad: #f08a84;
+    --dark-warn: #f0b45a;
+    --shadow-ink: #000000;
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 10px 30px -18px rgba(0, 0, 0, 0.7);
+    --shadow-lift: 0 14px 34px -16px rgba(0, 0, 0, 0.7);
+    --shadow-panel: 0 24px 60px -24px rgba(0, 0, 0, 0.8);
+    color-scheme: dark;
+  }
 }

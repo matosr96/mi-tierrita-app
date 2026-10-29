@@ -385,7 +385,7 @@
   font-size: 14px;
   font-weight: 600;
   text-decoration: none;
-  box-shadow: 0 6px 16px -10px rgba(28, 52, 38, 0.35);
+  box-shadow: 0 6px 16px -10px color-mix(in srgb, var(--shadow-ink) 35%, transparent);
 }
 
 /* ---------- actividad ---------- */
@@ -420,7 +420,7 @@
   place-items: center;
   font-size: 13px;
   font-weight: 700;
-  color: #fff;
+  color: var(--white);
 }
 .avA {
   background: var(--sprout);

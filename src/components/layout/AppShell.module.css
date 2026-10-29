@@ -6,7 +6,7 @@
 .shell {
   min-height: 100vh;
   background:
-    radial-gradient(60% 120% at 50% 0%, rgba(255, 255, 255, 0.22), transparent 60%) 0 0 / 100% var(--band-height) no-repeat,
+    radial-gradient(60% 120% at 50% 0%, color-mix(in srgb, var(--white) 22%, transparent), transparent 60%) 0 0 / 100% var(--band-height) no-repeat,
     linear-gradient(180deg, var(--hero-from) 0%, var(--hero-to) 100%) 0 0 / 100% var(--band-height) no-repeat,
     var(--ground);
 }
@@ -64,7 +64,7 @@
   padding-bottom: 12px;
   /* Opaca: con transparencia el título de la página se veía pasar por debajo al desplazar. */
   background: var(--hero-from);
-  box-shadow: 0 10px 30px -20px rgba(16, 48, 30, 0.5);
+  box-shadow: 0 10px 30px -20px color-mix(in srgb, var(--shadow-ink) 50%, transparent);
 }
 .compact .pill,
 .compact .tools {
@@ -122,7 +122,7 @@
   background: var(--surface);
   border-color: var(--surface);
   color: var(--ink);
-  box-shadow: 0 10px 24px -12px rgba(16, 48, 30, 0.45);
+  box-shadow: 0 10px 24px -12px color-mix(in srgb, var(--shadow-ink) 45%, transparent);
 }
 /* Rótulo como globo al pasar el cursor o enfocar. */
 .tip {
@@ -169,7 +169,7 @@
   padding: 0 5px;
   border-radius: 999px;
   background: var(--bad);
-  color: #fff;
+  color: var(--white);
   font-size: 11px;
   font-weight: 700;
   line-height: 18px;
@@ -285,8 +285,8 @@
   padding: 0 16px 0 7px;
   border: 0;
   border-radius: 999px;
-  background: #fff;
-  color: var(--forest);
+  background: var(--band-pill);
+  color: var(--band-pill-ink);
   font: inherit;
   font-size: 14px;
   font-weight: 600;
@@ -297,7 +297,7 @@
   background: var(--sprout-soft);
 }
 .askBtn:focus-visible {
-  outline: 2px solid #fff;
+  outline: 2px solid var(--white);
   outline-offset: 2px;
 }
 .menuBtn {
@@ -403,23 +403,29 @@
 /* Sobre la franja: botón primario blanco y secundario de vidrio (el kit se reutiliza cambiando sus variables). */
 /* Un control segmentado (Tabs) sobre la franja: píldora activa blanca con texto oscuro, el resto en blanco. */
 .pageActions [role="tablist"] {
-  --surface: #ffffff;
-  --ink: var(--forest);
+  --surface: var(--band-pill);
+  --ink: var(--band-pill-ink);
   --muted: var(--on-band);
   --segment-bg: var(--band-glass);
 }
 .pageActions {
-  --sprout: #ffffff;
-  --sprout-ink: var(--forest);
-  --leaf: #eef7f1;
+  --sprout: var(--band-pill);
+  --sprout-ink: var(--band-pill-ink);
+  --leaf: var(--band-leaf);
   --surface: var(--band-glass);
   --line-strong: var(--band-glass-line);
   --ink: var(--on-band);
-  --hover: rgba(255, 255, 255, 0.3);
+  --hover: color-mix(in srgb, var(--white) 30%, transparent);
   display: flex;
   align-items: center;
   gap: 8px;
   flex-wrap: wrap;
+  /* En pantallas angostas las acciones (y unas pestañas largas) no ensanchan la página: se acomodan o se desplazan. */
+  min-width: 0;
+  max-width: 100%;
+}
+.pageActions > * {
+  max-width: 100%;
 }
 
 @media (max-width: 1180px) {

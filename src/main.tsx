@@ -2,6 +2,10 @@ import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { App } from "./App";
 import "./styles/global.css";
+import { applyTheme } from "./lib/theme";
+
+// Apariencia elegida en Mi perfil (claro por defecto), antes del primer pintado.
+applyTheme();
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>

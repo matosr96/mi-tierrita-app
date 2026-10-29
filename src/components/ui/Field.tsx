@@ -1,4 +1,4 @@
-import type { InputHTMLAttributes, ReactNode, SelectHTMLAttributes } from "react";
+import { cloneElement, isValidElement, type InputHTMLAttributes, type ReactNode, type SelectHTMLAttributes } from "react";
 import styles from "./Field.module.css";
 
 type FieldProps = { label: string; hint?: string; error?: string | undefined; children: ReactNode; htmlFor?: string };
@@ -11,23 +11,36 @@ const ErrorIcon = () => (
   </svg>
 );
 
-/** Etiqueta + control + ayuda/error. El error puede venir del cliente o del código 400 del backend. */
-export const Field = ({ label, hint, error, children, htmlFor }: FieldProps) => (
-  <div className={styles.field}>
-    <label className={styles.label} htmlFor={htmlFor}>
-      {label}
-    </label>
-    {children}
-    {error ? (
-      <span className={styles.error}>
-        <ErrorIcon />
-        <span>{error}</span>
-      </span>
-    ) : hint ? (
-      <span className={styles.hint}>{hint}</span>
-    ) : null}
-  </div>
-);
+/**
+ * Etiqueta + control + ayuda/error. El error puede venir del cliente o del código 400 del backend. El mensaje de error
+ * se anuncia (`role="alert"`) y, cuando el campo tiene `htmlFor` y un solo control hijo, queda enlazado a él con
+ * `aria-describedby` (y `aria-invalid` mientras haya error) sin que cada formulario tenga que hacerlo.
+ */
+export const Field = ({ label, hint, error, children, htmlFor }: FieldProps) => {
+  const describedBy = htmlFor && (error || hint) ? `${htmlFor}-${error ? "error" : "hint"}` : undefined;
+  const control =
+    describedBy && isValidElement<Record<string, unknown>>(children)
+      ? cloneElement(children, { "aria-describedby": describedBy, ...(error ? { "aria-invalid": true } : {}) })
+      : children;
+  return (
+    <div className={styles.field}>
+      <label className={styles.label} htmlFor={htmlFor}>
+        {label}
+      </label>
+      {control}
+      {error ? (
+        <span className={styles.error} role="alert" id={describedBy}>
+          <ErrorIcon />
+          <span>{error}</span>
+        </span>
+      ) : hint ? (
+        <span className={styles.hint} id={describedBy}>
+          {hint}
+        </span>
+      ) : null}
+    </div>
+  );
+};
 
 type InputProps = InputHTMLAttributes<HTMLInputElement> & { invalid?: boolean };
 export const Input = ({ invalid = false, className, ...rest }: InputProps) => (

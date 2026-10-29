@@ -18,7 +18,7 @@
   bottom: 4px;
   border-radius: 999px;
   background: var(--surface);
-  box-shadow: 0 4px 12px -6px rgba(28, 52, 38, 0.25);
+  box-shadow: 0 4px 12px -6px color-mix(in srgb, var(--shadow-ink) 25%, transparent);
   transition: transform var(--dur) var(--ease-out), width var(--dur) var(--ease-out);
 }
 .tab {

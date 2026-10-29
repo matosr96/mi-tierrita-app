@@ -64,7 +64,7 @@
   z-index: 2;
   top: -44px;
   left: calc(50% - 250px);
-  filter: drop-shadow(0 16px 24px rgba(16, 60, 34, 0.25));
+  filter: drop-shadow(0 16px 24px color-mix(in srgb, var(--shadow-ink) 25%, transparent));
   animation: bob 5s ease-in-out infinite;
 }
 .glow {
@@ -235,7 +235,7 @@
   border-radius: 16px;
   background: var(--surface);
   border: 1px solid var(--line);
-  box-shadow: 0 10px 24px -20px rgba(16, 48, 30, 0.5);
+  box-shadow: 0 10px 24px -20px color-mix(in srgb, var(--shadow-ink) 50%, transparent);
   transition: background-color 0.4s ease, border-color 0.4s ease;
 }
 .cardDone {

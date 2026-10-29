@@ -49,7 +49,7 @@
   background: var(--surface);
   font-size: 13.5px;
   color: var(--muted);
-  box-shadow: 0 8px 20px -14px rgba(16, 48, 30, 0.45);
+  box-shadow: 0 8px 20px -14px color-mix(in srgb, var(--shadow-ink) 45%, transparent);
 }
 .info b {
   font-weight: 600;
@@ -101,13 +101,13 @@
 }
 /* Sobre la franja: botón primario blanco y secundario de vidrio (variables del kit redefinidas). */
 .actions {
-  --sprout: #ffffff;
-  --sprout-ink: var(--forest);
-  --leaf: #eef7f1;
+  --sprout: var(--band-pill);
+  --sprout-ink: var(--band-pill-ink);
+  --leaf: var(--band-leaf);
   --surface: var(--band-glass);
   --line-strong: var(--band-glass-line);
   --ink: var(--on-band);
-  --hover: rgba(255, 255, 255, 0.3);
+  --hover: color-mix(in srgb, var(--white) 30%, transparent);
   display: flex;
   gap: 8px;
   flex-wrap: wrap;

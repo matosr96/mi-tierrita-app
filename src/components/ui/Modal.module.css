@@ -70,9 +70,17 @@
 }
 .footer {
   display: flex;
+  flex-wrap: wrap;
   justify-content: flex-end;
   gap: 10px;
   padding-top: 4px;
+}
+/* En pantallas angostas los botones del pie se reparten el ancho y bajan de línea en vez de cortarse. */
+@media (max-width: 480px) {
+  .footer > * {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
 }
 @keyframes fade {
   from {
