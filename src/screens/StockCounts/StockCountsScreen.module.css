@@ -1,0 +1,365 @@
+/* Conteos de inventario: lista por estado en tarjetas y hoja de conteo con un renglón por producto. */
+.page {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.fixedValue {
+  display: flex;
+  align-items: center;
+  min-height: 42px;
+  font-size: 14px;
+  color: var(--ink-2);
+}
+.confirmText {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--ink-2);
+}
+.calloutText {
+  margin: 0;
+}
+.calloutActions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 12px;
+}
+.actionsRow {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+/* lista */
+.groups {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+.group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.groupTitle {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--ink-2);
+}
+.cards {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  width: 100%;
+  padding: 16px 20px;
+  border: 1px solid transparent;
+  border-radius: var(--radius);
+  background: var(--surface);
+  box-shadow: var(--shadow);
+  color: var(--ink);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: box-shadow var(--dur) var(--ease-out), border-color var(--dur) var(--ease-out);
+}
+.card:hover {
+  box-shadow: var(--shadow-lift);
+}
+.card:focus-visible {
+  outline: 2px solid var(--sprout);
+  outline-offset: 2px;
+}
+.cardToday {
+  background: var(--warn-soft);
+  border-color: var(--warn-line);
+}
+.cardOverdue {
+  background: var(--bad-soft);
+  border-color: var(--bad-line);
+}
+.cardMain {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+.cardTitle {
+  font-size: 16px;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+.cardMeta,
+.cardProgress {
+  font-size: 13px;
+  color: var(--muted);
+}
+.cardSide {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+/* hoja de conteo */
+.sheet {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.sheetHead {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+}
+.sheetTitleRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.sheetTitle {
+  margin: 0;
+  font-family: var(--font-heading);
+  font-size: 26px;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+}
+.sheetMeta {
+  margin: 0;
+  font-size: 13px;
+  color: var(--muted);
+}
+.sheetNote {
+  margin: 0;
+  font-size: 14px;
+  color: var(--ink-2);
+}
+.sheetTools {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.search {
+  flex: 1 1 240px;
+  max-width: 420px;
+}
+.lines {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  border-radius: var(--radius);
+  background: var(--surface);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+.line {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 18px;
+  border-bottom: 1px solid var(--line-soft);
+}
+.line:last-child {
+  border-bottom: 0;
+}
+.lineInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  cursor: text;
+}
+.lineName {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--ink);
+  overflow-wrap: anywhere;
+}
+.lineMeta {
+  font-size: 13px;
+  color: var(--muted);
+}
+.sku {
+  font-family: var(--font-mono);
+  font-size: 12px;
+}
+.lineDiff {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--muted);
+}
+.diffBad {
+  color: var(--bad);
+}
+.diffWarn {
+  color: var(--warn);
+}
+.countInput {
+  width: 104px;
+  height: 56px;
+  padding: 0 12px;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-sm);
+  background: var(--surface-2);
+  color: var(--ink);
+  font-family: var(--font-heading);
+  font-size: 26px;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  text-align: right;
+  outline: none;
+  transition: border-color var(--dur) ease, box-shadow var(--dur) ease;
+}
+.countInput:focus {
+  background: var(--surface);
+  border-color: var(--sprout);
+  box-shadow: 0 0 0 3px var(--sprout-soft);
+}
+.countInput[aria-invalid="true"] {
+  border-color: var(--bad);
+}
+.countValue {
+  min-width: 64px;
+  font-family: var(--font-heading);
+  font-size: 24px;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  text-align: right;
+  color: var(--ink);
+}
+/* Barra de acciones pegada abajo: a la mano mientras se recorre la lista de pie, con el celular. */
+.stickyBar {
+  position: sticky;
+  bottom: 12px;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+  padding: 12px 16px;
+  border-radius: var(--radius);
+  background: var(--surface);
+  box-shadow: var(--shadow-panel);
+}
+.stickyInfo {
+  font-size: 13px;
+  color: var(--muted);
+}
+
+/* vista previa del ajuste */
+.preview {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.previewGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.previewTitle {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--ink);
+}
+.previewList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.previewItem {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 12px 14px;
+  border-radius: var(--radius-sm);
+  background: var(--surface-2);
+}
+.previewHead {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 10px;
+}
+.previewDiff {
+  font-family: var(--font-heading);
+  font-size: 22px;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+}
+.deductions {
+  margin: 0;
+  padding-left: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 13px;
+  color: var(--ink-2);
+}
+
+@media (max-width: 640px) {
+  .card {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 14px 16px;
+  }
+  .cardSide {
+    justify-content: flex-start;
+  }
+  .line {
+    padding: 10px 14px;
+    gap: 10px;
+  }
+  .lineName {
+    font-size: 14px;
+  }
+  .countInput {
+    width: 92px;
+    height: 56px;
+    font-size: 24px;
+  }
+  .search {
+    max-width: none;
+  }
+  /* El orbe de Tita ocupa la esquina inferior derecha: la barra le deja su espacio. */
+  .stickyBar {
+    bottom: 8px;
+    margin-right: 64px;
+    padding: 10px 12px;
+  }
+  .stickyBar .actionsRow {
+    width: 100%;
+    justify-content: stretch;
+  }
+  .stickyBar .actionsRow > * {
+    flex: 1 1 auto;
+  }
+}
