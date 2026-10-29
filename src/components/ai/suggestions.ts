@@ -43,6 +43,21 @@ export const SCREEN_SUGGESTIONS: Partial<Record<AiScreen, Partial<Record<Role, s
     WAREHOUSE: ["Cree una alarma para revisar lotes por vencer a las 7:30"],
   },
   inicio: { ADMIN: ["¿Está todo bien hoy?", "¿Qué debo atender primero?"], SALES: ["¿Qué debo atender primero hoy?"], WAREHOUSE: ["¿Qué debo atender primero hoy?"] },
+  pedidos: {
+    ADMIN: ["¿Qué pedidos están atrasados?", "¿Qué pedidos a proveedores llegan esta semana?", "¿Qué encargos de clientes hay que entregar mañana?"],
+    SALES: ["¿Qué encargos de clientes hay que entregar esta semana?", "¿Hay pedidos de clientes atrasados?"],
+    WAREHOUSE: ["¿Qué pedidos a proveedores llegan esta semana?", "¿Hay pedidos atrasados por recibir?"],
+  },
+  nomina: { ADMIN: ["¿Cuándo se paga la próxima nómina y cuánto es el neto?", "¿Hay nómina sin pagar?"] },
+  conteos: {
+    ADMIN: ["¿Qué conteos de inventario están programados?", "¿Hay conteos atrasados?"],
+    WAREHOUSE: ["¿Qué conteos tengo programados esta semana?", "¿Hay conteos atrasados?"],
+  },
+  calendario: {
+    ADMIN: ["¿Qué vence esta semana?", "¿Qué tengo pendiente mañana?"],
+    SALES: ["¿Qué cobros y entregas tengo esta semana?"],
+    WAREHOUSE: ["¿Qué lotes, pedidos y conteos tengo esta semana?"],
+  },
 };
 
 export const SCREEN_LABEL: Record<AiScreen, string> = {
@@ -61,6 +76,11 @@ export const SCREEN_LABEL: Record<AiScreen, string> = {
   auditoria: "Auditoría",
   alarmas: "Alarmas",
   perfil: "Mi perfil",
+  pedidos: "Pedidos",
+  nomina: "Nómina",
+  conteos: "Conteos de inventario",
+  calendario: "Calendario",
+  biblioteca: "Biblioteca",
 };
 
 /** Sugerencias para una pantalla y rol: las de la pantalla si las hay, si no las del rol. */

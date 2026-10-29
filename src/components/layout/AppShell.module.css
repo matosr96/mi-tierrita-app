@@ -368,6 +368,12 @@
   flex-direction: column;
   gap: 18px;
 }
+/* En pantallas angostas el orbe flotante de Tita queda abajo a la derecha: espacio para que no tape la última fila. */
+@media (max-width: 900px) {
+  .content {
+    padding-bottom: 104px;
+  }
+}
 
 /* Lo que sigue al encabezado se pinta por encima de su ilustración. */
 .content > * + * {

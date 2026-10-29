@@ -6,7 +6,7 @@
   align-items: center;
   justify-content: center;
   padding: 16px;
-  z-index: 50;
+  z-index: 80;
   animation: fade 0.35s ease backwards;
 }
 .dialog {

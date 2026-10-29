@@ -1,4 +1,5 @@
 import { useEffect, useRef, type KeyboardEvent as ReactKeyboardEvent, type ReactNode } from "react";
+import { createPortal } from "react-dom";
 import styles from "./Modal.module.css";
 
 type Props = { open: boolean; title: string; description?: string; onClose: () => void; children: ReactNode; footer?: ReactNode; wide?: boolean; viewTransitionName?: string };
@@ -73,7 +74,9 @@ export const Modal = ({ open, title, description, onClose, children, footer, wid
   };
 
   if (!open) return null;
-  return (
+  // En un portal sobre <body>: el contenido de la app tiene su propio contexto de apilamiento (view-transition-name),
+  // y sin esto la barra superior quedaba por encima de los diálogos altos en pantallas angostas.
+  return createPortal(
     <div className={styles.backdrop} onMouseDown={(e) => e.target === e.currentTarget && onClose()}>
       <div className={[styles.dialog, wide ? styles.wide : "", viewTransitionName ? styles.morph : ""].join(" ")} style={viewTransitionName ? { viewTransitionName } : undefined} role="dialog" aria-modal="true" aria-label={title} ref={dialogRef} tabIndex={-1} onKeyDown={trapTab}>
         <div className={styles.head}>
@@ -90,6 +93,7 @@ export const Modal = ({ open, title, description, onClose, children, footer, wid
         {children}
         {footer !== undefined ? <div className={styles.footer}>{footer}</div> : null}
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 };

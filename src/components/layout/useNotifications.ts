@@ -60,14 +60,14 @@ export const useNotifications = () => {
       : role === "WAREHOUSE"
         ? todoItems(expiring.data?.items ?? [], products.data?.items ?? [])
         : [];
-  // Avisos de vencimiento calculados en el servidor según el rol (lotes y cartera) y alarmas que sonaron hoy.
+  // Avisos calculados en el servidor según el rol (lotes, cartera, pedidos, nómina y conteos) y alarmas que sonaron hoy.
   const due = useDueNotices({ enabled: role !== undefined });
   const dueItems: AttentionItem[] = (due.data?.items ?? []).map((d) => ({
     key: `due-${d.kind}-${d.id}`,
-    tone: d.kind === "batch_expired" || d.kind === "receivable_overdue" ? "bad" : "warn",
+    tone: d.kind === "batch_expired" || d.kind === "receivable_overdue" || d.kind === "order_overdue" || d.kind === "count_overdue" || (d.kind === "payroll_due" && /sin pagar/i.test(d.title)) ? "bad" : "warn",
     text: `${d.title}: ${d.detail}`,
     to: d.href,
-    tag: d.kind.startsWith("batch_") ? "Lotes" : "Cobrar",
+    tag: d.kind.startsWith("batch_") ? "Lotes" : d.kind.startsWith("order_") ? "Pedido" : d.kind === "payroll_due" ? "Nómina" : d.kind.startsWith("count_") ? "Conteo" : "Cobrar",
   }));
   const fires = useAlarmFires({ limit: 20 }, { enabled: role !== undefined });
   const today = todayIso();

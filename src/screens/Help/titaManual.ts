@@ -89,6 +89,7 @@ export const ROLE_MANUALS: Record<Role, RoleManual> = {
       "Clientes, saldos, cupos y cartera vencida; ventas recientes, resumen de ventas por período y búsqueda de una factura.",
       "Reporte de inventario (valorizado, por vencer y vencidos) y reporte de cartera.",
       "Proveedores, escenarios financieros (cuota, VPN, TIR), contactos del sitio público, el equipo y las recomendaciones del día.",
+      "Pedidos abiertos a proveedores y de clientes (atrasados y por llegar o entregar), la próxima nómina por pagar con su neto y los conteos de inventario programados.",
     ],
     canDo: [
       "Crear y actualizar clientes; registrar abonos; registrar y anular ventas.",
@@ -106,11 +107,12 @@ export const ROLE_MANUALS: Record<Role, RoleManual> = {
       "Productos, precios de venta y existencias vendibles; lotes de un producto; categorías.",
       "Clientes, saldos y cupos; ventas recientes, resumen de ventas por período y búsqueda de una factura.",
       "El equipo (para escribirle) y las recomendaciones del día (cobrar, reponer).",
+      "Encargos de clientes por entregar o atrasados.",
     ],
     canDo: ["Crear y actualizar clientes; registrar abonos; registrar ventas (de contado o a crédito).", "Generar el reporte de ventas; redactar mensajes de cobro; escribirle al equipo; crear alarmas."],
     examples: ["¿Cuánto vendimos hoy y cuánto fue a crédito?", "¿A quién debo cobrar primero?", "Cree el cliente Pedro Gómez, cédula 1067889900", "Venda 2 arroz de contado", "Redácteme un mensaje de cobro para Marta Pérez"],
     cannot: [
-      "Finanzas y escenarios, reporte de inventario y de cartera, lotes por vencer y proveedores: Tita responde que no está disponible para su cuenta.",
+      "Finanzas y escenarios, reporte de inventario y de cartera, lotes por vencer, proveedores, pedidos a proveedores, nómina y conteos: Tita responde que no está disponible para su cuenta.",
       "Anular ventas, desactivar productos, registrar compras o lotes.",
       "Crear usuarios ni cambiar contraseñas.",
     ],
@@ -119,14 +121,18 @@ export const ROLE_MANUALS: Record<Role, RoleManual> = {
     role: "WAREHOUSE",
     title: "Manual de Tita para Bodega",
     intro: "La cuenta de bodega maneja productos, lotes y compras. Tita consulta y prepara eso; no tiene acceso a clientes, cartera ni ventas.",
-    canAsk: ["Productos, existencias vendibles y categorías; lotes de un producto y lotes por vencer.", "Proveedores activos; el equipo; las recomendaciones del día (reponer, rotar, sin rotación)."],
+    canAsk: [
+      "Productos, existencias vendibles y categorías; lotes de un producto y lotes por vencer.",
+      "Proveedores activos; el equipo; las recomendaciones del día (reponer, rotar, sin rotación).",
+      "Pedidos a proveedores por llegar o atrasados y los conteos de inventario programados.",
+    ],
     canDo: [
       "Crear y actualizar productos; crear categorías; registrar lotes y compras (también desde la foto de una factura).",
       "Crear y actualizar proveedores; escribirle al equipo; crear alarmas.",
     ],
     examples: ["¿Qué lotes vencen esta semana?", "¿Qué productos se van a acabar pronto?", "Registre la compra de 24 leches que vencen en diciembre", "Cree el producto Sal mineralizada 25 kg en la línea de ganadería"],
     cannot: [
-      "Clientes, saldos, cartera, ventas y reportes de ventas: Tita responde que no está disponible para su cuenta.",
+      "Clientes, saldos, cartera, ventas, reportes de ventas, encargos de clientes y nómina: Tita responde que no está disponible para su cuenta.",
       "Registrar ventas o abonos, anular ventas, desactivar productos, crear escenarios.",
       "Crear usuarios ni cambiar contraseñas.",
     ],

@@ -102,6 +102,11 @@ export const screenOf = (pathname: string): AiChatRequest["screen"] | undefined 
     auditoria: "auditoria",
     alarmas: "alarmas",
     perfil: "perfil",
+    pedidos: "pedidos",
+    nomina: "nomina",
+    conteos: "conteos",
+    calendario: "calendario",
+    biblioteca: "biblioteca",
   };
   return map[first];
 };
