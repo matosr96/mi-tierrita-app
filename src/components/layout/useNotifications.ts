@@ -4,6 +4,10 @@ import { useProducts } from "@/hooks/products";
 import { useInventoryReport, useReceivablesReport } from "@/hooks/reports";
 import { useContactMessages } from "@/hooks/contact";
 import { useChatTeam } from "@/hooks/chat";
+import { useDueNotices } from "@/hooks/notifications";
+import { useAlarmFires } from "@/hooks/alarms";
+import { areaPath } from "@/screens/Alarms/alarmLabels";
+import { todayIso } from "@/lib/format";
 import { int } from "@/lib/format";
 import { useNotificationsStore } from "@/stores/notifications";
 import { useSessionStore } from "@/stores/session";
@@ -56,7 +60,21 @@ export const useNotifications = () => {
       : role === "WAREHOUSE"
         ? todoItems(expiring.data?.items ?? [], products.data?.items ?? [])
         : [];
-  const items = [...chatItem, ...roleItems];
+  // Avisos de vencimiento calculados en el servidor según el rol (lotes y cartera) y alarmas que sonaron hoy.
+  const due = useDueNotices({ enabled: role !== undefined });
+  const dueItems: AttentionItem[] = (due.data?.items ?? []).map((d) => ({
+    key: `due-${d.kind}-${d.id}`,
+    tone: d.kind === "batch_expired" || d.kind === "receivable_overdue" ? "bad" : "warn",
+    text: `${d.title}: ${d.detail}`,
+    to: d.href,
+    tag: d.kind.startsWith("batch_") ? "Lotes" : "Cobrar",
+  }));
+  const fires = useAlarmFires({ limit: 20 }, { enabled: role !== undefined });
+  const today = todayIso();
+  const alarmItems: AttentionItem[] = (fires.data?.items ?? [])
+    .filter((f) => new Date(f.firedAt).toLocaleDateString("en-CA") === today)
+    .map((f) => ({ key: `alarm-${f.id}`, tone: "neutral", text: `Alarma «${f.title}» sonó a las ${new Date(f.firedAt).toLocaleTimeString("es-CO", { hour: "numeric", minute: "2-digit" })}`, to: areaPath(f.area), tag: "Alarma" }));
+  const items = [...alarmItems, ...chatItem, ...dueItems, ...roleItems];
   const isPending = isAdmin ? inventory.isPending || receivables.isPending : role === "SALES" ? customers.isPending : products.isPending || expiring.isPending;
 
   const list: Notification[] = items.map((n) => {

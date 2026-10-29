@@ -7,6 +7,7 @@ import { emitChatEvent, useChatLiveStore } from "@/stores/chatLive";
 import { useSessionStore } from "@/stores/session";
 import { notify } from "@/stores/toasts";
 import type { ChatLiveEvent } from "@/types/api";
+import { areaPath } from "@/screens/Alarms/alarmLabels";
 
 /** Ruta de una conversación del chat (y el hilo, si lo hay). */
 export const chatPath = (peerId: number | null, threadRootId: number | null = null, messageId?: number): string => {
@@ -42,6 +43,29 @@ export const useChatRealtime = () => {
         void queryClient.invalidateQueries({ queryKey: [...keys.chat, "pins"] });
       }
       emitChatEvent(event);
+
+      // Alarma personalizada que acaba de sonar: aviso en pantalla o notificación del navegador que lleva a su área.
+      if (event.type === "alarm") {
+        void queryClient.invalidateQueries({ queryKey: keys.alarms });
+        const body = event.description ?? "Alarma programada";
+        if (document.visibilityState === "hidden" && "Notification" in window && Notification.permission === "granted") {
+          const n = new Notification(event.title, { body, tag: `alarm-${event.alarmId}`, icon: "/favicon.svg" });
+          n.onclick = () => {
+            window.focus();
+            navigate(areaPath(event.area));
+            n.close();
+          };
+        } else {
+          notify.info(`${event.title}: ${body}`);
+        }
+        return;
+      }
+      // Resumen diario de vencimientos del rol: refresca la campana y avisa.
+      if (event.type === "due") {
+        void queryClient.invalidateQueries({ queryKey: keys.notifications });
+        if (event.count > 0) notify.info(`Vencimientos de hoy: ${event.summary}`);
+        return;
+      }
 
       if (event.type !== "message" || event.authorId === me) return;
       const viewing = useChatLiveStore.getState().viewing;

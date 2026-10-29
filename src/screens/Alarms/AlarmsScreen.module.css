@@ -1,0 +1,216 @@
+/* Alarmas: tarjetas blancas sin borde con la hora grande a la izquierda y los controles a la derecha. */
+.page {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.headerActions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.item {
+  display: grid;
+  grid-template-columns: minmax(120px, 160px) minmax(0, 1fr) auto;
+  gap: 16px;
+  align-items: start;
+  padding: 18px 22px;
+  border-radius: var(--radius);
+  background: var(--surface);
+  box-shadow: var(--shadow);
+}
+.itemOff {
+  background: var(--surface-2);
+}
+.itemOff .timeBig,
+.itemOff .title {
+  color: var(--muted);
+}
+.time {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.timeBig {
+  font-family: var(--font-heading);
+  font-size: 30px;
+  font-weight: 400;
+  letter-spacing: -0.03em;
+  color: var(--ink);
+  line-height: 1.1;
+  white-space: nowrap;
+}
+.repeat {
+  font-size: 13px;
+  color: var(--muted);
+}
+.body {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+.title {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--ink);
+  overflow-wrap: anywhere;
+}
+.desc {
+  margin: 0;
+  font-size: 14px;
+  color: var(--ink-2);
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+.meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.next {
+  font-size: 13px;
+  color: var(--muted);
+}
+.controls {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 10px;
+}
+.actions {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+.confirmText {
+  margin: 0;
+  font-size: 14px;
+  color: var(--ink-2);
+}
+/* formulario */
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.days {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.day {
+  height: 34px;
+  padding: 0 14px;
+  border: 1px solid var(--line-strong);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--ink-2);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background var(--dur) var(--ease-out), color var(--dur) var(--ease-out), border-color var(--dur) var(--ease-out);
+}
+.day:focus-visible {
+  outline: 2px solid var(--sprout);
+  outline-offset: 2px;
+}
+.dayOn {
+  background: var(--sprout-soft);
+  border-color: var(--good-line);
+  color: var(--forest-fg);
+}
+/* pasadas */
+.fires {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.fire {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 20px;
+  border-radius: var(--radius);
+  background: var(--surface);
+  box-shadow: var(--shadow);
+}
+.fireBody {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.fireTitle {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--ink);
+  overflow-wrap: anywhere;
+}
+.fireDesc {
+  font-size: 13px;
+  color: var(--ink-2);
+  overflow-wrap: anywhere;
+}
+.fireWhen {
+  font-size: 13px;
+  color: var(--muted);
+}
+
+/* Con menos de 960 px los controles bajan a una fila bajo el texto: la descripción conserva su ancho. */
+@media (max-width: 960px) {
+  .item {
+    grid-template-columns: minmax(110px, 140px) minmax(0, 1fr);
+  }
+  .controls {
+    grid-column: 1 / -1;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+  }
+  .actions {
+    justify-content: flex-start;
+  }
+}
+@media (max-width: 560px) {
+  .item {
+    grid-template-columns: 1fr;
+    gap: 10px;
+    padding: 16px 18px;
+  }
+  .timeBig {
+    font-size: 26px;
+  }
+  .fire {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
