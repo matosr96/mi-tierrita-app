@@ -30,6 +30,11 @@ export const ICONS = {
   contact: '<rect x="2.5" y="5" width="17" height="12" rx="1.6"/><path d="M3 6 L11 12 L19 6"/>',
   /** Tita: su plantita en trazo (semilla con dos hojas), como su avatar; sin íconos de IA. */
   tita: '<path d="M11 10 V6.2"/><path d="M11 7.6 C 8.3 7.8 6.4 6.2 6 3.4 C 8.8 3.3 10.7 4.9 11 7.6 Z"/><path d="M11 6.6 C 13.6 6.6 15.5 5 15.9 2.4 C 13.3 2.4 11.4 3.9 11 6.6 Z"/><ellipse cx="11" cy="14.6" rx="5.6" ry="5.2"/>',
+  /** Alarmas: campana con badajo (trazo propio). */
+  alarms: '<path d="M11 3 a5 5 0 0 1 5 5 v3.4 l1.6 2.6 h-13.2 l1.6 -2.6 v-3.4 a5 5 0 0 1 5 -5 z"/><path d="M9 17 a2 2 0 0 0 4 0"/><path d="M4.2 6.2 a7.8 7.8 0 0 1 2 -2.6"/><path d="M17.8 6.2 a7.8 7.8 0 0 0 -2 -2.6"/>',
+  /** Calendario: hoja de mes con argollas y días en cuadrícula (trazo propio, distinto del de lotes). */
+  calendar: '<rect x="3" y="4.5" width="16" height="14.5" rx="2"/><line x1="3" y1="8.8" x2="19" y2="8.8"/><line x1="7.5" y1="2.5" x2="7.5" y2="6.2"/><line x1="14.5" y1="2.5" x2="14.5" y2="6.2"/><path d="M6.6 12.2 h1.6 M10.2 12.2 h1.6 M13.8 12.2 h1.6 M6.6 15.6 h1.6 M10.2 15.6 h1.6"/>',
+  library: '<path d="M3.5 4.5 h5 a2 2 0 0 1 2 2 v12 a1.5 1.5 0 0 0 -1.5 -1.5 h-5.5 z"/><path d="M18.5 4.5 h-5 a2 2 0 0 0 -2 2 v12 a1.5 1.5 0 0 1 1.5 -1.5 h5.5 z"/><line x1="6" y1="8" x2="8.5" y2="8"/><line x1="13.5" y1="8" x2="16" y2="8"/>',
   signout: '<path d="M8.6 3.5 H5 a1.6 1.6 0 0 0 -1.6 1.6 v11.8 a1.6 1.6 0 0 0 1.6 1.6 h3.6"/><path d="M13.8 7.4 L17.4 11 L13.8 14.6"/><line x1="17.1" y1="11" x2="8.8" y2="11"/>',
 } as const;
 
@@ -46,6 +51,7 @@ export const NAV_GROUPS: NavGroup[] = [
       { path: "/ventas", label: "Ventas", icon: ICONS.sales, roles: ["ADMIN", "SALES"] },
       { path: "/clientes", label: "Clientes y cartera", icon: ICONS.customers, roles: ["ADMIN", "SALES"], badge: "customers" },
       { path: "/proveedores", label: "Proveedores", icon: ICONS.suppliers, roles: ["ADMIN", "WAREHOUSE"] },
+      { path: "/calendario", label: "Calendario", icon: ICONS.calendar, roles: ALL },
     ],
   },
   {
@@ -53,6 +59,7 @@ export const NAV_GROUPS: NavGroup[] = [
     items: [
       { path: "/finanzas", label: "Finanzas y crédito", icon: ICONS.finance, roles: ["ADMIN"], lockedFor: ["SALES"] },
       { path: "/reportes", label: "Reportes", icon: ICONS.reports, roles: ["ADMIN", "SALES"] },
+      { path: "/biblioteca", label: "Biblioteca", icon: ICONS.library, roles: ALL },
     ],
   },
   {
@@ -61,6 +68,7 @@ export const NAV_GROUPS: NavGroup[] = [
       { path: "/tita", label: "Tita, asistente", icon: ICONS.tita, roles: ALL },
       { path: "/chat", label: "Chat del equipo", icon: ICONS.chat, roles: ALL, badge: "chat" },
       { path: "/contactos", label: "Contactos del sitio", icon: ICONS.contact, roles: ["ADMIN"], badge: "contact" },
+      { path: "/alarmas", label: "Alarmas", icon: ICONS.alarms, roles: ALL },
     ],
   },
   {

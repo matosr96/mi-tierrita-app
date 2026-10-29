@@ -18,6 +18,13 @@ export const keys = {
   contact: ["contact"] as const,
   chat: ["chat"] as const,
   ai: ["ai"] as const,
+  search: ["search"] as const,
+  comments: ["comments"] as const,
+  alarms: ["alarms"] as const,
+  notifications: ["notifications"] as const,
+  push: ["push"] as const,
+  library: ["library"] as const,
+  calendar: ["calendar"] as const,
 };
 
 type MutationOptions<TData> = {

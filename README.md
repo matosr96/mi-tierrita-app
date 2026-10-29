@@ -103,6 +103,11 @@ confirmación:
   borradores de mensajes de cobro y respuestas, lectura de reportes, explicación de escenarios y entrada de mercancía
   por foto de factura en Proveedores.
 
+Novedades de la Fase A (octubre de 2026): respuesta en dos pasos (202 + consulta cada 1,5 s) con avisos de error claros y
+«Intentar de nuevo»; historial de conversaciones («Historial» y «Nueva conversación»); preguntas sugeridas según la pantalla;
+autocompletado al escribir (Tab); orbe 3D en CSS con «reducir movimiento» y lanzador flotante en toda pantalla; mención
+**@Tita** en el chat del equipo y en los comentarios de un registro; manual de Tita en `/ayuda/tita` (general y por rol).
+
 ## Mapa de pantallas por rol
 
 | Pantalla | Ruta | Administrador | Secretaria (caja) | Bodega |
@@ -120,10 +125,34 @@ confirmación:
 | Tita | `/tita` | ✓ | ✓ | ✓ |
 | Chat del equipo | `/chat` | ✓ | ✓ | ✓ |
 | Contactos del sitio | `/contactos` | ✓ | | |
+| Alarmas | `/alarmas` | ✓ | ✓ | ✓ |
 | Usuarios y roles | `/usuarios` | ✓ | | |
 | Auditoría | `/auditoria` | ✓ | | |
 | Mi perfil | `/perfil`, `/perfil/:tab` | ✓ | ✓ | ✓ |
 | Acceso restringido | cualquier ruta sin permiso | ✓ | ✓ | ✓ |
+
+## Notificaciones: campana, alarmas y Web Push
+
+La campana de la barra superior reúne tres fuentes: los pendientes del Inicio de cada rol (calculados con la misma
+caché), los **avisos de vencimiento** que devuelve `GET /notifications/due` (`useDueNotices`: lotes vencidos o por
+vencer para administración y bodega; cartera vencida o a 5 días de vencer para administración y secretaría) y las
+**alarmas que sonaron hoy** (`useAlarmFires`). Las **alarmas personalizadas** (`/alarmas`, cualquier rol, brief 2026
+punto 12) se crean con título, hora de Colombia, repetición (una vez, diaria, lunes a viernes o días elegidos) y área
+del sistema; Tita también las prepara con confirmación. Cuando el planificador de la API dispara una, el evento `alarm`
+llega por el mismo stream del chat (`useChatRealtime`): aviso breve en pantalla o, con la pestaña en segundo plano y
+permiso concedido, notificación del navegador que al pulsarla abre el área de la alarma. Cada alarma se puede agregar
+al calendario del teléfono («Agregar al calendario (.ics)» y «Descargar todas (.ics)», `useDownloadAlarmIcs`). El
+interruptor «Avisos en este dispositivo» (`PushSwitch`, en Alarmas y en Mi perfil) registra el service worker
+`public/sw.js` y la suscripción Web Push en la API (`usePushSubscription`), así las alarmas y el resumen de
+vencimientos de las 07:00 llegan aunque la pestaña esté cerrada; requiere que la API tenga par VAPID.
+
+## Manual, cambios y pruebas
+
+- **Manual de usuario** por rol: [docs/manual-de-usuario.md](docs/manual-de-usuario.md). El manual de Tita está dentro de la
+  app, en `/ayuda/tita` (general y por rol).
+- **Registro de cambios**: [CHANGELOG.md](CHANGELOG.md).
+- **Pruebas**: `pnpm test` (`node:test` con `tsx`, sin navegador) cubre las funciones puras de la app: clasificación de
+  errores de Tita, sugerencias por pantalla, presencia de la ficha, apariencia, modos de vista y la rejilla del calendario.
 
 ## Producción
 

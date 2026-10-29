@@ -1,7 +1,7 @@
 import type React from "react";
 import { createBrowserRouter, Navigate } from "react-router-dom";
 import { AppShell } from "@/components/layout/AppShell";
-import { Suspense } from "react";
+import { lazy, Suspense } from "react";
 import { LandingFallback, LandingScreen, RedirectIfSession, RequireRole, RequireSession } from "./guards";
 import { rolesFor } from "./navigation";
 import { SigninScreen } from "@/screens/Signin/SigninScreen";
@@ -19,7 +19,14 @@ import { ProfileScreen } from "@/screens/Profile/ProfileScreen";
 import { ChatScreen } from "@/screens/Chat/ChatScreen";
 import { TitaScreen } from "@/screens/Tita/TitaScreen";
 import { ContactsScreen } from "@/screens/Contacts/ContactsScreen";
+import { LibraryScreen } from "@/screens/Library/LibraryScreen";
+import { AlarmsScreen } from "@/screens/Alarms/AlarmsScreen";
+import { CalendarScreen } from "@/screens/Calendar/CalendarScreen";
+import { TitaManualScreen } from "@/screens/Help/TitaManualScreen";
 import { NotFoundScreen } from "@/screens/Restricted/RestrictedScreen";
+
+/** Verificación pública de documentos (QR de la portada de los reportes), en su propio paquete. */
+const VerifyScreen = lazy(() => import("@/screens/Verify/VerifyScreen").then((m) => ({ default: m.VerifyScreen })));
 
 /** Cada ruta declara qué roles pueden verla (documento 07, sección 5). */
 const protectedRoute = (path: string, element: React.ReactElement) => ({
@@ -33,6 +40,14 @@ export const router = createBrowserRouter([
     element: (
       <Suspense fallback={<LandingFallback />}>
         <LandingScreen />
+      </Suspense>
+    ),
+  },
+  {
+    path: "/verificar/:folio",
+    element: (
+      <Suspense fallback={<LandingFallback />}>
+        <VerifyScreen />
       </Suspense>
     ),
   },
@@ -54,14 +69,20 @@ export const router = createBrowserRouter([
           protectedRoute("/proveedores", <SuppliersScreen />),
           { element: <RequireRole roles={rolesFor("/finanzas")} />, children: [{ path: "/finanzas", element: <FinanceScreen /> }, { path: "/finanzas/:tab", element: <FinanceScreen /> }] },
           protectedRoute("/reportes", <ReportsScreen />),
+          protectedRoute("/biblioteca", <LibraryScreen />),
           protectedRoute("/tita", <TitaScreen />),
           protectedRoute("/chat", <ChatScreen />),
           protectedRoute("/contactos", <ContactsScreen />),
+          protectedRoute("/alarmas", <AlarmsScreen />),
+          protectedRoute("/calendario", <CalendarScreen />),
           protectedRoute("/usuarios", <UsersScreen />),
           protectedRoute("/auditoria", <AuditsScreen />),
           // Mi perfil: cualquier rol, fuera del menú (se abre desde el usuario de la barra superior).
           { path: "/perfil", element: <ProfileScreen /> },
           { path: "/perfil/:tab", element: <ProfileScreen /> },
+          // Manual de Tita: cualquier rol, fuera del menú (se abre desde Tita).
+          { path: "/ayuda/tita", element: <TitaManualScreen /> },
+          { path: "/ayuda/tita/:rol", element: <TitaManualScreen /> },
           { path: "*", element: <NotFoundScreen /> },
         ],
       },

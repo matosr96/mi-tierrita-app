@@ -2,14 +2,15 @@ import { useEffect, useRef, useState, type ReactNode } from "react";
 import { Link, NavLink, Outlet, useLocation } from "react-router-dom";
 import { useIsFetching } from "@tanstack/react-query";
 import { useSessionStore, ROLE_LABELS } from "@/stores/session";
-import { useSignout } from "@/hooks/session";
+import { useMe, useSignout } from "@/hooks/session";
 import { NAV_GROUPS, NAV_ICONS, findRoute, isLockedFor, isVisibleFor } from "@/router/navigation";
-import { initials } from "@/lib/format";
-import { Toasts } from "@/components/ui";
+import { Toasts, UserAvatar } from "@/components/ui";
 import { useNavBadges } from "./useNavBadges";
 import { NotificationsMenu } from "./NotificationsMenu";
 import { CommandPalette } from "./CommandPalette";
 import { TitaPanel } from "@/components/ai/TitaPanel";
+import { TitaLauncher } from "@/components/ai/TitaLauncher";
+import { PersonPopover } from "@/components/people/PersonPopover";
 import { TitaAvatar } from "@/components/ai/TitaAvatar";
 import { useAiStatus } from "@/hooks/ai";
 import { useChatRealtime } from "@/hooks/chat";
@@ -53,6 +54,8 @@ const PRIMARY: Record<string, string> = {
  */
 export const AppShell = () => {
   const user = useSessionStore((s) => s.user);
+  // Datos frescos del usuario (foto incluida); mientras llegan, los de la sesión guardada.
+  const me = useMe();
   const signout = useSignout();
   const location = useLocation();
   const badges = useNavBadges();
@@ -209,7 +212,7 @@ export const AppShell = () => {
           ) : null}
           <NotificationsMenu />
           <Link to="/perfil" className={styles.user} title={`${user.firstName} ${user.lastName} · ${ROLE_LABELS[user.role]}`}>
-            <span className={styles.avatar}>{initials(user.firstName, user.lastName)}</span>
+            <UserAvatar user={me.data ?? user} size={42} className={styles.avatar} />
           </Link>
           <button type="button" className={[styles.iconBtn, styles.menuBtn].join(" ")} aria-expanded={menuOpen} aria-label="Abrir el menú" onClick={() => setMenuOpen((v) => !v)}>
             <svg width="18" height="18" viewBox="0 0 20 20" fill="none" aria-hidden="true">
@@ -248,6 +251,8 @@ export const AppShell = () => {
       <Toasts />
       <CommandPalette open={paletteOpen} onClose={() => setPaletteOpen(false)} role={user.role} />
       {ai.enabled ? <TitaPanel /> : null}
+      {ai.enabled ? <TitaLauncher /> : null}
+      <PersonPopover />
     </div>
   );
 };
