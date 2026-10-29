@@ -1,0 +1,122 @@
+/* Pedidos en lista compacta sobre superficie blanca; los vencidos y los próximos llevan un filete de color a la izquierda. */
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 4px 0;
+  background: var(--surface);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+.row {
+  position: relative;
+}
+.row + .row {
+  border-top: 1px solid var(--line-soft);
+}
+.row::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 8px;
+  bottom: 8px;
+  width: 3px;
+  border-radius: 0 3px 3px 0;
+  background: transparent;
+}
+.overdue::before {
+  background: var(--bad);
+}
+.soon::before {
+  background: var(--warn);
+}
+.rowButton {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 8px 14px;
+  width: 100%;
+  padding: 12px 18px;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+  transition: background var(--dur) ease;
+}
+.rowButton:hover {
+  background: var(--hover);
+}
+.rowButton:focus-visible {
+  outline: 2px solid var(--sprout);
+  outline-offset: -2px;
+}
+.who {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+.name {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ink);
+  overflow-wrap: anywhere;
+}
+.code {
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--muted);
+}
+.meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 14px;
+  font-size: 13px;
+  color: var(--muted);
+}
+.note {
+  max-width: 280px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.side {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+}
+.total {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.due {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+.dueDate {
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+@media (max-width: 640px) {
+  .rowButton {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .side {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .note {
+    max-width: 100%;
+  }
+}

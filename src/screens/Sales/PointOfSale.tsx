@@ -1,4 +1,5 @@
 import { useEffect, useState, type ReactNode } from "react";
+import { useNavigate } from "react-router-dom";
 import { useAiStore } from "@/stores/ai";
 import { useProducts, useProductsByIds } from "@/hooks/products";
 import { useCustomerBalance, useCustomers } from "@/hooks/customers";
@@ -65,6 +66,9 @@ export const PointOfSale = ({ tabs }: { tabs: ReactNode }) => {
     if (aiDraft) useAiStore.getState().clearDraft();
   }, [aiDraft]);
   const [fromAi, setFromAi] = useState(false);
+  // Venta preparada desde Pedidos para cobrar un encargo: no la sugirió Tita (no se marca como IA) y al terminar ofrece volver al pedido.
+  const [orderLink, setOrderLink] = useState<number | null>(aiDraft?.orderId ?? null);
+  const navigate = useNavigate();
   const draftProducts = useProductsByIds(aiDraft?.lines.map((l) => l.productId) ?? []);
   useEffect(() => {
     if (!aiDraft || !draftProducts.ready) return;
@@ -75,7 +79,7 @@ export const PointOfSale = ({ tabs }: { tabs: ReactNode }) => {
     setCart(lines);
     setCustomerId(aiDraft.customerId);
     setPaymentType(aiDraft.paymentType);
-    setFromAi(lines.length > 0);
+    setFromAi(lines.length > 0 && aiDraft.orderId === undefined);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [aiDraft, draftProducts.ready]);
 
@@ -166,6 +170,12 @@ export const PointOfSale = ({ tabs }: { tabs: ReactNode }) => {
   return (
     <>
       <PageHeader title="Punto de venta" subtitle="Los productos descuentan del inventario al confirmar." actions={tabs} />
+      {orderLink !== null && cart.length > 0 && result === null ? (
+        <Callout tone="good" title={`Venta del pedido #${orderLink}`}>
+          Revise productos, cantidades y forma de pago antes de confirmar.
+          {aiDraft && aiDraft.warnings.length > 0 ? ` ${aiDraft.warnings.join(" ")}` : ""}
+        </Callout>
+      ) : null}
       {fromAi && cart.length > 0 ? (
         <Callout tone="good" title="Venta preparada por Tita">
           Revise productos, cantidades, cliente y forma de pago antes de confirmar.
@@ -321,9 +331,22 @@ export const PointOfSale = ({ tabs }: { tabs: ReactNode }) => {
         onClose={() => setResult(null)}
         wide
         footer={
-          <Button onClick={() => setResult(null)} autoFocus>
-            Nueva venta
-          </Button>
+          <>
+            {orderLink !== null && result ? (
+              <Button variant="secondary" onClick={() => navigate(`/pedidos?tipo=cliente&pedido=${orderLink}&venta=${result.id}`)}>
+                Volver al pedido
+              </Button>
+            ) : null}
+            <Button
+              onClick={() => {
+                setResult(null);
+                setOrderLink(null);
+              }}
+              autoFocus
+            >
+              Nueva venta
+            </Button>
+          </>
         }
       >
         {result ? (
