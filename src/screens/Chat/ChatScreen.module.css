@@ -30,6 +30,36 @@
   flex: 1;
   min-width: 0;
 }
+/* "Atrás" solo existe en pantallas angostas, donde la sala tapa la bandeja. */
+.back {
+  display: none;
+  align-items: center;
+  gap: 2px;
+  flex-shrink: 0;
+  padding: 4px 8px 4px 4px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--forest);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.back:hover {
+  background: var(--hover);
+}
+.headActions {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  flex-shrink: 0;
+}
+.headBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
 .roomTitle h2 {
   margin: 0;
   font-size: 15px;
@@ -100,6 +130,39 @@
     grid-template-columns: 1fr;
   }
   .live {
+    display: none;
+  }
+  .headBtn span {
+    display: none;
+  }
+  .headBtn {
+    width: 36px;
+    padding: 0;
+    justify-content: center;
+  }
+  .roomHead {
+    gap: 8px;
+    padding: 10px 10px 10px 6px;
+  }
+  .back {
+    display: inline-flex;
+  }
+  /* Sin conversación abierta solo se ve la bandeja; con una abierta, la sala (montada en body con un portal) tapa toda
+     la pantalla, barra del armazón incluida; los paneles laterales y los modales viven dentro de ella. */
+  .room {
+    display: none;
+  }
+  .room.roomFull {
+    display: flex;
+    position: fixed;
+    inset: 0;
+    z-index: 65;
+    height: 100dvh;
+    border-radius: 0;
+    border: 0;
+    box-shadow: none;
+  }
+  .roomOpen > :first-child {
     display: none;
   }
 }

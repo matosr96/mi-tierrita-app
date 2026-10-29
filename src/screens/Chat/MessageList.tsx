@@ -32,9 +32,10 @@ type Props = {
 };
 
 /**
- * Lista de mensajes con su desplazamiento: se queda al final mientras la persona está ahí (también cuando cargan
- * fotos), conserva la posición al cargar historial arriba, abre en "Mensajes nuevos" si hay sin leer y resalta el
- * mensaje al que se salta.
+ * Lista de mensajes con su desplazamiento: abre siempre en el último mensaje (el separador "Mensajes nuevos" queda
+ * arriba, a la vista al subir), se queda al final mientras la persona está ahí (también cuando cargan fotos),
+ * conserva la posición al cargar historial arriba, resalta el mensaje al que se salta y, mientras se desplaza,
+ * muestra un chip flotante con el día del primer mensaje visible.
  */
 export const MessageList = (p: Props) => {
   const listRef = useRef<HTMLDivElement>(null);
@@ -42,9 +43,11 @@ export const MessageList = (p: Props) => {
   const stick = useRef(true);
   const prevFirst = useRef<number | undefined>(undefined);
   const prevHeight = useRef(0);
-  const opened = useRef(false);
   const [atBottom, setAtBottom] = useState(true);
   const [highlight, setHighlight] = useState<number | null>(null);
+  const [chip, setChip] = useState<string | null>(null);
+  const chipTimer = useRef<number | undefined>(undefined);
+  const chipFrame = useRef<number | undefined>(undefined);
 
   useLayoutEffect(() => {
     const el = listRef.current;
@@ -62,17 +65,13 @@ export const MessageList = (p: Props) => {
     prevHeight.current = el.scrollHeight;
   }, [p.items]);
 
-  // Al abrir: en el separador de nuevos si hay sin leer; si no, al final.
-  useLayoutEffect(() => {
-    if (opened.current || p.status !== "ready") return;
-    opened.current = true;
-    const el = listRef.current;
-    const divider = el?.querySelector<HTMLElement>("[data-unread-divider]");
-    if (el && divider && p.focusId === null) {
-      el.scrollTop = Math.max(0, divider.offsetTop - 24);
-      stick.current = el.scrollHeight - el.scrollTop - el.clientHeight < 80;
-    }
-  }, [p.status, p.focusId]);
+  useEffect(
+    () => () => {
+      window.clearTimeout(chipTimer.current);
+      if (chipFrame.current !== undefined) cancelAnimationFrame(chipFrame.current);
+    },
+    [],
+  );
 
   // Fotos que terminan de cargar o texto que cambia de alto: si estaba al final, sigue al final.
   useEffect(() => {
@@ -100,6 +99,22 @@ export const MessageList = (p: Props) => {
     return () => window.clearTimeout(t);
   }, [focusId, onFocused, p.items]);
 
+  /** Chip flotante con el día del primer mensaje visible; se calcula por cuadro y se oculta al dejar de desplazar. */
+  const updateChip = () => {
+    chipFrame.current = undefined;
+    const el = listRef.current;
+    if (!el || el.scrollHeight - el.clientHeight < 40) return;
+    const top = el.scrollTop + 8;
+    let label: string | null = null;
+    for (const day of el.querySelectorAll<HTMLElement>("[data-day]")) {
+      if (day.offsetTop - 16 <= top) label = day.dataset["day"] ?? null;
+      else break;
+    }
+    setChip(label);
+    window.clearTimeout(chipTimer.current);
+    chipTimer.current = window.setTimeout(() => setChip(null), 900);
+  };
+
   const onScroll = () => {
     const el = listRef.current;
     if (!el) return;
@@ -107,6 +122,7 @@ export const MessageList = (p: Props) => {
     stick.current = bottom && !p.hasMoreAfter;
     setAtBottom(bottom);
     if (el.scrollTop < 80 && p.hasMoreBefore && !p.loadingOlder) p.onLoadOlder();
+    if (chipFrame.current === undefined) chipFrame.current = requestAnimationFrame(updateChip);
   };
 
   const jumpLatest = () => {
@@ -118,6 +134,9 @@ export const MessageList = (p: Props) => {
 
   return (
     <div className={styles.wrap}>
+      <div className={[styles.chip, chip !== null ? styles.chipOn : ""].join(" ")} aria-hidden="true">
+        {chip ?? ""}
+      </div>
       <div ref={listRef} className={styles.list} onScroll={onScroll} role="log" aria-live="polite" aria-relevant="additions" aria-label={p.label}>
         <div ref={innerRef} className={styles.inner}>
           {p.header}
@@ -137,7 +156,11 @@ export const MessageList = (p: Props) => {
             const unreadStart = m.id === p.firstUnreadId;
             return (
               <Fragment key={m.clientId ?? m.id}>
-                {newDay ? <div className={styles.day}>{dayLabel(m.createdAt)}</div> : null}
+                {newDay ? (
+                  <div className={styles.day} data-day={dayLabel(m.createdAt)}>
+                    {dayLabel(m.createdAt)}
+                  </div>
+                ) : null}
                 {unreadStart ? (
                   <div className={styles.unread} data-unread-divider>
                     <span>Mensajes nuevos</span>
@@ -159,7 +182,7 @@ export const MessageList = (p: Props) => {
       </div>
       {!atBottom || p.hasMoreAfter ? (
         <button type="button" className={styles.latest} onClick={jumpLatest}>
-          Ir a lo más reciente ↓
+          Ir al más reciente
         </button>
       ) : null}
     </div>

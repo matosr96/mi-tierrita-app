@@ -27,6 +27,26 @@
   font-size: 12px;
   color: var(--muted);
 }
+/* Cada par de listas (hecho / falta) va lado a lado; en pantallas angostas, una bajo la otra. */
+.pair {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  padding-top: 12px;
+  border-top: 1px solid var(--line);
+}
+.pair:first-of-type {
+  border-top: 0;
+  padding-top: 0;
+}
+@media (max-width: 600px) {
+  .pair {
+    grid-template-columns: 1fr;
+  }
+}
+.section {
+  min-width: 0;
+}
 .section h3 {
   display: flex;
   align-items: center;
@@ -54,7 +74,7 @@
 .section li {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
 }
 .who {
   display: flex;
@@ -71,6 +91,11 @@
 .section time {
   font-size: 12px;
   color: var(--muted);
+}
+.section time {
+  flex-shrink: 0;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
 }
 .none {
   margin: 0;

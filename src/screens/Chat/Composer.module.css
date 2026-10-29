@@ -59,6 +59,51 @@
   opacity: 0.5;
   cursor: default;
 }
+.micOn,
+.micOn:hover:not(:disabled) {
+  border-color: var(--bad);
+  background: var(--bad-soft);
+  color: var(--bad);
+}
+/* Franja mientras se graba: punto rojo, tiempo transcurrido y botones Cancelar / Detener. */
+.recording {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 10px;
+  border-radius: var(--radius-sm);
+  background: var(--bad-soft);
+  color: var(--bad-tag-fg);
+  font-size: 13px;
+}
+.recDot {
+  width: 9px;
+  height: 9px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: var(--bad);
+}
+.recTime {
+  flex: 1;
+  min-width: 0;
+  font-variant-numeric: tabular-nums;
+}
+.recBtn {
+  padding: 4px 12px;
+  border: 1px solid var(--bad-line);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--ink-2);
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+}
+.recStop {
+  border-color: var(--sprout);
+  background: var(--sprout);
+  color: var(--sprout-ink);
+  font-weight: 600;
+}
 .reply {
   display: flex;
   align-items: flex-start;

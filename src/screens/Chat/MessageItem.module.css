@@ -61,6 +61,10 @@
 .pinned {
   box-shadow: inset 0 0 0 1px var(--good-line);
 }
+/* Mensaje propio ya enviado: tocar la burbuja abre su detalle. */
+.infoBubble {
+  cursor: pointer;
+}
 .pinTag {
   display: inline-flex;
   align-items: center;
@@ -174,6 +178,10 @@
   }
   .mine .row {
     align-items: flex-end;
+  }
+  /* En columna la burbuja ya no es un ítem que encoge: se le pone tope para que no desborde en 360 px. */
+  .bubble {
+    max-width: 100%;
   }
   .toolbar,
   .mine .toolbar {

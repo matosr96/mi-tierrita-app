@@ -8,6 +8,18 @@
 .double {
   width: 20px;
 }
+.group {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+}
+.mic {
+  width: 12px;
+  height: 13px;
+  flex-shrink: 0;
+  color: var(--muted-2);
+  transition: color var(--dur) ease;
+}
 .read {
   color: var(--sprout);
 }

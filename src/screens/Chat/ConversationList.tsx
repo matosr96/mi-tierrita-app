@@ -77,7 +77,7 @@ export const ConversationList = ({ team, loading, meId, peerId, onOpen, onOpenRe
                     {whereOf(m)} · {whenLabel(m.createdAt).toLowerCase()}
                   </small>
                   <strong>{m.userId === meId ? "Usted" : `${m.firstName} ${m.lastName}`}</strong>
-                  <span>{m.body || `📎 ${m.attachments.map((a) => a.name).join(", ")}`}</span>
+                  <span>{m.body || `Archivo: ${m.attachments.map((a) => a.name).join(", ")}`}</span>
                 </button>
               ))
             : null}

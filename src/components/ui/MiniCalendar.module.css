@@ -1,0 +1,104 @@
+/* Mini calendario: un mes en rejilla de 7 columnas, día elegido en verde, hoy con punto. */
+.calendar {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 100%;
+  max-width: 280px;
+  padding: 10px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--line);
+  background: var(--surface);
+  user-select: none;
+}
+.head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+}
+.head strong {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink);
+}
+.nav {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--ink-2);
+  cursor: pointer;
+}
+.nav:hover:not(:disabled) {
+  background: var(--hover);
+  color: var(--ink);
+}
+.nav:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+.weekdays,
+.grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 2px;
+}
+.weekdays span {
+  text-align: center;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--muted);
+}
+.blank {
+  aspect-ratio: 1;
+}
+.day {
+  position: relative;
+  aspect-ratio: 1;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--ink-2);
+  font: inherit;
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+  cursor: pointer;
+  transition: background-color var(--dur) ease, color var(--dur) ease;
+}
+.day:hover:not(:disabled) {
+  background: var(--sprout-soft);
+  color: var(--ink);
+}
+.day:focus-visible {
+  outline: 2px solid var(--sprout);
+  outline-offset: 1px;
+}
+.day:disabled {
+  color: var(--muted-2);
+  cursor: default;
+}
+.today::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: 3px;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--sprout);
+  transform: translateX(-50%);
+}
+.selected,
+.selected:hover:not(:disabled) {
+  background: var(--sprout);
+  color: var(--sprout-ink);
+}
+.selected.today::after {
+  background: var(--sprout-ink);
+}

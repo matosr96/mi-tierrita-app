@@ -1,14 +1,19 @@
-import { useState, type KeyboardEvent } from "react";
+import { useState, type KeyboardEvent, type MouseEvent } from "react";
 import type { ChatItem } from "@/hooks/chat";
 import { int } from "@/lib/format";
 import { notify } from "@/stores/toasts";
 import { ROLE_LABELS } from "@/stores/session";
 import type { ChatMessage } from "@/types/api";
 import { Avatar } from "./Avatar";
+import { PersonName } from "@/components/people/PersonName";
+import { TitaAvatar } from "@/components/ai/TitaAvatar";
+import { RichText } from "@/components/ai/RichText";
+import { TitaProposalCards } from "@/components/ai/TitaProposalCards";
+import { chatService } from "@/services/chat";
 import { AttachmentView } from "./AttachmentView";
 import { MessageBody } from "./MessageBody";
 import { Ticks, ticksLabel } from "./Ticks";
-import { timeLabel, whenLabel } from "./chatFormat";
+import { isAudio, timeLabel, whenLabel } from "./chatFormat";
 import styles from "./MessageItem.module.css";
 
 export type MessageActions = {
@@ -51,9 +56,21 @@ type Props = {
   actions: MessageActions;
 };
 
-/** Un mensaje: cita, texto con menciones, adjuntos, hora y chulitos; acciones al pasar el cursor o con el teclado. */
+/**
+ * Un mensaje: cita, texto con menciones, adjuntos, hora y chulitos; acciones al pasar el cursor o con el teclado. Tocar
+ * la burbuja de un mensaje propio abre su detalle (quién lo recibió, lo vio y reprodujo), sin estorbar a los enlaces,
+ * botones ni al reproductor que lleva dentro.
+ */
 export const MessageItem = ({ m, mine, first, general, myUsername, highlighted, actions }: Props) => {
   const sent = !m.local && m.id > 0 && !m.deleted;
+  const audio = m.attachments.some((a) => isAudio(a.mime));
+  const infoOnBubble = mine && sent;
+  const onBubbleClick = (e: MouseEvent<HTMLDivElement>) => {
+    if (!infoOnBubble || editing !== null) return;
+    if ((e.target as HTMLElement).closest("a, button, input, textarea, [data-audio-player]")) return;
+    if ((window.getSelection()?.toString() ?? "") !== "") return;
+    actions.onInfo(m);
+  };
   const [editing, setEditing] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const save = async () => {
@@ -83,16 +100,22 @@ export const MessageItem = ({ m, mine, first, general, myUsername, highlighted, 
       className={[styles.msg, mine ? styles.mine : "", first ? styles.first : "", highlighted ? styles.highlight : ""].join(" ")}
       data-message-id={sent ? m.id : undefined}
     >
-      {first ? (
+      {m.tita ? (
         <div className={styles.meta}>
-          {!mine ? <Avatar first={m.firstName} last={m.lastName} /> : null}
-          <strong>{mine ? "Usted" : `${m.firstName} ${m.lastName}`}</strong>
+          <TitaAvatar size={28} />
+          <strong>Tita</strong>
+          <span className={styles.role}>{mine ? "le responde a usted" : `le responde a ${m.firstName}`}</span>
+        </div>
+      ) : first ? (
+        <div className={styles.meta}>
+          {!mine ? <Avatar first={m.firstName} last={m.lastName} userId={m.userId} /> : null}
+          <strong>{mine ? "Usted" : <PersonName userId={m.userId}>{`${m.firstName} ${m.lastName}`}</PersonName>}</strong>
           {!mine && general ? <span className={styles.role}>{ROLE_LABELS[m.role]}</span> : null}
         </div>
       ) : null}
 
       <div className={styles.row}>
-        <div className={[styles.bubble, m.pinned ? styles.pinned : ""].join(" ")}>
+        <div className={[styles.bubble, m.pinned ? styles.pinned : "", infoOnBubble ? styles.infoBubble : ""].join(" ")} onClick={onBubbleClick}>
           {m.pinned ? (
             <span className={styles.pinTag} title={`Fijado por ${m.pinned.by.name} · ${whenLabel(m.pinned.at)}`}>
               <Icon d={ICONS.pin} /> Fijado
@@ -104,7 +127,7 @@ export const MessageItem = ({ m, mine, first, general, myUsername, highlighted, 
                 {m.replyTo.author.firstName} {m.replyTo.author.lastName}
                 {m.replyTo.privateReply ? <em> · respuesta privada a #general</em> : null}
               </strong>
-              <span>{m.replyTo.deleted ? <em>Se eliminó este mensaje</em> : m.replyTo.body || (m.replyTo.attachments > 0 ? `📎 ${int(m.replyTo.attachments)} ${m.replyTo.attachments === 1 ? "archivo" : "archivos"}` : "")}</span>
+              <span>{m.replyTo.deleted ? <em>Se eliminó este mensaje</em> : m.replyTo.body || (m.replyTo.attachments > 0 ? `${int(m.replyTo.attachments)} ${m.replyTo.attachments === 1 ? "archivo adjunto" : "archivos adjuntos"}` : "")}</span>
             </button>
           ) : null}
           {m.deleted ? (
@@ -125,6 +148,17 @@ export const MessageItem = ({ m, mine, first, general, myUsername, highlighted, 
                 </button>
               </span>
             </div>
+          ) : m.tita ? (
+            <div className={styles.text}>
+              <RichText text={m.body} />
+              <TitaProposalCards
+                proposals={m.titaProposals ?? []}
+                actions={m.titaActions}
+                canAct={mine}
+                ownerName={m.firstName}
+                persist={(input) => chatService.titaAction(m.id, input)}
+              />
+            </div>
           ) : m.body ? (
             <p className={styles.text}>
               <MessageBody body={m.body} mentions={m.mentions} myUsername={myUsername} general={general} />
@@ -133,7 +167,7 @@ export const MessageItem = ({ m, mine, first, general, myUsername, highlighted, 
           {m.attachments.length > 0 ? (
             <div className={styles.files}>
               {m.attachments.map((a) => (
-                <AttachmentView key={a.id} file={a} />
+                <AttachmentView key={a.id} file={a} messageId={m.id} mine={mine} />
               ))}
             </div>
           ) : null}
@@ -144,11 +178,11 @@ export const MessageItem = ({ m, mine, first, general, myUsername, highlighted, 
             </time>
             {mine && !m.deleted ? (
               sent ? (
-                <button type="button" className={styles.ticksBtn} onClick={() => actions.onInfo(m)} title={`${ticksLabel(m.local, m.receipts)} · ver detalle`}>
-                  <Ticks local={m.local} receipts={m.receipts} />
+                <button type="button" className={styles.ticksBtn} onClick={() => actions.onInfo(m)} title={`${ticksLabel(m.local, m.receipts, audio)} · ver detalle`}>
+                  <Ticks local={m.local} receipts={m.receipts} audio={audio} />
                 </button>
               ) : (
-                <Ticks local={m.local} receipts={m.receipts} />
+                <Ticks local={m.local} receipts={m.receipts} audio={audio} />
               )
             ) : null}
           </span>
@@ -175,7 +209,7 @@ export const MessageItem = ({ m, mine, first, general, myUsername, highlighted, 
               </button>
             ) : null}
             {mine ? (
-              <button type="button" onClick={() => actions.onInfo(m)} title="Quién lo recibió y lo leyó" aria-label="Quién lo recibió y lo leyó">
+              <button type="button" onClick={() => actions.onInfo(m)} title="Información del mensaje" aria-label="Información del mensaje">
                 <Icon d={ICONS.info} />
               </button>
             ) : null}

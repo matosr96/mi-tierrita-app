@@ -1,6 +1,6 @@
 import { http } from "@/lib/http";
 import { useSessionStore } from "@/stores/session";
-import type { ChatAttachment, ChatLiveEvent, ChatMessage, ChatPage, ChatReceipts, ChatTeam, SendChatMessageInput } from "@/types/api";
+import type { TitaActionInput, ChatAttachment, ChatLiveEvent, ChatMediaItem, ChatMediaKind, ChatMessage, ChatPage, ChatReceipts, ChatTeam, Page, SendChatMessageInput } from "@/types/api";
 
 /** Conversación: sin `with`, canal general; con `with`, el privado; con `thread`, las respuestas de ese hilo. */
 export type ChatListQuery = { with?: number; thread?: number; after?: number; before?: number; around?: number; limit?: number };
@@ -15,17 +15,30 @@ export const chatService = {
   edit: async (id: number, body: string): Promise<ChatMessage> => (await http.patch<ChatMessage>(`/chat/messages/${id}`, { body })).data,
   remove: async (id: number): Promise<ChatMessage> => (await http.delete<ChatMessage>(`/chat/messages/${id}`)).data,
   receipts: async (id: number): Promise<ChatReceipts> => (await http.get<ChatReceipts>(`/chat/messages/${id}/receipts`)).data,
+  /** Quien llama reprodujo la nota de voz del mensaje (ajeno, con audio). */
+  played: async (id: number): Promise<{ updated: number }> => (await http.post<{ updated: number }>(`/chat/messages/${id}/played`)).data,
+  titaAction: async (id: number, input: TitaActionInput): Promise<void> => {
+    await http.patch(`/chat/messages/${id}/tita-actions`, input);
+  },
+  /** Fotos, archivos, notas de voz o enlaces de una conversación, lo más reciente primero. */
+  media: async (query: { with?: number; kind: ChatMediaKind; page?: number; limit?: number }): Promise<Page<ChatMediaItem>> =>
+    (await http.get<Page<ChatMediaItem>>("/chat/media", { params: query })).data,
   pin: async (id: number): Promise<ChatMessage> => (await http.put<ChatMessage>(`/chat/messages/${id}/pin`)).data,
   unpin: async (id: number): Promise<ChatMessage> => (await http.delete<ChatMessage>(`/chat/messages/${id}/pin`)).data,
   pins: async (peerId: number | null): Promise<{ items: ChatMessage[] }> =>
     (await http.get<{ items: ChatMessage[] }>("/chat/pins", { params: peerId === null ? {} : { with: peerId } })).data,
-  search: async (query: { q: string; with?: number; general?: boolean }): Promise<{ items: ChatMessage[] }> =>
+  /** Hace falta `q` (2 letras o más) o `day` (YYYY-MM-DD, hora del negocio). */
+  search: async (query: { q?: string; day?: string; with?: number; general?: boolean }): Promise<{ items: ChatMessage[] }> =>
     (await http.get<{ items: ChatMessage[] }>("/chat/search", { params: query })).data,
-  /** Sube un archivo como cuerpo binario; queda listo para adjuntarlo al siguiente mensaje. */
-  upload: async (file: File, onProgress?: (fraction: number) => void): Promise<ChatAttachment> =>
+  /** Sube un archivo como cuerpo binario; queda listo para adjuntarlo al siguiente mensaje. `durationMs` solo en notas de voz. */
+  upload: async (file: File, onProgress?: (fraction: number) => void, durationMs?: number): Promise<ChatAttachment> =>
     (
       await http.post<ChatAttachment>("/chat/attachments", file, {
-        headers: { "Content-Type": file.type || "application/octet-stream", "X-File-Name": encodeURIComponent(file.name) },
+        headers: {
+          "Content-Type": file.type || "application/octet-stream",
+          "X-File-Name": encodeURIComponent(file.name),
+          ...(durationMs !== undefined ? { "X-Duration-Ms": String(Math.round(durationMs)) } : {}),
+        },
         timeout: 120_000,
         onUploadProgress: (e) => (onProgress && e.total ? onProgress(e.loaded / e.total) : undefined),
       })

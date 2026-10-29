@@ -10,3 +10,5 @@ export * from "./useChatAttachment";
 export * from "./useDownloadChatAttachment";
 export * from "./useEditChatMessage";
 export * from "./useDeleteChatMessage";
+export * from "./usePlayChatMessage";
+export * from "./useChatMedia";

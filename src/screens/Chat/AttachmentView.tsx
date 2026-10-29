@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { useChatAttachment, useDownloadChatAttachment } from "@/hooks/chat";
 import type { ChatAttachment } from "@/types/api";
-import { isImage, sizeLabel } from "./chatFormat";
+import { AudioPlayer } from "./AudioPlayer";
+import { isAudio, isImage, sizeLabel } from "./chatFormat";
 import styles from "./AttachmentView.module.css";
 
 const FileIcon = () => (
@@ -11,9 +12,10 @@ const FileIcon = () => (
   </svg>
 );
 
-/** Vista previa de una foto (descargada con la sesión) o ficha del archivo con su botón de descarga. */
-export const AttachmentView = ({ file }: { file: ChatAttachment }) => {
+/** Vista previa de una foto (descargada con la sesión), reproductor de una nota de voz o ficha del archivo con su botón de descarga. */
+export const AttachmentView = ({ file, messageId, mine }: { file: ChatAttachment; messageId: number; mine: boolean }) => {
   const image = isImage(file.mime);
+  if (isAudio(file.mime)) return <AudioPlayer file={file} messageId={messageId} mine={mine} />;
   const blob = useChatAttachment(file.id, { enabled: image && file.id > 0 });
   const download = useDownloadChatAttachment();
   const [url, setUrl] = useState<string | null>(null);

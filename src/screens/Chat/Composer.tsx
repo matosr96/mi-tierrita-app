@@ -1,16 +1,32 @@
 import { useEffect, useRef, useState, type ClipboardEvent, type DragEvent, type FormEvent, type KeyboardEvent } from "react";
 import { Button } from "@/components/ui";
 import { useUploadChatAttachment, type ChatDraft } from "@/hooks/chat";
+import { notify } from "@/stores/toasts";
 import type { ChatAttachment, ChatMessage } from "@/types/api";
-import { normalize, sizeLabel } from "./chatFormat";
+import { bodyOrFiles, durationLabel, normalize, sizeLabel } from "./chatFormat";
 import styles from "./Composer.module.css";
 
 export type MentionCandidate = { id: number; username: string; firstName: string; lastName: string };
 
 const MAX_FILES = 5;
 const MAX_BYTES = 10 * 1024 * 1024;
-const ACCEPT = "image/jpeg,image/png,image/webp,image/gif,application/pdf,text/plain,text/csv,.csv,.xlsx,.xls,.docx,.doc";
+const ACCEPT = "image/jpeg,image/png,image/webp,image/gif,audio/webm,audio/ogg,audio/mp4,audio/mpeg,.m4a,.mp3,application/pdf,text/plain,text/csv,.csv,.xlsx,.xls,.docx,.doc";
+/** Tope de una nota de voz grabada aquí (se detiene sola). */
+const RECORD_MAX_MS = 5 * 60_000;
+
+/** Formato que el navegador sabe grabar: WebM/Opus (Chrome, Firefox), si no MP4 (Safari); null si no graba. */
+const recordingMime = (): string | null => {
+  if (typeof MediaRecorder === "undefined" || typeof navigator === "undefined" || !navigator.mediaDevices?.getUserMedia) return null;
+  for (const mime of ["audio/webm;codecs=opus", "audio/webm", "audio/mp4", "audio/ogg;codecs=opus"]) if (MediaRecorder.isTypeSupported(mime)) return mime;
+  return null;
+};
+const RECORD_MIME = recordingMime();
+const recordingExt = (mime: string): string => (mime.startsWith("audio/mp4") ? "m4a" : mime.startsWith("audio/ogg") ? "ogg" : "webm");
+
+type Recording = { recorder: MediaRecorder; stream: MediaStream; chunks: Blob[]; startedAt: number; cancelled: boolean };
 const EVERYONE: MentionCandidate = { id: 0, username: "todos", firstName: "Todo el", lastName: "equipo" };
+/** @Tita: la asistente responde en la misma conversación con los datos de quien la menciona. */
+const TITA: MentionCandidate = { id: -1, username: "Tita", firstName: "Tita", lastName: "(asistente)" };
 
 /** Borradores por conversación mientras la app está abierta (cambiar de chat no borra lo escrito). */
 const drafts = new Map<string, string>();
@@ -45,6 +61,9 @@ export const Composer = ({ scopeKey, placeholder, label, candidates, allowEveryo
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const fileRef = useRef<HTMLInputElement>(null);
   const upload = useUploadChatAttachment();
+  const recording = useRef<Recording | null>(null);
+  const [recordingMs, setRecordingMs] = useState<number | null>(null);
+  const [sendingVoice, setSendingVoice] = useState(false);
 
   useEffect(() => {
     drafts.set(scopeKey, text);
@@ -54,7 +73,7 @@ export const Composer = ({ scopeKey, placeholder, label, candidates, allowEveryo
   }, [replyTo, autoFocus]);
 
   const options = mention
-    ? [...(allowEveryone ? [EVERYONE] : []), ...candidates].filter((c) => normalize(`${c.username} ${c.firstName} ${c.lastName}`).includes(normalize(mention.query))).slice(0, 6)
+    ? [...(allowEveryone ? [EVERYONE] : []), TITA, ...candidates].filter((c) => normalize(`${c.username} ${c.firstName} ${c.lastName}`).includes(normalize(mention.query))).slice(0, 6)
     : [];
 
   const addFiles = (files: File[]) => {
@@ -74,6 +93,66 @@ export const Composer = ({ scopeKey, placeholder, label, candidates, allowEveryo
           () => setUploads((u) => u.map((x) => (x.key === key ? { ...x, failed: true } : x))),
         );
     }
+  };
+
+  /** Detiene la grabación; con `cancel`, descarta lo grabado. */
+  const stopRecording = (cancel: boolean) => {
+    const r = recording.current;
+    if (!r) return;
+    r.cancelled = cancel;
+    if (r.recorder.state !== "inactive") r.recorder.stop();
+    else r.stream.getTracks().forEach((t) => t.stop());
+  };
+  useEffect(() => () => stopRecording(true), []);
+  const isRecording = recordingMs !== null;
+  useEffect(() => {
+    if (!isRecording) return;
+    const t = window.setInterval(() => {
+      const r = recording.current;
+      if (!r) return;
+      const ms = Date.now() - r.startedAt;
+      setRecordingMs(ms);
+      if (ms >= RECORD_MAX_MS) stopRecording(false);
+    }, 250);
+    return () => window.clearInterval(t);
+  }, [isRecording]);
+
+  /** Graba una nota de voz con el micrófono; al detener se sube con su duración y se envía como mensaje sin texto. */
+  const startRecording = async () => {
+    if (RECORD_MIME === null || recording.current) return;
+    let stream: MediaStream;
+    try {
+      stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    } catch {
+      notify.error("No se pudo usar el micrófono. Revise el permiso del navegador.");
+      return;
+    }
+    const recorder = new MediaRecorder(stream, { mimeType: RECORD_MIME });
+    const r: Recording = { recorder, stream, chunks: [], startedAt: Date.now(), cancelled: false };
+    recording.current = r;
+    recorder.ondataavailable = (e) => {
+      if (e.data.size > 0) r.chunks.push(e.data);
+    };
+    recorder.onstop = () => {
+      stream.getTracks().forEach((t) => t.stop());
+      recording.current = null;
+      setRecordingMs(null);
+      const durationMs = Date.now() - r.startedAt;
+      if (r.cancelled || r.chunks.length === 0 || durationMs < 500) return;
+      const mime = RECORD_MIME.split(";")[0]!;
+      const file = new File(r.chunks, `Nota de voz ${new Date().toLocaleTimeString("es-CO", { hour: "2-digit", minute: "2-digit" }).replace(/\s/g, "")}.${recordingExt(mime)}`, { type: mime });
+      setSendingVoice(true);
+      upload
+        .mutateAsync({ file, durationMs })
+        .then(async (done) => {
+          await onSend({ body: "", replyTo, attachments: [done] });
+          onCancelReply();
+        })
+        .catch(() => undefined)
+        .finally(() => setSendingVoice(false));
+    };
+    recorder.start(250);
+    setRecordingMs(0);
   };
 
   const uploading = uploads.some((u) => !u.done && !u.failed);
@@ -177,7 +256,7 @@ export const Composer = ({ scopeKey, placeholder, label, candidates, allowEveryo
               {privateReply ? "Respuesta privada a" : "Respondiendo a"} {replyTo.firstName} {replyTo.lastName}
               {privateReply ? <em> · mensaje de #general (no se publica en el canal)</em> : null}
             </strong>
-            <span>{replyTo.body || `📎 ${replyTo.attachments.length} ${replyTo.attachments.length === 1 ? "archivo" : "archivos"}`}</span>
+            <span>{bodyOrFiles(replyTo)}</span>
           </div>
           <button type="button" onClick={onCancelReply} aria-label="Quitar la cita" title="Quitar la cita (Esc)">
             ×
@@ -201,8 +280,37 @@ export const Composer = ({ scopeKey, placeholder, label, candidates, allowEveryo
         </ul>
       ) : null}
 
+      {recordingMs !== null ? (
+        <div className={styles.recording} role="status" aria-live="polite">
+          <span className={styles.recDot} aria-hidden="true" />
+          <span className={styles.recTime}>Grabando nota de voz · {durationLabel(recordingMs)}</span>
+          <button type="button" className={styles.recBtn} onClick={() => stopRecording(true)}>
+            Cancelar
+          </button>
+          <button type="button" className={[styles.recBtn, styles.recStop].join(" ")} onClick={() => stopRecording(false)}>
+            Detener
+          </button>
+        </div>
+      ) : null}
+
       <div className={styles.row}>
-        <button type="button" className={styles.attach} onClick={() => fileRef.current?.click()} disabled={uploads.length >= MAX_FILES} title="Adjuntar archivos (fotos, PDF, Excel, Word, CSV o texto; hasta 10 MB)" aria-label="Adjuntar archivos">
+        {RECORD_MIME !== null ? (
+          <button
+            type="button"
+            className={[styles.attach, recordingMs !== null ? styles.micOn : ""].join(" ")}
+            onClick={() => (recordingMs !== null ? stopRecording(false) : void startRecording())}
+            disabled={sendingVoice}
+            title={recordingMs !== null ? "Detener y enviar la nota de voz" : sendingVoice ? "Enviando la nota de voz…" : "Grabar una nota de voz"}
+            aria-label={recordingMs !== null ? "Detener y enviar la nota de voz" : "Grabar una nota de voz"}
+            aria-pressed={recordingMs !== null}
+          >
+            <svg viewBox="0 0 20 20" width="18" height="18" aria-hidden="true">
+              <rect x="7" y="2.5" width="6" height="9.5" rx="3" fill="none" stroke="currentColor" strokeWidth="1.5" />
+              <path d="M4.5 9.5a5.5 5.5 0 0 0 11 0M10 15v2.5M7 17.5h6" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+            </svg>
+          </button>
+        ) : null}
+        <button type="button" className={styles.attach} onClick={() => fileRef.current?.click()} disabled={uploads.length >= MAX_FILES} title="Adjuntar archivos (fotos, notas de voz, PDF, Excel, Word, CSV o texto; hasta 10 MB)" aria-label="Adjuntar archivos">
           <svg viewBox="0 0 20 20" width="18" height="18" aria-hidden="true">
             <path d="M14.5 9.5 9 15a3.5 3.5 0 0 1-5-5l6-6a2.4 2.4 0 0 1 3.4 3.4l-6 6a1.2 1.2 0 0 1-1.7-1.7L11 6.5" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
@@ -260,7 +368,7 @@ export const Composer = ({ scopeKey, placeholder, label, candidates, allowEveryo
           Enviar
         </Button>
       </div>
-      <p className={styles.hint}>Enter para enviar · Shift + Enter salto de línea · @ para mencionar · pegue o arrastre archivos</p>
+      <p className={styles.hint}>Enter para enviar · Shift + Enter salto de línea · @ para mencionar · pegue o arrastre archivos{RECORD_MIME !== null ? " · micrófono para una nota de voz" : ""}</p>
     </form>
   );
 };

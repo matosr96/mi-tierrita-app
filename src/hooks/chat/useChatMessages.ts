@@ -306,6 +306,9 @@ export const useChatMessages = (scope: ChatScope, options: { active: boolean; ar
       const temp: ChatItem = {
         id: -++tempSeq,
         clientId,
+        tita: false,
+        titaProposals: null,
+        titaActions: null,
         userId: me.id,
         username: me.username,
         firstName: me.firstName,

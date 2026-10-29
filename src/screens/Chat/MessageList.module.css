@@ -18,6 +18,29 @@
   gap: 4px;
   padding: 14px 18px 18px;
 }
+/* Chip flotante del día mientras se desplaza la lista; desaparece al parar. */
+.chip {
+  position: absolute;
+  top: 10px;
+  left: 50%;
+  z-index: 3;
+  padding: 3px 12px;
+  border-radius: 999px;
+  background: var(--surface);
+  box-shadow: var(--shadow-lift);
+  color: var(--ink-2);
+  font-size: 12px;
+  font-weight: 500;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transform: translate(-50%, -6px);
+  transition: opacity var(--dur) ease, transform var(--dur) ease;
+}
+.chipOn {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
 .day {
   align-self: center;
   margin: 12px 0 6px;

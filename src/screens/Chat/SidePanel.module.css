@@ -59,3 +59,12 @@
     box-shadow: var(--shadow-panel);
   }
 }
+/* Sobre la sala a pantalla completa: el panel también ocupa toda la pantalla. */
+@media (max-width: 900px) {
+  .panel {
+    inset: 0;
+    z-index: 66;
+    border-radius: 0;
+    border: 0;
+  }
+}
