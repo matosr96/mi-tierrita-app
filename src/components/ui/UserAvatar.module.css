@@ -1,0 +1,19 @@
+/* Avatar de una persona: foto redonda o sus iniciales sobre verde suave. */
+.avatar {
+  flex: none;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  overflow: hidden;
+  background: var(--sprout-soft);
+  color: var(--forest-fg);
+  font-weight: 600;
+  line-height: 1;
+  user-select: none;
+}
+.avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}

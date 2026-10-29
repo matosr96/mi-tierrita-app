@@ -1,13 +1,16 @@
 import { useNavigate, useParams } from "react-router-dom";
 import { PageHeader } from "@/components/layout/AppShell";
+import { PushSwitch } from "@/components/push/PushSwitch";
+import { AppearanceCard } from "./AppearanceCard";
 import { Badge, Card, DataTable, EmptyState, QueryState, StatCard, StatGrid, Tabs, type Column, type TabOption } from "@/components/ui";
 import { useAudits } from "@/hooks/audits";
 import { useSales } from "@/hooks/sales";
 import { useMe } from "@/hooks/session";
-import { addDaysIso, dateOnly, dateTime, initials, int, money, todayIso } from "@/lib/format";
+import { addDaysIso, dateOnly, dateTime, int, money, todayIso } from "@/lib/format";
 import { ROLE_LABELS, useSessionStore } from "@/stores/session";
 import type { Sale, User } from "@/types/api";
 import { AuditTimeline } from "@/screens/Audits/AuditTimeline";
+import { AvatarEditor } from "./AvatarEditor";
 import { PasswordForm } from "./PasswordForm";
 import { ProfileForm } from "./ProfileForm";
 import styles from "./ProfileScreen.module.css";
@@ -78,7 +81,7 @@ export const ProfileScreen = () => {
 
       <div className={styles.layout}>
         <aside className={styles.idCard}>
-          <div className={styles.avatar}>{initials(user.firstName, user.lastName)}</div>
+          <AvatarEditor user={user} />
           <h2 className={styles.name}>
             {user.firstName} {user.lastName}
           </h2>
@@ -105,9 +108,15 @@ export const ProfileScreen = () => {
         <div className={styles.main}>
           <Tabs options={options} value={tab} onChange={go} />
           {tab === "datos" ? (
-            <Card title="Datos personales" subtitle="Así aparece su nombre en las ventas, el chat y los reportes">
-              <ProfileForm key={`${user.id}-${me.dataUpdatedAt}`} user={user} />
-            </Card>
+            <>
+              <Card title="Datos personales" subtitle="Así aparece su nombre en las ventas, el chat y los reportes">
+                <ProfileForm key={`${user.id}-${me.dataUpdatedAt}`} user={user} />
+              </Card>
+              <Card title="Avisos" subtitle="Alarmas y vencimientos en este dispositivo">
+                <PushSwitch id="profile-push-switch" />
+              </Card>
+              <AppearanceCard />
+            </>
           ) : tab === "seguridad" ? (
             <Card title="Cambiar contraseña" subtitle="Use una contraseña que no use en otros sitios. La sesión actual sigue activa.">
               <PasswordForm />

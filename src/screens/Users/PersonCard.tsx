@@ -1,7 +1,8 @@
-import { Badge, Button } from "@/components/ui";
-import { dateOnly, initials } from "@/lib/format";
+import { Badge, Button, UserAvatar } from "@/components/ui";
+import { dateOnly } from "@/lib/format";
 import { ROLE_LABELS } from "@/stores/session";
 import type { User } from "@/types/api";
+import { PersonName } from "@/components/people/PersonName";
 import styles from "./PersonCard.module.css";
 
 type Props = { user: User; isMe: boolean; onChangePassword?: () => void };
@@ -10,12 +11,10 @@ type Props = { user: User; isMe: boolean; onChangePassword?: () => void };
 export const PersonCard = ({ user, isMe, onChangePassword }: Props) => (
   <li className={[styles.card, user.active ? "" : styles.inactive, isMe ? styles.me : ""].join(" ")}>
     <div className={styles.top}>
-      <span className={styles.avatar} aria-hidden="true">
-        {initials(user.firstName, user.lastName)}
-      </span>
+      <UserAvatar user={user} size={36} className={styles.avatar} />
       <div className={styles.who}>
         <h3 className={styles.name}>
-          {user.firstName} {user.lastName}
+          <PersonName userId={user.id}>{`${user.firstName} ${user.lastName}`}</PersonName>
           {isMe ? <span className={styles.you}> (usted)</span> : null}
         </h3>
         <span className={styles.username}>@{user.username}</span>

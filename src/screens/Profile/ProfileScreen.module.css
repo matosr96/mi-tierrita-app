@@ -20,17 +20,34 @@
   color: var(--ink);
   text-align: center;
 }
-.avatar {
-  width: 64px;
-  height: 64px;
-  border-radius: 50%;
-  display: grid;
-  place-items: center;
-  background: var(--sprout-soft);
-  color: var(--forest);
-  font-size: 22px;
-  font-weight: 600;
+.avatarBlock {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
   margin-bottom: 6px;
+}
+.avatar {
+  color: var(--forest);
+  box-shadow: 0 0 0 4px var(--surface), 0 0 0 5px var(--line);
+}
+.avatarInput {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+.avatarActions {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.avatarError {
+  font-size: 13px;
+  color: var(--bad);
 }
 .name {
   margin: 0;

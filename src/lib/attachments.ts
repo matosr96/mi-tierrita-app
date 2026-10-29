@@ -14,20 +14,47 @@ const toBase64 = (buf: ArrayBuffer): string => {
   return btoa(bin);
 };
 
-/** Foto reducida en el navegador (máx. 1600 px por lado, JPEG 0,85): basta para leer una factura y pesa poco. */
-const imageAttachment = async (file: File): Promise<AiAttachment> => {
+/**
+ * Dibuja una imagen reducida en un canvas con fondo blanco. `fit` la encoge para que quepa en `maxSide` por lado
+ * (sin agrandarla); `cover` la recorta centrada a un cuadrado de `maxSide` (foto de perfil).
+ */
+export const drawScaledImage = async (file: Blob, maxSide: number, mode: "fit" | "cover" = "fit"): Promise<HTMLCanvasElement> => {
   const bitmap = await createImageBitmap(file);
-  const scale = Math.min(1, MAX_IMAGE_SIDE / Math.max(bitmap.width, bitmap.height));
   const canvas = document.createElement("canvas");
-  canvas.width = Math.round(bitmap.width * scale);
-  canvas.height = Math.round(bitmap.height * scale);
   const ctx = canvas.getContext("2d");
   if (!ctx) throw new Error("No se pudo procesar la imagen.");
-  ctx.fillStyle = "#ffffff";
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
-  ctx.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+  if (mode === "cover") {
+    const side = Math.min(bitmap.width, bitmap.height);
+    canvas.width = maxSide;
+    canvas.height = maxSide;
+    ctx.fillStyle = "#ffffff";
+    ctx.fillRect(0, 0, maxSide, maxSide);
+    ctx.drawImage(bitmap, (bitmap.width - side) / 2, (bitmap.height - side) / 2, side, side, 0, 0, maxSide, maxSide);
+  } else {
+    const scale = Math.min(1, maxSide / Math.max(bitmap.width, bitmap.height));
+    canvas.width = Math.round(bitmap.width * scale);
+    canvas.height = Math.round(bitmap.height * scale);
+    ctx.fillStyle = "#ffffff";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+  }
+  bitmap.close();
+  return canvas;
+};
+
+/** Foto reducida en el navegador (máx. 1600 px por lado, JPEG 0,85): basta para leer una factura y pesa poco. */
+const imageAttachment = async (file: File): Promise<AiAttachment> => {
+  const canvas = await drawScaledImage(file, MAX_IMAGE_SIDE);
   const data = canvas.toDataURL("image/jpeg", 0.85).split(",")[1] ?? "";
   return { kind: "image", name: file.name || "foto.jpg", mediaType: "image/jpeg", data };
+};
+
+/** Foto de perfil: recorte cuadrado centrado de 256×256 en JPEG (pesa unos pocos KB; el servidor admite hasta 1 MB). */
+export const AVATAR_SIDE = 256;
+export const avatarImage = async (file: File): Promise<Blob> => {
+  if (!file.type.startsWith("image/")) throw new Error("Elija una imagen (JPG, PNG o WebP).");
+  const canvas = await drawScaledImage(file, AVATAR_SIDE, "cover");
+  return new Promise((resolve, reject) => canvas.toBlob((b) => (b ? resolve(b) : reject(new Error("No se pudo procesar la imagen."))), "image/jpeg", 0.9));
 };
 
 /* ---------- Excel (.xlsx) sin dependencias: ZIP + XML de la hoja ---------- */

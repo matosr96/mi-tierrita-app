@@ -3,3 +3,7 @@ export * from "./useUser";
 export * from "./useCreateUser";
 export * from "./useChangePassword";
 export * from "./useUpdateProfile";
+export * from "./useUpdateAvatar";
+export * from "./useRemoveAvatar";
+export * from "./useUserAvatar";
+export * from "./useDirectory";

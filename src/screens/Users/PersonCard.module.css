@@ -25,14 +25,6 @@
   min-width: 0;
 }
 .avatar {
-  flex: none;
-  display: grid;
-  place-items: center;
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  font-size: 13px;
-  font-weight: 600;
   color: var(--ink-2);
   background: var(--surface-3);
   border: 1px solid var(--line);
