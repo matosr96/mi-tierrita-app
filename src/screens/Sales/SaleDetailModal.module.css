@@ -137,3 +137,8 @@
   text-decoration: line-through;
   text-decoration-color: var(--bad);
 }
+
+/* Pestañas del detalle de venta (factura, comentarios, historial). */
+.tabs {
+  margin-bottom: 14px;
+}

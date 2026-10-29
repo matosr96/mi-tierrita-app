@@ -1,0 +1,115 @@
+/* Línea de tiempo de un registro: punto por escritura, tarjeta con quién, cuándo y los campos que cambiaron. */
+.panel {
+  min-width: 0;
+}
+.timeline {
+  list-style: none;
+  margin: 0;
+  padding: 0 0 0 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  border-left: 2px solid var(--line);
+}
+.entry {
+  position: relative;
+  min-width: 0;
+}
+.dot {
+  position: absolute;
+  left: -25px;
+  top: 14px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 2px solid var(--surface);
+  background: var(--muted-2);
+}
+.dot[data-kind="create"] {
+  background: var(--good);
+}
+.dot[data-kind="update"] {
+  background: var(--warn);
+}
+.dot[data-kind="remove"] {
+  background: var(--bad);
+}
+.card {
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  background: var(--surface-2);
+  min-width: 0;
+}
+.head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 10px;
+}
+.sentence {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  font-size: 13.5px;
+  color: var(--ink-2);
+}
+.sentence strong {
+  color: var(--ink);
+  font-weight: 600;
+}
+.sub {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--ink-2);
+}
+.when {
+  margin-left: auto;
+  font-size: 12px;
+  color: var(--muted);
+  white-space: nowrap;
+}
+.fields {
+  margin-top: 8px;
+}
+.fieldsTitle {
+  display: block;
+  font-size: 12px;
+  color: var(--muted);
+  margin-bottom: 4px;
+}
+.dl {
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 4px 12px;
+}
+.field {
+  display: flex;
+  gap: 6px;
+  min-width: 0;
+  font-size: 12.5px;
+}
+.field dt {
+  color: var(--muted);
+  font-family: var(--font-mono);
+  flex-shrink: 0;
+}
+.field dd {
+  margin: 0;
+  color: var(--ink);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+}
+.noDetail {
+  margin: 6px 0 0;
+  font-size: 12.5px;
+  color: var(--muted);
+}
+.note {
+  margin: 10px 0 0;
+  font-size: 13px;
+  color: var(--muted);
+}

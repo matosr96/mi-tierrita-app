@@ -194,3 +194,8 @@
     align-items: flex-start;
   }
 }
+
+/* Pestañas del detalle del cliente (cartera, comentarios, historial). */
+.tabs {
+  margin-bottom: 14px;
+}

@@ -1,13 +1,19 @@
 import { useEffect, useState } from "react";
 import { useProductBatches } from "@/hooks/batches";
 import { dateOnly, int, money } from "@/lib/format";
-import { Button, DataTable, EmptyState, Modal, QueryState, type Column } from "@/components/ui";
+import { Button, DataTable, EmptyState, Modal, QueryState, Tabs, type Column } from "@/components/ui";
+import { CommentsPanel } from "@/components/comments/CommentsPanel";
+import { RecordHistory } from "@/components/audits/RecordHistory";
+import { useSessionStore } from "@/stores/session";
 import type { Product, ProductBatch } from "@/types/api";
 import { ExpiryBadge } from "@/screens/Batches/ExpiryBadge";
 import { BatchForm } from "@/screens/Batches/BatchForm";
 import styles from "./InventoryScreen.module.css";
 
 type Props = { product: Product | null; canRegister: boolean; onClose: () => void };
+
+/** Pestañas del detalle: lotes, comentarios del producto y, para la administración, su historial de cambios (brief 33). */
+type Tab = "batches" | "comments" | "history";
 
 const columns: Column<ProductBatch>[] = [
   { key: "lot", header: "Lote", render: (b) => <span className={styles.code}>#{b.id}</span> },
@@ -22,41 +28,54 @@ const columns: Column<ProductBatch>[] = [
 export const ProductBatchesModal = ({ product, canRegister, onClose }: Props) => {
   const batches = useProductBatches(product?.id ?? null);
   const [showForm, setShowForm] = useState(false);
+  const isAdmin = useSessionStore((s) => s.user?.role) === "ADMIN";
+  const [tab, setTab] = useState<Tab>("batches");
+  const tabs: { value: Tab; label: string }[] = [{ value: "batches", label: "Lotes" }, { value: "comments", label: "Comentarios" }, ...(isAdmin ? [{ value: "history" as const, label: "Historial" }] : [])];
 
   useEffect(() => {
     setShowForm(false);
+    setTab("batches");
   }, [product]);
 
   return (
     <Modal open={product !== null} title={product?.name ?? ""} description={product ? `${product.sku} · ${product.categoryName} · stock actual ${int(product.stock)}` : undefined} onClose={onClose} wide>
-      <section className={styles.section}>
-        <div className={styles.sectionHead}>
-          <h3>Lotes (primero en vencer, primero en salir)</h3>
-          {canRegister && !showForm ? (
-            <Button size="sm" onClick={() => setShowForm(true)}>
-              Registrar lote
-            </Button>
+      <div className={styles.modalTabs}>
+        <Tabs options={tabs} value={tab} onChange={setTab} ariaLabel="Secciones del producto" />
+      </div>
+      {tab === "batches" ? (
+        <>
+          <section className={styles.section}>
+            <div className={styles.sectionHead}>
+              <h3>Lotes (primero en vencer, primero en salir)</h3>
+              {canRegister && !showForm ? (
+                <Button size="sm" onClick={() => setShowForm(true)}>
+                  Registrar lote
+                </Button>
+              ) : null}
+            </div>
+            <QueryState
+              query={batches}
+              isEmpty={(page) => page.items.length === 0}
+              empty={<EmptyState title="Este producto no tiene lotes registrados" text={canRegister ? "Registre la entrada de mercancía para crear el primer lote." : "Bodega registra las entradas de mercancía."} />}
+            >
+              {(page) => (
+                <>
+                  <DataTable columns={columns} rows={page.items} rowKey={(b) => b.id} />
+                  {page.count > page.items.length ? <p className={styles.tableNote}>Se muestran {int(page.items.length)} de {int(page.count)} lotes.</p> : null}
+                </>
+              )}
+            </QueryState>
+          </section>
+          {canRegister && showForm && product ? (
+            <section className={[styles.section, styles.formSection].join(" ")}>
+              <h3>Registrar nuevo lote</h3>
+              <BatchForm productId={product.id} onDone={() => setShowForm(false)} onCancel={() => setShowForm(false)} />
+            </section>
           ) : null}
-        </div>
-        <QueryState
-          query={batches}
-          isEmpty={(page) => page.items.length === 0}
-          empty={<EmptyState title="Este producto no tiene lotes registrados" text={canRegister ? "Registre la entrada de mercancía para crear el primer lote." : "Bodega registra las entradas de mercancía."} />}
-        >
-          {(page) => (
-            <>
-              <DataTable columns={columns} rows={page.items} rowKey={(b) => b.id} />
-              {page.count > page.items.length ? <p className={styles.tableNote}>Se muestran {int(page.items.length)} de {int(page.count)} lotes.</p> : null}
-            </>
-          )}
-        </QueryState>
-      </section>
-      {canRegister && showForm && product ? (
-        <section className={[styles.section, styles.formSection].join(" ")}>
-          <h3>Registrar nuevo lote</h3>
-          <BatchForm productId={product.id} onDone={() => setShowForm(false)} onCancel={() => setShowForm(false)} />
-        </section>
+        </>
       ) : null}
+      {tab === "comments" && product ? <CommentsPanel entity="products" entityId={product.id} /> : null}
+      {tab === "history" && product ? <RecordHistory entity="products" entityId={product.id} /> : null}
     </Modal>
   );
 };
