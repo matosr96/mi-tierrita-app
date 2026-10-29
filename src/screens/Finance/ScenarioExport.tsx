@@ -148,7 +148,7 @@ export const ScenarioExport = ({ scenario, letter }: { scenario: ScenarioDetail;
           note="Indicadores calculados por el sistema con los supuestos del escenario. Es un apoyo para decidir, no un concepto financiero."
         >
           <PaperBlock label="Flujo de caja del proyecto" hint={`${int(scenario.results.detail.length)} años`}>
-            <DataTable columns={flowColumns} rows={scenario.results.detail} rowKey={(d) => d.year} />
+            <DataTable columns={flowColumns} rows={scenario.results.detail} rowKey={(d) => d.year} scroll />
           </PaperBlock>
         </ReportPaper>
       </div>

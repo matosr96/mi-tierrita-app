@@ -5,11 +5,11 @@ import { PageHeader } from "@/components/layout/AppShell";
 import { SalesReportPanel } from "./SalesReportPanel";
 import { InventoryReportPanel } from "./InventoryReportPanel";
 import { ReceivablesReportPanel } from "./ReceivablesReportPanel";
-import { ReportCover, type ReportDef, type ReportKind } from "./ReportCover";
+import { ReportPicker, type ReportDef, type ReportKind } from "./ReportPicker";
 import { ExportHistory } from "./ExportHistory";
 import styles from "./ReportsScreen.module.css";
 
-/** Una tarjeta por reporte real de la API. */
+/** Una tarjeta (ReportPicker) por reporte real de la API. */
 const REPORTS: ReportDef[] = [
   {
     kind: "sales",
@@ -68,7 +68,7 @@ export const ReportsScreen = () => {
 
       <div className={styles.covers} role="group" aria-label="Elegir reporte">
         {reports.map((r) => (
-          <ReportCover key={r.kind} def={r} selected={r.kind === current} onSelect={() => setKind(r.kind)} />
+          <ReportPicker key={r.kind} def={r} selected={r.kind === current} onSelect={() => setKind(r.kind)} />
         ))}
       </div>
 

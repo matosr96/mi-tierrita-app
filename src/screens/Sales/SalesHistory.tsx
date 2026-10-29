@@ -1,4 +1,5 @@
 import { useState, type ReactNode } from "react";
+import { useSearchParams } from "react-router-dom";
 import { useSessionStore } from "@/stores/session";
 import { useSales } from "@/hooks/sales";
 import { useSalesReport } from "@/hooks/reports";
@@ -19,13 +20,17 @@ export const SalesHistory = ({ tabs }: { tabs: ReactNode }) => {
   const user = useSessionStore((s) => s.user);
   const isAdmin = user?.role === "ADMIN";
 
-  const [from, setFrom] = useState(() => todayIso());
-  const [to, setTo] = useState(() => todayIso());
+  // `?sale=<id>` abre ese ticket y `?from=&to=` dejan el período (enlaces desde la columna «Origen» de los reportes).
+  const [params] = useSearchParams();
+  const isoParam = (k: string): string | undefined => (/^\d{4}-\d{2}-\d{2}$/.test(params.get(k) ?? "") ? (params.get(k) as string) : undefined);
+  const saleParam = Number(params.get("sale"));
+  const [from, setFrom] = useState(() => isoParam("from") ?? todayIso());
+  const [to, setTo] = useState(() => isoParam("to") ?? todayIso());
   const [status, setStatus] = useState<SaleStatus | "">("");
   const [customerId, setCustomerId] = useState<number | null>(null);
   const [userId, setUserId] = useState<number | null>(null);
   const [page, setPage] = useState(1);
-  const [selectedId, setSelectedId] = useState<number | null>(null);
+  const [selectedId, setSelectedId] = useState<number | null>(() => (Number.isInteger(saleParam) && saleParam > 0 ? saleParam : null));
 
   const report = useSalesReport({ from, to, groupBy: "day" });
 

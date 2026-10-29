@@ -1,4 +1,4 @@
-import styles from "./ReportCover.module.css";
+import styles from "./ReportPicker.module.css";
 
 export type ReportKind = "sales" | "inventory" | "receivables";
 export type ReportDef = {
@@ -12,9 +12,9 @@ export type ReportDef = {
   adminOnly: boolean;
 };
 
-/** Tarjeta seleccionable de un reporte: título, descripción de una línea y a quién va dirigido. */
-export const ReportCover = ({ def, selected, onSelect }: { def: ReportDef; selected: boolean; onSelect: () => void }) => (
-  <button type="button" className={[styles.cover, selected ? styles.selected : ""].join(" ")} aria-pressed={selected} onClick={onSelect}>
+/** Tarjeta para ELEGIR un reporte (no es la portada impresa: esa es `ReportCoverPage`): título, descripción y a quién va dirigido. */
+export const ReportPicker = ({ def, selected, onSelect }: { def: ReportDef; selected: boolean; onSelect: () => void }) => (
+  <button type="button" className={[styles.picker, selected ? styles.selected : ""].join(" ")} aria-pressed={selected} onClick={onSelect}>
     <span className={styles.head}>
       <span className={styles.title}>
         {def.lead} {def.accent}

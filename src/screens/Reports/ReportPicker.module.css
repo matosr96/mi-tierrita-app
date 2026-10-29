@@ -1,5 +1,5 @@
 /* Tarjeta seleccionable de reporte: superficie blanca; la seleccionada lleva borde y fondo verde suave. */
-.cover {
+.picker {
   display: flex;
   flex-direction: column;
   align-items: stretch;
@@ -16,12 +16,12 @@
   transition: border-color var(--dur) var(--ease-out), background var(--dur) var(--ease-out);
 }
 @media (hover: hover) {
-  .cover:hover {
+  .picker:hover {
     border-color: var(--line-strong);
     background: var(--hover);
   }
 }
-.cover:focus-visible {
+.picker:focus-visible {
   outline: 2px solid var(--sprout);
   outline-offset: 2px;
 }

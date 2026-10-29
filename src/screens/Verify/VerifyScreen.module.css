@@ -1,0 +1,112 @@
+/* Página pública de verificación: fondo claro y una tarjeta blanca centrada, mismo lenguaje que la app. */
+.page {
+  min-height: 100vh;
+  padding: 32px 16px;
+  background: var(--ground);
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+}
+.card {
+  width: 100%;
+  max-width: 600px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  padding: 28px 28px 22px;
+  background: var(--surface);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  color: var(--ink);
+}
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.brand > span {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.25;
+}
+.brand strong {
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+.brand > span > span {
+  font-size: 13px;
+  color: var(--muted);
+}
+.folio {
+  margin: 0;
+  font-size: 15px;
+  color: var(--ink-2);
+}
+.folio b {
+  font-family: var(--font-mono);
+  font-weight: 600;
+  color: var(--ink);
+}
+.verdict {
+  margin: 4px 0 0;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--ink-2);
+}
+.section h2 {
+  margin: 0 0 6px;
+  font-size: 14px;
+  font-weight: 600;
+}
+.rows {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  border-top: 1px solid var(--line);
+}
+.rows > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--line);
+  font-size: 14px;
+}
+.rows dt {
+  color: var(--muted);
+}
+.rows dd {
+  margin: 0;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+}
+.hash {
+  margin: 0;
+  font-size: 12px;
+  color: var(--muted);
+  overflow-wrap: anywhere;
+}
+.hash code {
+  font-family: var(--font-mono);
+}
+.foot {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--line);
+  font-size: 13px;
+  color: var(--muted);
+}
+.foot a {
+  color: var(--link);
+  text-decoration: none;
+  font-weight: 500;
+}
+@media (max-width: 480px) {
+  .card {
+    padding: 22px 18px 18px;
+  }
+}

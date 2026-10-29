@@ -172,7 +172,7 @@
 .donutSvg {
   width: 100%;
   height: auto;
-  transform: rotate(-90deg);
+  display: block;
 }
 .donutTrack {
   fill: none;
@@ -258,12 +258,146 @@
 .tone_muted {
   --tone: var(--muted-2);
 }
+.tone_soft {
+  --tone: color-mix(in srgb, var(--sprout) 42%, var(--surface));
+}
+.tone_forest {
+  --tone: var(--forest);
+}
+
+/* ---------- leyenda compartida (clicable para mostrar u ocultar series) ---------- */
+.withLegend {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.legend {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 8px;
+}
+.legendButton,
+.legendStatic {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  font: inherit;
+  font-size: 13px;
+  color: var(--ink-2);
+}
+.legendButton {
+  cursor: pointer;
+  transition: background var(--dur) var(--ease-out), color var(--dur) var(--ease-out);
+}
+.legendButton:hover {
+  background: var(--hover);
+}
+.legendButton:focus-visible {
+  outline: 2px solid var(--sprout);
+  outline-offset: 2px;
+}
+.legendOff {
+  color: var(--muted);
+  text-decoration: line-through;
+}
+.legendOff i {
+  opacity: 0.3;
+}
+.legend i {
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+  background: var(--tone);
+  flex-shrink: 0;
+}
+
+/* ---------- barras apiladas y ranking ---------- */
+.stack {
+  fill: var(--tone);
+}
+.rankBar {
+  fill: var(--tone);
+}
+.rank {
+  font-size: 12px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  fill: var(--muted);
+}
+.selectable {
+  cursor: pointer;
+}
+.item:focus-visible .stack,
+.item:focus-visible .rankBar {
+  stroke: var(--forest);
+  stroke-width: 2;
+}
+
+/* ---------- mapa de calor por día: cinco tonos del verde de la marca ---------- */
+.heatmap {
+  width: 100%;
+  height: auto;
+}
+.heatLabel {
+  font-size: 9px;
+  fill: var(--muted);
+}
+.heatOut {
+  fill: transparent;
+}
+.heatCell {
+  cursor: pointer;
+  transition: opacity var(--dur) var(--ease-out);
+}
+.heat0 {
+  fill: var(--surface-3);
+}
+.heat1 {
+  fill: color-mix(in srgb, var(--sprout) 20%, var(--surface));
+}
+.heat2 {
+  fill: color-mix(in srgb, var(--sprout) 40%, var(--surface));
+}
+.heat3 {
+  fill: color-mix(in srgb, var(--sprout) 60%, var(--surface));
+}
+.heat4 {
+  fill: color-mix(in srgb, var(--sprout) 80%, var(--surface));
+}
+.heat5 {
+  fill: var(--sprout);
+}
+.heatOn {
+  stroke: var(--forest);
+  stroke-width: 2;
+}
 
 /* ---------- minigráfico (barras finas) ---------- */
 .spark {
   width: 120px;
   height: 34px;
   display: block;
+}
+.spark .item {
+  outline: none;
+}
+.spark .item:focus-visible .sparkBar,
+.spark .item:focus-visible .sparkLast {
+  stroke: var(--forest);
+  stroke-width: 1;
+}
+.dimming .donutLegend li:not([data-on]) {
+  opacity: 0.55;
+}
+.donutLegend li {
+  transition: opacity var(--dur) var(--ease-out);
 }
 .sparkBar {
   fill: color-mix(in srgb, var(--sprout) 35%, var(--surface));

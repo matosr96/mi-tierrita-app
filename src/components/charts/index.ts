@@ -6,3 +6,8 @@ export * from "./ChartCrosshair";
 export * from "./useChartHover";
 export * from "./DonutChart";
 export * from "./Sparkline";
+export * from "./Legend";
+export * from "./StackedBarChart";
+export * from "./HeatmapCalendar";
+export * from "./RankingChart";
+export * from "./ChartDetailModal";

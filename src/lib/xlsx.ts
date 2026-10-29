@@ -62,6 +62,9 @@ const cell = (ref: string, value: XlsxCell, style: number): string => {
   return `<c r="${ref}" t="inlineStr" s="${style === 3 || style === 4 || style === 5 || style === 6 ? 0 : style}"><is><t xml:space="preserve">${esc(String(value))}</t></is></c>`;
 };
 
+/** Fila (1-based) del encabezado de la tabla: después de los renglones del título y una fila en blanco. */
+const headerRowOf = (sheet: XlsxSheet): number => (sheet.title?.length ? sheet.title.length + 2 : 1);
+
 const sheetXml = (sheet: XlsxSheet): string => {
   const out: string[] = [];
   let r = 1;
@@ -70,7 +73,7 @@ const sheetXml = (sheet: XlsxSheet): string => {
     r += 1;
   });
   if (sheet.title?.length) r += 1;
-  const headerRow = r;
+  const headerRow = headerRowOf(sheet);
   out.push(`<row r="${r}">${sheet.headers.map((h, c) => cell(`${colName(c)}${r}`, h, 2)).join("")}</row>`);
   r += 1;
   for (const row of sheet.rows) {
@@ -149,10 +152,15 @@ const zip = (files: { name: string; data: string }[]): Blob => {
   end.setUint16(10, files.length, true);
   end.setUint32(12, size, true);
   end.setUint32(16, offset, true);
-  return new Blob([...parts, ...central, new Uint8Array(end.buffer)] as BlobPart[], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+  return new Blob([...parts, ...central, new Uint8Array(end.buffer)] as BlobPart[], { type: XLSX_MIME });
 };
 
-const saveBlob = (filename: string, blob: Blob) => {
+const XLSX_MIME = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+
+/** API de acceso a archivos del navegador (Chrome, Edge): no está en los tipos del DOM de TypeScript. */
+type SaveFilePicker = (options: { suggestedName: string; types: { description: string; accept: Record<string, string[]> }[] }) => Promise<{ createWritable: () => Promise<{ write: (data: Blob) => Promise<void>; close: () => Promise<void> }> }>;
+
+const downloadWithAnchor = (filename: string, blob: Blob) => {
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;
@@ -163,8 +171,33 @@ const saveBlob = (filename: string, blob: Blob) => {
   setTimeout(() => URL.revokeObjectURL(url), 1000);
 };
 
-/** Descarga un libro de Excel con una o varias hojas. */
-export const downloadXlsx = (filename: string, sheets: XlsxSheet[]): void => {
+/**
+ * «Guardar como»: con `showSaveFilePicker` la persona elige carpeta y nombre; si el navegador no lo tiene o cancela el
+ * diálogo (AbortError, que no es un error), se descarga a la carpeta de descargas con `<a download>`.
+ * Devuelve `false` si la persona canceló.
+ */
+export const saveBlob = async (filename: string, blob: Blob, description = "Archivo"): Promise<boolean> => {
+  const picker = (window as unknown as { showSaveFilePicker?: SaveFilePicker }).showSaveFilePicker;
+  if (typeof picker !== "function") {
+    downloadWithAnchor(filename, blob);
+    return true;
+  }
+  const ext = filename.includes(".") ? `.${filename.split(".").pop()}` : "";
+  try {
+    const handle = await picker.call(window, { suggestedName: filename, types: [{ description, accept: { [blob.type || "application/octet-stream"]: [ext || ".bin"] } }] });
+    const stream = await handle.createWritable();
+    await stream.write(blob);
+    await stream.close();
+    return true;
+  } catch (err) {
+    if (err instanceof DOMException && err.name === "AbortError") return false;
+    downloadWithAnchor(filename, blob);
+    return true;
+  }
+};
+
+/** Descarga un libro de Excel con una o varias hojas (ver `saveBlob` para «Guardar como»). Resuelve `false` si se canceló. */
+export const downloadXlsx = (filename: string, sheets: XlsxSheet[]): Promise<boolean> => {
   const names = sheets.map((s, i) => esc(s.name.replace(/[\\/?*[\]:]/g, " ").slice(0, 31) || `Hoja ${i + 1}`));
   const files = [
     {
@@ -184,7 +217,13 @@ export const downloadXlsx = (filename: string, sheets: XlsxSheet[]): void => {
       data: `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><sheets>${names
         .map((n, i) => `<sheet name="${n}" sheetId="${i + 1}" r:id="rId${i + 1}"/>`)
-        .join("")}</sheets></workbook>`,
+        .join("")}</sheets><definedNames>${sheets
+        .map((s, i) => {
+          // Título y encabezado de la tabla se repiten en cada página impresa (Print_Titles).
+          const row = headerRowOf(s);
+          return `<definedName name="_xlnm.Print_Titles" localSheetId="${i}">'${names[i]!.replace(/'/g, "''")}'!$1:$${row}</definedName>`;
+        })
+        .join("")}</definedNames></workbook>`,
     },
     {
       name: "xl/_rels/workbook.xml.rels",
@@ -196,5 +235,5 @@ export const downloadXlsx = (filename: string, sheets: XlsxSheet[]): void => {
     { name: "xl/styles.xml", data: STYLES_XML },
     ...sheets.map((s, i) => ({ name: `xl/worksheets/sheet${i + 1}.xml`, data: sheetXml(s) })),
   ];
-  saveBlob(filename, zip(files));
+  return saveBlob(filename, zip(files), "Libro de Excel");
 };

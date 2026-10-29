@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import { BrandMark } from "@/components/layout/AppShell";
+import { useReportStamp } from "./ReportStamp";
 import styles from "./ReportPaper.module.css";
 
 export type Indicator = { label: string; value: string; tone?: "good" | "warn" | "bad" };
@@ -18,6 +19,8 @@ type Props = {
   params: Param[];
   indicators: Indicator[];
   note?: string;
+  /** Folio del documento ya registrado (se conoce al generar el PDF); en la vista previa aún no hay. */
+  folio?: string | undefined;
   children: ReactNode;
 };
 
@@ -27,7 +30,10 @@ const toneClass = (tone: Indicator["tone"]): string => (tone === "good" ? styles
  * Documento de la vista previa (y del PDF, que clona este <article>): membrete, título, datos de emisión, secciones,
  * columna de indicadores como libro mayor y pie de página. Hoja A4 blanca y sobria.
  */
-export const ReportPaper = ({ code, title, accent, meta, summary, params, indicators, note, children }: Props) => (
+export const ReportPaper = ({ code, title, accent, meta, summary, params, indicators, note, folio: folioProp, children }: Props) => {
+  const stamp = useReportStamp();
+  const folio = folioProp ?? stamp?.folio;
+  return (
   <article className={styles.paper} aria-label={`${title} ${accent}`}>
 
     <header className={styles.head}>
@@ -85,7 +91,8 @@ export const ReportPaper = ({ code, title, accent, meta, summary, params, indica
 
     <footer className={styles.foot}>
       <span>Mi Tierrita SIG · {code}</span>
-      <span>Hoja 1</span>
+      <span>{folio ? `Folio ${folio} · verificable con el QR de la portada` : "Vista previa · el folio y el QR se asignan al generar el PDF"}</span>
     </footer>
   </article>
-);
+  );
+};
