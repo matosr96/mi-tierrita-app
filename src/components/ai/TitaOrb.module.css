@@ -1,0 +1,89 @@
+/* Orbe 3D de Tita: esfera + dos anillos en perspectiva, solo CSS y variables de la marca. */
+.orb {
+  position: relative;
+  display: inline-block;
+  flex-shrink: 0;
+  perspective: 600px;
+  transform-style: preserve-3d;
+  line-height: 0;
+}
+.glow {
+  position: absolute;
+  inset: -14%;
+  border-radius: 50%;
+  background: radial-gradient(circle at 50% 50%, color-mix(in srgb, var(--sprout) 35%, transparent) 0%, transparent 70%);
+  animation: breathe 4s ease-in-out infinite;
+}
+.sphere {
+  position: absolute;
+  inset: 6%;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 32% 28%, color-mix(in srgb, var(--surface) 85%, var(--sprout-soft)) 0%, transparent 38%),
+    radial-gradient(circle at 50% 55%, var(--sprout) 0%, var(--leaf) 55%, var(--forest) 100%);
+  box-shadow:
+    inset -6px -8px 18px color-mix(in srgb, var(--forest) 55%, transparent),
+    inset 4px 6px 12px color-mix(in srgb, var(--surface) 35%, transparent),
+    0 10px 24px -10px color-mix(in srgb, var(--forest) 60%, transparent);
+}
+.ringA,
+.ringB {
+  position: absolute;
+  inset: -4%;
+  border-radius: 50%;
+  border: 2px solid color-mix(in srgb, var(--sprout-soft) 85%, var(--surface));
+  border-top-color: color-mix(in srgb, var(--sprout) 70%, var(--surface));
+  transform-style: preserve-3d;
+}
+.ringA {
+  transform: rotateX(72deg) rotateZ(0deg);
+  animation: spinA 9s linear infinite;
+}
+.ringB {
+  inset: 2%;
+  border-width: 1.5px;
+  transform: rotateY(70deg) rotateZ(0deg);
+  animation: spinB 13s linear infinite reverse;
+}
+.busy .ringA {
+  animation-duration: 3s;
+}
+.busy .ringB {
+  animation-duration: 4.5s;
+}
+.face {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  transform: translateZ(1px);
+}
+@keyframes spinA {
+  to {
+    transform: rotateX(72deg) rotateZ(360deg);
+  }
+}
+@keyframes spinB {
+  to {
+    transform: rotateY(70deg) rotateZ(360deg);
+  }
+}
+@keyframes breathe {
+  0%,
+  100% {
+    transform: scale(0.96);
+    opacity: 0.7;
+  }
+  50% {
+    transform: scale(1.04);
+    opacity: 1;
+  }
+}
+/* «Reducir movimiento»: el orbe queda quieto (la regla global ya acorta toda animación; aquí se fija el reposo). */
+@media (prefers-reduced-motion: reduce) {
+  .glow,
+  .ringA,
+  .ringB {
+    animation: none;
+  }
+}

@@ -1,6 +1,6 @@
 import { useApiMutation } from "@/hooks/shared";
 import { aiService } from "@/services/ai";
-import type { AiChatTurn } from "@/types/api";
+import type { AiChatRequest } from "@/types/api";
 
-/** Una pregunta al asistente con la conversación previa (el servidor no la guarda). */
-export const useAiChat = () => useApiMutation((messages: AiChatTurn[]) => aiService.chat(messages), { notifyError: false });
+/** Una pregunta al asistente en un solo paso (la conversación con Tita usa el flujo en dos pasos de `useTitaConversation`). */
+export const useAiChat = () => useApiMutation((input: AiChatRequest) => aiService.chat(input), { notifyError: false });

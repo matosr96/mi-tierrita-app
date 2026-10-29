@@ -1,5 +1,21 @@
 import { http } from "@/lib/http";
-import type { AiActionRequest, AiBriefing, AiChatTurn, AiDraft, AiDraftRequest, AiInvoiceReading, AiReply, AiStatus } from "@/types/api";
+import type {
+  AiActionRequest,
+  AiBriefing,
+  AiChatRequest,
+  AiConversation,
+  AiConversationDetail,
+  AiConversationEventInput,
+  AiDraft,
+  AiDraftRequest,
+  AiInvoiceReading,
+  AiReply,
+  AiStatus,
+  AiTaskAccepted,
+  AiTaskPending,
+  Page,
+  PageQuery,
+} from "@/types/api";
 
 /** El asistente consulta varias herramientas antes de responder: más tiempo que el resto de la API. */
 const SLOW = { timeout: 90_000 };
@@ -7,7 +23,18 @@ const SLOW = { timeout: 90_000 };
 export const aiService = {
   status: async (): Promise<AiStatus> => (await http.get<AiStatus>("/ai/status")).data,
   briefing: async (): Promise<AiBriefing> => (await http.get<AiBriefing>("/ai/briefing", SLOW)).data,
-  chat: async (messages: AiChatTurn[]): Promise<AiReply> => (await http.post<AiReply>("/ai/chat", { messages }, SLOW)).data,
+  /** Pregunta en un solo paso (espera la respuesta completa). */
+  chat: async (input: AiChatRequest): Promise<AiReply> => (await http.post<AiReply>("/ai/chat", { ...input, asincrono: false }, SLOW)).data,
+  /** Primer paso de la respuesta en dos pasos: la API acepta la pregunta (202) y devuelve la tarea que hay que consultar. */
+  ask: async (input: AiChatRequest): Promise<AiTaskAccepted> => (await http.post<AiTaskAccepted>("/ai/chat", { ...input, asincrono: true })).data,
+  /** Segundo paso: 202 mientras Tita trabaja, 200 con la respuesta cuando está lista. */
+  task: async (tareaId: string): Promise<AiReply | AiTaskPending> => (await http.get<AiReply | AiTaskPending>(`/ai/mensajes/${encodeURIComponent(tareaId)}`)).data,
+  conversations: async (query: PageQuery = {}): Promise<Page<AiConversation>> => (await http.get<Page<AiConversation>>("/ai/conversations", { params: query })).data,
+  conversation: async (id: number): Promise<AiConversationDetail> => (await http.get<AiConversationDetail>(`/ai/conversations/${id}`)).data,
+  deleteConversation: async (id: number): Promise<void> => {
+    await http.delete(`/ai/conversations/${id}`);
+  },
+  addEvent: async (conversationId: number, input: AiConversationEventInput): Promise<{ id: number }> => (await http.post<{ id: number }>(`/ai/conversations/${conversationId}/events`, input)).data,
   draft: async (input: AiDraftRequest): Promise<AiDraft> => (await http.post<AiDraft>("/ai/drafts", input, SLOW)).data,
   readInvoice: async (image: string, mediaType: "image/jpeg"): Promise<AiInvoiceReading> => (await http.post<AiInvoiceReading>("/ai/invoice", { image, mediaType }, SLOW)).data,
 };
@@ -36,6 +63,7 @@ const ALLOWED_ACTIONS: { method: AiActionRequest["method"]; path: RegExp }[] = [
   { method: "POST", path: /^\/financial\/scenarios$/ },
   { method: "PATCH", path: /^\/contact-messages\/\d+$/ },
   { method: "POST", path: /^\/chat\/messages$/ },
+  { method: "POST", path: /^\/alarms$/ },
 ];
 
 export const isAllowedAction = (r: AiActionRequest): boolean => ALLOWED_ACTIONS.some((a) => a.method === r.method && a.path.test(r.path));
@@ -53,4 +81,27 @@ export const executeAiAction = async (r: AiActionRequest): Promise<unknown> => {
           ? await http.patch(r.path, r.body ?? {}, config)
           : await http.post(r.path, r.body ?? {}, config);
   return res.data;
+};
+
+/** Pantalla actual como contexto para Tita, a partir de la ruta (sin parámetros). */
+export const screenOf = (pathname: string): AiChatRequest["screen"] | undefined => {
+  const first = pathname.split("/")[1] ?? "";
+  const map: Record<string, NonNullable<AiChatRequest["screen"]>> = {
+    "": "inicio",
+    inventario: "inventario",
+    lotes: "lotes",
+    ventas: "ventas",
+    clientes: "clientes",
+    proveedores: "proveedores",
+    finanzas: "finanzas",
+    reportes: "reportes",
+    tita: "tita",
+    chat: "chat",
+    contactos: "contactos",
+    usuarios: "usuarios",
+    auditoria: "auditoria",
+    alarmas: "alarmas",
+    perfil: "perfil",
+  };
+  return map[first];
 };

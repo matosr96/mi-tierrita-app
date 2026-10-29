@@ -1,33 +1,50 @@
 import { Fragment, type ReactNode } from "react";
+import { Link } from "react-router-dom";
 import styles from "./RichText.module.css";
 
-/** **negrita** dentro de una línea. */
-const inline = (text: string): ReactNode[] =>
-  text.split(/(\*\*[^*]+\*\*)/g).map((part, i) =>
-    part.startsWith("**") && part.endsWith("**") && part.length > 4 ? <strong key={i}>{part.slice(2, -2)}</strong> : <Fragment key={i}>{part}</Fragment>,
-  );
+/** Enlace interno `[texto](/ruta)`: solo rutas de la app (empiezan por "/"); cualquier otra cosa se deja como texto. */
+const LINK = /(\[[^\]\n]{1,80}\]\(\/[^\s)]{0,160}\))/g;
+const parseLink = (part: string): { label: string; to: string } | null => {
+  const m = /^\[([^\]]+)\]\((\/[^\s)]*)\)$/.exec(part);
+  return m && m[1] !== undefined && m[2] !== undefined && !m[2].startsWith("//") ? { label: m[1], to: m[2] } : null;
+};
+
+/** **negrita** y enlaces internos dentro de una línea. */
+const inline = (text: string, onNavigate?: () => void): ReactNode[] =>
+  text.split(LINK).flatMap((chunk, i) => {
+    const link = parseLink(chunk);
+    if (link)
+      return [
+        <Link key={`l${i}`} to={link.to} className={styles.link} onClick={onNavigate}>
+          {link.label}
+        </Link>,
+      ];
+    return chunk
+      .split(/(\*\*[^*]+\*\*)/g)
+      .map((part, j) => (part.startsWith("**") && part.endsWith("**") && part.length > 4 ? <strong key={`${i}-${j}`}>{part.slice(2, -2)}</strong> : <Fragment key={`${i}-${j}`}>{part}</Fragment>));
+  });
 
 /**
  * Texto del asistente con el formato mínimo que usa (párrafos, listas con "-" o "1.", citas con ">" y negritas).
  * Se arma con elementos de React, nunca con HTML: el texto del modelo no puede inyectar marcado.
  */
-export const RichText = ({ text }: { text: string }) => {
+export const RichText = ({ text, onNavigate }: { text: string; onNavigate?: (() => void) | undefined }) => {
   const blocks: ReactNode[] = [];
   const lines = text.replace(/\r/g, "").split("\n");
   let list: { ordered: boolean; items: string[] } | null = null;
   let para: string[] = [];
   let quote: string[] = [];
   const flushQuote = () => {
-    if (quote.length > 0) blocks.push(<blockquote key={blocks.length}>{inline(quote.join(" "))}</blockquote>);
+    if (quote.length > 0) blocks.push(<blockquote key={blocks.length}>{inline(quote.join(" "), onNavigate)}</blockquote>);
     quote = [];
   };
   const flushPara = () => {
-    if (para.length > 0) blocks.push(<p key={blocks.length}>{inline(para.join(" "))}</p>);
+    if (para.length > 0) blocks.push(<p key={blocks.length}>{inline(para.join(" "), onNavigate)}</p>);
     para = [];
   };
   const flushList = () => {
     if (list) {
-      const items = list.items.map((it, i) => <li key={i}>{inline(it)}</li>);
+      const items = list.items.map((it, i) => <li key={i}>{inline(it, onNavigate)}</li>);
       blocks.push(list.ordered ? <ol key={blocks.length}>{items}</ol> : <ul key={blocks.length}>{items}</ul>);
     }
     list = null;
@@ -62,7 +79,7 @@ export const RichText = ({ text }: { text: string }) => {
       flushList();
       blocks.push(
         <p key={blocks.length} className={styles.heading}>
-          {inline(heading[1] ?? "")}
+          {inline(heading[1] ?? "", onNavigate)}
         </p>,
       );
     } else {

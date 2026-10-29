@@ -1,0 +1,57 @@
+/* Lanzador flotante de Tita: orbe abajo a la derecha, con rótulo al pasar el cursor. */
+.launcher {
+  position: fixed;
+  right: 18px;
+  bottom: 18px;
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 8px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--surface);
+  box-shadow: var(--shadow-lift);
+  color: var(--ink);
+  font: inherit;
+  cursor: pointer;
+  transition: transform var(--dur) ease, box-shadow var(--dur) ease;
+}
+.launcher:hover {
+  transform: translateY(-2px);
+}
+.launcher:focus-visible {
+  outline: 2px solid var(--sprout);
+  outline-offset: 2px;
+}
+.label {
+  max-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  font-size: 14px;
+  font-weight: 500;
+  opacity: 0;
+  transition: max-width var(--dur) ease, opacity var(--dur) ease, padding var(--dur) ease;
+}
+.launcher:hover .label,
+.launcher:focus-visible .label {
+  max-width: 200px;
+  padding-right: 8px;
+  opacity: 1;
+}
+@media (max-width: 640px) {
+  .launcher {
+    right: 12px;
+    bottom: 12px;
+  }
+}
+@media print {
+  .launcher {
+    display: none;
+  }
+}
+
+/* Con un diálogo abierto el orbe se aparta: no debe tapar los botones del pie. */
+:global(body[data-modal-open]) .launcher {
+  display: none;
+}

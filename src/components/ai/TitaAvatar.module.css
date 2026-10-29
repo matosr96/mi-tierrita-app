@@ -10,7 +10,7 @@
   fill: var(--sprout-soft);
 }
 .soil {
-  fill: #c9a57f;
+  fill: var(--tita-soil);
   opacity: 0.45;
 }
 .stem {
@@ -29,19 +29,19 @@
   fill: var(--sprout);
 }
 .shine {
-  fill: #ffffff;
+  fill: var(--white);
   opacity: 0.22;
 }
 .eye {
-  fill: #12301f;
+  fill: var(--tita-ink);
 }
 .cheek {
-  fill: #f2a7a0;
+  fill: var(--tita-cheek);
   opacity: 0.7;
 }
 .smile {
   fill: none;
-  stroke: #12301f;
+  stroke: var(--tita-ink);
   stroke-width: 1.8;
   stroke-linecap: round;
 }

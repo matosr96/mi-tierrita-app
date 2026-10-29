@@ -131,3 +131,14 @@
     height: max(520px, calc(100vh - 200px));
   }
 }
+
+.manual {
+  margin: 12px 0 0;
+  font-size: 13.5px;
+  color: var(--muted);
+}
+.manual a {
+  color: var(--link);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}

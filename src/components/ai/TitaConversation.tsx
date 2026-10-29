@@ -1,27 +1,26 @@
 import { useEffect, useRef, useState, type ChangeEvent, type FormEvent, type KeyboardEvent } from "react";
-import { useNavigate } from "react-router-dom";
-import { useTitaConversation, useTitaVoice } from "@/hooks/ai";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useTitaAutocomplete, useTitaConversation, useTitaVoice } from "@/hooks/ai";
+import { screenOf } from "@/services/ai";
 import { useSessionStore } from "@/stores/session";
 import { useAiStore, type ActionState, type AiMessage } from "@/stores/ai";
 import { ACCEPTED_FILES, fileToAttachment } from "@/lib/attachments";
-import type { AiAction, AiAttachment, AiProposal, AiReportProposal, Role } from "@/types/api";
+import type { AiAction, AiAttachment, AiProposal, AiReportProposal } from "@/types/api";
 import { RichText } from "./RichText";
 import { TitaAvatar } from "./TitaAvatar";
+import { TitaOrb } from "./TitaOrb";
+import { suggestionsFor } from "./suggestions";
 import styles from "./TitaConversation.module.css";
 
-/** Preguntas de ejemplo por rol: lo que de verdad pregunta o pide cada puesto en la tienda. */
-export const SUGGESTIONS: Record<Role, string[]> = {
-  ADMIN: ["¿Cómo van las ventas de este mes frente al mes pasado?", "¿Qué debo reponer esta semana y cuánto?", "Súbale 200 pesos al precio de venta del arroz", "Genere el reporte de cartera"],
-  SALES: ["¿Cuánto vendimos hoy y cuánto fue a crédito?", "¿A quién debo cobrar primero?", "Cree el cliente Pedro Gómez, cédula 1067889900", "Venda 2 arroz de contado"],
-  WAREHOUSE: ["¿Qué lotes vencen esta semana?", "¿Qué productos se van a acabar pronto?", "Registre la compra de 24 leches que vencen en diciembre", "¿Qué productos no se están vendiendo?"],
-};
+export { SUGGESTIONS } from "./suggestions";
 
-const REPORT_PATH: Record<AiReportProposal["report"], string> = { sales: "sales", inventory: "inventory", receivables: "receivables" };
+export const REPORT_PATH: Record<AiReportProposal["report"], string> = { sales: "sales", inventory: "inventory", receivables: "receivables" };
+export const reportHref = (r: AiReportProposal): string => `/reportes?r=${REPORT_PATH[r.report]}&${new URLSearchParams(Object.entries(r.params).map(([k, v]) => [k, String(v)])).toString()}`;
 
 const STATUS_TEXT: Record<ActionState["status"], string> = { idle: "", running: "Registrando…", done: "Hecho", failed: "No se pudo", dismissed: "Descartado" };
 
 /** Tarjeta de una acción: qué se hará, avisos, y Confirmar / Descartar. Solo al confirmar se llama a la API. */
-const ActionCard = ({ a, state, onRun, onDismiss, onOpenScreen }: { a: AiAction; state: ActionState | undefined; onRun: () => void; onDismiss: () => void; onOpenScreen?: (() => void) | undefined }) => {
+export const ActionCard = ({ a, state, onRun, onDismiss, onOpenScreen }: { a: AiAction; state: ActionState | undefined; onRun: () => void; onDismiss: () => void; onOpenScreen?: (() => void) | undefined }) => {
   const status = state?.status ?? "idle";
   return (
     <div className={[styles.card, styles[`card_${status}`]].join(" ")}>
@@ -61,7 +60,7 @@ const ActionCard = ({ a, state, onRun, onDismiss, onOpenScreen }: { a: AiAction;
   );
 };
 
-const ReportCard = ({ r, onOpen }: { r: AiReportProposal; onOpen: () => void }) => (
+export const ReportCard = ({ r, onOpen }: { r: AiReportProposal; onOpen: () => void }) => (
   <div className={styles.card}>
     <div className={styles.cardHead}>
       <strong>{r.title}</strong>
@@ -96,11 +95,14 @@ const Attachments = ({ files }: { files: AiAttachment[] }) => (
  */
 export const TitaConversation = ({ compact = false, onNavigate }: { compact?: boolean; onNavigate?: () => void }) => {
   const user = useSessionStore((s) => s.user);
-  const { messages, pending, send, run, dismiss } = useTitaConversation();
+  const { messages, pending, pendingNote, send, retry, run, dismiss } = useTitaConversation();
   const handOff = useAiStore((s) => s.handOff);
   const voice = useTitaVoice((text) => send(text));
   const navigate = useNavigate();
+  const location = useLocation();
+  const screen = screenOf(location.pathname);
   const [draft, setDraft] = useState("");
+  const autocomplete = useTitaAutocomplete(draft, screen);
   const [files, setFiles] = useState<AiAttachment[]>([]);
   const [fileError, setFileError] = useState<string | null>(null);
   const [reading, setReading] = useState(false);
@@ -135,7 +137,7 @@ export const TitaConversation = ({ compact = false, onNavigate }: { compact?: bo
     onNavigate?.();
     navigate(path);
   };
-  const openReport = (r: AiReportProposal) => go(`/reportes?r=${REPORT_PATH[r.report]}&${new URLSearchParams(Object.entries(r.params).map(([k, v]) => [k, String(v)])).toString()}`);
+  const openReport = (r: AiReportProposal) => go(reportHref(r));
   const openScreen = (a: AiAction) => {
     if (!a.handoff) return;
     handOff(a.handoff);
@@ -164,12 +166,22 @@ export const TitaConversation = ({ compact = false, onNavigate }: { compact?: bo
     e.preventDefault();
     ask(draft);
   };
+  const acceptSuggestion = () => {
+    if (!autocomplete.suggestion) return;
+    setDraft(autocomplete.accept());
+    autocomplete.clear();
+    inputRef.current?.focus();
+  };
   const onKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       ask(draft);
+    } else if (e.key === "Tab" && autocomplete.suggestion && !e.shiftKey) {
+      e.preventDefault();
+      acceptSuggestion();
     }
   };
+  const suggested = suggestionsFor(user.role, screen);
 
   const proposalView = (m: AiMessage, p: AiProposal, i: number) =>
     p.type === "report" ? (
@@ -183,7 +195,7 @@ export const TitaConversation = ({ compact = false, onNavigate }: { compact?: bo
       <ol className={styles.list} ref={listRef} aria-live="polite">
         {messages.length === 0 ? (
           <li className={styles.empty}>
-            <TitaAvatar size={compact ? 56 : 76} />
+            {compact ? <TitaAvatar size={56} /> : <TitaOrb size={96} />}
             <p className={styles.hello}>
               Hola, {user.firstName}. Soy Tita.
               <br />
@@ -193,13 +205,17 @@ export const TitaConversation = ({ compact = false, onNavigate }: { compact?: bo
               Pregúnteme lo que necesite del negocio o pídame que lo haga: crear clientes o productos, registrar ventas, abonos y compras, generar reportes… Usted
               confirma cada cosa. También puede enviarme fotos y documentos, o hablarme.
             </p>
+            {suggested.title ? <p className={styles.suggestTitle}>{suggested.title}</p> : null}
             <div className={styles.suggestions}>
-              {SUGGESTIONS[user.role].map((s) => (
+              {suggested.items.map((s) => (
                 <button key={s} type="button" onClick={() => ask(s)}>
                   {s}
                 </button>
               ))}
             </div>
+            <Link to="/ayuda/tita" className={styles.manualLink} onClick={onNavigate}>
+              ¿Qué puede pedirle? Vea el manual de Tita
+            </Link>
           </li>
         ) : (
           messages.map((m) =>
@@ -210,13 +226,37 @@ export const TitaConversation = ({ compact = false, onNavigate }: { compact?: bo
             ) : m.role === "user" ? (
               <li key={m.id} className={styles.userRow}>
                 {m.attachments ? <Attachments files={m.attachments} /> : null}
+                {m.attachmentNames ? (
+                  <ul className={styles.files}>
+                    {m.attachmentNames.map((n) => (
+                      <li key={n}>
+                        <span className={styles.fileName}>{n}</span>
+                      </li>
+                    ))}
+                  </ul>
+                ) : null}
                 <span className={styles.user}>{m.content}</span>
               </li>
-            ) : (
-              <li key={m.id} className={[styles.assistant, m.error ? styles.error : ""].join(" ")}>
+            ) : m.error ? (
+              <li key={m.id} className={[styles.assistant, styles.error].join(" ")} role="alert">
                 <TitaAvatar size={30} />
                 <div className={styles.bubble}>
+                  <p className={styles.errorTitle}>{m.errorKind === "timeout" ? "Tardó demasiado" : m.errorKind === "offline" ? "Sin conexión" : `Error con código ${m.errorCode ?? ""}`.trim()}</p>
                   <RichText text={m.content} />
+                  {m.retryOf ? (
+                    <div className={styles.cardActions}>
+                      <button type="button" className={styles.confirmBtn} onClick={() => void retry(m.id)} disabled={pending}>
+                        Intentar de nuevo
+                      </button>
+                    </div>
+                  ) : null}
+                </div>
+              </li>
+            ) : (
+              <li key={m.id} className={styles.assistant}>
+                <TitaAvatar size={30} />
+                <div className={styles.bubble}>
+                  <RichText text={m.content} onNavigate={onNavigate} />
                   {m.proposals?.map((p, i) => proposalView(m, p, i))}
                   {m.sources && m.sources.length > 0 ? <p className={styles.sources}>Datos de: {m.sources.map((s) => s.label).join(" · ")}</p> : null}
                 </div>
@@ -226,9 +266,9 @@ export const TitaConversation = ({ compact = false, onNavigate }: { compact?: bo
         )}
         {voice.interim ? <li className={[styles.userRow, styles.interim].join(" ")}>{voice.interim}</li> : null}
         {pending ? (
-          <li className={styles.thinking}>
+          <li className={styles.thinking} role="status">
             <TitaAvatar size={30} thinking />
-            <span>Tita está revisando los datos…</span>
+            <span>{pendingNote ?? "Tita está revisando los datos…"}</span>
           </li>
         ) : null}
       </ol>
@@ -259,6 +299,15 @@ export const TitaConversation = ({ compact = false, onNavigate }: { compact?: bo
       ) : null}
       {voice.error ? <p className={styles.fileError}>{voice.error}</p> : null}
 
+      {autocomplete.suggestion ? (
+        <div className={styles.autocomplete} role="status">
+          <button type="button" className={styles.autocompleteBtn} onClick={acceptSuggestion} title="Aceptar la sugerencia (Tab)">
+            <span className={styles.autocompleteTyped}>{draft}</span>
+            <span className={styles.autocompleteRest}>{autocomplete.suggestion}</span>
+          </button>
+          <span className={styles.autocompleteHint}>Tab</span>
+        </div>
+      ) : null}
       <form className={styles.composer} onSubmit={onSubmit}>
         <input ref={fileRef} id={`tita-file-${uid}`} type="file" accept={ACCEPTED_FILES} multiple className={styles.srOnly} onChange={pick} />
         <button type="button" className={styles.toolBtn} onClick={() => fileRef.current?.click()} aria-label="Adjuntar foto o documento" title="Adjuntar foto o documento (PDF, Excel, CSV)">

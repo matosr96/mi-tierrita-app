@@ -1,0 +1,15 @@
+/* Tarjetas de Tita dentro del chat o de los comentarios. */
+.cards {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 8px;
+}
+.other {
+  margin: 0;
+  padding: 8px 12px;
+  border-radius: 12px;
+  background: var(--surface-2);
+  color: var(--muted);
+  font-size: 13px;
+}

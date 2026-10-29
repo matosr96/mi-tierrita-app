@@ -77,6 +77,19 @@
   border-color: transparent;
   color: var(--forest);
 }
+.suggestTitle {
+  margin: 4px 0 -2px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--muted);
+}
+.manualLink {
+  margin-top: 4px;
+  font-size: 13px;
+  color: var(--link);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
 .suggestions button:focus-visible {
   outline: 2px solid var(--sprout);
   outline-offset: 1px;
@@ -162,6 +175,12 @@
   border-radius: 14px;
   background: var(--bad-soft);
 }
+.errorTitle {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--bad-tag-fg);
+}
 .sources {
   margin: 0;
   font-size: 12px;
@@ -207,7 +226,7 @@
   border-radius: 18px;
   background: var(--surface);
   border: 1px solid var(--line);
-  box-shadow: 0 10px 24px -20px rgba(16, 48, 30, 0.5);
+  box-shadow: 0 10px 24px -20px color-mix(in srgb, var(--shadow-ink) 50%, transparent);
 }
 .card_done {
   border-color: var(--good-line);
@@ -393,6 +412,56 @@
 }
 
 /* ---------- escribir ---------- */
+/* Autocompletado: lo escrito en tinta y la continuación propuesta en gris; se acepta con Tab o tocándola. */
+.autocomplete {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 14px 6px;
+}
+.wide .autocomplete {
+  width: min(760px, calc(100% - 48px));
+  margin: 0 auto 6px;
+}
+.autocompleteBtn {
+  flex: 1;
+  min-width: 0;
+  padding: 8px 14px;
+  border: 1px dashed var(--line-strong);
+  border-radius: 16px;
+  background: var(--surface);
+  font: inherit;
+  font-size: 14px;
+  text-align: left;
+  cursor: pointer;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  transition: background-color var(--dur) ease, border-color var(--dur) ease;
+}
+.autocompleteBtn:hover {
+  background: var(--sprout-soft);
+  border-color: transparent;
+}
+.autocompleteBtn:focus-visible {
+  outline: 2px solid var(--sprout);
+  outline-offset: 1px;
+}
+.autocompleteTyped {
+  color: var(--ink-2);
+}
+.autocompleteRest {
+  color: var(--muted);
+}
+.autocompleteHint {
+  flex-shrink: 0;
+  padding: 2px 8px;
+  border-radius: 6px;
+  border: 1px solid var(--line);
+  color: var(--muted);
+  font-family: var(--font-mono);
+  font-size: 11px;
+}
 .composer {
   display: flex;
   align-items: flex-end;

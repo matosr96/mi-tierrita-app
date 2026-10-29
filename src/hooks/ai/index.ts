@@ -5,3 +5,5 @@ export * from "./useAiDraft";
 export * from "./useReadInvoice";
 export * from "./useTitaConversation";
 export * from "./useTitaVoice";
+export * from "./useAiConversations";
+export * from "./useTitaAutocomplete";

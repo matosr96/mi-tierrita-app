@@ -1,8 +1,9 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useAiStore } from "@/stores/ai";
 import { TitaAvatar } from "./TitaAvatar";
 import { TitaConversation } from "./TitaConversation";
+import { TitaHistory } from "./TitaHistory";
 import styles from "./TitaPanel.module.css";
 
 /** Acceso rápido a Tita desde cualquier pantalla (botón de la barra o ⌘J). La misma conversación sigue en /tita. */
@@ -13,13 +14,14 @@ export const TitaPanel = () => {
   const reset = useAiStore((s) => s.reset);
   const location = useLocation();
   const onPage = location.pathname === "/tita";
+  const [historyOpen, setHistoryOpen] = useState(false);
 
   useEffect(() => {
     if (!open) return;
-    const onKey = (e: KeyboardEvent) => e.key === "Escape" && setOpen(false);
+    const onKey = (e: KeyboardEvent) => e.key === "Escape" && !historyOpen && setOpen(false);
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [open, setOpen]);
+  }, [open, setOpen, historyOpen]);
 
   // En la página de Tita el panel sobra: la conversación ya está a la vista.
   if (!open || onPage) return null;
@@ -37,6 +39,9 @@ export const TitaPanel = () => {
           <Link to="/tita" className={styles.fullLink} onClick={() => setOpen(false)}>
             Pantalla completa
           </Link>
+          <button type="button" className={styles.textBtn} onClick={() => setHistoryOpen(true)}>
+            Historial
+          </button>
           {hasMessages ? (
             <button type="button" className={styles.textBtn} onClick={reset}>
               Nueva
@@ -49,6 +54,7 @@ export const TitaPanel = () => {
           </button>
         </header>
         <TitaConversation compact onNavigate={() => setOpen(false)} />
+        <TitaHistory open={historyOpen} onClose={() => setHistoryOpen(false)} />
       </aside>
     </>
   );

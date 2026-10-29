@@ -1,0 +1,87 @@
+/* Historial de conversaciones con Tita: lista de tarjetas en píldora dentro del modal. */
+.empty {
+  margin: 0;
+  color: var(--muted);
+  font-size: 14px;
+}
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  border-radius: var(--radius-sm);
+  background: var(--surface-2);
+  transition: background-color var(--dur) ease;
+}
+.item:hover {
+  background: var(--hover);
+}
+.current {
+  background: var(--sprout-soft);
+}
+.openBtn {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 10px 12px;
+  border: 0;
+  background: transparent;
+  color: var(--ink);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+}
+.openBtn:disabled {
+  cursor: wait;
+}
+.openBtn:focus-visible {
+  outline: 2px solid var(--sprout);
+  outline-offset: -2px;
+}
+.title {
+  font-size: 14.5px;
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.meta {
+  font-size: 12.5px;
+  color: var(--muted);
+}
+.deleteBtn {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  margin-right: 6px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  transition: background-color var(--dur) ease, color var(--dur) ease;
+}
+.deleteBtn:hover {
+  background: var(--bad-soft);
+  color: var(--bad);
+}
+.deleteBtn:focus-visible {
+  outline: 2px solid var(--sprout);
+  outline-offset: 1px;
+}
+.confirm {
+  display: inline-flex;
+  gap: 4px;
+  margin-right: 6px;
+}

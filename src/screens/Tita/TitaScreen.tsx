@@ -1,7 +1,10 @@
+import { useState } from "react";
 import { PageHeader } from "@/components/layout/AppShell";
 import { Button, Card, EmptyState, Loading } from "@/components/ui";
-import { TitaAvatar } from "@/components/ai/TitaAvatar";
+import { Link } from "react-router-dom";
+import { TitaOrb } from "@/components/ai/TitaOrb";
 import { TitaConversation } from "@/components/ai/TitaConversation";
+import { TitaHistory } from "@/components/ai/TitaHistory";
 import { useAiStatus, useBriefing, useTitaConversation } from "@/hooks/ai";
 import { useSessionStore } from "@/stores/session";
 import { toRow } from "@/screens/Home/BriefingCard";
@@ -43,6 +46,7 @@ export const TitaScreen = () => {
   const user = useSessionStore((s) => s.user);
   const briefing = useBriefing();
   const { messages, pending, send, reset } = useTitaConversation();
+  const [historyOpen, setHistoryOpen] = useState(false);
 
   if (ai.isPending) return <Loading text="Buscando a Tita…" />;
   if (!ai.enabled || !user) {
@@ -64,13 +68,19 @@ export const TitaScreen = () => {
         title="Tita"
         subtitle="La asistente de Mi Tierrita: responde con los datos del sistema que su cuenta puede ver."
         actions={
-          messages.length > 0 ? (
-            <Button variant="secondary" onClick={reset} disabled={pending}>
-              Nueva conversación
+          <>
+            <Button variant="secondary" onClick={() => setHistoryOpen(true)}>
+              Historial
             </Button>
-          ) : undefined
+            {messages.length > 0 ? (
+              <Button variant="secondary" onClick={reset} disabled={pending}>
+                Nueva conversación
+              </Button>
+            ) : null}
+          </>
         }
       />
+      <TitaHistory open={historyOpen} onClose={() => setHistoryOpen(false)} />
 
       <div className={styles.layout}>
         <section className={styles.chat} aria-label="Conversación con Tita">
@@ -80,7 +90,7 @@ export const TitaScreen = () => {
         <aside className={styles.side}>
           <Card>
             <div className={styles.who}>
-              <TitaAvatar size={64} />
+              <TitaOrb size={72} busy={pending} />
               <div>
                 <strong>Tita</strong>
                 <span>Asistente de Mi Tierrita</span>
@@ -98,6 +108,9 @@ export const TitaScreen = () => {
                 <li key={t}>{t}</li>
               ))}
             </ul>
+            <p className={styles.manual}>
+              <Link to="/ayuda/tita">Manual de Tita</Link> · <Link to={`/ayuda/tita/${user.role.toLowerCase()}`}>Manual para su rol</Link>
+            </p>
           </Card>
 
           {rows.length > 0 ? (
@@ -116,8 +129,8 @@ export const TitaScreen = () => {
           ) : null}
 
           <p className={styles.privacy}>
-            La conversación no se guarda: se borra al cerrar sesión. Todo lo que usted confirma pasa por las mismas reglas y permisos del sistema y queda en la
-            auditoría a su nombre, con la marca IA. Tita no crea usuarios ni maneja contraseñas.
+            Sus conversaciones quedan en su historial y solo usted las ve (los archivos adjuntos no se guardan). Todo lo que usted confirma pasa por las mismas
+            reglas y permisos del sistema y queda en la auditoría a su nombre, con la marca IA. Tita no crea usuarios ni maneja contraseñas.
           </p>
         </aside>
       </div>

@@ -33,3 +33,14 @@
   color: var(--ink);
   white-space: pre-wrap;
 }
+
+/* Enlace interno a una pantalla o pestaña de la app, como atajo desde la respuesta. */
+.link {
+  color: var(--link);
+  font-weight: 500;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.link:hover {
+  color: var(--forest);
+}
