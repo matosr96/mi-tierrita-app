@@ -32,6 +32,7 @@ import {
   statusTitle,
 } from "./homeDates";
 import { adminAttention } from "./attention";
+import { Calendar } from "@/components/calendar";
 import { StatusAside } from "./StatusAside";
 import { BriefingCard } from "./BriefingCard";
 import styles from "./HomeScreen.module.css";
@@ -305,6 +306,9 @@ export const AdminHome = ({ user }: { user: User }) => {
           </QueryState>
         </Card>
         <DecisionCard query={scenarios} />
+        <Card title="Esta semana" subtitle="Lo que tiene fecha en los próximos siete días">
+          <Calendar days={7} />
+        </Card>
       </div>
     </>
   );

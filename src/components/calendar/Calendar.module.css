@@ -1,0 +1,373 @@
+/* Calendario reutilizable: barra con mes y vista, resumen, filtros en píldora y rejilla o agenda. */
+.calendar {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-width: 0;
+}
+.compact {
+  gap: 10px;
+}
+.toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.monthNav {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+.monthLabel {
+  min-width: 150px;
+  text-align: center;
+  font-family: var(--font-heading);
+  font-size: 20px;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+}
+.navBtn {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  background: var(--surface);
+  color: var(--ink-2);
+  cursor: pointer;
+  transition: background-color var(--dur) ease, color var(--dur) ease;
+}
+.navBtn:hover {
+  background: var(--hover);
+  color: var(--ink);
+}
+.navBtn:focus-visible {
+  outline: 2px solid var(--sprout);
+  outline-offset: 2px;
+}
+.summary {
+  margin: 0;
+  font-size: 14px;
+  color: var(--ink-2);
+  font-variant-numeric: tabular-nums;
+}
+.filters {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.filterRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.filterLabel {
+  min-width: 64px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--muted);
+}
+.busy {
+  opacity: 0.6;
+  transition: opacity var(--dur) ease;
+}
+
+/* ---------- rejilla del mes ---------- */
+.month {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.weekdays,
+.grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 6px;
+}
+.weekdays span {
+  text-align: center;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--muted);
+}
+.cell {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 4px;
+  min-width: 0;
+  min-height: 96px;
+  padding: 6px;
+  border-radius: var(--radius-sm);
+  text-align: left;
+}
+.outside {
+  background: transparent;
+}
+.outside .dayNum {
+  color: var(--muted-2);
+}
+.day {
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--ink);
+  font: inherit;
+  cursor: pointer;
+  transition: background-color var(--dur) ease, border-color var(--dur) ease;
+}
+.day:hover {
+  background: var(--hover);
+}
+.day:focus-visible {
+  outline: 2px solid var(--sprout);
+  outline-offset: 1px;
+}
+.dayNum {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink-2);
+  font-variant-numeric: tabular-nums;
+}
+.today .dayNum {
+  display: inline-grid;
+  place-items: center;
+  align-self: flex-start;
+  min-width: 24px;
+  height: 24px;
+  padding: 0 4px;
+  margin: -2px 0 0 -2px;
+  border-radius: 999px;
+  background: var(--sprout);
+  color: var(--sprout-ink);
+}
+.selected,
+.selected:hover {
+  border-color: var(--sprout);
+  background: var(--sprout-soft);
+}
+.pills {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+.pill {
+  display: block;
+  min-width: 0;
+  padding: 2px 7px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 1.4;
+}
+.pillText {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.more {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--muted);
+  padding-left: 4px;
+}
+
+/* Tonos compartidos por píldoras e ítems: vencido en rojo, cerrado en verde tenue, alta en ámbar, el resto verde suave. */
+.toneBad {
+  --tone-bg: var(--bad-tag-bg);
+  --tone-fg: var(--bad-tag-fg);
+  --tone-bar: var(--bad);
+}
+.toneDone {
+  --tone-bg: var(--good-soft);
+  --tone-fg: var(--muted);
+  --tone-bar: var(--good-line);
+}
+.toneWarn {
+  --tone-bg: var(--warn-tag-bg);
+  --tone-fg: var(--warn-tag-fg);
+  --tone-bar: var(--warn);
+}
+.tonePending {
+  --tone-bg: var(--sprout-soft);
+  --tone-fg: var(--forest-fg);
+  --tone-bar: var(--sprout);
+}
+.pill.toneBad,
+.pill.toneDone,
+.pill.toneWarn,
+.pill.tonePending {
+  background: var(--tone-bg);
+  color: var(--tone-fg);
+}
+
+/* ---------- lista de un día y agenda ---------- */
+.dayPanel {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 8px;
+}
+.dayEmpty {
+  margin: 0;
+  font-size: 14px;
+  color: var(--muted);
+}
+.agenda {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.agendaDay {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.agendaHead {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--ink);
+}
+.todayTag {
+  display: inline-flex;
+  align-items: center;
+  height: 22px;
+  padding: 0 9px;
+  border-radius: 999px;
+  background: var(--sprout-soft);
+  color: var(--forest-fg);
+  font-size: 12px;
+  font-weight: 600;
+}
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 10px 14px 10px 10px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--ink);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color var(--dur) ease, border-color var(--dur) ease;
+}
+.item:hover {
+  background: var(--hover);
+}
+.item:focus-visible {
+  outline: 2px solid var(--sprout);
+  outline-offset: 2px;
+}
+.itemBar {
+  flex: none;
+  align-self: stretch;
+  width: 4px;
+  border-radius: 999px;
+  background: var(--tone-bar);
+}
+.itemBody {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+  min-width: 0;
+}
+.itemTitle {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ink);
+  overflow-wrap: anywhere;
+}
+.toneDone .itemTitle {
+  color: var(--ink-2);
+}
+.itemDetail {
+  font-size: 13px;
+  color: var(--ink-2);
+  overflow-wrap: anywhere;
+}
+.itemMeta {
+  font-size: 12px;
+  color: var(--muted);
+}
+.compactFoot {
+  display: flex;
+  justify-content: flex-end;
+}
+
+/* En pantallas angostas las píldoras pasan a puntos de color y la etiqueta del ítem baja bajo el texto. */
+@media (max-width: 720px) {
+  .weekdays,
+  .grid {
+    gap: 3px;
+  }
+  .cell {
+    min-height: 52px;
+    padding: 4px;
+    align-items: center;
+  }
+  .today .dayNum {
+    margin: 0;
+    align-self: center;
+  }
+  .pills {
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 3px;
+  }
+  .pill {
+    width: 7px;
+    height: 7px;
+    padding: 0;
+  }
+  .pill.toneBad,
+  .pill.toneDone,
+  .pill.toneWarn,
+  .pill.tonePending {
+    background: var(--tone-bar);
+  }
+  .pillText {
+    display: none;
+  }
+  .more {
+    padding: 0;
+    font-size: 10px;
+    line-height: 7px;
+  }
+  .monthLabel {
+    min-width: 0;
+    font-size: 17px;
+  }
+}
+@media (max-width: 480px) {
+  .item {
+    flex-wrap: wrap;
+  }
+  .item > :last-child {
+    margin-left: 16px;
+  }
+}
