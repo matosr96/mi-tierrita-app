@@ -455,7 +455,7 @@ export type AiInvoiceReading = {
   notes: string | null;
 };
 export type AiDraftKind = "collection_message" | "contact_reply" | "report_summary" | "scenario_explain";
-export type AiDraftRequest = { kind: AiDraftKind; customerId?: number; contactId?: number; scenarioId?: number; from?: string; to?: string };
+export type AiDraftRequest = { kind: AiDraftKind; customerId?: number; contactId?: number; projectId?: number; from?: string; to?: string };
 export type AiDraft = { kind: AiDraftKind; text: string; phone: string | null };
 
 /* ---------- Alarmas, avisos de vencimiento y Web Push (brief 2026, puntos 12 a 14) ---------- */
@@ -704,3 +704,91 @@ export type CreateOrderInput = { kind: OrderKind; supplierId?: number; customerI
 export type UpdateOrderInput = { supplierId?: number; customerId?: number; dueDate?: string; note?: string | null; lines?: OrderLineInput[] };
 export type ReceiveOrderInput = { lines: { lineId: number; quantity: number; unitCost?: number; expiresAt: string }[] };
 export type ReceiveOrderResult = { order: OrderDetail; batches: ProductBatch[] };
+
+/* ---------- Simulador financiero por unidades (Fase B; `business-logic/financial/simulator.ts` de la API) ---------- */
+
+export type SimCompetitor = { name: string; share: number; satisfaction: number };
+export type SimFixedCost = { name: string; annual: number };
+export type SimulatorInput = {
+  market: { population: number; purchaseIntent: number; consumptionPerPerson: number; gdpGrowth: number; gdpSensitivity: number; unemploymentChange: number; unemploymentSensitivity: number };
+  competition: { competitors: SimCompetitor[]; conversionFactor: number };
+  costs: { fixedCosts: SimFixedCost[]; variableUnitCost: number; inflation: number; marginOnCost: number };
+  investment: { fixedAssets: number; workingCapital: number; deferred: number; contingencies: number; depreciationYears: number; deferredAmortizationYears: number };
+  financing: { creditPct: number; creditRateEA: number; termMonths: number };
+  evaluation: { horizonYears: number; discountRate: number; taxRate: number };
+};
+export type SimCostYear = {
+  year: number;
+  units: number;
+  fixedCosts: { name: string; amount: number }[];
+  fixedTotal: number;
+  variableUnitCost: number;
+  variableTotal: number;
+  total: number;
+  fixedUnitCost: number;
+  unitCost: number;
+};
+export type SimInvestmentItem = { key: "fixedAssets" | "workingCapital" | "deferred" | "contingencies"; label: string; amount: number; share: number };
+export type SimDepreciationYear = { year: number; depreciation: number; amortization: number; charge: number; netBookValue: number; deferredNetValue: number };
+export type SimFinancingYear = { year: number; installments: number; interest: number; principal: number; balance: number };
+export type SimCoverageYear = { year: number; freeCashFlow: number; debtService: number; coverage: number | null };
+export type SimCashFlowYear = {
+  year: number;
+  units: number;
+  price: number;
+  revenue: number;
+  fixedCosts: number;
+  variableCosts: number;
+  ebitda: number;
+  depreciationAmortization: number;
+  taxableIncome: number;
+  tax: number;
+  freeCashFlow: number;
+  workingCapitalRecovery: number;
+  salvage: number;
+  netFlow: number;
+};
+export type SimIndicators = { npv: number; irr: number | null; paybackSimple: number | null; paybackDiscounted: number | null; benefitCostRatio: number };
+export type SimTornadoBar = { variable: "price" | "variableUnitCost" | "demand" | "discountRate" | "inflation"; label: string; change: string; lowValue: number; highValue: number; npvLow: number; npvHigh: number; amplitude: number };
+export type SimScenarioRow = SimIndicators & { key: "pessimistic" | "base" | "optimistic"; label: string; demandChange: number; priceChange: number };
+export type SimulatorResult = {
+  market: { monthlyDemand: number; annualDemand: number; gdpTerm: number; unemploymentTerm: number; growth: number; years: { year: number; demand: number }[] };
+  competition: { competitors: (SimCompetitor & { captureProbability: number; contribution: number })[]; othersShare: number; marketShare: number; monthlyUnits: number; annualUnits: number };
+  costs: { years: SimCostYear[]; unitCost: number; price: number; marginOnCost: number; marginOnPrice: number };
+  investment: { items: SimInvestmentItem[]; total: number; annualDepreciation: number; annualAmortization: number; schedule: SimDepreciationYear[] };
+  financing: {
+    credit: number;
+    ownContribution: number;
+    debtRatio: number;
+    equityRatio: number;
+    creditRateEA: number;
+    monthlyRate: number;
+    termMonths: number;
+    installment: number;
+    totalInterest: number;
+    afterTaxCostOfDebt: number;
+    monthly: AmortizationRow[];
+    annual: SimFinancingYear[];
+    coverage: SimCoverageYear[];
+    minCoverage: number | null;
+    coverageAlert: boolean;
+  };
+  cashFlow: { years: SimCashFlowYear[]; flows: number[] };
+  indicators: SimIndicators & { discountRate: number; taxRate: number; irrOverCredit: number | null };
+  risks: { baseNpv: number; tornado: SimTornadoBar[] };
+  scenarios: SimScenarioRow[];
+};
+export type SimulatorCalculation = { input: SimulatorInput; result: SimulatorResult };
+export type ProjectSummary = {
+  id: number;
+  name: string;
+  userId: number;
+  username: string;
+  highlights: { totalInvestment: number; creditPct: number; termMonths: number; growth: number; annualUnits: number; price: number; marginOnCost: number };
+  indicators: { npv: number; irr: number | null; paybackSimple: number | null; benefitCostRatio: number; installment: number; minCoverage: number | null };
+  createdAt: string;
+  updatedAt: string;
+};
+export type ProjectDetail = ProjectSummary & SimulatorCalculation;
+export type ProjectComparison = ProjectSummary & { scenarios: SimScenarioRow[] };
+export type ProjectScope = "mine" | "all";

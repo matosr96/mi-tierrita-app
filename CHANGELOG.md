@@ -2,6 +2,19 @@
 
 Formato basado en [Keep a Changelog](https://keepachangelog.com/es/1.1.0/). Fechas en hora de Colombia.
 
+## [Sin publicar] · Fase B del brief: simulador financiero (29/10/2026)
+
+### Cambiado
+- Finanzas es ahora el simulador financiero: pestañas Mercado, Competencia, Costos, Inversión, Financiación, Flujo de caja, Riesgos e informe y Escenarios. Cada cambio se recalcula en la API; la pantalla, el informe, «Exportar», el Inicio y Tita muestran las mismas cifras.
+- La tarjeta «Decisión abierta» del Inicio muestra el último proyecto del simulador.
+
+### Añadido
+- «Guardar proyecto», «Guardar como», lista por usuario o de todos, abrir, comparar de dos a cuatro proyectos, exportar cada uno y eliminar los propios.
+- Informe PDF y Excel en seis secciones en el orden de las pestañas, con folio y el párrafo de tasas (escudo fiscal, origen de la tasa mínima y TIR frente al crédito).
+
+### Quitado
+- Las vistas del modelo del capítulo 5 (Panel, Datos y supuestos, Escenarios y sensibilidad, Flujo y amortización) y sus hooks.
+
 ## [Sin publicar] · Fase A del brief de octubre de 2026
 
 ### Añadido

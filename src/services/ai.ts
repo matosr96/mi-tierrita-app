@@ -60,7 +60,7 @@ const ALLOWED_ACTIONS: { method: AiActionRequest["method"]; path: RegExp }[] = [
   { method: "POST", path: /^\/suppliers$/ },
   { method: "PUT", path: /^\/suppliers\/\d+$/ },
   { method: "POST", path: /^\/suppliers\/\d+\/purchases$/ },
-  { method: "POST", path: /^\/financial\/scenarios$/ },
+  { method: "POST", path: /^\/financial\/projects$/ },
   { method: "PATCH", path: /^\/contact-messages\/\d+$/ },
   { method: "POST", path: /^\/chat\/messages$/ },
   { method: "POST", path: /^\/alarms$/ },

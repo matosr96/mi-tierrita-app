@@ -13,7 +13,7 @@ import {
   useReceivablesReport,
   useSalesReport,
 } from "@/hooks/reports";
-import { useScenarios } from "@/hooks/financial";
+import { useProjects } from "@/hooks/financial";
 import { dateOnly, int, money, moneyCompact, todayIso } from "@/lib/format";
 import type {
   SalesReportDayRow,
@@ -54,7 +54,7 @@ export const AdminHome = ({ user }: { user: User }) => {
   });
   const receivables = useReceivablesReport();
   const inventory = useInventoryReport();
-  const scenarios = useScenarios({ limit: 1 });
+  const scenarios = useProjects("all", { limit: 1 });
   const days = (daily.data?.rows ?? []) as SalesReportDayRow[];
   const prevTotal = previous.data?.total;
   const attention =

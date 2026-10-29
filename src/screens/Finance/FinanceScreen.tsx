@@ -1,102 +1,114 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
-import { useScenario, useScenarios } from "@/hooks/financial";
-import type { ScenarioDetail } from "@/types/api";
+import { useProject, useSaveProject, useSimulation, useSimulatorDefaults } from "@/hooks/financial";
 import { PageHeader } from "@/components/layout/AppShell";
-import { Button, EmptyState, ErrorState, Loading, QueryState, Tabs, type TabOption } from "@/components/ui";
-import { dateOnly, money, moneyCompact, pct, times } from "@/lib/format";
-import { DecisionPanel } from "./DecisionPanel";
-import { AssumptionsPanel } from "./AssumptionsPanel";
-import { ScenariosPanel } from "./ScenariosPanel";
-import { ScenarioExport } from "./ScenarioExport";
-import { CashFlowPanel } from "./CashFlowPanel";
-import { ScenarioFormModal } from "./ScenarioFormModal";
-import { letterOf } from "./financeShared";
+import { Button, Callout, ErrorState, Loading, Tabs } from "@/components/ui";
+import { dateTime, money, moneyCompact, pct, times, years } from "@/lib/format";
+import { fieldErrors } from "@/lib/errors";
+import { useSessionStore } from "@/stores/session";
+import type { SimulatorInput, SimulatorResult } from "@/types/api";
+import { MarketTab } from "./MarketTab";
+import { CompetitionTab } from "./CompetitionTab";
+import { CostsTab } from "./CostsTab";
+import { InvestmentTab } from "./InvestmentTab";
+import { FinancingTab } from "./FinancingTab";
+import { CashFlowTab } from "./CashFlowTab";
+import { RisksTab } from "./RisksTab";
+import { ProjectsTab } from "./ProjectsTab";
+import { SaveAsModal } from "./SaveAsModal";
+import { SimulatorReport } from "./SimulatorReport";
+import { SIM_TABS, isSimTab, type SimTab, type TabProps } from "./simShared";
 import styles from "./FinanceScreen.module.css";
 
-export type FinanceTab = "panel" | "supuestos" | "escenarios" | "flujo";
+const EXAMPLE_NAME = "Ampliación del local (ejemplo)";
 
-const TAB_OPTIONS: TabOption<FinanceTab>[] = [
-  { value: "panel", label: "Panel" },
-  { value: "supuestos", label: "Datos y supuestos" },
-  { value: "escenarios", label: "Escenarios" },
-  { value: "flujo", label: "Flujo y amortización" },
-];
-
-/** Título y subtítulo de cada vista (el Panel usa el nombre del escenario). */
-const TAB_META: Record<Exclude<FinanceTab, "panel">, { title: string; subtitle: string }> = {
-  supuestos: { title: "Datos del caso y supuestos", subtitle: "Cada campo indica su origen. Un cambio recalcula todos los indicadores y queda registrado con su usuario." },
-  escenarios: { title: "Escenarios y sensibilidad", subtitle: "Qué alternativa conviene y cuánto margen de error tolera antes de dejar de convenir." },
-  flujo: { title: "Flujo de caja y amortización", subtitle: "Detalle año por año de la ampliación y mes por mes del crédito." },
+/** Espera a que se deje de escribir antes de pedir el recálculo a la API. */
+const useDebounced = <T,>(value: T, ms: number): T => {
+  const [current, setCurrent] = useState(value);
+  useEffect(() => {
+    const id = setTimeout(() => setCurrent(value), ms);
+    return () => clearTimeout(id);
+  }, [value, ms]);
+  return current;
 };
 
-const isTab = (v: string | undefined): v is FinanceTab => v === "panel" || v === "supuestos" || v === "escenarios" || v === "flujo";
-
+type Draft = { source: string; input: SimulatorInput };
 type Tone = "good" | "bad" | "warn" | undefined;
 const toneClass = (t: Tone): string => (t === "good" ? styles.tickGood : t === "bad" ? styles.tickBad : t === "warn" ? styles.tickWarn : "") ?? "";
 
-/** CU-14 a CU-17: evaluación de la ampliación con crédito. Solo ADMIN (la ruta ya lo garantiza). */
+/**
+ * Simulador financiero (Fase B): siete secciones en cadena más Escenarios. La pantalla solo edita supuestos; cada
+ * cambio se envía a `POST /financial/simulator/calculate` y se muestra lo que responde la API (una sola fuente).
+ * `?proyecto=<id>` abre un proyecto guardado; sin él se parte del ejemplo de $94,5 M. Solo ADMIN (la ruta ya lo garantiza).
+ */
 export const FinanceScreen = () => {
   const { tab: tabParam } = useParams();
-  const tab: FinanceTab = isTab(tabParam) ? tabParam : "panel";
+  const tab: SimTab = isSimTab(tabParam) ? tabParam : "mercado";
   const navigate = useNavigate();
-  const [searchParams, setSearchParams] = useSearchParams();
-  const scenarios = useScenarios();
-  const items = useMemo(() => [...(scenarios.data?.items ?? [])].sort((a, b) => b.createdAt.localeCompare(a.createdAt)), [scenarios.data]);
+  const [searchParams] = useSearchParams();
+  const userId = useSessionStore((s) => s.user?.id);
+  const rawId = Number(searchParams.get("proyecto"));
+  const projectId = Number.isInteger(rawId) && rawId > 0 ? rawId : null;
 
-  const paramId = Number(searchParams.get("escenario"));
-  const selectedId = items.some((s) => s.id === paramId) ? paramId : (items[0]?.id ?? null);
-  const selected = items.find((s) => s.id === selectedId);
-  const detail = useScenario(selectedId);
+  const project = useProject(projectId);
+  const defaults = useSimulatorDefaults(projectId === null);
+  const source = projectId === null ? defaults.data : project.data;
+  const sourceKey = projectId === null ? (defaults.data ? "ejemplo" : null) : project.data ? `p${project.data.id}:${project.data.updatedAt}` : null;
 
-  const [modal, setModal] = useState<{ open: boolean; prefill: ScenarioDetail | null }>({ open: false, prefill: null });
-  const openNew = () => setModal({ open: true, prefill: null });
-  const openDuplicate = () => setModal({ open: true, prefill: detail.data ?? null });
-  const closeModal = () => setModal({ open: false, prefill: null });
+  const [draft, setDraft] = useState<Draft | null>(null);
+  useEffect(() => {
+    if (source && sourceKey !== null && draft?.source !== sourceKey) setDraft({ source: sourceKey, input: source.input });
+  }, [source, sourceKey, draft?.source]);
 
-  const goTab = (t: FinanceTab) => navigate({ pathname: t === "panel" ? "/finanzas" : `/finanzas/${t}`, search: searchParams.toString() });
-  const selectScenario = (id: number) => setSearchParams({ escenario: String(id) });
-  const onCreated = (id: number) => {
-    closeModal();
-    setSearchParams({ escenario: String(id) });
-  };
+  const liveInput = draft && draft.source === sourceKey ? draft.input : null;
+  const debounced = useDebounced(liveInput, 300);
+  const simulation = useSimulation(debounced);
+  const save = useSaveProject();
+  const [saveAs, setSaveAs] = useState(false);
 
-  // Orden de creación: la letra de cada escenario (A, B, C…) coincide con la de la comparación.
-  const presets = useMemo(() => [...items].sort((a, b) => a.createdAt.localeCompare(b.createdAt)), [items]);
-  const selectedLetter = selected ? letterOf(Math.max(0, presets.findIndex((s) => s.id === selected.id))) : null;
+  const savedInput = source?.input;
+  const dirty = useMemo(() => liveInput !== null && savedInput !== undefined && JSON.stringify(liveInput) !== JSON.stringify(savedInput), [liveInput, savedInput]);
+  // Lo que se muestra: el último cálculo de la API para lo escrito, o el del proyecto o el ejemplo mientras llega.
+  const result: SimulatorResult | undefined = simulation.data?.result ?? source?.result;
+  const errors = simulation.error ? fieldErrors(simulation.error) : {};
+  const recalculating = simulation.isFetching || (liveInput !== null && debounced !== liveInput);
 
-  const actions = () => {
-    if (!selected) return null;
-    const exportButtons = detail.data ? <ScenarioExport scenario={detail.data} letter={selectedLetter ?? "A"} /> : null;
-    if (tab === "panel" || tab === "flujo") return exportButtons;
-    if (tab === "supuestos" || tab === "escenarios") {
-      return (
-        <>
-          {exportButtons}
-          <Button variant="secondary" onClick={openDuplicate} disabled={!detail.data}>
-            {tab === "supuestos" ? "Nuevo escenario a partir de este" : "Duplicar escenario"}
+  const name = projectId !== null && project.data ? project.data.name : EXAMPLE_NAME;
+  const own = projectId !== null && project.data?.userId === userId;
+
+  const goTab = (t: SimTab) => navigate({ pathname: `/finanzas/${t}`, search: searchParams.toString() });
+  const openProject = (id: number) => navigate({ pathname: "/finanzas/mercado", search: `?proyecto=${id}` });
+  const startFromExample = () => navigate({ pathname: `/finanzas/${tab === "escenarios" ? "mercado" : tab}`, search: "" });
+
+  const meta = SIM_TABS.find((t) => t.value === tab)!;
+
+  const actions =
+    liveInput && result ? (
+      <>
+        <SimulatorReport name={name} projectId={projectId} input={liveInput} result={result} />
+        {own ? (
+          <Button variant="secondary" onClick={() => save.mutate({ id: projectId!, input: liveInput })} loading={save.isPending} disabled={!dirty}>
+            Guardar proyecto
           </Button>
-          <Button onClick={openNew}>Nuevo escenario</Button>
-        </>
-      );
-    }
-    return null;
-  };
+        ) : null}
+        <Button onClick={() => setSaveAs(true)}>Guardar como</Button>
+      </>
+    ) : null;
 
   const ticker = () => {
-    const ind = detail.data?.indicators;
-    if (!ind || !detail.data) return null;
-    const cov = ind.coverageIncremental;
+    if (!result) return null;
+    const ind = result.indicators;
+    const cov = result.financing.minCoverage;
     const cells: { label: string; value: string; tone?: Tone }[] = [
       { label: "VPN del proyecto", value: moneyCompact(ind.npv), tone: ind.npv < 0 ? "bad" : "good" },
-      { label: "TIR", value: pct(ind.irr), tone: ind.irr !== null && ind.npv < 0 ? "bad" : undefined },
-      { label: "VPN inversionista", value: moneyCompact(ind.investorNpv), tone: ind.investorNpv < 0 ? "bad" : undefined },
-      { label: "Cobertura", value: times(cov), tone: cov === null ? undefined : cov < 1 ? "bad" : cov < 1.5 ? "warn" : undefined },
-      { label: "Cuota mensual", value: moneyCompact(ind.installment) },
-      { label: "Aporte propio", value: money(ind.ownContribution) },
+      { label: "TIR", value: pct(ind.irr), tone: ind.irr !== null && ind.irr < ind.discountRate ? "bad" : undefined },
+      { label: "Recuperación", value: years(ind.paybackSimple) },
+      { label: "Beneficio / costo", value: times(ind.benefitCostRatio), tone: ind.benefitCostRatio < 1 ? "bad" : undefined },
+      { label: "Precio de venta", value: money(result.costs.price) },
+      { label: "Cobertura mínima", value: cov === null ? "Sin cuota" : times(cov), tone: cov !== null && cov < 1 ? "bad" : undefined },
     ];
     return (
-      <dl className={styles.ticker} aria-label="Indicadores del escenario calculados por la API">
+      <dl className={styles.ticker} aria-label="Indicadores calculados por la API" aria-busy={recalculating}>
         {cells.map((c) => (
           <div key={c.label} className={styles.tick}>
             <dt>{c.label}</dt>
@@ -107,75 +119,93 @@ export const FinanceScreen = () => {
     );
   };
 
-  const meta = tab === "panel" ? null : TAB_META[tab];
-  const heading = selected ? (tab === "panel" ? selected.name : (meta?.title ?? "")) : "Finanzas y crédito";
-  const subtitle = selected
-    ? tab === "panel"
-      ? `Ampliación del local con crédito bancario · Escenario ${selectedLetter ?? "A"} · ${selected.username} · ${dateOnly(selected.createdAt)}`
-      : (meta?.subtitle ?? "")
-    : "Ampliación del local con crédito bancario";
-
   const body = () => {
-    if (scenarios.isPending) return <Loading text="Cargando escenarios…" />;
-    if (scenarios.isError) return <ErrorState error={scenarios.error} onRetry={() => scenarios.refetch()} />;
-    if (items.length === 0 || selectedId === null) {
+    if (tab === "escenarios") return <ProjectsTab currentId={projectId} onOpen={openProject} onClosed={() => navigate({ pathname: "/finanzas/escenarios", search: "" })} />;
+    const pending = projectId === null ? defaults.isPending : project.isPending;
+    const failed = projectId === null ? defaults.isError : project.isError;
+    if (failed) {
+      const err = projectId === null ? defaults.error : project.error;
       return (
-        <EmptyState
-          title="Todavía no hay escenarios"
-          text="Cree el primer escenario con la inversión, el crédito y el aumento de ventas esperado. La API calcula todos los indicadores."
-          action={<Button onClick={openNew}>Nuevo escenario</Button>}
-        />
+        <div className={styles.stack}>
+          <ErrorState error={err} onRetry={() => (projectId === null ? defaults.refetch() : project.refetch())} />
+          {projectId !== null ? (
+            <div>
+              <Button variant="secondary" onClick={startFromExample}>
+                Volver al ejemplo
+              </Button>
+            </div>
+          ) : null}
+        </div>
       );
     }
-    return (
-      <QueryState query={detail} empty={null}>
-        {(scenario) => {
-          switch (tab) {
-            case "panel":
-              return <DecisionPanel scenario={scenario} onOpenAssumptions={() => goTab("supuestos")} onNew={openNew} />;
-            case "supuestos":
-              return <AssumptionsPanel scenario={scenario} letter={selectedLetter ?? "A"} />;
-            case "escenarios":
-              return <ScenariosPanel scenario={scenario} scenarios={items} onSelect={selectScenario} />;
-            case "flujo":
-              return <CashFlowPanel scenario={scenario} />;
-          }
-        }}
-      </QueryState>
-    );
+    if (pending || !liveInput || !result) return <Loading text="Cargando el simulador…" />;
+    const props: TabProps = { input: liveInput, result, errors, onChange: (next) => setDraft({ source: sourceKey!, input: next }) };
+    switch (tab) {
+      case "mercado":
+        return <MarketTab {...props} />;
+      case "competencia":
+        return <CompetitionTab {...props} />;
+      case "costos":
+        return <CostsTab {...props} />;
+      case "inversion":
+        return <InvestmentTab {...props} />;
+      case "financiacion":
+        return <FinancingTab {...props} />;
+      case "flujo":
+        return <CashFlowTab {...props} />;
+      case "riesgos":
+        return <RisksTab {...props} name={name} projectId={projectId} />;
+    }
+  };
+
+  const status = () => {
+    if (projectId === null) return `Ejemplo de la ampliación · cifras de ejemplo, no del negocio real${dirty ? " · con cambios sin guardar" : ""}`;
+    if (!project.data) return "Abriendo el proyecto…";
+    const who = own ? "Su proyecto" : `Proyecto de ${project.data.username} (puede «Guardar como»)`;
+    return `${who} · guardado el ${dateTime(project.data.updatedAt)}${dirty ? " · con cambios sin guardar" : ""}`;
   };
 
   return (
     <div className={styles.page}>
       <header className={styles.head}>
-        <PageHeader title={heading} subtitle={subtitle} actions={actions()} />
-
-        {presets.length > 0 && selectedId !== null ? (
-          <div className={styles.selector} role="group" aria-label="Escenario en pantalla">
-            <span className={styles.selectorLabel}>Escenario</span>
-            <div className={styles.selectorList}>
-              {presets.map((s, i) => {
-                const on = s.id === selectedId;
-                return (
-                  <button key={s.id} type="button" aria-pressed={on} title={s.name} className={[styles.selectorItem, on ? styles.selectorOn : ""].join(" ")} onClick={() => selectScenario(s.id)}>
-                    <span className={styles.selectorLetter}>{letterOf(i)}</span>
-                    <span className={styles.selectorName}>{s.name}</span>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-        ) : null}
-
-        {tab === "panel" ? null : ticker()}
-
+        <PageHeader title={tab === "escenarios" ? "Escenarios y proyectos" : name} subtitle={tab === "escenarios" ? meta.question : `${meta.label}: ${meta.question}`} actions={tab === "escenarios" ? null : actions} />
+        <div className={styles.statusRow}>
+          <span>{status()}</span>
+          {recalculating ? <span className={styles.recalc}>Recalculando…</span> : null}
+          {projectId !== null ? (
+            <Button variant="ghost" size="sm" onClick={startFromExample}>
+              Empezar desde el ejemplo
+            </Button>
+          ) : null}
+        </div>
+        {tab === "escenarios" ? null : ticker()}
         <div className={styles.tabsOnBand}>
-          <Tabs options={TAB_OPTIONS} value={tab} onChange={goTab} ariaLabel="Vistas de la evaluación" />
+          <Tabs options={SIM_TABS.map((t) => ({ value: t.value, label: t.label }))} value={tab} onChange={goTab} ariaLabel="Secciones del simulador" />
         </div>
       </header>
 
+      {Object.keys(errors).length > 0 ? (
+        <Callout tone="warn" title="Revise los datos marcados">
+          La API no recalculó con estos valores; las cifras en pantalla son las del último cálculo válido.
+        </Callout>
+      ) : simulation.error ? (
+        <Callout tone="bad" title="No se pudo recalcular">
+          {simulation.error.message}
+        </Callout>
+      ) : null}
+
       {body()}
-      {modal.open ? <ScenarioFormModal prefill={modal.prefill} onClose={closeModal} onCreated={onCreated} /> : null}
+      {saveAs && liveInput ? (
+        <SaveAsModal
+          initialName={projectId === null ? "Ampliación del local" : `${name} (copia)`}
+          input={liveInput}
+          onClose={() => setSaveAs(false)}
+          onSaved={(id) => {
+            setSaveAs(false);
+            navigate({ pathname: `/finanzas/${tab}`, search: `?proyecto=${id}` });
+          }}
+        />
+      ) : null}
     </div>
   );
 };

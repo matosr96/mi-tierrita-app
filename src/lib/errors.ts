@@ -52,6 +52,8 @@ export const ERROR_MESSAGES: Record<string, string> = {
   "712": "Faltan productos por contar. Registre la cantidad de todas las líneas antes de enviar.",
   "713": "Indique la fecha de vencimiento del lote de ajuste de cada sobrante.",
   "714": "Un faltante es mayor que las unidades en lotes del producto. Revise el inventario.",
+  "715": "El proyecto del simulador no existe o fue eliminado.",
+  "716": "Solo quien creó el proyecto puede guardarlo encima o eliminarlo. Use «Guardar como».",
   "705": "El empleado no existe.",
   "706": "El periodo de nómina no existe.",
   "707": "El periodo ya no admite ese cambio: solo un borrador se edita, aprueba o elimina, y solo uno aprobado se marca pagado.",

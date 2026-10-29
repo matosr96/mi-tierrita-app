@@ -2,7 +2,7 @@ import { Link, useParams } from "react-router-dom";
 import { BrandMark } from "@/components/layout/AppShell";
 import { Callout, Loading } from "@/components/ui";
 import { useVerifyExport } from "@/hooks/reports";
-import { dateOnly, dateTime, int, money } from "@/lib/format";
+import { dateOnly, dateTime, int, money, num2, pct } from "@/lib/format";
 import type { ExportData, ExportReportKind } from "@/types/api";
 import styles from "./VerifyScreen.module.css";
 
@@ -17,6 +17,13 @@ const LABELS: Record<string, { label: string; value?: (v: string | number | bool
   overdueDays: { label: "Vencida a", value: (v) => `${int(Number(v))} días` },
   asOf: { label: "Corte", value: (v) => dateOnly(String(v)) },
   scenarioId: { label: "Escenario", value: (v) => `#${String(v)}` },
+  projectId: { label: "Proyecto del simulador", value: (v) => (v === null ? "sin guardar" : `#${String(v)}`) },
+  npv: { label: "VPN", value: (v) => money(Number(v)) },
+  irr: { label: "TIR", value: (v) => (v === null ? "—" : pct(Number(v))) },
+  paybackSimple: { label: "Recuperación", value: (v) => (v === null ? "no se recupera" : `${num2(Number(v))} años`) },
+  benefitCostRatio: { label: "Beneficio / costo", value: (v) => num2(Number(v)) },
+  price: { label: "Precio de venta", value: (v) => money(Number(v)) },
+  growth: { label: "Crecimiento de la demanda", value: (v) => pct(Number(v)) },
   salesCount: { label: "Ventas", value: (v) => int(Number(v)) },
   units: { label: "Unidades", value: (v) => int(Number(v)) },
   total: { label: "Total vendido", value: (v) => money(Number(v)) },

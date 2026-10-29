@@ -106,8 +106,8 @@ Tocar un ítem navega a su `href`.
   `hidden` de las copias) y abre el diálogo de impresión (allí se elige «Guardar como PDF» y la carpeta; el botón lo dice
   en su `title`); las reglas `@media print` están en `global.css`: `@page` con «Página X de Y» en el margen inferior
   (cajas de margen, Chrome 131+), `thead` repetido por página, `tr` y `[data-print-block]` sin partir, `[data-print-cover]`
-  con salto de página. Los reportes imprimen portada + `ReportPaper`; Finanzas imprime una hoja oculta del escenario
-  (`ScenarioExport`).
+  con salto de página. Los reportes imprimen portada + `ReportPaper`; Finanzas imprime una hoja oculta del proyecto
+  (`SimulatorReport`, seis secciones en el orden de las pestañas, con folio).
 - **Flujo del PDF de un reporte** (`ReportPreview`): primero registra el documento con `useRecordExport` (`filters` y
   `summary` estructurados) y la API devuelve `folio` `R-AAAA-NNNNNN`, `hash` y `verifyUrl`; luego monta la portada
   `ReportCoverPage` (foto de `public/media` con crédito, marca, título, período y filtros, quién y cuándo, folio y
@@ -150,7 +150,7 @@ Tocar un ítem navega a su `href`.
 - **Conteos de inventario** (`/conteos`, grupo «Operación», ADMIN y bodega; `screens/StockCounts/`): `StockCountsScreen` (filtro por estado y `?c=<id>` abre la hoja), `CountList` (por estado; atrasados en `--bad` y de hoy en `--warn` según `due` de la API), `CountFormModal` (programar o editar), `CountSheet` (un renglón por producto con cuadro numérico grande, Enter pasa al siguiente, diferencia que devuelve la API al guardar, barra pegada abajo con «Guardar avance» y «Enviar») y `AdjustmentPreviewModal` (solo ADMIN: faltantes con sus lotes y sobrantes con fecha de vencimiento, «Aplicar ajuste» con confirmación); hooks `@/hooks/stock-counts`.
 - **Nómina** (`/nomina`, grupo «Gestión», solo ADMIN; `screens/Payroll/`): `PayrollScreen` (pestañas Periodos/Empleados con `?pestana=empleados`; `?periodo=<id>` abre el detalle, para enlazar desde el calendario y los avisos), `PayrollNotice` (liquidación simplificada: no reemplaza la nómina electrónica de la DIAN ni calcula prestaciones ni aportes del empleador), `PeriodList`, `PeriodFormModal`, `PeriodDetail` (líneas en `DataTable` con `LineAmountInput` para horas extra, bonificaciones, auxilio de transporte —del decreto vigente, por defecto 0— y otros descuentos solo en borrador; la API recalcula salud y pensión 4 % y los totales; «Aprobar», «Marcar pagado» y «Eliminar borrador» con confirmación; «Exportar a Excel» con `downloadXlsx`), `EmployeeList` y `EmployeeFormModal`; hooks `@/hooks/payroll`.
 - **Historial de reportes**: cada PDF o Excel generado se registra con `useRecordExport` (`ReportPreview` lo hace
-  solo si recibe `record`, con `filters` y `summary`; Finanzas desde `ScenarioExport`) y se lista en `ExportHistory`
+  solo si recibe `record`, con `filters` y `summary`; Finanzas desde `SimulatorReport`) y se lista en `ExportHistory`
   (prototipo 09): fecha y hora, reporte con los filtros en texto legible, formato, quién, folio y botón «Verificar»
   que abre `/verificar/:folio`.
 - **Comunicación**: `/chat` (todos los roles; `?con=<id>` privado, `&hilo=<id>` hilo abierto, `&m=<id>` mensaje a mostrar).
@@ -256,6 +256,16 @@ las "Sugerencias de hoy" sí se muestran porque las calcula el servidor sin IA).
   reporte y explicación del escenario. **Factura por foto** (`screens/Suppliers/InvoiceImportModal`, `useReadInvoice`).
 - Texto de Tita con `RichText` (párrafos, listas, citas `>` y negritas; nunca HTML).
 
+## Simulador financiero (`/finanzas`, solo ADMIN; `screens/Finance/`)
+
+Siete secciones en cadena más Escenarios (`SIM_TABS` en `simShared.ts`): `MarketTab`, `CompetitionTab`, `CostsTab`,
+`InvestmentTab`, `FinancingTab`, `CashFlowTab`, `RisksTab` y `ProjectsTab`. `FinanceScreen` guarda solo la entrada en
+edición (`SimulatorInput`); cada cambio, con 300 ms de espera, va a `useSimulation` y todo lo que se ve sale de la
+respuesta de la API (una sola fuente con el informe, «Exportar» y Tita). `?proyecto=<id>` abre un proyecto; sin él se parte
+del ejemplo de $94,5 M (`useSimulatorDefaults`). «Guardar proyecto» solo para el dueño (`PUT`), «Guardar como»
+(`SaveAsModal`) para cualquiera. `SimField` escribe en porcentaje o puntos y envía fracciones. `SimulatorReport` arma PDF y
+Excel; `ratesNote` es el párrafo de tasas de la decisión 4. Decisiones en `../DECISIONES-FASE-B.md`.
+
 ## Stock vendible y fechas
 
 `Product.stock` es el stock físico (incluye lotes vencidos aún en bodega); `Product.availableStock` es lo que FEFO puede
@@ -282,7 +292,7 @@ no UTC; la API cuenta "hoy" en `BUSINESS_TZ` (America/Bogota). Auditoría de oct
 - reports: `useSalesReport({from, to, groupBy})`, `useInventoryReport(days)`, `useReceivablesReport(overdueDays)`, `useReportExports(query)`, `useRecordExport`, `useVerifyExport(folio)` (pública)
 - chat: `useChatTeam(intervalMs?)`, `useChatMessages(scope, options)`, `useChatRealtime()`, `useChatReceipts(id)`, `useChatPins(peerId)`, `usePinChatMessage` ({id, pinned}), `useChatSearch(q, scope, day?)`, `useChatMedia(scope, kind, page?, limit?)`, `usePlayChatMessage` (id), `useUploadChatAttachment` ({file, onProgress, durationMs?}), `useChatAttachment(id)`, `useDownloadChatAttachment` ({file, open?}), `useEditChatMessage` ({id, body}), `useDeleteChatMessage` (id)
 - payroll: `usePayrollEmployees(query?)`, `useCreatePayrollEmployee`, `useUpdatePayrollEmployee` ({id, ...campos, active?}), `usePayrollPeriods(query?)`, `usePayrollPeriod(id | null)`, `useCreatePayrollPeriod`, `useUpdatePayrollLine` ({periodId, lineId, overtime?, bonuses?, transport?, otherDeductions?}), `useApprovePayrollPeriod`, `usePayPayrollPeriod`, `useDeletePayrollPeriod` (id)
-- financial: `useScenarios()`, `useScenario(id)`, `useCreateScenario`, `useCompareScenarios(ids)`, `useAmortization(id)`, `useSensitivity(id, variable, range?)`, `useBivariate(id, varX, varY)`, `useTornado(id)`
+- financial (simulador, Fase B): `useSimulatorDefaults()`, `useSimulation(input | null)` (`POST /financial/simulator/calculate`, conserva el cálculo anterior mientras llega el nuevo; error `ApiError`), `useProjects(scope "mine"|"all", query?)`, `useProject(id | null)`, `useSaveProjectAs` ({name, input}), `useSaveProject` ({id, name?, input}), `useDeleteProject` (id), `useCompareProjects(ids)`
 
 Las consultas son `useQuery` de TanStack (data, isPending, isError, error, refetch); las mutaciones son
 `useMutation` (mutate, mutateAsync, isPending, error: ApiError | null, reset).

@@ -1,6 +1,5 @@
-/* Finanzas: encabezado blanco, selector de escenario, indicadores en fila y pestañas subrayadas. */
+/* Simulador financiero: encabezado, indicadores en fila, pestañas sobre la franja y dos columnas por sección. */
 
-/* ---------- página y encabezado ---------- */
 .page {
   display: flex;
   flex-direction: column;
@@ -9,95 +8,41 @@
 .head {
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 12px;
 }
 
-/* Selector de escenario: botones segmentados con la letra (A, B, C…) y el nombre. */
-.selector {
+.statusRow {
   display: flex;
   align-items: center;
-  gap: 10px;
   flex-wrap: wrap;
-  min-width: 0;
-}
-.selectorLabel {
-  font-size: 13px;
-  color: var(--muted);
-}
-.selectorList {
-  display: flex;
-  gap: 2px;
-  padding: 2px;
-  border-radius: var(--radius-sm);
-  background: var(--segment-bg);
-  overflow-x: auto;
-  scrollbar-width: none;
+  gap: 8px 14px;
+  width: fit-content;
   max-width: 100%;
-}
-.selectorList::-webkit-scrollbar {
-  display: none;
-}
-.selectorItem {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  height: 30px;
-  padding: 0 10px;
-  border: 1px solid transparent;
-  border-radius: calc(var(--radius-sm) - 2px);
-  background: transparent;
-  color: var(--ink-2);
-  font-family: inherit;
-  font-size: 13px;
-  font-weight: 500;
-  white-space: nowrap;
-  cursor: pointer;
-  transition: background-color var(--dur) ease, color var(--dur) ease, border-color var(--dur) ease;
-}
-.selectorItem:hover {
-  color: var(--ink);
-}
-.selectorItem:focus-visible {
-  outline: 2px solid var(--sprout);
-  outline-offset: 1px;
-}
-.selectorOn,
-.selectorOn:hover {
+  padding: 6px 8px 6px 14px;
+  border-radius: 999px;
   background: var(--surface);
-  border-color: var(--line);
-  color: var(--ink);
   box-shadow: var(--shadow);
-}
-.selectorLetter {
-  display: inline-grid;
-  place-items: center;
-  width: 18px;
-  height: 18px;
-  border-radius: 5px;
-  background: var(--surface-3);
+  font-size: 13.5px;
   color: var(--ink-2);
-  font-size: 11.5px;
-  font-weight: 600;
 }
-.selectorOn .selectorLetter {
+.recalc {
+  padding: 2px 10px;
+  border-radius: 999px;
   background: var(--sprout-soft);
-  color: var(--forest);
-}
-.selectorName {
-  max-width: 220px;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  color: var(--forest-fg);
 }
 
-/* Fila de indicadores del escenario (vistas distintas al Panel). */
+/* ---------- indicadores ---------- */
 .ticker {
   display: grid;
   grid-template-columns: repeat(6, minmax(0, 1fr));
   margin: 0;
   background: var(--surface);
-  border: 1px solid var(--line);
   border-radius: var(--radius);
   box-shadow: var(--shadow);
+}
+.ticker[aria-busy="true"] dd {
+  opacity: 0.6;
 }
 .tick {
   min-width: 0;
@@ -121,6 +66,7 @@
   color: var(--ink);
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
+  transition: opacity var(--dur) ease;
 }
 .tickGood {
   color: var(--good) !important;
@@ -132,598 +78,252 @@
   color: var(--bad) !important;
 }
 
-@media (max-width: 1100px) {
-  .ticker {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-  .tick + .tick {
-    border-left: none;
-  }
-  .tick:nth-child(n + 4) {
-    border-top: 1px solid var(--line-soft);
-  }
-  .tick:not(:nth-child(3n + 1)) {
-    border-left: 1px solid var(--line-soft);
-  }
-}
-@media (max-width: 560px) {
-  .ticker {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-  .tick:not(:nth-child(3n + 1)) {
-    border-left: none;
-  }
-  .tick:nth-child(n + 3) {
-    border-top: 1px solid var(--line-soft);
-  }
-  .tick:nth-child(even) {
-    border-left: 1px solid var(--line-soft);
-  }
-}
-
-/* ---------- tarjetas ---------- */
-.card {
-  background: var(--surface);
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
-  box-shadow: var(--shadow);
-  padding: 16px 20px;
+.tabsOnBand {
+  display: flex;
   min-width: 0;
 }
-.cardSoft {
-  background: var(--surface);
-}
-.card h2 {
-  font-size: 15px;
-  font-weight: 600;
-  letter-spacing: -0.01em;
-  color: var(--ink);
-}
-.cardHead {
-  display: flex;
-  align-items: baseline;
-  gap: 10px;
-  flex-wrap: wrap;
-}
-.cardSub {
-  font-size: 13px;
-  color: var(--muted);
-  flex-grow: 1;
-}
-.cardSubBlock {
-  font-size: 13px;
-  color: var(--muted);
-  margin-top: 2px;
-  margin-bottom: 10px;
-}
-.pushRight {
-  margin-left: auto;
-}
-.note {
-  font-size: 13px;
-  color: var(--muted);
-  line-height: 1.5;
-  margin-top: 8px;
-}
-.noteSmall {
-  font-size: 13px;
-  color: var(--muted);
-  line-height: 1.5;
-}
-.linkBtn {
-  border: none;
-  background: transparent;
-  color: var(--link);
-  cursor: pointer;
-  font-size: 13px;
-  font-weight: 500;
-  padding: 0;
-  font-family: inherit;
-  transition: color var(--dur) ease;
-}
-.linkBtn:hover {
-  color: var(--forest-fg);
-  text-decoration: underline;
-}
-.linkBtn:focus-visible {
-  outline: 2px solid var(--sprout);
-  outline-offset: 2px;
-  border-radius: 3px;
+/* Pestañas con los colores normales del kit: el encabezado cambia de alto con el nombre del proyecto y pueden quedar
+   dentro o fuera de la franja verde, así que no dependen de ella para leerse. */
+.tabsOnBand [role="tablist"] {
+  max-width: 100%;
+  box-shadow: var(--shadow);
 }
 
-/* ---------- texto y relleno semántico (también para los SVG) ---------- */
-.textGood {
-  color: var(--good);
-  fill: var(--good);
+/* ---------- diseño de las secciones ---------- */
+.split {
+  display: grid;
+  grid-template-columns: minmax(280px, 360px) minmax(0, 1fr);
+  gap: 16px;
+  align-items: start;
 }
-.textWarn {
-  color: var(--warn);
-  fill: var(--warn);
-}
-.textBad {
-  color: var(--bad);
-  fill: var(--bad);
-}
-.textMuted {
-  color: var(--muted);
-  fill: var(--muted);
-}
-.textInk {
-  fill: var(--ink);
-}
-.textInk2 {
-  fill: var(--ink-2);
-}
-.textForest {
-  fill: var(--forest);
-}
-.textAccent {
-  fill: var(--accent);
-}
-.textWarnTag {
-  fill: var(--warn-tag-fg);
-}
-.textOnDark {
-  fill: var(--on-forest);
-}
-.svg {
-  width: 100%;
-  height: auto;
-  display: block;
-  font-family: var(--font-body);
-  font-variant-numeric: tabular-nums;
-}
-.axis {
-  stroke: var(--line-strong);
-}
-.axisInk {
-  stroke: var(--ink-2);
-}
-.fillGood {
-  fill: var(--good);
-}
-.fillLeaf {
-  fill: var(--sprout);
-}
-.fillMuted2 {
-  fill: var(--muted-2);
-}
-.fillAccent {
-  fill: var(--accent);
-}
-.fillForest {
-  fill: var(--forest);
-}
-.zoneBad {
-  fill: var(--bad-soft);
-}
-.strokeGood {
-  stroke: var(--good);
-}
-.dotGood {
-  fill: var(--surface);
-  stroke: var(--good);
-}
-.dotBase {
-  fill: var(--good);
-  stroke: var(--surface);
-}
-.trackBad {
-  fill: var(--bad-tag-bg);
-}
-.trackGood {
-  fill: var(--good-soft);
-  stroke: var(--good-line);
-}
-.markBad {
-  stroke: var(--bad);
-}
-.markWarn {
-  stroke: var(--warn);
-}
-.markForest {
-  stroke: var(--forest);
-}
-.markMuted2 {
-  stroke: var(--muted-2);
-}
-
-/* ---------- lectura interactiva de los gráficos ---------- */
-.scrubbable {
-  cursor: crosshair;
-  touch-action: pan-y;
-  border-radius: var(--radius-sm);
-}
-.scrubbable:focus {
-  outline: none;
-}
-.scrubbable:focus-visible {
-  outline: 2px solid var(--sprout);
-  outline-offset: 4px;
-}
-.hoverItem {
-  cursor: pointer;
-  outline: none;
-  transition: opacity var(--dur) ease;
-}
-.dimming .hoverItem:not([data-on]) {
-  opacity: 0.35;
-}
-.hoverItem:focus-visible rect:not(.hit) {
-  stroke: var(--sprout);
-  stroke-width: 2;
-}
-.hit {
-  fill: transparent;
-}
-
-/* ---------- Panel ---------- */
-.decision {
+.stack {
   display: flex;
   flex-direction: column;
   gap: 16px;
+  min-width: 0;
 }
-.verdict {
-  display: contents;
+.stackSm {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
-.aside {
-  text-align: right;
+.fields {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.fieldsInline {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.simInput {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.simInput input {
+  min-width: 0;
+  font-variant-numeric: tabular-nums;
+}
+.simUnit {
+  flex-shrink: 0;
+  font-size: 13px;
+  color: var(--muted);
   white-space: nowrap;
 }
-.asideLabel {
+
+.figures {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 12px;
+  margin: 0;
+}
+.figures div {
+  min-width: 0;
+  padding: 12px 14px;
+  border-radius: var(--radius-sm);
+  background: var(--surface-2);
+}
+.figures dt {
   font-size: 13px;
   color: var(--muted);
 }
-.asideAi {
-  margin-top: 10px;
-}
-.asideValue {
-  font-size: 20px;
-  font-weight: 600;
-  letter-spacing: -0.01em;
+.figures dd {
+  margin: 4px 0 0;
+  font-size: 22px;
+  font-weight: 500;
+  letter-spacing: -0.02em;
   color: var(--ink);
   font-variant-numeric: tabular-nums;
 }
+.figureAccent {
+  color: var(--sprout) !important;
+}
 
-/* Diales de los supuestos */
-.dialGrid {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 28px;
+.formula {
+  margin: 12px 0 0;
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--ink-2);
 }
-.dial {
-  min-width: 0;
+.padded {
+  margin: 0;
+  padding: 14px 24px 18px;
 }
-.dialHead {
-  display: flex;
-  align-items: baseline;
-  gap: 8px;
-  margin-bottom: 8px;
+.errorLine {
+  margin: 0 0 10px;
+  font-size: 13.5px;
+  color: var(--bad);
 }
-.dialLabel {
-  font-size: 13px;
+.good {
+  color: var(--good);
+}
+.bad {
+  color: var(--bad);
+}
+.muted {
+  font-size: 12.5px;
   color: var(--muted);
-  flex-grow: 1;
 }
-.dialValue {
+
+/* Listas editables (competidores y costos fijos). */
+.compTable :global(input) {
+  min-width: 90px;
+}
+.compTable label {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+}
+.listEditor {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 16px;
+  align-items: flex-start;
+}
+.listTitle {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--ink);
+}
+.listRow {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto;
+  gap: 8px;
+  align-items: end;
+  width: 100%;
+}
+
+/* Barra deuda / patrimonio. */
+.debtBar {
+  display: flex;
+  height: 16px;
+  border-radius: 999px;
+  overflow: hidden;
+  background: var(--surface-3);
+}
+.debtPart {
+  background: var(--sprout);
+}
+.equityPart {
+  background: var(--fan-1);
+}
+.debtLegend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 18px;
+  margin: 10px 0 14px;
+  font-size: 13.5px;
+  color: var(--ink-2);
+}
+.debtLegend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.debtDot,
+.equityDot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+.debtDot {
+  background: var(--sprout);
+}
+.equityDot {
+  background: var(--fan-1);
+}
+
+.tallTable {
+  max-height: 520px;
+  overflow-y: auto;
+}
+
+.actionsRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.projectName {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.prose p {
+  margin: 0 0 10px;
+  font-size: 14.5px;
+  line-height: 1.6;
+  color: var(--ink-2);
+}
+.proseTitle {
+  margin: 0 0 8px;
   font-size: 16px;
   font-weight: 600;
   color: var(--ink);
-  font-variant-numeric: tabular-nums;
-  transition: color var(--dur) ease;
-}
-.dialValueSim {
-  color: var(--forest);
-}
-.track {
-  position: relative;
-  height: 4px;
-  border-radius: 2px;
-  background: var(--surface-3);
-  margin: 9px 0;
-}
-.trackFill {
-  position: absolute;
-  left: 0;
-  top: 0;
-  bottom: 0;
-  border-radius: inherit;
-  background: var(--sprout);
-}
-.thumb {
-  position: absolute;
-  top: 50%;
-  width: 16px;
-  height: 16px;
-  border-radius: 50%;
-  background: var(--surface);
-  border: 2px solid var(--sprout);
-  box-shadow: var(--shadow);
-  transform: translate(-50%, -50%);
-  transition: box-shadow var(--dur) ease;
-}
-.baseTick {
-  position: absolute;
-  top: -5px;
-  width: 2px;
-  height: 14px;
-  border-radius: 1px;
-  background: var(--muted-2);
-  transform: translateX(-50%);
-}
-.dialRange {
-  display: flex;
-  justify-content: space-between;
-  font-size: 12px;
-  color: var(--muted);
-  margin-top: 4px;
-  font-variant-numeric: tabular-nums;
-}
-.dialNote {
-  font-size: 13px;
-  color: var(--muted);
-  line-height: 1.5;
 }
 
-/* Diales que se arrastran (simulación con la sensibilidad de la API) */
-.trackHit {
-  padding: 9px 0;
-  cursor: grab;
-  touch-action: none;
-  outline: none;
-}
-.trackHit:active {
-  cursor: grabbing;
-}
-.trackHit .track {
-  margin: 0;
-}
-.dialLive .thumb {
-  transition: left var(--dur) var(--ease-out), box-shadow var(--dur) ease;
-}
-.dialLive .trackFill {
-  transition: width var(--dur) var(--ease-out);
-}
-.trackDragging .thumb,
-.trackDragging .trackFill {
-  transition-property: box-shadow;
-}
-.dialLive:hover .thumb {
-  box-shadow: 0 0 0 4px var(--sprout-soft);
-}
-.trackHit:focus-visible .thumb,
-.dialSimulating .thumb {
-  box-shadow: 0 0 0 4px var(--good-line);
-}
-
-.simReadout {
-  min-height: 56px;
-  margin-top: 16px;
-  padding-top: 14px;
-  border-top: 1px solid var(--line);
-  display: flex;
-  align-items: center;
-  gap: 20px;
-  flex-wrap: wrap;
-}
-.simMain {
-  display: grid;
-  gap: 2px;
-}
-.simLabel {
-  font-size: 13px;
-  color: var(--muted);
-}
-.simValue {
-  font-size: 24px;
-  font-weight: 600;
-  letter-spacing: -0.01em;
-  line-height: 1.15;
-  font-variant-numeric: tabular-nums;
-}
-.simAside {
-  display: grid;
-  gap: 3px;
-  margin-left: auto;
-  text-align: right;
-  font-size: 13px;
-  color: var(--ink-2);
-}
-.simAside b {
-  font-weight: 600;
-  color: var(--ink);
-  font-variant-numeric: tabular-nums;
-}
-.simHint {
-  font-size: 12px;
-  color: var(--muted);
-}
-
-.kpis {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 12px;
-}
-.margin .cardHead {
-  margin-bottom: 10px;
-}
-.marginValue {
-  font-size: 15px;
-  font-weight: 600;
-  white-space: nowrap;
-  font-variant-numeric: tabular-nums;
-}
-.bottom {
-  display: grid;
-  grid-template-columns: 1fr 1.4fr;
-  gap: 12px;
-  align-items: stretch;
-}
-.monthly h2 {
-  margin: 0;
-}
-.checks {
-  display: flex;
-  flex-direction: column;
-}
-.checkList {
-  display: flex;
-  flex-direction: column;
-  margin: 10px 0 12px;
-}
-.checkItem {
-  display: flex;
-  gap: 10px;
-  align-items: center;
-  padding: 8px 0;
-}
-.checkItem + .checkItem {
-  border-top: 1px solid var(--line-soft);
-}
-.dot {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  flex-shrink: 0;
-}
-.dot_bad {
-  background: var(--bad);
-}
-.dot_warn {
-  background: var(--warn);
-}
-.dot_good {
-  background: var(--good);
-}
-.checkText {
-  font-size: 14px;
-  color: var(--ink);
-  flex-grow: 1;
-}
-.checkOwner {
-  font-size: 13px;
-  color: var(--muted);
-}
-.checkOwnerGood {
-  font-size: 13px;
-  color: var(--good);
-}
-.checkFoot {
-  margin-top: auto;
-  padding-top: 10px;
-  font-size: 13px;
-  color: var(--muted);
-  border-top: 1px solid var(--line);
-}
-
-/* ---------- Formulario de escenario ---------- */
-.form {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-}
-.formSection {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  padding-top: 14px;
-  border-top: 1px solid var(--line);
-}
-.formSectionHead {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 12px;
-  flex-wrap: wrap;
-}
-.formSectionHead h3 {
-  font-size: 14px;
-  font-weight: 600;
-}
-.formSectionHead .note {
-  display: block;
-  margin-top: 2px;
-}
-.formError {
-  padding: 10px 14px;
-  border: 1px solid var(--bad-line);
-  border-radius: var(--radius-sm);
-  background: var(--bad-soft);
-  color: var(--bad-tag-fg);
-  font-size: 13px;
-}
-.groupTitle {
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--ink-2);
-}
-
-/* Hoja del escenario para imprimir (ScenarioExport): fuera de la pantalla, solo la usa el diálogo de impresión. */
 .printOnly {
   display: none;
 }
 
 /* ---------- responsivo ---------- */
 @media (max-width: 1100px) {
-  .kpis {
+  .ticker {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .tick:nth-child(4) {
+    border-left: none;
+  }
+  .tick:nth-child(n + 4) {
+    border-top: 1px solid var(--line-soft);
+  }
+  .split {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+@media (max-width: 560px) {
+  .ticker {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
-}
-@media (max-width: 960px) {
-  .bottom {
-    grid-template-columns: 1fr;
+  .tick:nth-child(odd) {
+    border-left: none;
   }
-  .dialGrid {
-    gap: 18px;
+  .tick:nth-child(4) {
+    border-left: 1px solid var(--line-soft);
   }
-}
-/* Panel en móvil: una columna, indicadores primero, luego la lectura y los supuestos. */
-@media (max-width: 560px) {
-  .decision {
-    gap: 12px;
+  .tick:nth-child(n + 3) {
+    border-top: 1px solid var(--line-soft);
   }
-  .kpis {
-    order: 1;
-    grid-template-columns: 1fr 1fr;
-    gap: 8px;
+  .listRow {
+    grid-template-columns: minmax(0, 1fr);
   }
-  .verdict {
-    display: block;
-    order: 2;
+  .padded {
+    padding: 12px 16px 16px;
   }
-  .aside {
-    text-align: left;
-    white-space: normal;
-  }
-  .dials {
-    order: 3;
-  }
-  .dialGrid {
-    grid-template-columns: 1fr;
-    gap: 14px;
-  }
-  .margin {
-    order: 4;
-  }
-  .bottom {
-    order: 5;
-  }
-  .simAside {
-    margin-left: 0;
-    text-align: left;
-  }
-  .selectorName {
-    max-width: 140px;
-  }
-}
-
-/* Pestañas del kit sobre la franja verde: píldora activa blanca, el resto en blanco sobre vidrio. */
-.tabsOnBand {
-  display: flex;
-}
-.tabsOnBand [role="tablist"] {
-  --surface: var(--band-pill);
-  --ink: var(--band-pill-ink);
-  --muted: var(--on-band);
-  --segment-bg: var(--band-glass);
 }
