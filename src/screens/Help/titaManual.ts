@@ -94,7 +94,7 @@ export const ROLE_MANUALS: Record<Role, RoleManual> = {
     canDo: [
       "Crear y actualizar clientes; registrar abonos; registrar y anular ventas.",
       "Crear, actualizar y desactivar productos; crear categorías; registrar lotes y compras; crear y actualizar proveedores.",
-      "Crear escenarios financieros; atender o archivar contactos del sitio; escribirle al equipo; generar reportes; crear alarmas.",
+      "Crear escenarios financieros; atender o archivar contactos del sitio; escribirle al equipo; generar reportes, incluido el informe del proyecto de un escenario guardado (se abre en Reportes); crear alarmas.",
     ],
     examples: ["¿Cómo van las ventas de este mes frente al mes pasado?", "Súbale 200 pesos al precio de venta del arroz", "Anule la factura FAC-000120", "Genere el reporte de cartera", "Cree una alarma del cierre de caja a las 5:30 p. m. todos los días"],
     cannot: ["Crear usuarios ni cambiar contraseñas: eso se hace en Usuarios y roles.", "Registrar algo sin que usted pulse «Confirmar»."],

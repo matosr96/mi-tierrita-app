@@ -14,7 +14,7 @@ import styles from "./TitaConversation.module.css";
 
 export { SUGGESTIONS } from "./suggestions";
 
-export const REPORT_PATH: Record<AiReportProposal["report"], string> = { sales: "sales", inventory: "inventory", receivables: "receivables" };
+export const REPORT_PATH: Record<AiReportProposal["report"], string> = { sales: "sales", inventory: "inventory", receivables: "receivables", scenario: "proyecto" };
 export const reportHref = (r: AiReportProposal): string => `/reportes?r=${REPORT_PATH[r.report]}&${new URLSearchParams(Object.entries(r.params).map(([k, v]) => [k, String(v)])).toString()}`;
 
 const STATUS_TEXT: Record<ActionState["status"], string> = { idle: "", running: "Registrando…", done: "Hecho", failed: "No se pudo", dismissed: "Descartado" };

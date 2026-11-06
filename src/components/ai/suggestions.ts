@@ -34,8 +34,8 @@ export const SCREEN_SUGGESTIONS: Partial<Record<AiScreen, Partial<Record<Role, s
     ADMIN: ["¿A qué proveedor le compré las últimas veces el concentrado?", "Registre la compra de 24 leches que vencen en diciembre"],
     WAREHOUSE: ["¿Qué proveedores están activos?", "Registre la compra de 24 leches que vencen en diciembre", "Cree el proveedor Agroinsumos del Sinú"],
   },
-  finanzas: { ADMIN: ["¿Me conviene la ampliación según el escenario base?", "¿Qué pasa con el VPN si la demanda baja 10 %?", "Explíqueme la cuota del crédito"] },
-  reportes: { ADMIN: ["Genere el reporte de ventas de este mes", "Genere el reporte de cartera", "¿Qué dice el reporte de inventario?"], SALES: ["Genere el reporte de ventas de esta semana", "¿Cuánto vendimos por producto este mes?"] },
+  finanzas: { ADMIN: ["¿Me conviene la ampliación según el escenario base?", "¿Qué pasa con el VPN si la demanda baja 10 %?", "Genere el informe del proyecto de este escenario"] },
+  reportes: { ADMIN: ["Genere el reporte de ventas de este mes", "Genere el reporte de cartera", "Genere el informe del proyecto del escenario base"], SALES: ["Genere el reporte de ventas de esta semana", "¿Cuánto vendimos por producto este mes?"] },
   chat: { ADMIN: ["Escríbale al equipo que mañana hay conteo de inventario", "¿Quién está en línea?"], SALES: ["Avísele a bodega que se acabó el arroz"], WAREHOUSE: ["Avísele a caja que llegó el pedido de concentrado"] },
   alarmas: {
     ADMIN: ["Cree una alarma para revisar lotes por vencer a las 7:30", "Cree una alarma del cierre de caja a las 5:30 p. m. todos los días"],

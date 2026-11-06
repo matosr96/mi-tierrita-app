@@ -405,7 +405,8 @@ export type AiHandoff = AiSaleProposal | AiPaymentProposal | AiPurchaseProposal;
 /** Petición exacta que la app envía a la API real si la persona confirma (misma validación, permisos y auditoría). */
 export type AiActionRequest = { method: "POST" | "PUT" | "PATCH" | "DELETE"; path: string; body?: Record<string, unknown> };
 export type AiAction = { type: "action"; kind: string; title: string; lines: string[]; warnings: string[]; confirmLabel: string; request: AiActionRequest; handoff?: AiHandoff };
-export type AiReportKind = "sales" | "inventory" | "receivables";
+/** `scenario` es el informe del proyecto del simulador (Reportes → Informe del proyecto, `?proyecto=<id|ejemplo>`). */
+export type AiReportKind = "sales" | "inventory" | "receivables" | "scenario";
 export type AiReportProposal = { type: "report"; report: AiReportKind; title: string; lines: string[]; params: Record<string, string | number> };
 export type AiProposal = AiAction | AiReportProposal;
 /** Adjunto de una pregunta: imagen o PDF en base64, o el texto de una hoja de cálculo o archivo de texto. */
