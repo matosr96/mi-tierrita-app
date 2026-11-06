@@ -105,7 +105,8 @@ export const ProjectsTab = ({ currentId, onOpen, onClosed }: Props) => {
           isEmpty={(d) => d.items.length === 0}
           empty={<EmptyState title="Todavía no hay proyectos guardados" text="Ajuste los supuestos en las pestañas y use «Guardar como» para guardar el primero." />}
         >
-          {(data) => <DataTable columns={columns} rows={data.items} rowKey={(p) => p.id} scroll />}
+          {/* Sin `scroll`: bajo 640 px cada proyecto se apila como tarjeta en vez de cortar las columnas (VPN, TIR, B/C). */}
+          {(data) => <DataTable columns={columns} rows={data.items} rowKey={(p) => p.id} />}
         </QueryState>
       </Card>
 
