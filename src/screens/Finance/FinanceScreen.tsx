@@ -16,11 +16,9 @@ import { CashFlowTab } from "./CashFlowTab";
 import { RisksTab } from "./RisksTab";
 import { ProjectsTab } from "./ProjectsTab";
 import { SaveAsModal } from "./SaveAsModal";
-import { SimulatorReport } from "./SimulatorReport";
-import { SIM_TABS, isSimTab, type SimTab, type TabProps } from "./simShared";
+import { ExportScenarioLink } from "./ExportScenarioLink";
+import { EXAMPLE_PROJECT_NAME, SIM_TABS, isSimTab, type SimTab, type TabProps } from "./simShared";
 import styles from "./FinanceScreen.module.css";
-
-const EXAMPLE_NAME = "Ampliación del local (ejemplo)";
 
 /** Espera a que se deje de escribir antes de pedir el recálculo a la API. */
 const useDebounced = <T,>(value: T, ms: number): T => {
@@ -73,7 +71,7 @@ export const FinanceScreen = () => {
   const errors = simulation.error ? fieldErrors(simulation.error) : {};
   const recalculating = simulation.isFetching || (liveInput !== null && debounced !== liveInput);
 
-  const name = projectId !== null && project.data ? project.data.name : EXAMPLE_NAME;
+  const name = projectId !== null && project.data ? project.data.name : EXAMPLE_PROJECT_NAME;
   const own = projectId !== null && project.data?.userId === userId;
 
   const goTab = (t: SimTab) => navigate({ pathname: `/finanzas/${t}`, search: searchParams.toString() });
@@ -85,7 +83,7 @@ export const FinanceScreen = () => {
   const actions =
     liveInput && result ? (
       <>
-        <SimulatorReport name={name} projectId={projectId} input={liveInput} result={result} />
+        <ExportScenarioLink projectId={projectId} dirty={dirty} />
         {own ? (
           <Button variant="secondary" onClick={() => save.mutate({ id: projectId!, input: liveInput })} loading={save.isPending} disabled={!dirty}>
             Guardar proyecto
@@ -154,7 +152,7 @@ export const FinanceScreen = () => {
       case "flujo":
         return <CashFlowTab {...props} />;
       case "riesgos":
-        return <RisksTab {...props} name={name} projectId={projectId} />;
+        return <RisksTab {...props} name={name} projectId={projectId} dirty={dirty} />;
     }
   };
 
@@ -168,7 +166,7 @@ export const FinanceScreen = () => {
   return (
     <div className={styles.page}>
       <header className={styles.head}>
-        <PageHeader title={tab === "escenarios" ? "Escenarios y proyectos" : name} subtitle={tab === "escenarios" ? meta.question : `${meta.label}: ${meta.question}`} actions={tab === "escenarios" ? null : actions} />
+        <PageHeader title={tab === "escenarios" ? "Escenarios y proyectos" : name} subtitle={tab === "escenarios" ? meta.question : "Simulador financiero: siete secciones en cadena, lo que sale de una alimenta la siguiente. Las cifras las calcula la API."} actions={tab === "escenarios" ? null : actions} />
         <div className={styles.statusRow}>
           <span>{status()}</span>
           {recalculating ? <span className={styles.recalc}>Recalculando…</span> : null}

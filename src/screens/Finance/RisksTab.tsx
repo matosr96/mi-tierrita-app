@@ -6,7 +6,9 @@ import { TornadoChart } from "@/components/charts";
 import { money, moneyCompact, pct, times, years } from "@/lib/format";
 import type { SimScenarioRow, SimTornadoBar } from "@/types/api";
 import { ratesNote } from "./ratesNote";
-import { SimulatorReport } from "./SimulatorReport";
+import { ExportScenarioLink } from "./ExportScenarioLink";
+import { Highlight } from "./Highlight";
+import { TabIntro } from "./TabIntro";
 import type { TabProps } from "./simShared";
 import styles from "./FinanceScreen.module.css";
 
@@ -27,8 +29,8 @@ const scenarioColumns: Column<SimScenarioRow>[] = [
   { key: "bc", header: "B/C", align: "right", render: (s) => times(s.benefitCostRatio) },
 ];
 
-/** 7. Riesgos e informe: tornado, escenarios pesimista/base/optimista, por qué estas tasas y el informe PDF/Excel. */
-export const RisksTab = ({ name, projectId, input, result }: TabProps & { name: string; projectId: number | null }) => {
+/** 7. Riesgos e informe: tornado, escenarios pesimista/base/optimista, por qué estas tasas y el atajo al informe (Reportes). */
+export const RisksTab = ({ name, projectId, dirty, result }: TabProps & { name: string; projectId: number | null; dirty: boolean }) => {
   const r = result.risks;
   const top = r.tornado[0];
   const ai = useAiStatus();
@@ -37,10 +39,14 @@ export const RisksTab = ({ name, projectId, input, result }: TabProps & { name: 
   const canExplain = ai.enabled && projectId !== null;
   return (
     <div className={styles.stack}>
-      <Card
-        title="¿Qué pasa si me va peor?"
-        subtitle={`Cada variable se mueve por separado; las demás quedan fijas. VPN base ${moneyCompact(r.baseNpv)}.${top ? ` Lo que más pesa: ${top.label.toLowerCase()}.` : ""}`}
-      >
+      <TabIntro tab="riesgos" />
+      {top ? (
+        <Highlight
+          items={[{ label: "Variable más sensible", value: top.label, hint: `${top.change}: el VPN va de ${money(top.npvLow)} a ${money(top.npvHigh)} (amplitud ${money(top.amplitude)})`, tone: top.npvLow < 0 ? "warn" : undefined }]}
+          note={<>VPN base {money(r.baseNpv)}. Cada variable se mueve por separado y las demás quedan fijas; la que más cambia el VPN es la que más hay que cuidar.</>}
+        />
+      ) : null}
+      <Card title="Tornado" subtitle={`Cada variable se mueve por separado; las demás quedan fijas. VPN base ${moneyCompact(r.baseNpv)}.`}>
         <TornadoChart data={r.tornado.map((t) => ({ label: `${t.label} ${t.change}`, low: t.npvLow, high: t.npvHigh }))} base={r.baseNpv} format={moneyCompact} />
       </Card>
       <Card title="Tornado en cifras" flush>
@@ -49,9 +55,9 @@ export const RisksTab = ({ name, projectId, input, result }: TabProps & { name: 
       <Card title="Escenarios pesimista, base y optimista" flush>
         <DataTable columns={scenarioColumns} rows={result.scenarios} rowKey={(s) => s.key} scroll />
       </Card>
-      <Card title="Informe del proyecto" subtitle="Seis secciones en el orden de las pestañas, con las mismas cifras de la pantalla." actions={
+      <Card title="Informe del proyecto" subtitle="Se genera y exporta en Reportes → Informe del proyecto (PDF y Excel): seis secciones en el orden de las pestañas, con las mismas cifras de la pantalla." actions={
           <div className={styles.actionsRow}>
-            <SimulatorReport name={name} projectId={projectId} input={input} result={result} />
+            <ExportScenarioLink projectId={projectId} dirty={dirty} />
             {canExplain ? (
               <Button variant="secondary" onClick={() => setExplainOpen(true)}>
                 Explicar con Tita

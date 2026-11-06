@@ -5,7 +5,7 @@ import { dateOnly, dateTime, int } from "@/lib/format";
 import type { ExportData, ExportReportKind, ReportExport } from "@/types/api";
 import styles from "./ReportsScreen.module.css";
 
-const REPORT_LABEL: Record<ExportReportKind, string> = { sales: "Reporte de ventas", inventory: "Reporte de inventario", receivables: "Reporte de cartera", scenario: "Escenario financiero" };
+const REPORT_LABEL: Record<ExportReportKind, string> = { sales: "Reporte de ventas", inventory: "Reporte de inventario", receivables: "Reporte de cartera", scenario: "Informe del proyecto" };
 
 /** Nombre legible de cada filtro guardado y cómo mostrar su valor. */
 const FILTER_LABEL: Record<string, { label: string; value?: (v: string | number | boolean | null) => string }> = {
@@ -15,6 +15,8 @@ const FILTER_LABEL: Record<string, { label: string; value?: (v: string | number 
   days: { label: "Ventana de vencimiento", value: (v) => `${int(Number(v))} días` },
   overdueDays: { label: "Vencida a", value: (v) => `${int(Number(v))} días` },
   asOf: { label: "Corte", value: (v) => dateOnly(String(v)) },
+  proyecto: { label: "Escenario" },
+  projectId: { label: "Proyecto", value: (v) => (v === null ? "ejemplo" : `#${String(v)}`) },
   scenarioId: { label: "Escenario", value: (v) => `#${String(v)}` },
 };
 

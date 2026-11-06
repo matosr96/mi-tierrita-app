@@ -89,6 +89,106 @@
   box-shadow: var(--shadow);
 }
 
+/* ---------- pregunta y cadena de cada pestaña ---------- */
+.intro {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 0 4px;
+}
+.introQuestion {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+}
+.introQuestion strong {
+  font-weight: 600;
+}
+.chain {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 18px;
+  margin: 0;
+  font-size: 13.5px;
+  color: var(--ink-2);
+}
+.chainKey {
+  display: inline-block;
+  margin-right: 6px;
+  padding: 1px 9px;
+  border-radius: 999px;
+  background: var(--sprout-soft);
+  color: var(--forest-fg);
+  font-size: 12.5px;
+  font-weight: 600;
+}
+
+/* ---------- resultado destacado ---------- */
+.highlight {
+  padding: 20px 24px;
+  border-radius: var(--radius);
+  background: var(--surface);
+  box-shadow: var(--shadow);
+  border-left: 4px solid var(--sprout);
+}
+.highlightGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 16px 28px;
+  margin: 0;
+}
+.highlightItem {
+  min-width: 0;
+}
+.highlightItem dt {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ink-2);
+}
+.highlightItem dd {
+  margin: 6px 0 0;
+  font-size: clamp(30px, 3vw, 40px);
+  font-weight: 500;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+}
+.highlightItem dd.good {
+  color: var(--good);
+}
+.highlightItem dd.bad {
+  color: var(--bad);
+}
+.highlightItem dd.warn {
+  color: var(--warn);
+}
+.highlightHint {
+  display: block;
+  margin-top: 6px;
+  font-size: 13.5px;
+  color: var(--muted);
+}
+.highlightNote {
+  margin: 14px 0 0;
+  padding-top: 12px;
+  border-top: 1px solid var(--line-soft);
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--ink-2);
+}
+.footRow td {
+  font-weight: 600;
+  background: var(--surface-3);
+  border-top: 1px solid var(--line-strong);
+}
+.warn {
+  color: var(--warn);
+}
+
 /* ---------- diseño de las secciones ---------- */
 .split {
   display: grid;
@@ -286,10 +386,6 @@
   font-size: 16px;
   font-weight: 600;
   color: var(--ink);
-}
-
-.printOnly {
-  display: none;
 }
 
 /* ---------- responsivo ---------- */

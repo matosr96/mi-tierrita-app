@@ -1,6 +1,6 @@
 import styles from "./ReportPicker.module.css";
 
-export type ReportKind = "sales" | "inventory" | "receivables";
+export type ReportKind = "sales" | "inventory" | "receivables" | "project";
 export type ReportDef = {
   kind: ReportKind;
   code: string;

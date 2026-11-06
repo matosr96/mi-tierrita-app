@@ -1,8 +1,10 @@
-import { Button, Card, DataTable, Input, type Column } from "@/components/ui";
+import { Button, Card, DataTable, Disclosure, Input, type Column } from "@/components/ui";
 import { int, num2, pct } from "@/lib/format";
 import type { SimCompetitor } from "@/types/api";
 import { SimField } from "./SimField";
-import { errorAt, patchSection, type TabProps } from "./simShared";
+import { Highlight } from "./Highlight";
+import { TabIntro } from "./TabIntro";
+import { anyErrorAt, errorAt, patchSection, type TabProps } from "./simShared";
 import styles from "./FinanceScreen.module.css";
 
 /** Fila editable: lo escrito y, si ya llegó, lo que calculó la API para ese competidor. */
@@ -49,9 +51,19 @@ export const CompetitionTab = ({ input, result, onChange, errors }: TabProps) =>
 
   return (
     <div className={styles.stack}>
+      <TabIntro tab="competencia" />
+      <Highlight
+        items={[{ label: "Participación de Mi Tierrita en el mercado", value: pct(r.marketShare), hint: `${int(r.monthlyUnits)} unidades al mes · ${int(r.annualUnits)} al año` }]}
+        note={
+          <>
+            {int(result.market.monthlyDemand)} unidades al mes del mercado × {pct(r.marketShare)} = {num2(r.monthlyUnits)} unidades al mes. «Otros» ({pct(r.othersShare)}) no aportan. Esta cuota ajusta la demanda de Mercado y alimenta
+            Costos y Flujo de caja.
+          </>
+        }
+      />
       <Card
         title="Competidores"
-        subtitle="Los competidores y sus cuotas son de ejemplo: los levanta el administrador. Quien está menos satisfecho con su proveedor es más fácil de captar."
+        subtitle="Los competidores y sus cuotas son de ejemplo: los levanta el administrador. Quien está menos satisfecho con su proveedor es más fácil de captar: probabilidad de captar = 1 − (satisfacción ÷ 5)."
         actions={
           <Button variant="secondary" size="sm" onClick={() => setList([...c.competitors, { name: `Competidor ${c.competitors.length + 1}`, share: 0, satisfaction: 3 }])} disabled={c.competitors.length >= 20}>
             Agregar competidor
@@ -62,34 +74,11 @@ export const CompetitionTab = ({ input, result, onChange, errors }: TabProps) =>
         <div className={styles.compTable}>
           <DataTable columns={columns} rows={c.competitors.map((x, index) => ({ ...x, index, captureProbability: r.competitors[index]?.captureProbability, contribution: r.competitors[index]?.contribution }))} rowKey={(row) => row.index} />
         </div>
-        <div className={styles.fieldsInline}>
-          <SimField label="Factor de conversión" unit="decimal" hint="Supuesto del estudio" value={c.conversionFactor} onChange={(v) => onChange(patchSection(input, "competition", { conversionFactor: v }))} error={errorAt(errors, "competition.conversionFactor")} />
-        </div>
-      </Card>
-
-      <Card title="Lo que le toca a Mi Tierrita">
-        <dl className={styles.figures}>
-          <div>
-            <dt>Cuota del mercado</dt>
-            <dd>{pct(r.marketShare)}</dd>
+        <Disclosure title="Avanzado" hint="Factor de conversión (supuesto del estudio)" forceOpen={anyErrorAt(errors, ["competition.conversionFactor"])}>
+          <div className={styles.fieldsInline}>
+            <SimField label="Factor de conversión" unit="decimal" hint="Aporte = cuota × prob. de captar × factor" value={c.conversionFactor} onChange={(v) => onChange(patchSection(input, "competition", { conversionFactor: v }))} error={errorAt(errors, "competition.conversionFactor")} />
           </div>
-          <div>
-            <dt>Unidades al mes</dt>
-            <dd>{int(r.monthlyUnits)}</dd>
-          </div>
-          <div>
-            <dt>Unidades al año</dt>
-            <dd>{int(r.annualUnits)}</dd>
-          </div>
-          <div>
-            <dt>«Otros» (no aportan)</dt>
-            <dd>{pct(r.othersShare)}</dd>
-          </div>
-        </dl>
-        <p className={styles.formula}>
-          {int(result.market.monthlyDemand)} unidades al mes del mercado × {pct(r.marketShare)} = {num2(r.monthlyUnits)} unidades al mes. Esta cuota ajusta la demanda de Mercado y
-          alimenta Costos y Flujo de caja.
-        </p>
+        </Disclosure>
       </Card>
     </div>
   );

@@ -1,8 +1,10 @@
-import { Button, Card, DataTable, Input, type Column } from "@/components/ui";
+import { Button, Card, DataTable, Disclosure, Input, type Column } from "@/components/ui";
 import { int, money, pct } from "@/lib/format";
 import type { SimCostYear, SimFixedCost } from "@/types/api";
 import { SimField } from "./SimField";
-import { errorAt, patchSection, type TabProps } from "./simShared";
+import { Highlight } from "./Highlight";
+import { TabIntro } from "./TabIntro";
+import { anyErrorAt, errorAt, patchSection, type TabProps } from "./simShared";
 import styles from "./FinanceScreen.module.css";
 
 /** Años que muestra la tabla de costos (el brief pide tres; los cinco están en Flujo de caja). */
@@ -20,6 +22,7 @@ export const CostsTab = ({ input, result, onChange, errors }: TabProps) => {
   const set = (patch: Partial<typeof k>) => onChange(patchSection(input, "costs", patch));
   const setFixed = (list: SimFixedCost[]) => set({ fixedCosts: list });
   const years = r.years.slice(0, COST_YEARS);
+  const year1 = r.years[0];
   const names = years[0]?.fixedCosts.map((f) => f.name) ?? [];
 
   const rows: ConceptRow[] = [
@@ -38,54 +41,65 @@ export const CostsTab = ({ input, result, onChange, errors }: TabProps) => {
   ];
 
   return (
-    <div className={styles.split}>
-      <Card title="Supuestos de costos" subtitle="Valores del año 1. Fijos y variable suben cada año con el IPC.">
-        <div className={styles.listEditor}>
-          <span className={styles.listTitle}>Costos fijos al año</span>
-          {k.fixedCosts.map((f, i) => (
-            <div key={i} className={styles.listRow}>
-              <Input aria-label={`Nombre del costo fijo ${i + 1}`} value={f.name} onChange={(e) => setFixed(k.fixedCosts.map((x, j) => (j === i ? { ...x, name: e.target.value } : x)))} invalid={errorAt(errors, `costs.fixedCosts[${i}].name`) !== undefined} />
-              <SimField label="Valor anual" unit="money" value={f.annual} onChange={(v) => setFixed(k.fixedCosts.map((x, j) => (j === i ? { ...x, annual: v } : x)))} error={errorAt(errors, `costs.fixedCosts[${i}].annual`)} />
-              <Button variant="ghost" size="sm" onClick={() => setFixed(k.fixedCosts.filter((_, j) => j !== i))}>
-                Quitar
-              </Button>
+    <div className={styles.stack}>
+      <TabIntro tab="costos" />
+      <div className={styles.split}>
+        <Card title="Supuestos de costos" subtitle="Valores del año 1. Fijos y variable suben cada año con el IPC.">
+          <div className={styles.listEditor}>
+            <span className={styles.listTitle}>Costos fijos al año</span>
+            {k.fixedCosts.map((f, i) => (
+              <div key={i} className={styles.listRow}>
+                <Input aria-label={`Nombre del costo fijo ${i + 1}`} value={f.name} onChange={(e) => setFixed(k.fixedCosts.map((x, j) => (j === i ? { ...x, name: e.target.value } : x)))} invalid={errorAt(errors, `costs.fixedCosts[${i}].name`) !== undefined} />
+                <SimField label="Valor anual" unit="money" value={f.annual} onChange={(v) => setFixed(k.fixedCosts.map((x, j) => (j === i ? { ...x, annual: v } : x)))} error={errorAt(errors, `costs.fixedCosts[${i}].annual`)} />
+                <Button variant="ghost" size="sm" onClick={() => setFixed(k.fixedCosts.filter((_, j) => j !== i))}>
+                  Quitar
+                </Button>
+              </div>
+            ))}
+            <Button variant="secondary" size="sm" onClick={() => setFixed([...k.fixedCosts, { name: "Otro costo fijo", annual: 0 }])} disabled={k.fixedCosts.length >= 20}>
+              Agregar costo fijo
+            </Button>
+          </div>
+          <div className={styles.fields}>
+            <SimField label="Costo variable por unidad vendida" unit="money" hint="Sale del costo de la mercancía en inventario" value={k.variableUnitCost} onChange={(v) => set({ variableUnitCost: v })} error={errorAt(errors, "costs.variableUnitCost")} />
+            <SimField label="Margen sobre el costo" unit="pct" hint="Define el precio de venta automático" value={k.marginOnCost} onChange={(v) => set({ marginOnCost: v })} error={errorAt(errors, "costs.marginOnCost")} />
+          </div>
+          <Disclosure title="Avanzado" hint="IPC con el que suben los costos desde el año 2" forceOpen={anyErrorAt(errors, ["costs.inflation"])}>
+            <div className={styles.fields}>
+              <SimField label="IPC anual" unit="pct" value={k.inflation} onChange={(v) => set({ inflation: v })} error={errorAt(errors, "costs.inflation")} />
             </div>
-          ))}
-          <Button variant="secondary" size="sm" onClick={() => setFixed([...k.fixedCosts, { name: "Otro costo fijo", annual: 0 }])} disabled={k.fixedCosts.length >= 20}>
-            Agregar costo fijo
-          </Button>
-        </div>
-        <div className={styles.fields}>
-          <SimField label="Costo variable por unidad vendida" unit="money" hint="Sale del costo de la mercancía en inventario" value={k.variableUnitCost} onChange={(v) => set({ variableUnitCost: v })} error={errorAt(errors, "costs.variableUnitCost")} />
-          <SimField label="IPC anual" unit="pct" value={k.inflation} onChange={(v) => set({ inflation: v })} error={errorAt(errors, "costs.inflation")} />
-          <SimField label="Margen sobre el costo" unit="pct" value={k.marginOnCost} onChange={(v) => set({ marginOnCost: v })} error={errorAt(errors, "costs.marginOnCost")} />
-        </div>
-      </Card>
+          </Disclosure>
+        </Card>
 
-      <div className={styles.stack}>
-        <Card title="Precio automático" subtitle="Se recalcula solo al cambiar costos, unidades o margen.">
-          <dl className={styles.figures}>
-            <div>
-              <dt>Costo unitario (año 1)</dt>
-              <dd>{money(r.unitCost)}</dd>
-            </div>
-            <div>
-              <dt>Precio de venta</dt>
-              <dd className={styles.figureAccent}>{money(r.price)}</dd>
-            </div>
-            <div>
-              <dt>Margen sobre el precio</dt>
-              <dd>{pct(r.marginOnPrice)}</dd>
-            </div>
-          </dl>
-          <p className={styles.formula}>
-            Precio = {money(r.unitCost)} × (1 + {pct(r.marginOnCost)}) = <strong>{money(r.price)}</strong>. Desde el año 2 el precio sube con el IPC, igual que los costos. El margen sobre el
-            precio ({pct(r.marginOnPrice)}) es solo informativo.
-          </p>
-        </Card>
-        <Card title="Costos por unidades vendidas" subtitle="Costo unitario = (fijos + variables) ÷ unidades vendidas." flush>
-          <DataTable columns={columns} rows={rows} rowKey={(row) => row.key} scroll />
-        </Card>
+        <div className={styles.stack}>
+          <Highlight
+            items={[{ label: "Costo unitario (año 1)", value: money(r.unitCost), hint: year1 ? `${money(year1.variableUnitCost)} variable + ${money(year1.fixedUnitCost)} de parte fija por unidad` : undefined }]}
+            note={year1 ? <>Costo unitario = (fijos {money(year1.fixedTotal)} + variables {money(year1.variableTotal)}) ÷ {int(year1.units)} unidades vendidas = {money(r.unitCost)}.</> : undefined}
+          />
+          <Card title="Precio automático" subtitle="Se recalcula solo al cambiar costos, unidades o margen (decisión 2).">
+            <dl className={styles.figures}>
+              <div>
+                <dt>Costo unitario (año 1)</dt>
+                <dd>{money(r.unitCost)}</dd>
+              </div>
+              <div>
+                <dt>Precio de venta</dt>
+                <dd className={styles.figureAccent}>{money(r.price)}</dd>
+              </div>
+              <div>
+                <dt>Margen sobre el precio</dt>
+                <dd>{pct(r.marginOnPrice)}</dd>
+              </div>
+            </dl>
+            <p className={styles.formula}>
+              Precio = {money(r.unitCost)} × (1 + {pct(r.marginOnCost)}) = <strong>{money(r.price)}</strong>. Desde el año 2 el precio sube con el IPC, igual que los costos. El margen sobre el
+              precio ({pct(r.marginOnPrice)}) es solo informativo.
+            </p>
+          </Card>
+          <Card title="Costos por unidades vendidas" subtitle="Costo unitario = (fijos + variables) ÷ unidades vendidas. Tres años; los cinco están en Flujo de caja." flush>
+            <DataTable columns={columns} rows={rows} rowKey={(row) => row.key} scroll />
+          </Card>
+        </div>
       </div>
     </div>
   );

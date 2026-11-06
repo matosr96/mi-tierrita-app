@@ -4,19 +4,29 @@ import type { SimulatorInput, SimulatorResult } from "@/types/api";
 
 export type SimTab = "mercado" | "competencia" | "costos" | "inversion" | "financiacion" | "flujo" | "riesgos" | "escenarios";
 
-/** Las siete secciones en cadena más Escenarios, en el mismo orden del informe. */
-export const SIM_TABS: { value: SimTab; label: string; question: string }[] = [
-  { value: "mercado", label: "Mercado", question: "¿Cuánta gente me va a comprar?" },
-  { value: "competencia", label: "Competencia", question: "¿Cuánto de ese mercado me toca?" },
-  { value: "costos", label: "Costos", question: "¿Cuánto me cuesta vender eso?" },
-  { value: "inversion", label: "Inversión", question: "¿Cuánta plata necesito al inicio?" },
-  { value: "financiacion", label: "Financiación", question: "¿De dónde sale la plata?" },
-  { value: "flujo", label: "Flujo de caja", question: "¿Al final me deja ganancia?" },
-  { value: "riesgos", label: "Riesgos e informe", question: "¿Y si me va peor?" },
-  { value: "escenarios", label: "Escenarios", question: "Proyectos guardados, comparación y exportación" },
+/**
+ * Las siete secciones en cadena más Escenarios, en el mismo orden del informe. `question` es la frase del brief (sección 3);
+ * `from` y `feeds` dicen de dónde vienen las cifras de la pestaña y a cuál alimentan (lo que sale de una entra en la siguiente).
+ */
+export const SIM_TABS: { value: SimTab; label: string; question: string; from: string; feeds: string }[] = [
+  { value: "mercado", label: "Mercado", question: "¿Cuánta gente me va a comprar?", from: "supuestos de población y consumo (fuente DANE o gremio, pendiente)", feeds: "Competencia (demanda mensual)" },
+  { value: "competencia", label: "Competencia", question: "¿Cuánto de ese mercado me toca?", from: "Mercado (demanda mensual)", feeds: "Costos y Flujo de caja (unidades vendidas)" },
+  { value: "costos", label: "Costos", question: "¿Cuánto me cuesta vender eso?", from: "Competencia (unidades vendidas)", feeds: "Flujo de caja (costos y precio de venta)" },
+  { value: "inversion", label: "Inversión", question: "¿Cuánta plata necesito al inicio?", from: "supuestos de la inversión", feeds: "Financiación (monto) y Flujo de caja (año 0, depreciación y salvamento)" },
+  { value: "financiacion", label: "Financiación", question: "¿De dónde sale la plata?", from: "Inversión (total)", feeds: "Cobertura de la cuota (aquí mismo); no cambia el VPN (decisión 4)" },
+  { value: "flujo", label: "Flujo de caja", question: "¿Al final me deja ganancia?", from: "Competencia, Costos e Inversión", feeds: "Riesgos (VPN base)" },
+  { value: "riesgos", label: "Riesgos e informe", question: "¿Y si me va peor?", from: "Flujo de caja (VPN base)", feeds: "Informe del proyecto (Reportes) y Escenarios" },
+  { value: "escenarios", label: "Escenarios", question: "Proyectos guardados, comparación y exportación", from: "todas las pestañas (los supuestos guardados)", feeds: "Informe del proyecto (Reportes)" },
 ];
 
 export const isSimTab = (v: string | undefined): v is SimTab => SIM_TABS.some((t) => t.value === v);
+
+/** El escenario de ejemplo de la API ($94,5 M): valor de `?proyecto=` cuando no hay proyecto guardado. */
+export const EXAMPLE_PROJECT = "ejemplo";
+export const EXAMPLE_PROJECT_NAME = "Ampliación del local (ejemplo)";
+
+/** Reportes → Informe del proyecto con el escenario preseleccionado (el atajo «Exportar escenario» solo navega aquí). */
+export const projectReportPath = (projectId: number | null): string => `/reportes?r=proyecto&proyecto=${projectId ?? EXAMPLE_PROJECT}`;
 
 /** Lo que recibe cada pestaña: la entrada en edición, el cálculo de la API y cómo cambiar la entrada. */
 export type TabProps = {
@@ -34,6 +44,10 @@ export const patchSection = <S extends keyof SimulatorInput>(input: SimulatorInp
 });
 
 export const errorAt = (errors: Record<string, string>, path: string): string | undefined => errors[`input.${path}`];
+
+/** ¿Alguna de estas rutas (o sus hijas, como `costs.fixedCosts[2].annual`) trae error? Sirve para abrir «Avanzado» solo. */
+export const anyErrorAt = (errors: Record<string, string>, paths: string[]): boolean =>
+  Object.keys(errors).some((k) => paths.some((p) => k === `input.${p}` || k.startsWith(`input.${p}.`) || k.startsWith(`input.${p}[`)));
 
 /** Nombre de archivo sin tildes ni espacios. */
 export const fileBase = (name: string): string =>

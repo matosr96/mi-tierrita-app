@@ -1,0 +1,52 @@
+/* Bloque plegable: píldora de resumen con chevrón; el contenido baja con una línea suave. */
+.disclosure {
+  border-top: 1px solid var(--line-soft);
+  padding-top: 10px;
+}
+.summary {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border-radius: 999px;
+  list-style: none;
+  cursor: pointer;
+  color: var(--ink-2);
+  transition: background-color var(--dur) ease;
+}
+.summary::-webkit-details-marker {
+  display: none;
+}
+.summary:hover {
+  background: var(--hover);
+}
+.summary:focus-visible {
+  outline: 2px solid var(--sprout);
+  outline-offset: 2px;
+}
+.title {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--ink);
+}
+.hint {
+  flex: 1;
+  min-width: 0;
+  font-size: 13px;
+  color: var(--muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.chevron {
+  flex-shrink: 0;
+  margin-left: auto;
+  color: var(--muted);
+  transition: transform var(--dur) ease;
+}
+.disclosure[open] .chevron {
+  transform: rotate(180deg);
+}
+.body {
+  padding: 10px 0 2px;
+}

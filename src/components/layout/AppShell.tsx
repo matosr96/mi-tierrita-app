@@ -6,6 +6,7 @@ import { useMe, useSignout } from "@/hooks/session";
 import { NAV_GROUPS, NAV_ICONS, findRoute, isLockedFor, isVisibleFor } from "@/router/navigation";
 import { Toasts, UserAvatar } from "@/components/ui";
 import { useNavBadges } from "./useNavBadges";
+import { DEFAULT_DELTA, shouldCompact } from "./topbar";
 import { NotificationsMenu } from "./NotificationsMenu";
 import { CommandPalette } from "./CommandPalette";
 import { TitaPanel } from "@/components/ai/TitaPanel";
@@ -99,12 +100,32 @@ export const AppShell = () => {
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, []);
-  // La cabecera alta (como en la referencia) se compacta al bajar.
+  // La cabecera alta (como en la referencia) se compacta al bajar. La regla (histéresis y guarda de altura) está en
+  // `topbar.ts`; aquí solo se mide la barra en sus dos estados. Se evalúa en el propio evento (el navegador ya lo emite
+  // como mucho una vez por cuadro) y no en `requestAnimationFrame`, que no corre con la pestaña en segundo plano.
+  const topbarRef = useRef<HTMLElement>(null);
+  const scrolledRef = useRef(false);
+  const heights = useRef({ tall: 0, compact: 0 });
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 40);
-    onScroll();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
+    const update = () => {
+      const bar = topbarRef.current;
+      const on = scrolledRef.current;
+      if (bar) heights.current[on ? "compact" : "tall"] = bar.offsetHeight;
+      const h = heights.current;
+      const delta = h.tall > 0 && h.compact > 0 ? Math.max(0, h.tall - h.compact) : DEFAULT_DELTA;
+      const next = shouldCompact({ compact: on, scrollY: window.scrollY, scrollHeight: document.documentElement.scrollHeight, innerHeight: window.innerHeight, delta });
+      if (next !== on) {
+        scrolledRef.current = next;
+        setScrolled(next);
+      }
+    };
+    update();
+    window.addEventListener("scroll", update, { passive: true });
+    window.addEventListener("resize", update);
+    return () => {
+      window.removeEventListener("scroll", update);
+      window.removeEventListener("resize", update);
+    };
   }, []);
   useEffect(() => {
     setMenuOpen(false);
@@ -153,7 +174,7 @@ export const AppShell = () => {
   return (
     <div className={styles.shell}>
       <div className={[styles.progress, fetching > 0 ? styles.progressOn : ""].join(" ")} aria-hidden="true" />
-      <header className={[styles.topbar, scrolled ? styles.compact : ""].join(" ")}>
+      <header ref={topbarRef} className={[styles.topbar, scrolled ? styles.compact : ""].join(" ")}>
         <Link to="/" className={styles.brand} aria-label="Mi Tierrita, inicio">
           <BrandMark />
           <span className={styles.brandText}>

@@ -5,6 +5,7 @@ import { PageHeader } from "@/components/layout/AppShell";
 import { SalesReportPanel } from "./SalesReportPanel";
 import { InventoryReportPanel } from "./InventoryReportPanel";
 import { ReceivablesReportPanel } from "./ReceivablesReportPanel";
+import { ProjectReportPanel } from "./ProjectReportPanel";
 import { ReportPicker, type ReportDef, type ReportKind } from "./ReportPicker";
 import { ExportHistory } from "./ExportHistory";
 import styles from "./ReportsScreen.module.css";
@@ -41,20 +42,33 @@ const REPORTS: ReportDef[] = [
     cadence: "Según días sin abono",
     adminOnly: true,
   },
+  {
+    kind: "project",
+    code: "S-01",
+    lead: "Informe del",
+    accent: "proyecto",
+    text: "Informe del simulador financiero para un escenario guardado: mercado, costos, inversión, financiación, flujo de caja y riesgos.",
+    audience: "Solo propietaria",
+    cadence: "Por escenario guardado",
+    adminOnly: true,
+  },
 ];
 
+/** `?r=` acepta los nombres en inglés (los usa Tita) y «proyecto» para el informe del simulador. */
+const kindParam = (raw: string | null): ReportKind => (raw === "inventory" || raw === "receivables" ? raw : raw === "project" || raw === "proyecto" || raw === "scenario" ? "project" : "sales");
+
 /**
- * CU-19 y CU-20 Reportes. La secretaria (SALES) solo ve Ventas: los otros paneles no se montan,
- * así sus consultas nunca se disparan con un rol que el backend rechazaría.
+ * CU-19 y CU-20 Reportes, más el informe del proyecto del simulador (S-01, brief sección 3). La secretaria (SALES) solo ve
+ * Ventas: los otros paneles no se montan, así sus consultas nunca se disparan con un rol que el backend rechazaría.
  */
 export const ReportsScreen = () => {
   const user = useSessionStore((s) => s.user);
   const isAdmin = user?.role === "ADMIN";
   const reports = REPORTS.filter((r) => isAdmin || !r.adminOnly);
-  // ?r=sales|inventory|receivables y sus parámetros: así Tita abre el reporte que preparó en el chat.
+  // ?r=sales|inventory|receivables|proyecto y sus parámetros: así Tita abre el reporte que preparó en el chat y el simulador
+  // llega con «Exportar escenario» (`?proyecto=<id|ejemplo>`).
   const [params] = useSearchParams();
-  const asked = params.get("r");
-  const [kind, setKind] = useState<ReportKind>(asked === "inventory" || asked === "receivables" ? asked : "sales");
+  const [kind, setKind] = useState<ReportKind>(() => kindParam(params.get("r")));
   const intParam = (k: string) => {
     const n = Number(params.get(k));
     return Number.isInteger(n) && n > 0 ? n : undefined;
@@ -64,7 +78,7 @@ export const ReportsScreen = () => {
 
   return (
     <div className={styles.page}>
-      <PageHeader title="Reportes" subtitle={isAdmin ? "Documentos para la propietaria: ventas, inventario y cartera tal como los registra el sistema." : "Documento de ventas del periodo tal como las registra el sistema."} />
+      <PageHeader title="Reportes" subtitle={isAdmin ? "Documentos para la propietaria: ventas, inventario y cartera tal como los registra el sistema, y el informe del proyecto del simulador financiero." : "Documento de ventas del periodo tal como las registra el sistema."} />
 
       <div className={styles.covers} role="group" aria-label="Elegir reporte">
         {reports.map((r) => (
@@ -75,6 +89,7 @@ export const ReportsScreen = () => {
       {current === "sales" ? <SalesReportPanel from={isoParam("from")} to={isoParam("to")} groupBy={params.get("groupBy") === "product" ? "product" : undefined} /> : null}
       {isAdmin && current === "inventory" ? <InventoryReportPanel days={intParam("days")} /> : null}
       {isAdmin && current === "receivables" ? <ReceivablesReportPanel overdueDays={intParam("overdueDays")} /> : null}
+      {isAdmin && current === "project" ? <ProjectReportPanel initial={params.get("proyecto") ?? undefined} /> : null}
 
       <ExportHistory isAdmin={isAdmin} />
     </div>

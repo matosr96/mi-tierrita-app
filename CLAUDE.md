@@ -60,7 +60,7 @@ subconjunto de cards|list|table, ariaLabel; píldora Tarjetas/Lista/Tabla con ic
 `useViewMode(key, allowed, fallback)` (preferencia en `localStorage` `mi-tierrita:<key>-vista`, funciones puras
 `readViewMode`/`writeViewMode` de `viewMode.ts`; «mosaic» se lee como `cards`). Inventario (tabla por defecto), Clientes
 (lista) y Proveedores (tabla) ofrecen los tres modos · `Loading`, `EmptyState`, `ErrorState`,
-`QueryState` · `Pagination` (page, onPage) · `Modal` (open, title, description, onClose, footer, wide) ·
+`QueryState` · `Pagination` (page, onPage) · `Modal` (open, title, description, onClose, footer, wide) · `Disclosure` (title, hint, defaultOpen, forceOpen; `<details>` plegable, «Avanzado») ·
 `PersonPopover` + `PersonName` (`@/components/people`; ficha de persona: `openPersonCard(userId, el)` desde cualquier avatar o nombre; montada una vez en `AppShell`) · `useModalOpenFlag(open)` (marca `body[data-modal-open]` para que el orbe de Tita se aparte; lo usan `Modal` y los diálogos propios) · `Tabs` (control segmentado en píldora; `ariaLabel` opcional; también sobre la franja verde) y `Chips` (píldoras; activa verde suave) · `MiniCalendar` (value `YYYY-MM-DD` | null, onChange, max; rejilla de un mes lunes a domingo, mes anterior/siguiente, teclado con flechas, `aria-label` por día) · `Callout` (veredicto: tone good|warn|bad con
 ícono, título 20 px, aside a la derecha) · `Toasts` · `DocumentViewer` (vista previa a pantalla casi completa: `open`, `name`, `mime`,
 `src` Blob | URL | null, `size?`, `error?`, `onClose`, `onDownload?`, y `items` + `index` + `onNavigate` para anterior/siguiente;
@@ -70,7 +70,9 @@ texto y CSV en `<pre>`/tabla, el resto solo ficha y «Descargar»; exporta `size
 descargada con la sesión y en caché por `avatarUpdatedAt`, o las iniciales con el estilo del contenedor). `DataTable` alinea el texto a la izquierda; las columnas
 numéricas declaran `align: "right"`. En `@/components/layout`: `PageHeader` (título, subtítulo y acciones; sin
 decoración), `HeroHeader` (encabezado del Inicio: eyebrow, titular, subtítulo, acciones y `aside` con los pendientes),
-`BrandMark` (de `AppShell`), `CommandPalette` (⌘K / Ctrl+K) y `NotificationsMenu`. `AppShell` pone en la píldora
+`BrandMark` (de `AppShell`), `CommandPalette` (⌘K / Ctrl+K) y `NotificationsMenu`. La barra superior se compacta al bajar con la regla de
+`layout/topbar.ts` (`shouldCompact`: histéresis 64/16 px y guarda de altura, porque la barra `sticky` se encoge 42 px y el
+anclaje de scroll del navegador mueve `scrollY` otro tanto; con un umbral único rebotaba sin parar). `AppShell` pone en la píldora
 las rutas de `PRIMARY` (rótulos cortos) y el resto, más "Cerrar sesión", en "Más". El Inicio usa la rejilla `.dash`
 de tres columnas, la tarjeta destacada `StatusAside` (degradado verde con los pendientes; `watches` dice qué vigila para el rol) y `ActivityCard`. Cada pendiente aparece una sola vez en el Inicio (la campana y las insignias lo repiten fuera de él, a propósito). La portada de Inicio responde
 "¿está todo bien?": `statusTitle` + `StatusAside` a partir de los pendientes de `screens/Home/attention.ts`.
@@ -106,14 +108,22 @@ Tocar un ítem navega a su `href`.
   `hidden` de las copias) y abre el diálogo de impresión (allí se elige «Guardar como PDF» y la carpeta; el botón lo dice
   en su `title`); las reglas `@media print` están en `global.css`: `@page` con «Página X de Y» en el margen inferior
   (cajas de margen, Chrome 131+), `thead` repetido por página, `tr` y `[data-print-block]` sin partir, `[data-print-cover]`
-  con salto de página. Los reportes imprimen portada + `ReportPaper`; Finanzas imprime una hoja oculta del proyecto
-  (`SimulatorReport`, seis secciones en el orden de las pestañas, con folio).
+  con salto de página. Los reportes imprimen portada + `ReportPaper`, incluido el «Informe del proyecto» del simulador
+  (`ProjectReportPanel`, documento S-01, en Reportes).
 - **Flujo del PDF de un reporte** (`ReportPreview`): primero registra el documento con `useRecordExport` (`filters` y
   `summary` estructurados) y la API devuelve `folio` `R-AAAA-NNNNNN`, `hash` y `verifyUrl`; luego monta la portada
   `ReportCoverPage` (foto de `public/media` con crédito, marca, título, período y filtros, quién y cuándo, folio y
   `QrCode` con `${origin}/verificar/${folio}`) en un contenedor `hidden` y la imprime junto con la hoja. El folio llega
   al pie de `ReportPaper` por `ReportStampContext`. Si el registro falla, se imprime sin folio ni QR y se avisa.
   `ReportPicker` es la tarjeta para elegir reporte (no es la portada).
+- **Informe del proyecto** (Reportes, cuarta entrada, solo ADMIN; `?r=proyecto&proyecto=<id|ejemplo>`): `ProjectReportPanel`
+  elige un escenario guardado del simulador (`useProjects("all")` + `useProject`, o el ejemplo de `useSimulatorDefaults`) y
+  arma con `projectReport.ts` (`projectSections`, `projectSheets`, `coverParams`, `projectVerdict`; funciones puras, solo
+  formato) las seis secciones en el orden de las pestañas: resumen y supuestos; mercado y competencia; costos e inversión
+  (depreciación de activos fijos y amortización de diferidos en tablas aparte); financiación y amortización del crédito;
+  flujo de caja e indicadores; riesgos y escenarios. Conserva su estructura; comparte con los otros reportes `ReportPreview`
+  (portada, folio, QR, «Página X de Y») y el registro `report: "scenario"` en el historial. En el simulador, «Exportar
+  escenario» (`ExportScenarioLink`, `projectReportPath`) solo navega aquí; con cambios sin guardar queda deshabilitado.
 - **QR**: `@/lib/qr` (`encodeQr(texto)` → matriz; modo byte, versión 1–10, corrección M, máscara por penalización, sin
   dependencias) y `QrCode` de `@/components/ui` (SVG con `fill="currentColor"`).
 - **Verificación pública** `/verificar/:folio` (`screens/Verify`, `lazy`, fuera de `RequireSession`): `useVerifyExport`
@@ -150,7 +160,7 @@ Tocar un ítem navega a su `href`.
 - **Conteos de inventario** (`/conteos`, grupo «Operación», ADMIN y bodega; `screens/StockCounts/`): `StockCountsScreen` (filtro por estado y `?c=<id>` abre la hoja), `CountList` (por estado; atrasados en `--bad` y de hoy en `--warn` según `due` de la API), `CountFormModal` (programar o editar), `CountSheet` (un renglón por producto con cuadro numérico grande, Enter pasa al siguiente, diferencia que devuelve la API al guardar, barra pegada abajo con «Guardar avance» y «Enviar») y `AdjustmentPreviewModal` (solo ADMIN: faltantes con sus lotes y sobrantes con fecha de vencimiento, «Aplicar ajuste» con confirmación); hooks `@/hooks/stock-counts`.
 - **Nómina** (`/nomina`, grupo «Gestión», solo ADMIN; `screens/Payroll/`): `PayrollScreen` (pestañas Periodos/Empleados con `?pestana=empleados`; `?periodo=<id>` abre el detalle, para enlazar desde el calendario y los avisos), `PayrollNotice` (liquidación simplificada: no reemplaza la nómina electrónica de la DIAN ni calcula prestaciones ni aportes del empleador), `PeriodList`, `PeriodFormModal`, `PeriodDetail` (líneas en `DataTable` con `LineAmountInput` para horas extra, bonificaciones, auxilio de transporte —del decreto vigente, por defecto 0— y otros descuentos solo en borrador; la API recalcula salud y pensión 4 % y los totales; «Aprobar», «Marcar pagado» y «Eliminar borrador» con confirmación; «Exportar a Excel» con `downloadXlsx`), `EmployeeList` y `EmployeeFormModal`; hooks `@/hooks/payroll`.
 - **Historial de reportes**: cada PDF o Excel generado se registra con `useRecordExport` (`ReportPreview` lo hace
-  solo si recibe `record`, con `filters` y `summary`; Finanzas desde `SimulatorReport`) y se lista en `ExportHistory`
+  solo si recibe `record`, con `filters` y `summary`; el informe del proyecto también) y se lista en `ExportHistory`
   (prototipo 09): fecha y hora, reporte con los filtros en texto legible, formato, quién, folio y botón «Verificar»
   que abre `/verificar/:folio`.
 - **Comunicación**: `/chat` (todos los roles; `?con=<id>` privado, `&hilo=<id>` hilo abierto, `&m=<id>` mensaje a mostrar).
@@ -258,13 +268,19 @@ las "Sugerencias de hoy" sí se muestran porque las calcula el servidor sin IA).
 
 ## Simulador financiero (`/finanzas`, solo ADMIN; `screens/Finance/`)
 
-Siete secciones en cadena más Escenarios (`SIM_TABS` en `simShared.ts`): `MarketTab`, `CompetitionTab`, `CostsTab`,
-`InvestmentTab`, `FinancingTab`, `CashFlowTab`, `RisksTab` y `ProjectsTab`. `FinanceScreen` guarda solo la entrada en
-edición (`SimulatorInput`); cada cambio, con 300 ms de espera, va a `useSimulation` y todo lo que se ve sale de la
-respuesta de la API (una sola fuente con el informe, «Exportar» y Tita). `?proyecto=<id>` abre un proyecto; sin él se parte
-del ejemplo de $94,5 M (`useSimulatorDefaults`). «Guardar proyecto» solo para el dueño (`PUT`), «Guardar como»
-(`SaveAsModal`) para cualquiera. `SimField` escribe en porcentaje o puntos y envía fracciones. `SimulatorReport` arma PDF y
-Excel; `ratesNote` es el párrafo de tasas de la decisión 4. Decisiones en `../DECISIONES-FASE-B.md`.
+Siete secciones en cadena más Escenarios (`SIM_TABS` en `simShared.ts`, cada una con `question` del brief, `from` y
+`feeds`): `MarketTab`, `CompetitionTab`, `CostsTab`, `InvestmentTab`, `FinancingTab`, `CashFlowTab`, `RisksTab` y
+`ProjectsTab`. Cada pestaña abre con `TabIntro` (la pregunta que responde y la línea «Viene de / Alimenta a»), muestra solo
+los supuestos esenciales y guarda los secundarios en un `Disclosure` «Avanzado» (del kit; se abre solo si un campo de dentro
+trae error, `anyErrorAt`), destaca un único resultado con `Highlight` (demanda anual, participación, costo unitario,
+inversión total, cuota mensual, VPN y TIR, variable más sensible) y deja las tablas debajo. Inversión muestra la
+depreciación de activos fijos y la amortización de diferidos en dos tablas con sus totales (`depreciationTotal`,
+`amortizationTotal` de la API) y el cargo anual como resumen aparte. `FinanceScreen` guarda solo la entrada en edición
+(`SimulatorInput`); cada cambio, con 300 ms de espera, va a `useSimulation` y todo lo que se ve sale de la respuesta de la
+API (una sola fuente con el informe de Reportes, «Exportar escenario» y Tita). `?proyecto=<id>` abre un proyecto; sin él se
+parte del ejemplo de $94,5 M (`useSimulatorDefaults`). «Guardar proyecto» solo para el dueño (`PUT`), «Guardar como»
+(`SaveAsModal`) para cualquiera. `SimField` escribe en porcentaje o puntos y envía fracciones. El informe PDF y Excel vive
+en Reportes (`ProjectReportPanel`); `ratesNote` es el párrafo de tasas de la decisión 4. Decisiones en `../DECISIONES-FASE-B.md`.
 
 ## Stock vendible y fechas
 

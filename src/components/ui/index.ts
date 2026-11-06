@@ -17,3 +17,4 @@ export * from "./DocumentViewer";
 export * from "./UserAvatar";
 export * from "./ViewSwitch";
 export * from "./viewMode";
+export * from "./Disclosure";

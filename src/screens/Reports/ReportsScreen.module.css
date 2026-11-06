@@ -97,3 +97,22 @@
   color: var(--ink-2);
   white-space: nowrap;
 }
+
+/* ---------- informe del proyecto (S-01) ---------- */
+.scenarioField {
+  min-width: 260px;
+  max-width: 100%;
+  flex: 1;
+}
+.subTable + .subTable {
+  margin-top: 14px;
+}
+.subTableTitle {
+  margin: 0 0 6px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink-2);
+}
+.scenarioField select {
+  width: 100%;
+}

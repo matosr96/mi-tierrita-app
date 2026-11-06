@@ -1,45 +1,25 @@
 import { useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Button, Card, Chips, DataTable, EmptyState, Modal, QueryState, type Column } from "@/components/ui";
-import { useCompareProjects, useDeleteProject, useProject, useProjects } from "@/hooks/financial";
+import { useCompareProjects, useDeleteProject, useProjects } from "@/hooks/financial";
 import { dateTime, int, money, moneyCompact, pct, times, years } from "@/lib/format";
 import { useSessionStore } from "@/stores/session";
 import type { ProjectComparison, ProjectScope, ProjectSummary } from "@/types/api";
-import { SimulatorReport } from "./SimulatorReport";
+import { projectReportPath } from "./simShared";
 import styles from "./FinanceScreen.module.css";
 
 const MAX_COMPARED = 4;
 
-/** «Exportar» desde la lista: abre el proyecto en la API y ofrece el mismo informe de la pantalla. */
-const ExportProjectModal = ({ projectId, onClose }: { projectId: number; onClose: () => void }) => {
-  const project = useProject(projectId);
-  return (
-    <Modal open title="Exportar proyecto" description="El informe usa el cálculo guardado del proyecto, igual al de la pantalla." onClose={onClose}>
-      <QueryState query={project} empty={null}>
-        {(p) => (
-          <div className={styles.stackSm}>
-            <p className={styles.formula}>
-              <strong>{p.name}</strong> · VPN {money(p.result.indicators.npv)} · TIR {pct(p.result.indicators.irr)}
-            </p>
-            <div className={styles.actionsRow}>
-              <SimulatorReport name={p.name} projectId={p.id} input={p.input} result={p.result} />
-            </div>
-          </div>
-        )}
-      </QueryState>
-    </Modal>
-  );
-};
-
 /** `onClosed` se llama al eliminar el proyecto que está abierto: la pantalla vuelve al ejemplo. */
 type Props = { currentId: number | null; onOpen: (id: number) => void; onClosed: () => void };
 
-/** 8. Escenarios guardados: lista por usuario, abrir, comparar lado a lado y exportar cada uno. */
+/** 8. Escenarios guardados: lista por usuario, abrir, comparar lado a lado y exportar cada uno (atajo a Reportes → Informe). */
 export const ProjectsTab = ({ currentId, onOpen, onClosed }: Props) => {
   const userId = useSessionStore((s) => s.user?.id);
+  const navigate = useNavigate();
   const [scope, setScope] = useState<ProjectScope>("mine");
   const projects = useProjects(scope);
   const [selected, setSelected] = useState<number[]>([]);
-  const [exporting, setExporting] = useState<number | null>(null);
   const [deleting, setDeleting] = useState<ProjectSummary | null>(null);
   const remove = useDeleteProject();
   const compareIds = useMemo(() => [...selected].sort((a, b) => a - b), [selected]);
@@ -83,8 +63,8 @@ export const ProjectsTab = ({ currentId, onOpen, onClosed }: Props) => {
           <Button size="sm" variant="secondary" onClick={() => onOpen(p.id)} disabled={p.id === currentId}>
             Abrir
           </Button>
-          <Button size="sm" variant="ghost" onClick={() => setExporting(p.id)}>
-            Exportar
+          <Button size="sm" variant="ghost" onClick={() => navigate(projectReportPath(p.id))} title="Abre Reportes → Informe del proyecto con este escenario">
+            Exportar escenario
           </Button>
           {p.userId === userId ? (
             <Button size="sm" variant="ghost" onClick={() => setDeleting(p)}>
@@ -147,7 +127,6 @@ export const ProjectsTab = ({ currentId, onOpen, onClosed }: Props) => {
         </Card>
       ) : null}
 
-      {exporting !== null ? <ExportProjectModal projectId={exporting} onClose={() => setExporting(null)} /> : null}
       <Modal
         open={deleting !== null}
         title="Eliminar proyecto"
