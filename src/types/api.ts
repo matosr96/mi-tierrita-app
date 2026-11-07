@@ -25,7 +25,13 @@ export type SigninResponse = { token: string; user: User };
 export type CreateUserInput = { firstName: string; lastName: string; username: string; password: string; role: Role };
 export type ChangePasswordInput = { currentPassword: string; newPassword: string };
 
-export type Category = { id: number; name: string; active: boolean; createdAt: string };
+/** `code` («01»…«06») solo lo tienen las seis líneas de la página pública; las categorías internas lo traen null. */
+export type Category = { id: number; name: string; code: string | null; description: string | null; tags: string[]; active: boolean; createdAt: string };
+
+/** Lo que la página pública recibe de `GET /categories/public`: sin ids, estado ni fechas. */
+export type PublicCategory = { code: string; name: string; description: string | null; tags: string[] };
+
+export type CategoryInput = { name?: string; active?: boolean; description?: string | null; tags?: string[] };
 
 export type Product = {
   id: number;
@@ -168,7 +174,7 @@ export type SalesReport = {
 };
 export type BatchAggregate = { batches: number; units: number; costValue: number };
 /** `productIds`: hasta 20 ids de productos de la categoría (trazabilidad); `products` es el total. */
-export type InventoryCategoryRow = { categoryId: number; categoryName: string; products: number; units: number; costValue: number; saleValue: number; productIds: number[] };
+export type InventoryCategoryRow = { categoryId: number; categoryName: string; categoryActive: boolean; products: number; units: number; costValue: number; saleValue: number; productIds: number[] };
 export type InventoryReport = {
   asOf: string;
   expiringDays: number;

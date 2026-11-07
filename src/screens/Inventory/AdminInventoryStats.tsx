@@ -9,10 +9,12 @@ export const AdminInventoryStats = () => {
   const d = report.data;
   const stat = (value: ReactNode): ReactNode => (report.isPending ? "…" : report.isError || d === undefined ? "—" : value);
   const hint = (text: string): string => (report.isPending ? "Cargando" : report.isError ? "No disponible" : text);
+  // Líneas activas con productos: las mismas que ofrecen los chips y el formulario de producto.
+  const lines = d?.byCategory.filter((c) => c.categoryActive && c.products > 0).length ?? 0;
 
   return (
     <StatGrid>
-      <StatCard label="Productos activos" value={stat(int(d?.activeProducts))} hint={hint(d ? `en ${int(d.byCategory.length)} ${d.byCategory.length === 1 ? "línea" : "líneas"}` : "")} />
+      <StatCard label="Productos activos" value={stat(int(d?.activeProducts))} hint={hint(d ? `en ${int(lines)} ${lines === 1 ? "línea" : "líneas"}` : "")} />
       <StatCard label="Valor del inventario" value={stat(moneyCompact(d?.costValue))} hint={hint(d ? `a costo · al ${dateOnly(d.asOf)}` : "")} />
       <StatCard label="Sin existencias" value={stat(int(d?.outOfStock))} hint={hint("requieren reposición")} tone={d && d.outOfStock > 0 ? "bad" : "neutral"} />
       <StatCard

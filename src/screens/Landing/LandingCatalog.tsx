@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { Reveal, SplitText } from "./motion";
-import { LINES, type ProductLine } from "./content";
+import { usePublicLines } from "@/hooks/categories";
+import type { ProductLine } from "./content";
+import { resolveLines } from "./lines";
 import { LineStory } from "./LineStory";
 import styles from "./Landing.module.css";
 
@@ -63,22 +65,28 @@ const LineCard = ({ line, index }: { line: ProductLine; index: number }) => {
   );
 };
 
-/** Catálogo por líneas: lo primero que busca un cliente. */
-export const LandingCatalog = () => (
-  <section className={styles.section} id="catalogo" aria-labelledby="catalogo-title">
-    <div className={styles.sectionHead}>
-      <span className={styles.eyebrow}>Lo que encuentra en la tienda</span>
-      <h2 id="catalogo-title" className={styles.sectionTitle}>
-        <SplitText text={"Todo para la finca,\n*catálogo por líneas.*"} />
-      </h2>
-      <p className={styles.sectionLead}>Seis líneas para la finca, el corral y el cultivo. Pregunte en el mostrador por marcas y presentaciones.</p>
-    </div>
-    <div className={styles.lines}>
-      {LINES.map((line, i) => (
-        <Reveal key={line.code} delay={(i % 3) * 90} variant="rise">
-          <LineCard line={line} index={i} />
-        </Reveal>
-      ))}
-    </div>
-  </section>
-);
+/**
+ * Catálogo por líneas: lo primero que busca un cliente. Las líneas son las categorías con código del inventario
+ * (`GET /categories/public`): si el administrador renombra o desactiva una, aquí se refleja.
+ */
+export const LandingCatalog = () => {
+  const lines = resolveLines(usePublicLines().data);
+  return (
+    <section className={styles.section} id="catalogo" aria-labelledby="catalogo-title">
+      <div className={styles.sectionHead}>
+        <span className={styles.eyebrow}>Lo que encuentra en la tienda</span>
+        <h2 id="catalogo-title" className={styles.sectionTitle}>
+          <SplitText text={"Todo para la finca,\n*catálogo por líneas.*"} />
+        </h2>
+        <p className={styles.sectionLead}>Las líneas de la tienda para la finca, el corral y el cultivo. Pregunte en el mostrador por marcas y presentaciones.</p>
+      </div>
+      <div className={styles.lines}>
+        {lines.map((line, i) => (
+          <Reveal key={line.code} delay={(i % 3) * 90} variant="rise">
+            <LineCard line={line} index={i} />
+          </Reveal>
+        ))}
+      </div>
+    </section>
+  );
+};

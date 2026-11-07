@@ -1,7 +1,9 @@
 import { useEffect, useRef } from "react";
 import { SplitText } from "./motion";
 import { DashboardMock, MiniBars } from "./DashboardMock";
-import { LINES, STORE } from "./content";
+import { usePublicLines } from "@/hooks/categories";
+import { STORE } from "./content";
+import { resolveLines } from "./lines";
 import styles from "./LandingHero.module.css";
 
 /**
@@ -12,6 +14,7 @@ import styles from "./LandingHero.module.css";
 export const LandingHero = () => {
   const heroRef = useRef<HTMLElement>(null);
   const stageRef = useRef<HTMLDivElement>(null);
+  const lines = resolveLines(usePublicLines().data);
 
   useEffect(() => {
     const hero = heroRef.current;
@@ -103,7 +106,7 @@ export const LandingHero = () => {
         <div className={styles.chipsTrack}>
           {[0, 1].map((copy) => (
             <span key={copy} className={styles.chipsGroup}>
-              {LINES.map((l) => (
+              {lines.map((l) => (
                 <span key={l.code} className={styles.chipItem}>
                   {l.name} {l.accent}
                 </span>

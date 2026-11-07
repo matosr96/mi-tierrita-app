@@ -221,7 +221,9 @@ ejemplo") → Visítenos → Proyecto (logo de la universidad, `WORK_KIND`, `ACA
 Contacto (`LandingContact`, `POST /contact` con campo trampa `website`) → banda de cierre (`LandingCta`, degradado pastel
 con la foto de las manos) → pie claro con columnas, créditos y la palabra "Mi Tierrita" gigante recortada. Con
 `prefers-reduced-motion` el monitor queda plano y los capítulos quietos en su último paso. Todo el texto sale de
-`content.ts`; los datos de contacto vacíos (`STORE.whatsapp`, `email`, `hours`, `address`) ocultan su bloque: no publicar
+`content.ts`, salvo las **líneas de producto**: vienen de la API (`usePublicLines`, `GET /categories/public`, las categorías
+activas con `code`) y `lines.ts` las convierte (`splitLineName`: la última palabra es el acento); `LINES_FALLBACK` de
+`content.ts` solo se pinta mientras la API responde o si no responde. Foto y escena se eligen por código; los datos de contacto vacíos (`STORE.whatsapp`, `email`, `hours`, `address`) ocultan su bloque: no publicar
 nada sin confirmar con la tienda. Fotos y créditos en `public/media/LEEME.txt`.
 
 ## Tita, la asistente (Claude, de Anthropic)
@@ -294,7 +296,7 @@ no UTC; la API cuenta "hoy" en `BUSINESS_TZ` (America/Bogota). Auditoría de oct
 - session: `useSignin`, `useSignout`, `useMe`
 - users: `useUsers(query)`, `useUser(id)`, `useCreateUser`, `useChangePassword`, `useUpdateProfile`, `useUpdateAvatar` (Blob), `useRemoveAvatar`, `useUserAvatar(id, avatarUpdatedAt, {enabled})`
 - library: `useLibrary({kind?, q?, page, limit})`, `useCreateLink`, `useUploadLibraryDocument` ({file, title, description?, roles?, onProgress?}), `useUpdateLibraryItem` ({id, title?, description?, url?, roles?}), `useDeleteLibraryItem` (id), `useLibraryFile(id | null, updatedAt?)`, `useDownloadLibraryFile` (item)
-- categories: `useCategories(query?)`, `useCreateCategory`, `useUpdateCategory`, `useDeleteCategory`
+- categories: `useCategories(query?)`, `useCreateCategory` ({name, description?, tags?}), `useUpdateCategory` ({id, name?, active?, description?, tags?}), `useDeleteCategory`, `usePublicLines()` (pública, `GET /categories/public`: las líneas de la landing)
 - products: `useProducts(query)`, `useProduct(id)`, `useCreateProduct`, `useUpdateProduct`, `useDeactivateProduct`
 - batches: `useProductBatches(productId, query?)`, `useRegisterBatch` ({productId, quantity, expiresAt, unitCost?, supplierId?}), `useExpiringBatches(query)`
 - suppliers: `useSuppliers(query?)`, `useCreateSupplier`, `useUpdateSupplier`, `useRegisterPurchase` ({supplierId, productId, quantity, unitCost, expiresAt})

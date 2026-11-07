@@ -136,6 +136,34 @@
   display: flex;
   gap: 4px;
   flex-shrink: 0;
+  flex-wrap: wrap;
+}
+.catInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+  min-width: 0;
+}
+.catName {
+  flex-wrap: wrap;
+}
+.catCode {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--muted);
+}
+.catMeta {
+  font-size: 13px;
+  color: var(--muted);
+  line-height: 1.4;
+}
+.catEdit {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  flex: 1;
+  min-width: 0;
 }
 @media (max-width: 1000px) {
   .grid {

@@ -21,8 +21,12 @@ export const STORE = {
 
 export type ProductLine = { code: string; name: string; accent: string; text: string; tags: string[] };
 
-/** Líneas de producto de la tienda (catálogo de la página pública v4.1). */
-export const LINES: ProductLine[] = [
+/**
+ * Copia de RESPALDO de las seis líneas (catálogo v4.1). La fuente de verdad es la tabla de categorías de la API
+ * (`GET /categories/public`, ver `lines.ts`): esta lista solo se muestra mientras la API responde o si no responde.
+ * Si cambia una línea, se cambia en la API (migración, semilla o administrador), no aquí.
+ */
+export const LINES_FALLBACK: ProductLine[] = [
   { code: "01", name: "Alimentos", accent: "balanceados", text: "Concentrados para ganado, cerdos, aves y mascotas.", tags: ["Ganado", "Cerdos", "Aves", "Mascotas"] },
   { code: "02", name: "Medicina", accent: "veterinaria", text: "Vacunas, desparasitantes y vitaminas, con control de lote y vencimiento.", tags: ["Vacunas", "Desparasitantes", "Vitaminas"] },
   { code: "03", name: "Semillas y", accent: "fertilizantes", text: "Maíz, pastos y abonos para cada temporada.", tags: ["Maíz", "Pastos", "Abonos"] },
