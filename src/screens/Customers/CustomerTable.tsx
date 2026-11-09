@@ -20,7 +20,7 @@ export const CustomerTable = ({ customers, receivables, onOpen, onPay }: Props) 
     { key: "doc", header: "Documento", align: "left", render: (c) => <span className={styles.code}>{c.documentId}</span> },
     { key: "limit", header: "Cupo", align: "right", render: (c) => money(c.creditLimit) },
     { key: "balance", header: "Saldo", align: "right", render: (c) => money(c.balance) },
-    { key: "status", header: "Estado", align: "left", render: (c) => <CustomerStatusBadge id={c.id} status={customerStatusOf(c, receivables?.get(c.id))} /> },
+    { key: "status", header: "Estado", align: "left", render: (c) => <CustomerStatusBadge id={c.id} status={customerStatusOf(c, receivables?.get(c.id))} verify={receivables === undefined} /> },
     {
       key: "actions",
       header: <span className="sr-only">Acciones</span>,

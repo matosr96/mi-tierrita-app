@@ -98,7 +98,7 @@ export const AdminCartera = ({ onOpen }: { onOpen: (customerId: number) => void 
                   {hover.overdue ? <span className={styles.captionBad}> · vencida</span> : null}
                 </>
               ) : (
-                "Pase el cursor por una barra; un clic abre la cartera del cliente."
+                "Pase el cursor o toque una barra para abrir la cartera del cliente."
               )}
             </p>
           ) : null}

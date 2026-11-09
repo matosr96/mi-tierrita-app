@@ -22,6 +22,12 @@
     order: -1;
   }
 }
+/* En el teléfono primero la lista de clientes (lo que se viene a buscar) y después el resumen de cartera. */
+@container customers (max-width: 640px) {
+  .layout > aside {
+    order: 0;
+  }
+}
 
 .book {
   container: book / inline-size;

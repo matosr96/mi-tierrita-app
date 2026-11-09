@@ -1,16 +1,17 @@
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAiStore } from "@/stores/ai";
 import { useProducts, useProductsByIds } from "@/hooks/products";
 import { useCustomerBalance, useCustomers } from "@/hooks/customers";
 import { useRegisterSale } from "@/hooks/sales";
 import { PageHeader } from "@/components/layout/AppShell";
-import { Badge, Button, Callout, Card, DataTable, EmptyState, ErrorState, Field, Input, Loading, Modal, QueryState, Select, type Column } from "@/components/ui";
+import { Badge, Button, Callout, Card, DataTable, EmptyState, ErrorState, Field, Input, Loading, Modal, Pagination, QueryState, Select, type Column } from "@/components/ui";
 import { int, money } from "@/lib/format";
 import type { ApiError } from "@/lib/errors";
 import type { PaymentType, Product, SaleDetail, SaleLine } from "@/types/api";
 import { useDebounced } from "./useDebounced";
 import { SaleSuccess } from "./SaleSuccess";
+import { ProductPickList } from "./ProductPickList";
 import styles from "./SalesScreen.module.css";
 
 type CartLine = { product: Product; quantity: number };
@@ -38,6 +39,9 @@ const sellable = (p: Product): number => p.availableStock ?? p.stock;
 
 const stockTag = (stock: number) => (stock <= 0 ? <Badge tone="bad">sin stock</Badge> : stock < 5 ? <Badge tone="bad">bajo</Badge> : null);
 
+// Enfocar el buscador al entrar solo con ratón: en el teléfono abría el teclado y tapaba media pantalla.
+const finePointer = typeof window !== "undefined" && window.matchMedia?.("(pointer: fine)").matches;
+
 const SearchIcon = () => (
   <svg className={styles.searchIcon} width="18" height="18" viewBox="0 0 20 20" fill="none" aria-hidden="true">
     <circle cx="8.8" cy="8.8" r="6" stroke="currentColor" strokeWidth="1.7" />
@@ -54,7 +58,10 @@ export const PointOfSale = ({ tabs }: { tabs: ReactNode }) => {
   const [paymentType, setPaymentType] = useState<PaymentType>("CASH");
   const [result, setResult] = useState<SaleDetail | null>(null);
 
-  const products = useProducts(debouncedSearch ? { search: debouncedSearch, active: true, limit: 20 } : { active: true, limit: 20 });
+  // Antes pedía 20 sin paginar y decía «56 resultados»: los demás productos no se podían agregar sin buscarlos.
+  const [productPage, setProductPage] = useState(1);
+  useEffect(() => setProductPage(1), [debouncedSearch]);
+  const products = useProducts(debouncedSearch ? { search: debouncedSearch, active: true, page: productPage, limit: 20 } : { active: true, page: productPage, limit: 20 });
   const customers = useCustomers({ active: true, limit: 100 });
   const balance = useCustomerBalance(customerId);
   const registerSale = useRegisterSale();
@@ -147,7 +154,7 @@ export const PointOfSale = ({ tabs }: { tabs: ReactNode }) => {
         const inCart = cart.find((l) => l.product.id === p.id);
         return (
           <Button variant="secondary" size="sm" className={styles.addBtn} disabled={sellable(p) <= 0 || (inCart !== undefined && inCart.quantity >= sellable(p))} onClick={() => addToCart(p)}>
-            Agregar
+            {inCart ? `Agregar (${int(inCart.quantity)})` : "Agregar"}
           </Button>
         );
       },
@@ -166,6 +173,26 @@ export const PointOfSale = ({ tabs }: { tabs: ReactNode }) => {
   const errorText = registerSale.error ? errorDetails(registerSale.error, cart) : null;
 
   const units = cart.reduce((n, l) => n + l.quantity, 0);
+  const goToCart = () => document.getElementById("pos-cart-title")?.scrollIntoView({ behavior: "smooth", block: "start" });
+
+  // La barra fija sobra cuando el carrito ya está a la vista.
+  const ticketRef = useRef<HTMLElement>(null);
+  const [ticketVisible, setTicketVisible] = useState(false);
+  useEffect(() => {
+    const el = ticketRef.current;
+    if (!el || typeof IntersectionObserver === "undefined") return;
+    const io = new IntersectionObserver((entries) => setTicketVisible(entries[0]?.isIntersecting ?? false), { threshold: 0.25 });
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
+  const showCartBar = cart.length > 0 && !ticketVisible;
+
+  // Con la barra fija a la vista (pantallas angostas), el orbe de Tita sube para no taparla.
+  useEffect(() => {
+    if (!showCartBar) return;
+    document.body.setAttribute("data-bottom-bar", "");
+    return () => document.body.removeAttribute("data-bottom-bar");
+  }, [showCartBar]);
 
   return (
     <>
@@ -190,7 +217,7 @@ export const PointOfSale = ({ tabs }: { tabs: ReactNode }) => {
             <label htmlFor="pos-search" className={styles.srOnly}>
               Buscar producto
             </label>
-            <input id="pos-search" type="text" className={styles.searchInput} placeholder="Buscar producto por nombre o código" value={search} onChange={(e) => setSearch(e.target.value)} autoFocus />
+            <input id="pos-search" type="text" className={styles.searchInput} placeholder="Buscar producto por nombre o código" value={search} onChange={(e) => setSearch(e.target.value)} autoFocus={finePointer} />
             {resultsCount ? <span className={styles.searchCount}>{resultsCount}</span> : null}
           </div>
 
@@ -200,13 +227,23 @@ export const PointOfSale = ({ tabs }: { tabs: ReactNode }) => {
               isEmpty={(page) => page.items.length === 0}
               empty={<EmptyState title="Sin productos" text={debouncedSearch ? `Ningún producto activo coincide con “${debouncedSearch}”.` : "No hay productos activos en el inventario."} />}
             >
-              {(page) => <DataTable columns={resultColumns} rows={page.items} rowKey={(p) => p.id} />}
+              {(page) => (
+                <>
+                  <div className={styles.pickTable}>
+                    <DataTable columns={resultColumns} rows={page.items} rowKey={(p) => p.id} />
+                  </div>
+                  <div className={styles.pickList}>
+                    <ProductPickList products={page.items} sellable={sellable} quantityInCart={(p) => cart.find((l) => l.product.id === p.id)?.quantity ?? 0} onAdd={addToCart} />
+                  </div>
+                  <Pagination page={page} onPage={setProductPage} />
+                </>
+              )}
             </QueryState>
           </Card>
         </div>
 
         <aside className={[styles.column, styles.sideColumn].join(" ")} aria-label="Resumen de la venta">
-          <section className={styles.ticket} aria-labelledby="pos-cart-title">
+          <section ref={ticketRef} className={styles.ticket} aria-labelledby="pos-cart-title">
             <header className={styles.ticketHead}>
               <h2 id="pos-cart-title">Carrito</h2>
               <span className={styles.ticketCount}>{cart.length === 0 ? "Sin productos" : `${int(cart.length)} ${cart.length === 1 ? "producto" : "productos"} · ${int(units)} uds.`}</span>
@@ -323,6 +360,18 @@ export const PointOfSale = ({ tabs }: { tabs: ReactNode }) => {
           </section>
         </aside>
       </div>
+
+      {showCartBar ? (
+        <div className={styles.cartBar} role="region" aria-label="Carrito">
+          <span className={styles.cartBarInfo}>
+            <span>{`${int(cart.length)} ${cart.length === 1 ? "producto" : "productos"} · ${int(units)} uds.`}</span>
+            <strong>
+              {money(estimated)} <span className={styles.estimated}>estimado</span>
+            </strong>
+          </span>
+          <Button onClick={goToCart}>Ver carrito</Button>
+        </div>
+      ) : null}
 
       <Modal
         open={result !== null}

@@ -400,3 +400,57 @@
     position: static;
   }
 }
+
+/* Productos: tabla en escritorio y lista compacta en el teléfono (la tabla apilada ocupaba ~200 px por producto). */
+.pickList {
+  display: none;
+}
+/* Barra fija del carrito: solo cuando el carrito queda debajo de la lista (una columna). */
+.cartBar {
+  display: none;
+}
+@media (max-width: 1080px) {
+  .cartBar {
+    position: fixed;
+    left: 12px;
+    right: 12px;
+    bottom: 12px;
+    z-index: 55;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 10px 10px 10px 18px;
+    border-radius: 999px;
+    background: var(--surface);
+    box-shadow: var(--shadow-lift);
+  }
+  .cartBarInfo {
+    display: flex;
+    flex-direction: column;
+    font-size: 12.5px;
+    color: var(--muted);
+    line-height: 1.3;
+  }
+  .cartBarInfo strong {
+    font-size: 16px;
+    color: var(--ink);
+    font-variant-numeric: tabular-nums;
+  }
+  .ticket h2 {
+    scroll-margin-top: 90px;
+  }
+}
+@media (max-width: 640px) {
+  .pickTable {
+    display: none;
+  }
+  .pickList {
+    display: block;
+  }
+}
+@media print {
+  .cartBar {
+    display: none;
+  }
+}

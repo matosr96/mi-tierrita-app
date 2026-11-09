@@ -39,10 +39,11 @@
   padding-right: 8px;
   opacity: 1;
 }
+/* En el teléfono la barra superior ya trae el botón de Tita y el orbe tapaba los botones de la columna derecha
+   («Agregar», «Abonar», «Editar»): ahí no se pinta. */
 @media (max-width: 640px) {
   .launcher {
-    right: 12px;
-    bottom: 12px;
+    display: none;
   }
 }
 @media print {
@@ -54,4 +55,11 @@
 /* Con un diálogo abierto el orbe se aparta: no debe tapar los botones del pie. */
 :global(body[data-modal-open]) .launcher {
   display: none;
+}
+
+/* Con la barra fija del carrito (punto de venta en pantallas angostas) el orbe sube por encima de ella. */
+@media (max-width: 1080px) {
+  :global(body[data-bottom-bar]) .launcher {
+    bottom: 88px;
+  }
 }

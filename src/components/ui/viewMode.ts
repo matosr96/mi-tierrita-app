@@ -44,8 +44,14 @@ const browserStorage = (): Storage | null => {
 };
 
 /** Vista preferida de un listado en este navegador (comodidad por usuario, no dato de negocio). */
+/** En el teléfono una tabla se apila en tarjetas altas (~230 px por fila): sin preferencia guardada, ahí se abre la lista. */
+const narrowFallback = <M extends ViewMode>(allowed: readonly M[], fallback: M): M => {
+  const narrow = typeof window !== "undefined" && window.matchMedia?.("(max-width: 640px)").matches;
+  return narrow && fallback === "table" && (allowed as readonly ViewMode[]).includes("list") ? ("list" as M) : fallback;
+};
+
 export const useViewMode = <M extends ViewMode>(key: string, allowed: readonly M[], fallback: M): [M, (next: M) => void] => {
-  const [mode, setMode] = useState<M>(() => readViewMode(browserStorage(), key, allowed, fallback));
+  const [mode, setMode] = useState<M>(() => readViewMode(browserStorage(), key, allowed, narrowFallback(allowed, fallback)));
   const change = useCallback(
     (next: M) => {
       setMode(next);

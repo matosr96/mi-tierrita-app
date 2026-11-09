@@ -1,6 +1,7 @@
 import type { CSSProperties } from "react";
 import { ChartFrame } from "./ChartFrame";
 import { useChartHover } from "./useChartHover";
+import { truncateLabel, wrapAxisLabel } from "./axisLabel";
 import styles from "./charts.module.css";
 
 export type BarDatum = { label: string; value: number; alt?: boolean };
@@ -24,8 +25,9 @@ export const HBarChart = ({ data, format, formatTip = format, title }: Props) =>
   const hover = useChartHover();
   const max = Math.max(...data.map((d) => Math.abs(d.value)), 1);
   const rowH = 26;
-  const labelW = 150;
+  const labelW = 180;
   const width = 520;
+  const labelChars = Math.floor((labelW - 12) / 6.6);
   const height = data.length * rowH + 8;
   const barW = (d: BarDatum) => (Math.abs(d.value) / max) * (width - labelW - 90);
   const active = hover.active !== null ? data[hover.active] : undefined;
@@ -47,7 +49,7 @@ export const HBarChart = ({ data, format, formatTip = format, title }: Props) =>
             <g key={d.label} style={{ "--i": i } as CSSProperties} className={styles.item} role="img" aria-label={text ? `${d.label}: ${text}` : d.label} {...hover.itemProps(i)}>
               <rect x={0} y={y} width={width} height={rowH} className={styles.hit} />
               <text x={labelW - 8} y={y + 15} textAnchor="end" className={styles.label}>
-                {d.label}
+                {truncateLabel(d.label, labelChars)}
               </text>
               <rect x={labelW} y={y + 4} width={w} height={rowH - 10} rx={6} className={d.alt ? styles.barAlt : styles.bar} />
               <text x={labelW + w + 6} y={y + 15} className={styles.value}>
@@ -70,8 +72,10 @@ export const VBarChart = ({ data, format, formatTip = format, title }: Props) =>
   const max = Math.max(...data.map((d) => Math.abs(d.value)), 1);
   const width = 520;
   const height = 220;
-  const pad = { top: 24, bottom: 34, left: 10, right: 10 };
-  const slot = (width - pad.left - pad.right) / Math.max(data.length, 1);
+  const slot = (width - 20) / Math.max(data.length, 1);
+  const maxChars = Math.floor((slot - 6) / 6.6);
+  const twoLines = data.some((d) => wrapAxisLabel(d.label, maxChars).length > 1);
+  const pad = { top: 24, bottom: twoLines ? 48 : 34, left: 10, right: 10 };
   const barW = Math.min(slot * 0.55, 60);
   const barH = (d: BarDatum) => (Math.abs(d.value) / max) * (height - pad.top - pad.bottom);
   const active = hover.active !== null ? data[hover.active] : undefined;
@@ -99,7 +103,11 @@ export const VBarChart = ({ data, format, formatTip = format, title }: Props) =>
                 {format(d.value)}
               </text>
               <text x={x + barW / 2} y={height - pad.bottom + 16} textAnchor="middle" className={styles.label}>
-                {d.label.length > 16 ? `${d.label.slice(0, 15)}…` : d.label}
+                {wrapAxisLabel(d.label, maxChars).map((line, k) => (
+                  <tspan key={k} x={x + barW / 2} dy={k === 0 ? 0 : 14}>
+                    {line}
+                  </tspan>
+                ))}
               </text>
             </g>
           );

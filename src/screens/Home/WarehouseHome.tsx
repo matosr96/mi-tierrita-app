@@ -201,7 +201,7 @@ export const WarehouseHome = ({ user }: { user: User }) => {
                 <>
                   <HBarChart
                     data={soon.map((b) => ({
-                      label: `${b.productName} · #${b.id}`,
+                      label: `#${b.id} · ${b.productName}`,
                       value: b.daysToExpire,
                       alt: b.daysToExpire <= 7,
                     }))}

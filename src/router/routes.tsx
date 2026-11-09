@@ -58,6 +58,8 @@ export const router = createBrowserRouter([
     element: <RedirectIfSession />,
     children: [{ path: "/iniciar-sesion", element: <SigninScreen /> }],
   },
+  // Direcciones habituales del inicio de sesión: llevan a la pantalla real en vez de terminar en «Página no encontrada».
+  ...["/login", "/ingresar", "/signin"].map((path) => ({ path, element: <Navigate to="/iniciar-sesion" replace /> })),
   {
     element: <RequireSession />,
     children: [

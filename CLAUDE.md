@@ -102,6 +102,22 @@ mes anterior/siguiente/«Hoy»; `CalendarMonth` (rejilla lunes a domingo con pí
 flechas entre días que cruzan de mes, lista del día tocado debajo), `CalendarAgenda` y `calendarGroups.ts` (`groupByDay`, `monthGrid(año, mes 1–12)`).
 Tocar un ítem navega a su `href`.
 
+## Auditoría de diseño y uso (9/11/2026)
+
+- Botones y pestañas con texto blanco sobre la franja usan `--band-glass-strong` (4,7:1), no `--band-glass` (1,9:1): lo aplican
+  `PageHeader`, `HeroHeader` y `--segment-bg`. La píldora de navegación rotula la sección activa (también la de «Más»).
+- Bajo 640 px no se pinta el orbe `TitaLauncher` (la barra ya trae el botón de Tita; tapaba los botones de la derecha). El
+  contenido deja 104 px abajo. `body[data-bottom-bar]` sube el orbe sobre una barra fija (la del carrito).
+- Punto de venta: productos paginados; en el teléfono `ProductPickList` (renglón compacto) y barra fija con el total que lleva
+  al carrito y se oculta cuando el carrito está a la vista. El buscador solo se enfoca solo con ratón.
+- `useViewMode`: sin preferencia guardada y con pantalla angosta, un `table` por defecto abre en `list`.
+- `Chips` lleva `aria-pressed` y en el teléfono es una fila desplazable. `VBarChart` parte los rótulos en dos líneas
+  (`charts/axisLabel.ts`); `HBarChart` recorta al final con `truncateLabel` (antes se salía por la izquierda). `/login`,
+  `/ingresar` y `/signin` redirigen a `/iniciar-sesion`.
+- Por rol: la píldora se completa hasta `MIN_PRIMARY` (6) con las siguientes secciones del menú (bodega ve Conteos,
+  Proveedores y Pedidos sin abrir «Más»). Sin reporte de cartera (no ADMIN), `CustomerStatusBadge verify` confirma «Vencida»
+  con `GET /customers/:id/balance`. Reportes oculta el selector cuando el rol tiene un solo reporte.
+
 ## Exportes, notificaciones y perfil
 
 - **PDF**: `printElement(el | [portada, hoja], nombre)` de `@/lib/print` copia el documento a `#print-root` (quita el

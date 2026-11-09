@@ -39,6 +39,10 @@
   --on-band-muted: rgba(255, 255, 255, 0.9);
   --band-glass: rgba(255, 255, 255, 0.2);
   --band-glass-line: rgba(255, 255, 255, 0.5);
+  /* Vidrio oscuro para botones y pestañas con texto blanco sobre la franja: el blanco al 20 % sobre --hero-to daba 1,9:1;
+     este da 4,7:1 con --on-band (AA) en el punto más claro del degradado. */
+  --band-glass-strong: rgba(23, 83, 47, 0.6);
+  --band-glass-strong-hover: rgba(23, 83, 47, 0.72);
   --overlay: rgba(17, 24, 20, 0.32);
   --glass: rgba(255, 255, 255, 0.92);
   --spot: transparent;
@@ -167,6 +171,8 @@
   --on-band-muted: rgba(255, 255, 255, 0.82);
   --band-glass: rgba(255, 255, 255, 0.1);
   --band-glass-line: rgba(255, 255, 255, 0.24);
+  --band-glass-strong: rgba(255, 255, 255, 0.12);
+  --band-glass-strong-hover: rgba(255, 255, 255, 0.2);
   --band-pill: #e7f3ec;
   --band-pill-ink: #14462a;
   --overlay: rgba(0, 0, 0, 0.55);
@@ -244,6 +250,8 @@
     --on-band-muted: rgba(255, 255, 255, 0.82);
     --band-glass: rgba(255, 255, 255, 0.1);
     --band-glass-line: rgba(255, 255, 255, 0.24);
+  --band-glass-strong: rgba(255, 255, 255, 0.12);
+  --band-glass-strong-hover: rgba(255, 255, 255, 0.2);
     --band-pill: #e7f3ec;
     --band-pill-ink: #14462a;
     --overlay: rgba(0, 0, 0, 0.55);

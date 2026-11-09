@@ -24,9 +24,10 @@
   width: 240px;
   max-width: 100%;
 }
+/* La tabla de existencias tiene siete columnas: con 1.7fr los nombres de producto se partían en cuatro líneas. */
 .grid {
   display: grid;
-  grid-template-columns: minmax(0, 1.7fr) minmax(0, 1fr);
+  grid-template-columns: minmax(0, 2.3fr) minmax(300px, 1fr);
   gap: 12px;
   align-items: start;
 }
@@ -165,7 +166,7 @@
   flex: 1;
   min-width: 0;
 }
-@media (max-width: 1000px) {
+@media (max-width: 1240px) {
   .grid {
     grid-template-columns: 1fr;
   }
@@ -183,4 +184,12 @@
 /* Pestañas del detalle del producto (lotes, comentarios, historial). */
 .modalTabs {
   margin-bottom: 14px;
+}
+
+/* Unidades vencidas bajo el stock, en pequeño: en la misma línea partían la celda en dos renglones. */
+.stockNote {
+  display: block;
+  font-size: 12px;
+  color: var(--bad);
+  white-space: nowrap;
 }

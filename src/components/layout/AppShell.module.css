@@ -84,6 +84,7 @@
   line-height: 1.1;
 }
 .brandName {
+  white-space: nowrap;
   font-size: 18px;
   font-weight: 700;
   letter-spacing: -0.01em;
@@ -143,6 +144,23 @@
 }
 .tab:hover .tip,
 .tab:focus-visible .tip {
+  opacity: 1;
+}
+/* La sección activa dice su nombre junto al ícono: con solo círculos no se sabía en qué pantalla se estaba. */
+.tab.active {
+  display: inline-flex;
+  gap: 8px;
+  width: auto;
+  padding: 0 18px 0 15px;
+  border-radius: 999px;
+}
+.tab.active .tip {
+  position: static;
+  transform: none;
+  padding: 0;
+  background: none;
+  color: inherit;
+  font-size: 14px;
   opacity: 1;
 }
 .icon {
@@ -363,7 +381,8 @@
   width: 100%;
   max-width: 1440px;
   margin: 0 auto;
-  padding: 18px 28px 56px;
+  /* Abajo deja sitio para el orbe flotante de Tita: sin él tapaba la última fila de cada pantalla. */
+  padding: 18px 28px 104px;
   display: flex;
   flex-direction: column;
   gap: 18px;
@@ -412,16 +431,16 @@
   --surface: var(--band-pill);
   --ink: var(--band-pill-ink);
   --muted: var(--on-band);
-  --segment-bg: var(--band-glass);
+  --segment-bg: var(--band-glass-strong);
 }
 .pageActions {
   --sprout: var(--band-pill);
   --sprout-ink: var(--band-pill-ink);
   --leaf: var(--band-leaf);
-  --surface: var(--band-glass);
+  --surface: var(--band-glass-strong);
   --line-strong: var(--band-glass-line);
   --ink: var(--on-band);
-  --hover: color-mix(in srgb, var(--white) 30%, transparent);
+  --hover: var(--band-glass-strong-hover);
   display: flex;
   align-items: center;
   gap: 8px;
@@ -477,9 +496,16 @@
     height: 38px;
   }
   .content {
-    padding: 10px 16px 40px;
+    padding: 10px 16px 104px;
   }
   .brandSub {
+    display: none;
+  }
+}
+
+/* Con cinco herramientas en la barra, el nombre se partía en dos renglones: en los teléfonos más angostos queda solo el logo. */
+@media (max-width: 420px) {
+  .brandText {
     display: none;
   }
 }

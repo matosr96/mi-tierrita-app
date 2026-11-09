@@ -53,6 +53,16 @@
   z-index: -1;
   transform: translate(-50%, -50%) scale(1.25);
 }
+/* Velo verde bajo el titular: en pantallas bajas el abanico claro quedaba detrás del texto blanco y perdía contraste. */
+.panel::after {
+  content: "";
+  position: absolute;
+  inset: auto 0 0 0;
+  height: 58%;
+  z-index: -1;
+  pointer-events: none;
+  background: linear-gradient(180deg, transparent 0%, color-mix(in srgb, var(--hero-from) 78%, transparent) 42%, var(--hero-from) 100%);
+}
 .pitchBlock {
   display: flex;
   flex-direction: column;

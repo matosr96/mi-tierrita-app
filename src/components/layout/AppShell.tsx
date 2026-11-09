@@ -47,6 +47,8 @@ const PRIMARY: Record<string, string> = {
   "/finanzas": "Finanzas",
   "/reportes": "Reportes",
 };
+/** Accesos mínimos en la píldora antes de mandar el resto a «Más». */
+const MIN_PRIMARY = 6;
 
 /**
  * Armazón de la app (estilo de las referencias Clerio / Pay Key): sin menú lateral. Barra superior con la marca, la
@@ -146,9 +148,15 @@ export const AppShell = () => {
   const visible = NAV_GROUPS.flatMap((g) =>
     g.items.filter((i) => isVisibleFor(i, user.role) && (i.path !== "/tita" || ai.enabled)).map((i) => ({ ...i, group: g.title ?? "General" })),
   );
-  const primary = visible.filter((i) => PRIMARY[i.path]);
-  const secondary = visible.filter((i) => !PRIMARY[i.path]);
-  const secondaryActive = secondary.some((i) => location.pathname === i.path || location.pathname.startsWith(`${i.path}/`));
+  // Un rol con pocas secciones principales (bodega: Inicio, Inventario, Lotes) completa la píldora con sus siguientes
+  // secciones en el orden del menú; antes Conteos, Proveedores y Pedidos, su trabajo diario, quedaban escondidos en «Más».
+  const fixed = visible.filter((i) => PRIMARY[i.path]);
+  const promoted = visible.filter((i) => !PRIMARY[i.path]).slice(0, Math.max(0, MIN_PRIMARY - fixed.length));
+  const inPill = new Set([...fixed, ...promoted].map((i) => i.path));
+  const primary = visible.filter((i) => inPill.has(i.path));
+  const secondary = visible.filter((i) => !inPill.has(i.path));
+  const activeSecondary = secondary.find((i) => location.pathname === i.path || location.pathname.startsWith(`${i.path}/`));
+  const secondaryActive = activeSecondary !== undefined;
   const secondaryCount = secondary.reduce((n, i) => n + (i.badge ? (badges[i.badge] ?? 0) : 0), 0);
 
   const link = (item: (typeof visible)[number], variant: "pill" | "menu") => {
@@ -160,7 +168,6 @@ export const AppShell = () => {
         to={item.path}
         viewTransition
         end={item.path === "/"}
-        title={item.label}
         aria-label={locked ? `${item.label} (acceso restringido)` : item.label}
         className={({ isActive }) => [variant === "pill" ? styles.tab : styles.menuItem, isActive ? styles.active : "", locked ? styles.locked : ""].join(" ")}
       >
@@ -191,8 +198,7 @@ export const AppShell = () => {
                 type="button"
                 className={[styles.tab, secondaryActive ? styles.active : ""].join(" ")}
                 aria-expanded={moreOpen}
-                aria-label="Más secciones"
-                title="Más secciones"
+                aria-label={activeSecondary ? `Más secciones (actual: ${activeSecondary.label})` : "Más secciones"}
                 aria-haspopup="menu"
                 onClick={() => setMoreOpen((v) => !v)}
               >
@@ -201,7 +207,8 @@ export const AppShell = () => {
                   <circle cx="11" cy="11" r="1.4" fill="currentColor" stroke="none" />
                   <circle cx="16.5" cy="11" r="1.4" fill="currentColor" stroke="none" />
                 </svg>
-                <span className={styles.tip}>Más</span>
+                {/* Estando en una sección de «Más», la píldora dice cuál es (no solo «Más»). */}
+                <span className={styles.tip}>{activeSecondary?.label ?? "Más"}</span>
                 {secondaryCount > 0 ? <span className={styles.badge}>{secondaryCount}</span> : null}
               </button>
               {moreOpen ? (

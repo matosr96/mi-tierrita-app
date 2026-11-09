@@ -39,7 +39,7 @@ export const Tabs = <T extends string>({ options, value, onChange, ariaLabel }: 
 export const Chips = <T extends string | number>({ options, value, onChange }: { options: { value: T; label: string }[]; value: T; onChange: (v: T) => void }) => (
   <div className={styles.chips}>
     {options.map((o) => (
-      <button key={String(o.value)} type="button" className={[styles.chip, o.value === value ? styles.chipActive : ""].join(" ")} onClick={() => onChange(o.value)}>
+      <button key={String(o.value)} type="button" className={[styles.chip, o.value === value ? styles.chipActive : ""].join(" ")} aria-pressed={o.value === value} onClick={() => onChange(o.value)}>
         {o.label}
       </button>
     ))}

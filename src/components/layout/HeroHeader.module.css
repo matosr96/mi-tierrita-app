@@ -104,11 +104,21 @@
   --sprout: var(--band-pill);
   --sprout-ink: var(--band-pill-ink);
   --leaf: var(--band-leaf);
-  --surface: var(--band-glass);
+  --surface: var(--band-glass-strong);
   --line-strong: var(--band-glass-line);
   --ink: var(--on-band);
-  --hover: color-mix(in srgb, var(--white) 30%, transparent);
+  --hover: var(--band-glass-strong-hover);
   display: flex;
   gap: 8px;
   flex-wrap: wrap;
+}
+/* En el teléfono el estado y las acciones siguen la lectura del saludo (a la izquierda) en vez de quedar sueltos a la derecha. */
+@media (max-width: 640px) {
+  .side {
+    align-items: flex-start;
+    width: 100%;
+  }
+  .info {
+    justify-content: flex-start;
+  }
 }

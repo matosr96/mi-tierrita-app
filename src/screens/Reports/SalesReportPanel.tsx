@@ -115,7 +115,7 @@ export const SalesReportPanel = (initial: { from?: string | undefined; to?: stri
           </Field>
         </div>
         <Button
-          variant="ghost"
+          variant="secondary"
           size="sm"
           onClick={() => {
             setFrom(addDaysIso(todayIso(), -30));

@@ -80,11 +80,14 @@ export const ReportsScreen = () => {
     <div className={styles.page}>
       <PageHeader title="Reportes" subtitle={isAdmin ? "Documentos para la propietaria: ventas, inventario y cartera tal como los registra el sistema, y el informe del proyecto del simulador financiero." : "Documento de ventas del periodo tal como las registra el sistema."} />
 
-      <div className={styles.covers} role="group" aria-label="Elegir reporte">
-        {reports.map((r) => (
-          <ReportPicker key={r.kind} def={r} selected={r.kind === current} onSelect={() => setKind(r.kind)} />
-        ))}
-      </div>
+      {/* Con un solo reporte para el rol (secretaria) no hay nada que elegir: el selector solo ocupaba espacio. */}
+      {reports.length > 1 ? (
+        <div className={styles.covers} role="group" aria-label="Elegir reporte">
+          {reports.map((r) => (
+            <ReportPicker key={r.kind} def={r} selected={r.kind === current} onSelect={() => setKind(r.kind)} />
+          ))}
+        </div>
+      ) : null}
 
       {current === "sales" ? <SalesReportPanel from={isoParam("from")} to={isoParam("to")} groupBy={params.get("groupBy") === "product" ? "product" : undefined} /> : null}
       {isAdmin && current === "inventory" ? <InventoryReportPanel days={intParam("days")} /> : null}

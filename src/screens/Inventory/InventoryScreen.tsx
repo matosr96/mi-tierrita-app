@@ -93,7 +93,16 @@ export const InventoryScreen = () => {
     { key: "sku", header: "Código", render: (p) => <span className={styles.code}>{p.sku}</span> },
     { key: "name", header: "Producto", align: "left", render: (p) => <span className={styles.productName}>{p.name}</span> },
     { key: "category", header: "Línea", align: "left", render: (p) => p.categoryName },
-    { key: "stock", header: "Stock", align: "right", render: (p) => (expiredUnits(p) > 0 ? `${int(p.stock)} (${int(expiredUnits(p))} vencidas)` : int(p.stock)) },
+    { key: "stock", header: "Stock", align: "right", render: (p) =>
+        expiredUnits(p) > 0 ? (
+          <>
+            {int(p.stock)}
+            <span className={styles.stockNote}>{int(expiredUnits(p))} vencidas</span>
+          </>
+        ) : (
+          int(p.stock)
+        ),
+    },
     { key: "price", header: "Precio", align: "right", render: (p) => money(p.salePrice) },
     {
       key: "status",
@@ -176,7 +185,7 @@ export const InventoryScreen = () => {
       <div className={styles.grid}>
         <Card
           title="Existencias"
-          subtitle={products.data ? `${int(products.data.count)} ${products.data.count === 1 ? "producto" : "productos"} · clic en ${OPEN_HINT[view]} para ver sus lotes` : undefined}
+          subtitle={products.data ? `${int(products.data.count)} ${products.data.count === 1 ? "producto" : "productos"} · toque ${OPEN_HINT[view]} para ver sus lotes` : undefined}
           actions={<ViewSwitch value={view} onChange={setView} modes={VIEW_MODES} ariaLabel="Vista de existencias" />}
         >
           <QueryState

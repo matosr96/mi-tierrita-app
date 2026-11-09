@@ -70,7 +70,7 @@ export const CustomerLedger = ({ customers, receivables, onOpen, onPay }: Props)
           </div>
 
           <div className={styles.end}>
-            <CustomerStatusBadge id={c.id} status={status} />
+            <CustomerStatusBadge id={c.id} status={status} verify={receivables === undefined} />
             {canPay ? (
               <button type="button" className={styles.pay} onClick={() => onPay(c)} aria-label={`Abonar a ${c.name}`}>
                 Abonar
