@@ -2,8 +2,8 @@
 
 Aplicación de una sola página (SPA) de **Mi Tierrita SIG**, el sistema de una agropecuaria en Sahagún, Córdoba. La usan
 la administración, la caja (Secretaria) y la bodega para inventario, lotes y vencimientos, punto de venta, clientes y
-cartera, proveedores, evaluación financiera de la ampliación, reportes, chat del equipo y usuarios. Incluye la página
-pública de la tienda y a **Tita**, la asistente con IA. Consume la API de [mi-tierrita-api](../mi-tierrita-api) y no
+cartera, proveedores, el simulador financiero de la ampliación, reportes, chat del equipo y usuarios. Incluye la página
+pública de la tienda (cuyas líneas de producto salen de la misma API que el inventario) y a **Tita**, la asistente con IA. Consume la API de [mi-tierrita-api](../mi-tierrita-api) y no
 contiene reglas de negocio propias: toda regla vive en el servidor.
 
 Implementa los documentos 02 (arquitectura del frontend), 07 (diseño del frontend) y 09 (infraestructura del
@@ -92,7 +92,7 @@ confirmación:
 
 - **Dónde:** página `/tita` y panel rápido desde la barra (botón "Tita" o Ctrl+J / ⌘J); comparten la conversación,
   que vive solo en memoria y se borra al cerrar sesión.
-- **Consultar:** ventas, existencias vendibles, lotes, saldos, reportes y escenarios financieros, según el rol.
+- **Consultar:** ventas, existencias vendibles, lotes, saldos, reportes y proyectos del simulador financiero, según el rol.
 - **Actuar:** crear y editar clientes, productos, categorías y proveedores; registrar ventas, abonos, compras y lotes;
   anular ventas; crear escenarios; atender contactos; escribirle al equipo; abrir reportes. Cada acción llega como
   tarjeta y solo se ejecuta al pulsar Confirmar, contra el mismo endpoint de la API (mismas validaciones y permisos) y
@@ -112,7 +112,7 @@ autocompletado al escribir (Tab); orbe 3D en CSS con «reducir movimiento» y la
 
 | Pantalla | Ruta | Administrador | Secretaria (caja) | Bodega |
 |---|---|---|---|---|
-| Página pública | `/sitio` (y `/` sin sesión) | todos | | |
+| Página pública (líneas de producto leídas de `GET /categories/public`) | `/sitio` (y `/` sin sesión) | todos | | |
 | Iniciar sesión | `/iniciar-sesion` | todos sin sesión | | |
 | Inicio | `/` | ✓ | ✓ | ✓ |
 | Inventario | `/inventario` | edición | consulta | edición |
@@ -120,8 +120,8 @@ autocompletado al escribir (Tab); orbe 3D en CSS con «reducir movimiento» y la
 | Ventas (punto de venta e historial) | `/ventas`, `/ventas/:tab` | ✓ | ✓ | |
 | Clientes y cartera | `/clientes` | ✓ | ✓ | |
 | Proveedores | `/proveedores` | ✓ | | consulta y compras |
-| Finanzas (panel, supuestos, escenarios, flujo) | `/finanzas`, `/finanzas/:tab` | ✓ | con candado | |
-| Reportes | `/reportes` | ✓ | solo ventas | |
+| Finanzas (simulador financiero: Mercado, Competencia, Costos, Inversión, Financiación, Flujo de caja, Riesgos e informe, Escenarios) | `/finanzas`, `/finanzas/:tab` | ✓ | con candado | |
+| Reportes (Ventas R-01, Inventario R-02, Cartera R-03 e Informe del proyecto S-01) | `/reportes` | ✓ | solo ventas | |
 | Tita | `/tita` | ✓ | ✓ | ✓ |
 | Chat del equipo | `/chat` | ✓ | ✓ | ✓ |
 | Contactos del sitio | `/contactos` | ✓ | | |
@@ -130,6 +130,37 @@ autocompletado al escribir (Tab); orbe 3D en CSS con «reducir movimiento» y la
 | Auditoría | `/auditoria` | ✓ | | |
 | Mi perfil | `/perfil`, `/perfil/:tab` | ✓ | ✓ | ✓ |
 | Acceso restringido | cualquier ruta sin permiso | ✓ | ✓ | ✓ |
+
+## Finanzas: el simulador financiero (Fase B)
+
+Desde el 29/10/2026 Finanzas es el simulador financiero por unidades del brief, solo para Administrador. Ocho pestañas en
+el orden de la cadena del negocio: **Mercado** (¿cuánta gente me va a comprar?), **Competencia** (¿cuánto de ese mercado
+me toca?), **Costos** (¿cuánto me cuesta vender eso?), **Inversión** (¿cuánta plata necesito al inicio?, con las tablas de
+depreciación de activos fijos y de amortización de diferidos por separado), **Financiación** (¿de dónde sale la plata?),
+**Flujo de caja** (¿al final me deja ganancia?: VPN y TIR), **Riesgos e informe** (tornado y escenarios pesimista, base y
+optimista) y **Escenarios** (proyectos guardados: «Guardar proyecto», «Guardar como», lista propia o de todos, comparar de
+dos a cuatro, exportar y eliminar). Cada pestaña abre con su pregunta y la línea «Viene de … · Alimenta a …»; las entradas
+secundarias van en un bloque plegable «Avanzado». Cada cambio se recalcula en la API (`POST /financial/simulator/calculate`),
+que es la única fuente de las cifras: la pantalla, el informe, el Inicio y Tita muestran las mismas. «Exportar escenario» es
+un atajo a Reportes → Informe del proyecto. Las decisiones del modelo están en `DECISIONES-FASE-B.md` de la carpeta del
+proyecto.
+
+## Reportes
+
+Cuatro entradas en `/reportes`: **Ventas** (R-01, Administrador y Secretaria), **Inventario** (R-02), **Cartera** (R-03) e
+**Informe del proyecto** (S-01, solo Administrador): el informe del simulador para un escenario guardado o para el ejemplo
+de la ampliación (`?r=proyecto&proyecto=<id|ejemplo>`), con mercado y competencia, costos e inversión, financiación y
+amortización del crédito, flujo de caja e indicadores, y riesgos y escenarios. Todos comparten la plantilla: vista previa,
+portada con folio y QR verificable, pie «Página X de Y», historial de quién generó cada archivo y Excel (el informe, con 15
+hojas).
+
+## Página pública y líneas de producto
+
+Las seis líneas de la tienda (Alimentos balanceados, Medicina veterinaria, Semillas y fertilizantes, Aves de corral,
+Productos agroquímicos, Ferretería agrícola) viven en la tabla de categorías de la API, con código `01`…`06`, descripción y
+subfamilias. La página pública las lee sin sesión con `GET /categories/public` (`usePublicLines`); mientras la API responde,
+o si no responde, pinta el respaldo `LINES_FALLBACK` de `content.ts`. Renombrar o desactivar una línea en Inventario →
+Categorías → «Editar» cambia la página pública; una categoría nueva queda interna (sin código) y no sale en la página.
 
 ## Notificaciones: campana, alarmas y Web Push
 
@@ -152,7 +183,8 @@ vencimientos de las 07:00 llegan aunque la pestaña esté cerrada; requiere que 
   app, en `/ayuda/tita` (general y por rol).
 - **Registro de cambios**: [CHANGELOG.md](CHANGELOG.md).
 - **Pruebas**: `pnpm test` (`node:test` con `tsx`, sin navegador) cubre las funciones puras de la app: clasificación de
-  errores de Tita, sugerencias por pantalla, presencia de la ficha, apariencia, modos de vista y la rejilla del calendario.
+  errores de Tita, sugerencias por pantalla, presencia de la ficha, apariencia, modos de vista, la rejilla del calendario, el
+  informe del proyecto, la histéresis de la barra superior y las líneas de la página pública.
 
 ## Producción
 

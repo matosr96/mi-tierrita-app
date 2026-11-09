@@ -2,6 +2,32 @@
 
 Formato basado en [Keep a Changelog](https://keepachangelog.com/es/1.1.0/). Fechas en hora de Colombia.
 
+## [Sin publicar] · Líneas de producto iguales en la página pública y en el sistema (6/11/2026)
+
+### Cambiado
+- La página pública lee sus líneas de producto de la API (`usePublicLines`, `GET /categories/public`): catálogo, chips del héroe y pie muestran las categorías activas con código, en el orden 01…06. `lines.ts` arma el corte tipográfico (`splitLineName`: la última palabra es el acento) y la foto y la escena se eligen por código. `LINES_FALLBACK` de `content.ts` se pinta solo mientras la API responde o si no responde; el texto «Seis líneas para la finca…» ya no lleva el número.
+- Inventario: los chips «Todas las líneas», el `Select` del formulario de producto y el modal de categorías salen en el orden de la página pública (01…06) y después las internas. El indicador «Productos activos · en N líneas» cuenta solo las líneas activas con productos.
+- Modal de categorías: «Renombrar» pasa a «Editar» (nombre, descripción y subfamilias separadas por coma); cada fila muestra `L-NN · Página pública`, las subfamilias y la descripción. Una categoría nueva queda interna (sin código) y no aparece en la página pública.
+
+### Añadido
+- Tipos `PublicCategory`, `CategoryInput` y los campos `code`, `description` y `tags` en `Category`; pruebas en `tests/lines.test.ts`.
+
+## [Sin publicar] · Informe del proyecto en Reportes, simulador simplificado y barra sin rebote (5/11/2026)
+
+### Añadido
+- Reportes tiene cuatro entradas: Ventas (R-01), Inventario (R-02), Cartera (R-03) e **Informe del proyecto** (S-01, solo Administrador; la Secretaria sigue viendo únicamente Ventas). El informe (`Reports/ProjectReportPanel.tsx`, `projectReport.ts`) elige el escenario en un selector (proyectos guardados de todos los administradores y, al final, el ejemplo de la ampliación; `?r=proyecto&proyecto=<id|ejemplo>` lo preselecciona), comparte la plantilla de los otros reportes (vista previa, portada con folio y QR, pie «Página X de Y», historial rotulado «Informe del proyecto») y exporta a PDF y Excel con 15 hojas. Botón «Abrir en el simulador».
+- Simulador: cada pestaña abre con la pregunta del brief y la línea «Viene de … · Alimenta a …» (`TabIntro`, `SIM_TABS`); las entradas secundarias van en un bloque plegable «Avanzado» (`Disclosure`, nuevo en el kit, que se abre solo si un campo de dentro trae un error de la API); cada pestaña destaca un resultado (`Highlight`).
+- Inversión: dos tarjetas separadas, «Depreciación de activos fijos» (año, depreciación, valor neto) y «Amortización de diferidos», con sus totales del horizonte tal como los devuelve la API ($31.000.000 y $6.500.000 en el ejemplo); el informe lleva la sección 3 con las dos tablas y las hojas «3 Depreciación» y «3 Amortización diferidos». En Financiación la tabla se llama «Tabla de amortización del crédito».
+- Tita propone el informe del proyecto: sugerencias en Reportes y Finanzas, tarjeta «Informe del proyecto» que abre Reportes con el escenario, y el manual de Tita de Administración lo nombra.
+
+### Cambiado
+- «Exportar escenario» (encabezado, pestaña Riesgos e informe y cada fila de Escenarios) es solo un atajo a Reportes → Informe con ese escenario (`Finance/ExportScenarioLink.tsx`); con cambios sin guardar queda deshabilitado («Guarde el proyecto para exportarlo»).
+- Barra superior: ya no rebota al hacer scroll. `components/layout/topbar.ts` aplica histéresis (compacta pasados 64 px, expande solo bajo 16 px) y una guarda de altura (solo compacta si la página seguirá teniendo recorrido); la regla es una función pura con prueba (`tests/topbar.test.ts`).
+- Escenarios: la tabla de proyectos se apila en tarjetas bajo 640 px en vez de desplazarse en horizontal.
+
+### Quitado
+- `Finance/SimulatorReport.tsx` y el modal «Exportar proyecto»: el informe vive solo en Reportes, sin lógica duplicada.
+
 ## [Sin publicar] · Fase B del brief: simulador financiero (29/10/2026)
 
 ### Cambiado
