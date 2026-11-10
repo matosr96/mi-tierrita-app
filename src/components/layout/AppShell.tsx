@@ -166,7 +166,6 @@ export const AppShell = () => {
       <NavLink
         key={item.path}
         to={item.path}
-        viewTransition
         end={item.path === "/"}
         aria-label={locked ? `${item.label} (acceso restringido)` : item.label}
         className={({ isActive }) => [variant === "pill" ? styles.tab : styles.menuItem, isActive ? styles.active : "", locked ? styles.locked : ""].join(" ")}
@@ -273,6 +272,7 @@ export const AppShell = () => {
         </>
       ) : null}
 
+      {/* La `key` remonta el `main` al cambiar de sección (no de pestaña): así el fundido de entrada de `.content` se repite. */}
       <main className={styles.content} key={pageKey}>
         <Outlet />
       </main>

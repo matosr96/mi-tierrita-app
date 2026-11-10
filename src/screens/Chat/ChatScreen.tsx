@@ -63,7 +63,7 @@ const notificationPermission = (): NotificationPermission | "unsupported" => ("N
  * fijados, menciones, adjuntos y notas de voz, búsqueda por texto y día, información de la conversación y avisos de
  * lo que falta por leer. URL: `?con=<persona>&hilo=<mensaje>&m=<mensaje a mostrar>`. Bajo 900 px la bandeja y la sala
  * se turnan la pantalla completa (`roomOpen`): la sala se monta en `document.body` con un portal porque el `main` del
- * armazón (`view-transition-name`) es un contexto de apilamiento y desde dentro nada taparía la barra; los paneles
+ * armazón (`isolation: isolate`) es un contexto de apilamiento y desde dentro nada taparía la barra; los paneles
  * laterales y los modales van entonces dentro de la sala.
  */
 export const ChatScreen = () => {

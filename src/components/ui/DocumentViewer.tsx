@@ -344,7 +344,7 @@ export const DocumentViewer = ({ open, name, mime, src, size, error, onClose, on
     </div>
   );
 
-  // Va en un portal sobre <body>: el contenido de AppShell forma su propio contexto de apilamiento (view-transition-name)
+  // Va en un portal sobre <body>: el contenido de AppShell forma su propio contexto de apilamiento (`isolation` en `.content`)
   // y, dentro de él, el visor quedaría debajo de la barra superior y del botón de Tita.
   return createPortal(
     <div className={styles.backdrop} onMouseDown={(e) => e.target === e.currentTarget && onClose()}>

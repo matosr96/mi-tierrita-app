@@ -2,9 +2,7 @@ import { useEffect, useRef, type KeyboardEvent as ReactKeyboardEvent, type React
 import { createPortal } from "react-dom";
 import styles from "./Modal.module.css";
 
-type Props = { open: boolean; title: string; description?: string; onClose: () => void; children: ReactNode; footer?: ReactNode; wide?: boolean; viewTransitionName?: string };
-
-/** `viewTransitionName` (opcional) nombra el diálogo solo mientras dura un morfismo de View Transitions; sin él, el diálogo usa su propia entrada. */
+type Props = { open: boolean; title: string; description?: string; onClose: () => void; children: ReactNode; footer?: ReactNode; wide?: boolean };
 
 /** Diálogos abiertos a la vez (un modal puede abrir otro). */
 let openDialogs = 0;
@@ -27,7 +25,7 @@ export const useModalOpenFlag = (open: boolean) => {
 
 const FOCUSABLE = 'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
 
-export const Modal = ({ open, title, description, onClose, children, footer, wide = false, viewTransitionName }: Props) => {
+export const Modal = ({ open, title, description, onClose, children, footer, wide = false }: Props) => {
   const dialogRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -74,11 +72,11 @@ export const Modal = ({ open, title, description, onClose, children, footer, wid
   };
 
   if (!open) return null;
-  // En un portal sobre <body>: el contenido de la app tiene su propio contexto de apilamiento (view-transition-name),
+  // En un portal sobre <body>: el contenido de la app tiene su propio contexto de apilamiento (`isolation` en `.content`),
   // y sin esto la barra superior quedaba por encima de los diálogos altos en pantallas angostas.
   return createPortal(
     <div className={styles.backdrop} onMouseDown={(e) => e.target === e.currentTarget && onClose()}>
-      <div className={[styles.dialog, wide ? styles.wide : "", viewTransitionName ? styles.morph : ""].join(" ")} style={viewTransitionName ? { viewTransitionName } : undefined} role="dialog" aria-modal="true" aria-label={title} ref={dialogRef} tabIndex={-1} onKeyDown={trapTab}>
+      <div className={[styles.dialog, wide ? styles.wide : ""].join(" ")} role="dialog" aria-modal="true" aria-label={title} ref={dialogRef} tabIndex={-1} onKeyDown={trapTab}>
         <div className={styles.head}>
           <div>
             <h2>{title}</h2>

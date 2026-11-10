@@ -126,18 +126,7 @@ table {
   white-space: nowrap;
 }
 
-/* Transición entre pantallas: un fundido corto. */
-::view-transition-old(root),
-::view-transition-new(root) {
-  animation: none;
-}
-::view-transition-group(page) {
-  animation: none;
-}
-::view-transition-old(page),
-::view-transition-new(page) {
-  animation-duration: 0.12s;
-}
+/* El cambio de sección no usa View Transitions: la entrada es un fundido de `.content` en AppShell.module.css. */
 
 /*
  * Movimiento mínimo y funcional: ninguna animación de entrada, bucle ni efecto decorativo. Solo se conservan las
@@ -151,11 +140,6 @@ table {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  ::view-transition-old(page),
-  ::view-transition-new(page) {
-    animation: none;
-  }
-
   *,
   *::before,
   *::after {

@@ -376,8 +376,18 @@
 }
 
 /* ---------- contenido ---------- */
+/*
+ * Cambio de sección: la vista anterior se va en el mismo cuadro en que llega la nueva (sin View Transitions: sus
+ * fotos congelaban la pantalla y dejaban las dos vistas superpuestas) y la nueva entra con un fundido corto de
+ * opacidad. `@starting-style` lo dispara al montarse el `main` (lo remonta la `key` de AppShell). Es una transición,
+ * no una animación, así que la regla global de movimiento no la apaga y «reducir movimiento» la deja instantánea.
+ * Solo opacidad: un `transform` aquí movería la barra fija del carrito de Ventas y la sala del chat en el teléfono.
+ * `isolation` conserva el contexto de apilamiento que antes creaba `view-transition-name`: nada de adentro tapa la
+ * barra superior; los diálogos van en portal sobre <body>.
+ */
 .content {
-  view-transition-name: page;
+  isolation: isolate;
+  transition: opacity 0.18s var(--ease-out);
   width: 100%;
   max-width: 1440px;
   margin: 0 auto;
@@ -386,6 +396,17 @@
   display: flex;
   flex-direction: column;
   gap: 18px;
+}
+@starting-style {
+  .content {
+    opacity: 0;
+  }
+}
+/* Con «reducir movimiento» la sección aparece de una vez (sin transición no hay estado inicial que aplicar). */
+@media (prefers-reduced-motion: reduce) {
+  .content {
+    transition: none;
+  }
 }
 /* En pantallas angostas el orbe flotante de Tita queda abajo a la derecha: espacio para que no tape la última fila. */
 @media (max-width: 900px) {

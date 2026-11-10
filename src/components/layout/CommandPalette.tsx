@@ -103,7 +103,7 @@ export const CommandPalette = ({ open, onClose, role }: { open: boolean; onClose
   const go = (item: Item | undefined) => {
     if (!item) return;
     onClose();
-    navigate(item.to, { viewTransition: true });
+    navigate(item.to);
   };
 
   const pending = searching && search.isPending;
