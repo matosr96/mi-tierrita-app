@@ -104,6 +104,14 @@
   max-width: 100%;
   flex: 1;
 }
+.figure {
+  margin: 14px 0 0;
+  break-inside: avoid;
+}
+.figure + .subTable,
+.subTable + .figure {
+  margin-top: 14px;
+}
 .subTable + .subTable {
   margin-top: 14px;
 }

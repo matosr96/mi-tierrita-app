@@ -1,9 +1,10 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, type ReactNode } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button, DataTable, ErrorState, Field, Loading, Select, type Column } from "@/components/ui";
 import { useProject, useProjects, useSimulatorDefaults } from "@/hooks/financial";
 import { dateOnly, int, money, moneyCompact, pct, times, todayIso, years } from "@/lib/format";
 import { downloadXlsx } from "@/lib/xlsx";
+import { DonutChart, HBarChart, LineChart, StackedBarChart, TornadoChart, VBarChart } from "@/components/charts";
 import { ROLE_LABELS, useSessionStore } from "@/stores/session";
 import { ratesNote } from "@/screens/Finance/ratesNote";
 import { EXAMPLE_PROJECT, EXAMPLE_PROJECT_NAME, fileBase } from "@/screens/Finance/simShared";
@@ -12,6 +13,7 @@ import { ReportPreview } from "./ReportPreview";
 import { ReportPaper, type Indicator } from "./ReportPaper";
 import { PaperBlock } from "./PaperBlock";
 import { coverParams, projectSections, projectSheets, projectVerdict, type Pair, type TextTableData } from "./projectReport";
+import { ProjectFlowDiagram } from "./ProjectFlowDiagram";
 import styles from "./ReportsScreen.module.css";
 
 const pairColumns: Column<Pair>[] = [
@@ -32,6 +34,15 @@ const TextTable = ({ title, data }: { title?: string; data: TextTableData }) => 
     />
     {data.note ? <p className={styles.chartNote}>{data.note}</p> : null}
   </div>
+);
+
+/** Gráfico del informe con su título y la nota «Fuente» que dice de qué tabla sale (trazabilidad). */
+const Figure = ({ title, source, children }: { title: string; source: string; children: ReactNode }) => (
+  <figure className={styles.figure}>
+    <h5 className={styles.subTableTitle}>{title}</h5>
+    {children}
+    <figcaption className={styles.chartNote}>Fuente: {source}</figcaption>
+  </figure>
 );
 
 /** Qué escenario se muestra: un proyecto guardado (por id) o el ejemplo de la ampliación de la API. */
@@ -126,31 +137,126 @@ export const ProjectReportPanel = ({ initial }: { initial?: string | undefined }
         indicators={ledger}
         note="Cifras calculadas por el servidor con los supuestos del proyecto; son las mismas de la pantalla de Finanzas. Es un apoyo para decidir, no un concepto financiero."
       >
+        <PaperBlock label="Flujo económico del proyecto" hint="de la demanda a los indicadores · cada paso remite a su sección">
+          <ProjectFlowDiagram input={input} result={result} />
+        </PaperBlock>
         <PaperBlock label="1. Resumen y supuestos">
           <PairTable rows={[...s.indicators, ...s.assumptions]} />
         </PaperBlock>
         <PaperBlock label="2. Mercado y competencia">
+          <Figure title="Demanda del mercado por año" source={`tabla de mercado de esta sección: demanda anual que crece ${pct(result.market.growth)} al año (PIB y desempleo).`}>
+            <VBarChart data={result.market.years.map((y) => ({ label: `Año ${y.year}`, value: y.demand }))} format={(v) => int(v)} title="Demanda del mercado en unidades por año" />
+          </Figure>
           <PairTable rows={s.market} />
+          <Figure title="Cuota que aporta cada competidor" source={`tabla «Competidores», columna «Aporte»: suma ${pct(result.competition.marketShare)} del mercado, ${int(result.competition.annualUnits)} unidades al año.`}>
+            <HBarChart data={result.competition.competitors.map((c) => ({ label: c.name, value: c.contribution }))} format={pct} title="Aporte de cada competidor a la cuota captada" />
+          </Figure>
           <TextTable title="Competidores" data={s.competitors} />
         </PaperBlock>
         <PaperBlock label="3. Costos e inversión">
+          <Figure title="Costos fijos y variables por año" source="tabla «Costos por unidades vendidas», filas «Costos fijos» y «Costos variables»; la barra completa es el costo total.">
+            <StackedBarChart
+              data={result.costs.years.map((y) => ({ label: `Año ${y.year}`, values: { fixed: y.fixedTotal, variable: y.variableTotal } }))}
+              series={[
+                { key: "fixed", label: "Costos fijos", tone: "forest" },
+                { key: "variable", label: "Costos variables", tone: "soft" },
+              ]}
+              format={moneyCompact}
+              formatTip={money}
+              title="Costos fijos y variables por año"
+            />
+          </Figure>
           <TextTable title="Costos por unidades vendidas" data={s.costs} />
+          <Figure title="Composición de la inversión inicial" source="tabla «Inversión inicial», columnas «Valor» y «Parte».">
+            <DonutChart
+              data={result.investment.items.map((i, k) => ({ label: i.label, value: i.amount, tone: (["accent", "good", "warn", "muted"] as const)[k % 4] ?? "muted" }))}
+              format={money}
+              center={moneyCompact(result.investment.total)}
+              centerLabel="inversión total"
+              title="Composición de la inversión inicial"
+            />
+          </Figure>
           <TextTable title="Inversión inicial" data={s.investment} />
+          <Figure title="Depreciación y amortización por año" source="tablas «Depreciación de activos fijos» y «Amortización de diferidos»; la barra completa es el cargo anual que baja el impuesto.">
+            <StackedBarChart
+              data={result.investment.schedule.map((d) => ({ label: `Año ${d.year}`, values: { dep: d.depreciation, amort: d.amortization } }))}
+              series={[
+                { key: "dep", label: "Depreciación", tone: "forest" },
+                { key: "amort", label: "Amortización de diferidos", tone: "warn" },
+              ]}
+              format={moneyCompact}
+              formatTip={money}
+              title="Depreciación y amortización por año"
+            />
+          </Figure>
           <TextTable title="Depreciación de activos fijos" data={s.depreciation} />
           <TextTable title="Amortización de diferidos" data={s.amortization} />
           <p className={styles.chartNote}>{s.chargeNote}</p>
         </PaperBlock>
         <PaperBlock label="4. Financiación y amortización">
+          <Figure title="Cómo se financia la inversión" source="resumen de financiación de esta sección: crédito y aporte propio.">
+            <DonutChart
+              data={[
+                { label: "Crédito", value: result.financing.credit, tone: "warn" },
+                { label: "Aporte propio", value: result.financing.ownContribution, tone: "accent" },
+              ]}
+              format={money}
+              center={pct(result.financing.debtRatio)}
+              centerLabel="con crédito"
+              title="Crédito y aporte propio"
+            />
+          </Figure>
           <PairTable rows={s.financingSummary} />
+          {result.financing.annual.length > 0 ? (
+            <Figure title="Intereses y abono a capital por año" source="tabla «Resumen anual del crédito», columnas «Intereses» y «Abono a capital»; la barra completa son las cuotas del año.">
+              <StackedBarChart
+                data={result.financing.annual.map((a) => ({ label: `Año ${a.year}`, values: { interest: a.interest, principal: a.principal } }))}
+                series={[
+                  { key: "interest", label: "Intereses", tone: "warn" },
+                  { key: "principal", label: "Abono a capital", tone: "forest" },
+                ]}
+                format={moneyCompact}
+                formatTip={money}
+                title="Intereses y abono a capital por año"
+              />
+            </Figure>
+          ) : null}
           <TextTable title="Resumen anual del crédito" data={s.annual} />
+          {result.financing.monthly.length > 0 ? (
+            <Figure title="Saldo del crédito mes a mes" source="tabla de amortización mensual, columna «Saldo».">
+              <LineChart points={result.financing.monthly.map((x) => ({ x: x.month, y: x.balance }))} formatX={(m) => `Mes ${int(m)}`} formatY={moneyCompact} title="Saldo del crédito mes a mes" />
+            </Figure>
+          ) : null}
           <TextTable title="Tabla de amortización del crédito (mensual)" data={s.monthly} />
         </PaperBlock>
         <PaperBlock label="5. Flujo de caja e indicadores">
+          <Figure title="De los ingresos al EBITDA" source="tabla de flujo de caja: la barra completa son los ingresos de cada año (unidades × precio), repartidos en costos variables, costos fijos y EBITDA.">
+            <StackedBarChart
+              data={result.cashFlow.years.map((y) => ({ label: `Año ${y.year}`, values: { variable: y.variableCosts, fixed: y.fixedCosts, ebitda: Math.max(y.ebitda, 0) } }))}
+              series={[
+                { key: "variable", label: "Costos variables", tone: "soft" },
+                { key: "fixed", label: "Costos fijos", tone: "muted" },
+                { key: "ebitda", label: "EBITDA", tone: "good" },
+              ]}
+              format={moneyCompact}
+              formatTip={money}
+              title="Ingresos repartidos en costos y EBITDA por año"
+            />
+          </Figure>
+          <Figure title="Flujo neto por año" source={`fila «Flujo neto» de la tabla de flujo de caja; en naranja, los años con salida neta (el año 0 es la inversión). Recuperación: ${years(ind.paybackSimple)}.`}>
+            <VBarChart data={result.cashFlow.flows.map((f, i) => ({ label: `Año ${i}`, value: f, alt: f < 0 }))} format={moneyCompact} formatTip={money} title="Flujo neto del proyecto por año" />
+          </Figure>
           <TextTable data={s.flow} />
           <PairTable rows={s.indicators} />
         </PaperBlock>
         <PaperBlock label="6. Riesgos y escenarios">
+          <Figure title="Tornado: sensibilidad del VPN" source={`tabla «Tornado»: cada variable se mueve por separado y las demás quedan fijas. VPN base ${money(result.risks.baseNpv)}.`}>
+            <TornadoChart data={result.risks.tornado.map((t) => ({ label: `${t.label} ${t.change}`, low: t.npvLow, high: t.npvHigh }))} base={result.risks.baseNpv} format={moneyCompact} />
+          </Figure>
           <TextTable title="Tornado" data={s.tornado} />
+          <Figure title="VPN por escenario" source="tabla «Escenarios pesimista, base y optimista», columna «VPN»; en naranja, los escenarios con VPN negativo.">
+            <VBarChart data={result.scenarios.map((x) => ({ label: x.label, value: x.npv, alt: x.npv < 0 }))} format={moneyCompact} formatTip={money} title="VPN por escenario" />
+          </Figure>
           <TextTable title="Escenarios pesimista, base y optimista" data={s.scenarios} />
         </PaperBlock>
       </ReportPaper>

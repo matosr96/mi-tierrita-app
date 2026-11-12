@@ -4,7 +4,7 @@ import { useReceivablesReport } from "@/hooks/reports";
 import { ROLE_LABELS, useSessionStore } from "@/stores/session";
 import { dateOnly, dateTime, int, money, moneyCompact, todayIso } from "@/lib/format";
 import { Badge, Chips, DataTable, EmptyState, QueryState, type Column } from "@/components/ui";
-import { ChartDetailModal, Legend, RankingChart } from "@/components/charts";
+import { ChartDetailModal, HBarChart, Legend, RankingChart } from "@/components/charts";
 import type { ReceivableRow, ReceivablesReport } from "@/types/api";
 import { downloadXlsx, type XlsxSheet } from "@/lib/xlsx";
 import type { User } from "@/types/api";
@@ -12,6 +12,7 @@ import { ReportPreview } from "./ReportPreview";
 import { ReportPaper } from "./ReportPaper";
 import { PaperBlock } from "./PaperBlock";
 import { SourceCell } from "./SourceCell";
+import { FlowDiagram, type FlowStep } from "./FlowDiagram";
 import styles from "./ReportsScreen.module.css";
 
 const OVERDUE_OPTIONS = [15, 30, 45, 60].map((v) => ({ value: v, label: `${v} días` }));
@@ -54,6 +55,15 @@ const exportExcel = (report: ReceivablesReport, user: User | null) =>
   ]);
 
 /** CU-20 Reporte de cartera (solo ADMIN). */
+/** Ciclo de la cartera, de la venta a crédito al cobro, con las cifras del corte (todas de la API). */
+const receivableSteps = (d: ReceivablesReport): FlowStep[] => [
+  { title: "Venta a crédito", how: ["Cada venta fiada se carga", "al saldo del cliente"], value: [`${int(d.customersWithBalance)} clientes con saldo`] },
+  { title: "Saldo pendiente", how: ["Ventas a crédito menos abonos", "de cada cliente"], value: [money(d.totalBalance)], section: "Clientes" },
+  { title: "Seguimiento", how: [`Más de ${int(d.overdueDays)} días sin abonar desde`, "la última venta a crédito"], value: [`${int(d.overdueCustomers)} clientes vencidos`], section: "Estado", ...(d.overdueCustomers > 0 ? { tone: "warn" as const } : {}) },
+  { title: "Cartera vencida", how: ["Saldo de los clientes", "vencidos"], value: [money(d.overdueBalance)], section: "Clientes", ...(d.overdueBalance > 0 ? { tone: "bad" as const } : {}) },
+  { title: "Cobro y abono", how: ["Mensaje de cobro y abono en", "Clientes; el saldo baja al pagar"], value: [`${int(d.overdueCustomers)} por contactar`] },
+];
+
 export const ReceivablesReportPanel = (initial: { overdueDays?: number | undefined }) => {
   const user = useSessionStore((s) => s.user);
   const navigate = useNavigate();
@@ -131,6 +141,32 @@ export const ReceivablesReportPanel = (initial: { overdueDays?: number | undefin
                 </PaperBlock>
               ) : (
                 <>
+                  <PaperBlock label="Ciclo de la cartera" hint="de la venta a crédito al cobro · cifras al corte">
+                    <FlowDiagram id="cartera" steps={receivableSteps(data)} caption="Cada venta a crédito sube el saldo del cliente y cada abono lo baja. Si pasan más días que el límite sin abonar desde la última venta a crédito, el saldo cuenta como vencido. Las cifras son las del encabezado y la tabla de clientes." />
+                  </PaperBlock>
+
+                  <PaperBlock label="Cartera total y vencida" hint={`vencida: más de ${int(data.overdueDays)} días sin abono`}>
+                    <HBarChart
+                      data={[
+                        { label: "Cartera total", value: data.totalBalance },
+                        { label: "Cartera vencida", value: data.overdueBalance, alt: true },
+                      ]}
+                      format={moneyCompact}
+                      formatTip={money}
+                      title="Cartera total y cartera vencida"
+                    />
+                    <HBarChart
+                      data={[
+                        { label: "Clientes con saldo", value: data.customersWithBalance },
+                        { label: "Clientes vencidos", value: data.overdueCustomers, alt: true },
+                      ]}
+                      format={(v) => int(v)}
+                      formatTip={(v) => `${int(v)} clientes`}
+                      title="Clientes con saldo y clientes vencidos"
+                    />
+                    <p className={styles.chartNote}>Fuente: indicadores del encabezado; el detalle por cliente está en la tabla «Clientes con saldo pendiente» (columna de estado).</p>
+                  </PaperBlock>
+
                   <PaperBlock label="Mayores saldos" hint={`top ${int(top.length)} · toque una barra para ver el detalle`}>
                     <Legend
                       items={[

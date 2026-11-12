@@ -1,0 +1,66 @@
+.figure {
+  margin: 0 0 16px;
+}
+.svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  font-family: inherit;
+}
+.box {
+  fill: var(--surface);
+  stroke: var(--line-strong);
+  stroke-width: 1.2;
+}
+.badge {
+  fill: var(--sprout);
+}
+.badgeText {
+  fill: var(--sprout-ink);
+  font-size: 12px;
+  font-weight: 700;
+}
+.title {
+  fill: var(--ink);
+  font-size: 13px;
+  font-weight: 700;
+}
+.section {
+  fill: var(--muted);
+  font-size: 10.5px;
+}
+.how {
+  fill: var(--muted);
+  font-size: 11px;
+}
+.value {
+  fill: var(--forest-fg);
+  font-size: 12.5px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+.arrow {
+  fill: none;
+  stroke: var(--muted);
+  stroke-width: 1.6;
+}
+.head {
+  fill: var(--muted);
+}
+.caption {
+  font-size: 13px;
+  color: var(--muted);
+  margin-top: 8px;
+}
+.box_warn {
+  stroke: var(--warn);
+}
+.box_bad {
+  stroke: var(--bad);
+}
+.value_warn {
+  fill: var(--warn);
+}
+.value_bad {
+  fill: var(--bad);
+}

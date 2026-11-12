@@ -6,7 +6,7 @@ import { AiDraftModal } from "@/components/ai/AiDraftModal";
 import { ROLE_LABELS, useSessionStore } from "@/stores/session";
 import { addDaysIso, dateOnly, int, money, moneyCompact, todayIso } from "@/lib/format";
 import { Button, DataTable, EmptyState, Field, Input, QueryState, Tabs, type Column, type TabOption } from "@/components/ui";
-import { ChartDetailModal, HeatmapCalendar, RankingChart, StackedBarChart, type StackedSeries } from "@/components/charts";
+import { ChartDetailModal, DonutChart, HBarChart, HeatmapCalendar, RankingChart, StackedBarChart, type StackedSeries } from "@/components/charts";
 import type { SalesGroupBy, SalesReport, SalesReportDayRow, SalesReportProductRow } from "@/types/api";
 import { downloadXlsx, type XlsxSheet } from "@/lib/xlsx";
 import type { User } from "@/types/api";
@@ -14,6 +14,7 @@ import { ReportPreview } from "./ReportPreview";
 import { ReportPaper } from "./ReportPaper";
 import { PaperBlock } from "./PaperBlock";
 import { SourceCell, sourceText } from "./SourceCell";
+import { FlowDiagram, type FlowStep } from "./FlowDiagram";
 import styles from "./ReportsScreen.module.css";
 
 const GROUP_OPTIONS: TabOption<SalesGroupBy>[] = [
@@ -87,6 +88,37 @@ const exportExcel = (report: SalesReport, user: User | null) => {
 type Detail = { kind: "days"; focus?: string } | { kind: "products"; focus?: string };
 
 /** CU-19 Reporte de ventas (ADMIN y SALES). Valores iniciales opcionales (por ejemplo, el reporte que preparó Tita). */
+/** Proceso de una venta, de la caja a la cartera, con las cifras del período (todas de la API). */
+const salesSteps = (d: SalesReport): FlowStep[] => [
+  { title: "Ventas registradas", how: ["Ventas completadas del período;", "las anuladas no cuentan"], value: [`${int(d.salesCount)} ventas`], section: "Detalle" },
+  { title: "Unidades y lotes", how: ["Cada línea descuenta stock de los", "lotes que vencen primero (FEFO)"], value: [`${int(d.units)} unidades`], section: "Detalle" },
+  { title: "Total vendido", how: ["Suma de las líneas", "(cantidad × precio de venta)"], value: [money(d.total), ...(d.averageTicket != null ? [`Ticket promedio ${moneyCompact(d.averageTicket)}`] : [])], section: "Indicadores" },
+  { title: "Forma de pago", how: ["De contado entra a caja; a", "crédito queda por cobrar"], value: [`Contado ${moneyCompact(d.cashTotal)}`, `Crédito ${moneyCompact(d.creditTotal)}`], section: "Gráfico" },
+  { title: "Cartera", how: ["Lo fiado sube el saldo del cliente", "(ver reporte de cartera, R-03)"], value: [`${money(d.creditTotal)} por cobrar`], ...(d.creditTotal > 0 ? { tone: "warn" as const } : {}) },
+];
+
+/** Bloques comunes a las dos agrupaciones: el proceso de venta y la mezcla contado / crédito. */
+const SalesOverview = ({ data }: { data: SalesReport }) => (
+  <>
+    <PaperBlock label="Proceso de venta" hint="de la caja a la cartera · cifras del período">
+      <FlowDiagram id="ventas" steps={salesSteps(data)} caption="Cada venta completada descuenta stock por lotes (FEFO), suma al total del período y, si es a crédito, pasa a la cartera del cliente. Las cifras son las del encabezado y la tabla «Detalle»." />
+    </PaperBlock>
+    <PaperBlock label="Contado y crédito" hint="cómo se pagó lo vendido">
+      <DonutChart
+        data={[
+          { label: "De contado", value: data.cashTotal, tone: "accent" },
+          { label: "A crédito", value: data.creditTotal, tone: "warn" },
+        ]}
+        format={money}
+        center={moneyCompact(data.total)}
+        centerLabel="total vendido"
+        title="Total vendido de contado y a crédito"
+      />
+      <p className={styles.chartNote}>Fuente: indicadores «De contado» y «A crédito» del encabezado; lo vendido a crédito aparece en el reporte de cartera.</p>
+    </PaperBlock>
+  </>
+);
+
 export const SalesReportPanel = (initial: { from?: string | undefined; to?: string | undefined; groupBy?: SalesGroupBy | undefined }) => {
   const user = useSessionStore((s) => s.user);
   const navigate = useNavigate();
@@ -202,6 +234,7 @@ export const SalesReportPanel = (initial: { from?: string | undefined; to?: stri
                   <EmptyState title="Sin ventas en el periodo" text="No se registraron ventas completadas entre esas fechas." />
                 ) : data.groupBy === "day" ? (
                   <>
+                    <SalesOverview data={data} />
                     <PaperBlock label="Contado y crédito por día" hint={dayRows.length > MAX_DAY_BARS ? `últimos ${MAX_DAY_BARS} días con ventas del rango · toque una barra para ver el detalle` : `${rangeLabel} · toque una barra para ver el detalle`}>
                       <StackedBarChart
                         data={chartDays.map((r) => ({ label: shortDay(r.date), values: { cashTotal: r.cashTotal, creditTotal: r.creditTotal } }))}
@@ -225,6 +258,17 @@ export const SalesReportPanel = (initial: { from?: string | undefined; to?: stri
                         onSelect={(date) => setDetail({ kind: "days", focus: date })}
                       />
                       <p className={styles.chartNote}>Fuente: ventas completadas del período; los días sin ventas quedan en gris.</p>
+                    </PaperBlock>
+
+                    <PaperBlock label="Número de ventas por día" hint={dayRows.length > MAX_DAY_BARS ? `últimos ${MAX_DAY_BARS} días con ventas del rango` : rangeLabel}>
+                      <StackedBarChart
+                        data={chartDays.map((r) => ({ label: shortDay(r.date), values: { salesCount: r.salesCount } }))}
+                        series={[{ key: "salesCount", label: "Ventas completadas", tone: "forest" }]}
+                        format={(v) => int(v)}
+                        formatTip={(v) => `${int(v)} ventas`}
+                        title="Número de ventas completadas por día"
+                      />
+                      <p className={styles.chartNote}>Fuente: columna «Ventas» de la tabla «Detalle»; junto al total diario muestra si el día vendió por volumen o por ticket.</p>
                     </PaperBlock>
 
                     <PaperBlock label="Detalle" hint={`${int(data.rows.length)} días · toque una fila para abrir sus ventas`}>
@@ -251,9 +295,15 @@ export const SalesReportPanel = (initial: { from?: string | undefined; to?: stri
                   </>
                 ) : (
                   <>
+                    <SalesOverview data={data} />
                     <PaperBlock label="Productos más vendidos" hint={`top ${int(topProducts.length)} por total vendido · toque una barra para ver el detalle`}>
                       <RankingChart data={topProducts.map((r) => ({ label: r.productName, value: r.total, hint: `${int(r.units)} unidades en ${int(r.salesCount)} ventas` }))} format={moneyCompact} formatTip={money} title="Ranking de productos por total vendido" onSelect={(i) => setDetail({ kind: "products", focus: topProducts[i]?.productName })} />
                       <p className={styles.chartNote}>Fuente: líneas de las ventas completadas del período (tabla «Detalle»).</p>
+                    </PaperBlock>
+
+                    <PaperBlock label="Unidades vendidas por producto" hint={`los mismos ${int(topProducts.length)} productos del ranking`}>
+                      <HBarChart data={topProducts.map((r) => ({ label: r.productName, value: r.units }))} format={(v) => int(v)} formatTip={(v) => `${int(v)} unidades`} title="Unidades vendidas por producto" />
+                      <p className={styles.chartNote}>Fuente: columna «Unidades» de la tabla «Detalle»; comparada con el ranking por total, muestra qué productos venden mucho a bajo precio.</p>
                     </PaperBlock>
 
                     <PaperBlock label="Detalle" hint={`${int(data.rows.length)} productos · toque una fila para abrir sus ventas`}>

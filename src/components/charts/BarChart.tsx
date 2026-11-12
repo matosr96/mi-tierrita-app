@@ -23,7 +23,7 @@ const tipOf = (d: BarDatum, fmt: (v: number) => string) => ({ label: d.label, va
  */
 export const HBarChart = ({ data, format, formatTip = format, title }: Props) => {
   const hover = useChartHover();
-  const max = Math.max(...data.map((d) => Math.abs(d.value)), 1);
+  const max = Math.max(0, ...data.map((d) => Math.abs(d.value))) || 1;
   const rowH = 26;
   const labelW = 180;
   const width = 520;
@@ -69,7 +69,7 @@ export const HBarChart = ({ data, format, formatTip = format, title }: Props) =>
  */
 export const VBarChart = ({ data, format, formatTip = format, title }: Props) => {
   const hover = useChartHover();
-  const max = Math.max(...data.map((d) => Math.abs(d.value)), 1);
+  const max = Math.max(0, ...data.map((d) => Math.abs(d.value))) || 1;
   const width = 520;
   const height = 220;
   const slot = (width - 20) / Math.max(data.length, 1);

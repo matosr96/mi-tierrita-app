@@ -4,7 +4,7 @@ import { useInventoryReport } from "@/hooks/reports";
 import { ROLE_LABELS, useSessionStore } from "@/stores/session";
 import { dateOnly, dateTime, int, money, moneyCompact, todayIso } from "@/lib/format";
 import { Chips, DataTable, EmptyState, QueryState, type Column } from "@/components/ui";
-import { ChartDetailModal, StackedBarChart, type StackedSeries } from "@/components/charts";
+import { ChartDetailModal, HBarChart, StackedBarChart, type StackedSeries } from "@/components/charts";
 import type { BatchAggregate, InventoryCategoryRow, InventoryReport } from "@/types/api";
 import { downloadXlsx, type XlsxSheet } from "@/lib/xlsx";
 import type { User } from "@/types/api";
@@ -12,6 +12,7 @@ import { ReportPreview } from "./ReportPreview";
 import { ReportPaper } from "./ReportPaper";
 import { PaperBlock } from "./PaperBlock";
 import { SourceCell, sourceText } from "./SourceCell";
+import { FlowDiagram, type FlowStep } from "./FlowDiagram";
 import styles from "./ReportsScreen.module.css";
 
 const DAY_OPTIONS = [15, 30, 60, 90].map((v) => ({ value: v, label: `${v} días` }));
@@ -77,6 +78,16 @@ const exportExcel = (report: InventoryReport, user: User | null) =>
   ]);
 
 /** CU-20 Reporte de inventario (solo ADMIN). */
+/** Ciclo del inventario, del lote comprado al valor en bodega, con las cifras del corte (todas de la API). */
+const inventorySteps = (d: InventoryReport): FlowStep[] => [
+  { title: "Compras y lotes", how: ["Cada compra crea un lote con", "costo unitario y vencimiento"], value: [`${int(d.activeProducts)} productos activos`] },
+  { title: "Stock en bodega", how: ["Unidades que quedan en los lotes", "(las ventas descuentan por FEFO)"], value: [`${int(d.units)} unidades`, `${int(d.outOfStock)} productos sin stock`], section: "Categorías", ...(d.outOfStock > 0 ? { tone: "warn" as const } : {}) },
+  { title: "Valor al costo", how: ["Unidades × costo unitario", "de cada lote"], value: [money(d.costValue)], section: "Categorías" },
+  { title: "Valor de venta", how: ["Unidades × precio de venta", "de cada producto"], value: [money(d.saleValue)], section: "Categorías" },
+  { title: "Vencimientos", how: [`Lotes que vencen en ${int(d.expiringDays)} días`, "y lotes ya vencidos"], value: [`${int(d.expiringSoon.batches)} por vencer · ${int(d.expired.batches)} vencidos`, `${moneyCompact(d.expiringSoon.costValue)} por vencer al costo`], section: "Lotes", ...(d.expired.batches > 0 ? { tone: "bad" as const } : d.expiringSoon.batches > 0 ? { tone: "warn" as const } : {}) },
+  { title: "Rotación o ajuste", how: ["Vender primero lo que vence o", "darlo de baja en un conteo"], value: [`${int(d.expiringSoon.units)} unidades por rotar`] },
+];
+
 export const InventoryReportPanel = (initial: { days?: number | undefined }) => {
   const user = useSessionStore((s) => s.user);
   const navigate = useNavigate();
@@ -152,7 +163,20 @@ export const InventoryReportPanel = (initial: { days?: number | undefined }) => 
                 ]}
                 note="Elaborado con los lotes y productos registrados en el sistema. No sustituye un conteo físico."
               >
+                <PaperBlock label="Ciclo del inventario" hint="del lote comprado al valor en bodega · cifras al corte">
+                  <FlowDiagram id="inventario" steps={inventorySteps(data)} caption="Cada compra entra como un lote con su costo y su vencimiento; las ventas lo descuentan por FEFO. Las cifras son las del encabezado y las tablas de este reporte." />
+                </PaperBlock>
+
                 <PaperBlock label="Lotes por vencer y vencidos" hint={`ventana de ${int(data.expiringDays)} días`}>
+                  <HBarChart
+                    data={[
+                      { label: `Por vencer (${int(data.expiringDays)} días)`, value: data.expiringSoon.costValue },
+                      { label: "Vencidos con unidades", value: data.expired.costValue, alt: true },
+                    ]}
+                    format={moneyCompact}
+                    formatTip={money}
+                    title="Valor al costo de los lotes por vencer y vencidos"
+                  />
                   <DataTable columns={aggregateColumns} rows={aggregates} rowKey={(r) => r.key} scroll />
                   <p className={styles.chartNote}>Fuente: lotes con unidades restantes y su fecha de vencimiento.</p>
                 </PaperBlock>
@@ -172,6 +196,13 @@ export const InventoryReportPanel = (initial: { days?: number | undefined }) => 
                   )}
                   <p className={styles.chartNote}>Fuente: stock y precio de cada producto, y costo unitario de sus lotes (tabla «Detalle por categoría»).</p>
                 </PaperBlock>
+
+                {data.byCategory.length > 0 ? (
+                  <PaperBlock label="Unidades en stock por categoría" hint="dónde está la mercancía">
+                    <HBarChart data={data.byCategory.map((c) => ({ label: c.categoryName, value: c.units }))} format={(v) => int(v)} formatTip={(v) => `${int(v)} unidades`} title="Unidades en stock por categoría" />
+                    <p className={styles.chartNote}>Fuente: columna «Unidades» de la tabla «Detalle por categoría».</p>
+                  </PaperBlock>
+                ) : null}
 
                 {data.byCategory.length > 0 ? (
                   <PaperBlock label="Detalle por categoría" hint="toque una fila para abrir esa categoría en Inventario">
