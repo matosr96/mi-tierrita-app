@@ -28,7 +28,7 @@ type Props = CoverInfo & {
 
 /**
  * Portada del PDF (primera página impresa): foto, marca, título, período y filtros, quién lo generó y cuándo, folio y
- * QR que lleva a `/verificar/:folio`. En pantalla no se ve: `ReportPreview` la mantiene `hidden` y `printElement` la
+ * QR que lleva a `/verificar/:folio`. En pantalla no se ve: `ReportPreview` la mantiene `hidden` y `downloadPdf` la
  * muestra en la copia que se imprime.
  */
 export const ReportCoverPage = ({ code, title, accent, period, params, generatedBy, generatedAt, folio, verifyUrl }: Props) => (

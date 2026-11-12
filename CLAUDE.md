@@ -120,9 +120,14 @@ Tocar un ítem navega a su `href`.
 
 ## Exportes, notificaciones y perfil
 
-- **PDF**: `printElement(el | [portada, hoja], nombre)` de `@/lib/print` copia el documento a `#print-root` (quita el
-  `hidden` de las copias) y abre el diálogo de impresión (allí se elige «Guardar como PDF» y la carpeta; el botón lo dice
-  en su `title`); las reglas `@media print` están en `global.css`: `@page` con «Página X de Y» en el margen inferior
+- **PDF descargable**: el botón «PDF» de `ReportPreview` usa `downloadPdf({ cover, paper, filename })` de `@/lib/pdf`:
+  dibuja la portada (ancho A4) y la hoja (1000 px, para que las tablas quepan) con `html-to-image` (respeta todo el CSS,
+  con las fuentes de Google incrustadas como data URL) y arma un A4 con `jsPDF`, cortando las páginas entre bloques,
+  figuras y filas (nunca justo después de un título ni antes de una nota «Fuente»), con «Página X de Y». Ambas librerías
+  se cargan solo al generar. Si el documento pasa de ~16.000 px se baja la resolución (tope del lienzo). El texto queda
+  como imagen. Se guarda con `saveBlob` («Guardar como» o descarga directa).
+- **Impresión** (Ctrl+P o `printElement(el | [portada, hoja], nombre)` de `@/lib/print`, hoy sin uso en los reportes):
+  copia el documento a `#print-root` y abre el diálogo de impresión; las reglas `@media print` están en `global.css`: `@page` con «Página X de Y» en el margen inferior
   (cajas de margen, Chrome 131+), `thead` repetido por página, `tr` y `[data-print-block]` sin partir, `[data-print-cover]`
   con salto de página. Los reportes imprimen portada + `ReportPaper`, incluido el «Informe del proyecto» del simulador
   (`ProjectReportPanel`, documento S-01, en Reportes).

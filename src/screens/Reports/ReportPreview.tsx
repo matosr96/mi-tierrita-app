@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { Button } from "@/components/ui";
-import { printElement } from "@/lib/print";
+import { downloadPdf } from "@/lib/pdf";
 import { useRecordExport } from "@/hooks/reports";
 import { ROLE_LABELS, useSessionStore } from "@/stores/session";
 import { notify } from "@/stores/toasts";
@@ -33,7 +33,7 @@ const preloadCover = (): Promise<void> => {
 
 /**
  * Vista previa: barra blanca con filtros y exportación a PDF y Excel, y debajo el documento. Al pedir el PDF primero se
- * registra el documento (folio y hash de la API), luego se arma la portada con el QR y se abre el diálogo de impresión.
+ * registra el documento (folio y hash de la API), luego se arma la portada con el QR y se genera el archivo .pdf.
  */
 export const ReportPreview = ({ subtitle, filters, exportName, onExcel, record, cover, children }: Props) => {
   const user = useSessionStore((s) => s.user);
@@ -48,7 +48,7 @@ export const ReportPreview = ({ subtitle, filters, exportName, onExcel, record, 
   const onPdf = async () => {
     if (!exportName) return;
     if (!record) {
-      printElement(paper(), `${exportName}.pdf`);
+      setPrinting({ name: `${exportName}.pdf`, stamp: null, withCover: false });
       return;
     }
     let next: ReportStamp = null;
@@ -62,16 +62,28 @@ export const ReportPreview = ({ subtitle, filters, exportName, onExcel, record, 
     setPrinting({ name: `${exportName}.pdf`, stamp: next, withCover: cover !== undefined });
   };
 
-  // La portada y el folio ya están en el DOM: se imprime después de pintar.
+  // La portada y el folio ya están en el DOM: se genera el archivo después de pintar.
   useEffect(() => {
     if (!printing) return;
     let cancelled = false;
-    void preloadCover().then(() => {
-      if (cancelled) return;
-      printElement([printing.withCover ? coverRef.current : null, paper()], printing.name);
+    const finish = () => {
       setPrinting(null);
       setStamp(null);
-    });
+    };
+    void (async () => {
+      if (printing.withCover) await preloadCover();
+      const sheet = paper();
+      if (cancelled || !sheet) return finish();
+      const coverPage = printing.withCover ? (coverRef.current?.firstElementChild as HTMLElement | null) : null;
+      try {
+        const saved = await downloadPdf({ cover: coverPage, paper: sheet, filename: printing.name });
+        if (saved) notify.success(`PDF guardado: ${printing.name}`);
+      } catch {
+        notify.error("No se pudo generar el PDF. Intente de nuevo.");
+      } finally {
+        finish();
+      }
+    })();
     return () => {
       cancelled = true;
     };
@@ -91,7 +103,7 @@ export const ReportPreview = ({ subtitle, filters, exportName, onExcel, record, 
           <div className={styles.filters}>{filters}</div>
           {exportName ? (
             <div className={styles.actions}>
-              <Button variant="secondary" size="sm" loading={recordExport.isPending || printing !== null} onClick={() => void onPdf()} title="Abre el diálogo de impresión: allí elija «Guardar como PDF» y la carpeta de destino">
+              <Button variant="secondary" size="sm" loading={recordExport.isPending || printing !== null} onClick={() => void onPdf()} title="Genera el archivo .pdf con portada, folio y QR y lo guarda en su equipo">
                 PDF
               </Button>
               {onExcel ? (
@@ -99,7 +111,7 @@ export const ReportPreview = ({ subtitle, filters, exportName, onExcel, record, 
                   Excel
                 </Button>
               ) : null}
-              <span className={styles.saveHint}>Guardar como: PDF desde el diálogo de impresión; Excel pregunta dónde guardarlo.</span>
+              <span className={styles.saveHint}>PDF y Excel se descargan como archivo; si el navegador lo permite, pregunta dónde guardarlo.</span>
             </div>
           ) : null}
         </div>
