@@ -122,7 +122,8 @@ Tocar un ítem navega a su `href`.
 
 - **PDF descargable**: el botón «PDF» de `ReportPreview` usa `downloadPdf({ cover, paper, filename })` de `@/lib/pdf`:
   dibuja la portada (ancho A4) y la hoja (1000 px, para que las tablas quepan) con `html-to-image` (respeta todo el CSS,
-  con las fuentes de Google incrustadas como data URL) y arma un A4 con `jsPDF`, cortando las páginas entre bloques,
+  con las fuentes de la app —`public/fonts`, listadas en `lib/fonts.ts`; nada de Google Fonts— incrustadas como data URL;
+  en Safari se dibuja dos veces) y arma un A4 con `jsPDF`, cortando las páginas entre bloques,
   figuras y filas (nunca justo después de un título ni antes de una nota «Fuente»), con «Página X de Y». Ambas librerías
   se cargan solo al generar. Si el documento pasa de ~16.000 px se baja la resolución (tope del lienzo). El texto queda
   como imagen. Se guarda con `saveBlob` («Guardar como» o descarga directa).

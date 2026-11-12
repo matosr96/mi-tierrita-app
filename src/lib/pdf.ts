@@ -4,6 +4,7 @@
  * cortan entre bloques (`[data-print-block]`) o entre filas de tabla, nunca a mitad de un gráfico si cabe entero, y
  * cada hoja lleva «Página X de Y». Las dos librerías se cargan solo al generar el primer PDF.
  */
+import { FONT_FILES } from "./fonts";
 import { saveBlob } from "./xlsx";
 
 const PAGE_W = 210;
@@ -38,24 +39,29 @@ const toDataUrl = (blob: Blob): Promise<string> =>
 
 let fontCss: Promise<string> | null = null;
 /**
- * CSS de las fuentes de la app (Urbanist y Geist Mono, de Google Fonts) con cada archivo incrustado como data URL. Sin
- * esto el dibujo no puede leer la hoja de estilos de otro dominio y sale con la fuente del sistema. Se arma una vez; si
- * falla (sin red), el PDF sale igual con la fuente de respaldo.
+ * `@font-face` de las fuentes de la app (`FONT_FILES`, servidas desde la propia app) con cada archivo incrustado como
+ * data URL: un dibujo SVG no carga fuentes externas y, sin esto, el PDF sale con la letra del sistema, más ancha que
+ * Urbanist, y los textos se desbordan. Se arma una vez; si falla, el PDF sale con la fuente de respaldo.
  */
 const embeddedFonts = (): Promise<string> => {
-  fontCss ??= (async () => {
-    const links = [...document.querySelectorAll<HTMLLinkElement>('link[rel="stylesheet"][href*="fonts.googleapis.com"]')];
-    const sheets = await Promise.all(links.map((l) => fetch(l.href).then((r) => (r.ok ? r.text() : ""))));
-    let css = sheets.join("\n");
-    const urls = [...new Set([...css.matchAll(/url\((https:[^)]+)\)/g)].map((m) => m[1] as string))];
-    const data = await Promise.all(urls.map((u) => fetch(u).then((r) => r.blob()).then(toDataUrl)));
-    urls.forEach((u, i) => {
-      css = css.split(u).join(data[i] as string);
+  fontCss ??= Promise.all(
+    FONT_FILES.map(async (f) => {
+      const res = await fetch(f.url);
+      if (!res.ok) throw new Error(`No se pudo leer ${f.url}`);
+      const data = await toDataUrl(await res.blob());
+      return `@font-face{font-family:"${f.family}";font-style:normal;font-weight:${f.weight};src:url(${data}) format("woff2");unicode-range:${f.unicodeRange};}`;
+    }),
+  )
+    .then((faces) => faces.join("\n"))
+    .catch(() => {
+      fontCss = null;
+      return "";
     });
-    return css;
-  })().catch(() => "");
   return fontCss;
 };
+
+/** Safari no aplica las fuentes ni las imágenes en el primer dibujo de un SVG: allí se dibuja dos veces. */
+const isSafari = (): boolean => /^((?!chrome|chromium|android|crios|fxios|edg).)*safari/i.test(navigator.userAgent);
 
 /** Copia el elemento en un contenedor fuera de pantalla con el ancho de la hoja y sin los adornos de pantalla. */
 const stage = (el: HTMLElement, width: number): { host: HTMLDivElement; copy: HTMLElement } => {
@@ -67,6 +73,10 @@ const stage = (el: HTMLElement, width: number): { host: HTMLDivElement; copy: HT
   Object.assign(copy.style, { margin: "0", boxShadow: "none", border: "none", borderRadius: "0", padding: "0", maxWidth: "none", width: "100%", transform: "none" });
   host.appendChild(copy);
   document.body.appendChild(host);
+  // Las indicaciones de uso en pantalla («toque una barra…») no tienen sentido en papel.
+  copy.querySelectorAll<HTMLElement>("span, p").forEach((n) => {
+    if (n.children.length === 0 && /toque/i.test(n.textContent ?? "")) n.textContent = (n.textContent ?? "").replace(/\s*·?\s*toque[^·]*/gi, "").trim();
+  });
   // En papel no hay desplazamiento: las tablas con barra horizontal se muestran completas.
   copy.querySelectorAll<HTMLElement>("*").forEach((n) => {
     const o = getComputedStyle(n).overflowX;
@@ -106,12 +116,15 @@ const draw = async (el: HTMLElement, width: number) => {
   const { toCanvas } = await import("html-to-image");
   const { host, copy } = stage(el, width);
   try {
+    const fontEmbedCSS = await embeddedFonts();
+    await Promise.all(["400 16px Urbanist", "700 16px Urbanist", "400 12px 'Geist Mono'"].map((f) => document.fonts.load(f).catch(() => [])));
     await document.fonts.ready;
     const height = copy.scrollHeight;
-    const fontEmbedCSS = await embeddedFonts();
     // Documentos largos (el informe del proyecto pasa de 13.000 px): se baja la resolución para no pasar el tope del lienzo.
     const pixelRatio = Math.min(SCALE, MAX_CANVAS / height);
-    const canvas = await toCanvas(copy, { pixelRatio, backgroundColor: "#ffffff", width, height, cacheBust: false, ...(fontEmbedCSS ? { fontEmbedCSS } : {}) });
+    const options = { pixelRatio, backgroundColor: "#ffffff", width, height, cacheBust: false, ...(fontEmbedCSS ? { fontEmbedCSS } : {}) };
+    if (isSafari()) await toCanvas(copy, { ...options, pixelRatio: 0.25 });
+    const canvas = await toCanvas(copy, options);
     return { canvas, height, scale: canvas.height / height, points: breakPoints(copy) };
   } finally {
     host.remove();
