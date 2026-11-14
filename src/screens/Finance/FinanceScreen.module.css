@@ -423,3 +423,93 @@
     padding: 12px 16px 16px;
   }
 }
+
+
+/* Competencia: una tarjeta por competidor con el origen de cada cifra. */
+.compCards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 14px;
+}
+.compCard {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 0;
+  padding: 14px 16px 16px;
+  border-radius: var(--radius-sm);
+  background: var(--surface-2);
+}
+.compCardHead {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.compCardHead :global(input) {
+  font-weight: 600;
+}
+.compCardFields {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.compCardLines {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 0;
+}
+.compCardLines div {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: baseline;
+  gap: 1px 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--line);
+}
+.compCardLines dt {
+  font-size: 13.5px;
+  color: var(--ink-2);
+}
+.compCardLines dd {
+  display: contents;
+}
+.compCardLines dd b {
+  font-size: 14.5px;
+  font-weight: 600;
+  color: var(--ink);
+  text-align: right;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+.compCardLines dd span {
+  grid-column: 1 / -1;
+  font-size: 12.5px;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+.compCardResult {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: baseline;
+  gap: 2px 12px;
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  background: var(--sprout-soft);
+}
+.compCardResult span {
+  font-size: 13.5px;
+  color: var(--ink);
+}
+.compCardResult b {
+  font-size: 20px;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+.compCardResult small {
+  grid-column: 1 / -1;
+  font-size: 12.5px;
+  color: var(--ink-2);
+}
