@@ -566,3 +566,29 @@
 .tableGap {
   margin-top: 16px;
 }
+
+/* Resultado de un supuesto, justo debajo de su campo. */
+.derived {
+  margin: -4px 0 4px;
+  padding: 8px 10px;
+  border-radius: var(--radius-sm);
+  background: var(--surface-2);
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--ink-2);
+  font-variant-numeric: tabular-nums;
+}
+.derived b,
+.derivedTotal b {
+  color: var(--ink);
+  font-weight: 600;
+}
+.derivedTotal {
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  background: var(--sprout-soft);
+  font-size: 14px;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
