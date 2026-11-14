@@ -20,7 +20,10 @@ export const CompetitionTab = ({ input, result, onChange, errors }: TabProps) =>
     <div className={styles.stack}>
       <TabIntro tab="competencia" />
       <Highlight
-        items={[{ label: "Participación de Mi Tierrita en el mercado", value: pct(r.marketShare), hint: `${int(r.monthlyUnits)} unidades al mes · ${int(r.annualUnits)} al año` }]}
+        items={[
+          { label: "Participación de Mi Tierrita en el mercado", value: pct(r.marketShare), hint: "Porcentaje del mercado que le quitamos a la competencia" },
+          { label: "Unidades vendidas al año", value: int(r.annualUnits), hint: `${int(r.monthlyUnits)} al mes × 12 · pasa a la pestaña Costos` },
+        ]}
         note={
           <>
             Suma de lo que pasa a Mi Tierrita desde cada competidor:{" "}
