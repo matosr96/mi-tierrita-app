@@ -49,18 +49,6 @@ export const MarketTab = ({ input, result, onChange, errors }: TabProps) => {
             <span className={styles.listTitle}>¿Cuánto crece cada año?</span>
             <SimField label="Crecimiento del PIB" unit="pct" hint="Cuánto crece la economía al año" value={m.gdpGrowth} onChange={(v) => set({ gdpGrowth: v })} error={errorAt(errors, "market.gdpGrowth")} />
             <SimField label="Sensibilidad al PIB" unit="decimal" hint="Por cada 1 % que crece el PIB, cuánto % crece la demanda" value={m.gdpSensitivity} onChange={(v) => set({ gdpSensitivity: v })} error={errorAt(errors, "market.gdpSensitivity")} />
-            <p className={styles.derived}>
-              → Por la economía la demanda crece <b>{pct(r.gdpTerm)}</b>: {pct(m.gdpGrowth)} × {signed(m.gdpSensitivity)}
-            </p>
-            <SimField label="Variación del desempleo" unit="points" hint="Negativo: el desempleo baja" value={m.unemploymentChange} onChange={(v) => set({ unemploymentChange: v })} error={errorAt(errors, "market.unemploymentChange")} />
-            <SimField label="Sensibilidad al desempleo" unit="decimal" hint="Negativa: si el desempleo sube, la demanda baja" value={m.unemploymentSensitivity} onChange={(v) => set({ unemploymentSensitivity: v })} error={errorAt(errors, "market.unemploymentSensitivity")} />
-            <p className={styles.derived}>
-              → Por el empleo la demanda crece <b>{pct(r.unemploymentTerm)}</b>: {points(m.unemploymentChange)} × ({signed(m.unemploymentSensitivity)})
-              {m.unemploymentChange < 0 ? ". Menos desempleo, más gente con qué comprar" : ""}
-            </p>
-            <p className={styles.derivedTotal}>
-              Crecimiento anual: <b>{pct(r.growth)}</b> = {pct(r.gdpTerm)} + {pct(r.unemploymentTerm)}
-            </p>
           </div>
         </Card>
 
@@ -72,6 +60,36 @@ export const MarketTab = ({ input, result, onChange, errors }: TabProps) => {
             ]}
           />
 
+          <Card title="Crecimiento anual de la demanda" subtitle="Dos razones: si la economía crece, la gente compra más; si hay menos desempleo, más gente tiene con qué comprar.">
+            <dl className={styles.compCardLines}>
+              <div>
+                <dt>Por la economía (PIB)</dt>
+                <dd>
+                  <b>{pct(r.gdpTerm)}</b>
+                  <span>
+                    El PIB crece {pct(m.gdpGrowth)} al año y por cada 1 % la demanda crece {signed(m.gdpSensitivity)} %: {pct(m.gdpGrowth)} × {signed(m.gdpSensitivity)} = {pct(r.gdpTerm)}
+                  </span>
+                </dd>
+              </div>
+              <div>
+                <dt>Por el empleo (desempleo)</dt>
+                <dd>
+                  <b>{pct(r.unemploymentTerm)}</b>
+                  <span>
+                    El desempleo cambia {points(m.unemploymentChange)} y la sensibilidad es {signed(m.unemploymentSensitivity)}: {points(m.unemploymentChange)} × ({signed(m.unemploymentSensitivity)}) = {pct(r.unemploymentTerm)}
+                    {m.unemploymentChange < 0 ? ". Menos desempleo, más gente con qué comprar." : ""}
+                  </span>
+                </dd>
+              </div>
+            </dl>
+            <div className={styles.compCardResult}>
+              <span>Crecimiento anual de la demanda</span>
+              <b>{pct(r.growth)}</b>
+              <small>
+                {pct(r.gdpTerm)} por el PIB + {pct(r.unemploymentTerm)} por el desempleo
+              </small>
+            </div>
+          </Card>
           <Card title="Demanda a cinco años" subtitle={`El año 1 es la demanda de arriba; cada año siguiente es el anterior más el ${pct(r.growth)} de crecimiento. Son unidades del mercado completo: la parte de Mi Tierrita sale en Competencia.`}>
             <VBarChart title="Demanda del mercado por año" data={r.years.map((y) => ({ label: `Año ${y.year}`, value: y.demand }))} format={(v) => int(v)} />
             <div className={styles.tableGap}>
