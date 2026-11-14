@@ -556,3 +556,13 @@
   white-space: nowrap;
   font-variant-numeric: tabular-nums;
 }
+
+/* Mercado: separación entre grupos de supuestos y bajo la gráfica. */
+.fieldsGap {
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid var(--line);
+}
+.tableGap {
+  margin-top: 16px;
+}

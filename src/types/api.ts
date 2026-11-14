@@ -759,7 +759,7 @@ export type SimIndicators = { npv: number; irr: number | null; paybackSimple: nu
 export type SimTornadoBar = { variable: "price" | "variableUnitCost" | "demand" | "discountRate" | "inflation"; label: string; change: string; lowValue: number; highValue: number; npvLow: number; npvHigh: number; amplitude: number };
 export type SimScenarioRow = SimIndicators & { key: "pessimistic" | "base" | "optimistic"; label: string; demandChange: number; priceChange: number };
 export type SimulatorResult = {
-  market: { monthlyDemand: number; annualDemand: number; gdpTerm: number; unemploymentTerm: number; growth: number; years: { year: number; demand: number }[] };
+  market: { buyers: number; monthlyDemand: number; annualDemand: number; gdpTerm: number; unemploymentTerm: number; growth: number; years: { year: number; demand: number }[] };
   competition: { competitors: (SimCompetitor & { captureProbability: number; contribution: number; monthlyPurchases: number; unhappyPurchases: number; capturedUnits: number })[]; othersShare: number; marketShare: number; monthlyUnits: number; annualUnits: number };
   costs: { years: SimCostYear[]; unitCost: number; price: number; marginOnCost: number; marginOnPrice: number };
   /** Depreciación de activos fijos y amortización de diferidos por separado; `depreciationTotal` y `amortizationTotal` son las sumas del horizonte (la app no suma). */
