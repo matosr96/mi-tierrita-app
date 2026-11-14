@@ -90,11 +90,15 @@
 }
 
 /* ---------- pregunta y cadena de cada pestaña ---------- */
+/* En tarjeta: según el alto del encabezado cae sobre el borde de la franja verde y así se lee igual. */
 .intro {
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  padding: 0 4px;
+  gap: 8px;
+  padding: 16px 22px;
+  border-radius: var(--radius);
+  background: var(--surface);
+  box-shadow: var(--shadow);
 }
 .introQuestion {
   margin: 0;
