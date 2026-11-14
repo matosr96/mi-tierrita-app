@@ -1,5 +1,5 @@
 import { Button, Card, DataTable, Disclosure, Input, type Column } from "@/components/ui";
-import { int, money, pct } from "@/lib/format";
+import { int, money, num2, pct } from "@/lib/format";
 import type { SimCostYear, SimFixedCost } from "@/types/api";
 import { SimField } from "./SimField";
 import { Highlight } from "./Highlight";
@@ -60,9 +60,22 @@ export const CostsTab = ({ input, result, onChange, errors }: TabProps) => {
               Agregar costo fijo
             </Button>
           </div>
+          <dl className={styles.assumptionTotals}>
+            <div>
+              <dt>Total costos fijos al año</dt>
+              <dd>{money(year1?.fixedTotal)}</dd>
+            </div>
+            <div>
+              <dt>
+                Unidades vendidas al año
+                <span>Supuesto de trabajo: {int(result.competition.monthlyUnits)} al mes × 12 (sale de Competencia)</span>
+              </dt>
+              <dd>{int(year1?.units)}</dd>
+            </div>
+          </dl>
           <div className={styles.fields}>
-            <SimField label="Costo variable por unidad vendida" unit="money" hint="Sale del costo de la mercancía en inventario" value={k.variableUnitCost} onChange={(v) => set({ variableUnitCost: v })} error={errorAt(errors, "costs.variableUnitCost")} />
-            <SimField label="Margen sobre el costo" unit="pct" hint="Define el precio de venta automático" value={k.marginOnCost} onChange={(v) => set({ marginOnCost: v })} error={errorAt(errors, "costs.marginOnCost")} />
+            <SimField label="Costo variable por unidad vendida" unit="money" hint="Lo que me cuesta comprar cada producto (mercancía en inventario)" value={k.variableUnitCost} onChange={(v) => set({ variableUnitCost: v })} error={errorAt(errors, "costs.variableUnitCost")} />
+            <SimField label="Margen sobre el costo" unit="pct" hint="Lo que se le suma al costo de cada producto para el precio de venta" value={k.marginOnCost} onChange={(v) => set({ marginOnCost: v })} error={errorAt(errors, "costs.marginOnCost")} />
           </div>
           <Disclosure title="Avanzado" hint="IPC con el que suben los costos desde el año 2" forceOpen={anyErrorAt(errors, ["costs.inflation"])}>
             <div className={styles.fields}>
@@ -73,29 +86,59 @@ export const CostsTab = ({ input, result, onChange, errors }: TabProps) => {
 
         <div className={styles.stack}>
           <Highlight
-            items={[{ label: "Costo unitario (año 1)", value: money(r.unitCost), hint: year1 ? `${money(year1.variableUnitCost)} variable + ${money(year1.fixedUnitCost)} de parte fija por unidad` : undefined }]}
-            note={year1 ? <>Costo unitario = (fijos {money(year1.fixedTotal)} + variables {money(year1.variableTotal)}) ÷ {int(year1.units)} unidades vendidas = {money(r.unitCost)}.</> : undefined}
+            items={[
+              { label: "Lo que me cuesta cada producto (año 1)", value: money(r.unitCost), hint: year1 ? `${money(year1.fixedUnitCost)} de parte fija + ${money(year1.variableUnitCost)} variable` : undefined },
+              { label: "Precio de venta", value: money(r.price), hint: `Costo + ${pct(r.marginOnCost)} de margen` },
+            ]}
           />
-          <Card title="Precio automático" subtitle="Se recalcula solo al cambiar costos, unidades o margen (decisión 2).">
-            <dl className={styles.figures}>
-              <div>
-                <dt>Costo unitario (año 1)</dt>
-                <dd>{money(r.unitCost)}</dd>
+          {year1 ? (
+            <Card title="De dónde sale el precio de venta" subtitle="Se recalcula solo al cambiar los costos, las unidades o el margen. Valores del año 1.">
+              <dl className={styles.compCardLines}>
+                <div>
+                  <dt>1. Costos fijos al año</dt>
+                  <dd>
+                    <b>{money(year1.fixedTotal)}</b>
+                    <span>{year1.fixedCosts.map((f) => `${f.name} ${money(f.amount)}`).join(" + ")}</span>
+                  </dd>
+                </div>
+                <div>
+                  <dt>2. Parte fija por unidad</dt>
+                  <dd>
+                    <b>{money(year1.fixedUnitCost)}</b>
+                    <span>
+                      {money(year1.fixedTotal)} ÷ {int(year1.units)} unidades vendidas al año
+                    </span>
+                  </dd>
+                </div>
+                <div>
+                  <dt>3. Costo por producto (precio base)</dt>
+                  <dd>
+                    <b>{money(year1.unitCost)}</b>
+                    <span>
+                      {money(year1.fixedUnitCost)} de parte fija + {money(year1.variableUnitCost)} de costo variable por unidad
+                    </span>
+                  </dd>
+                </div>
+                <div>
+                  <dt>4. Margen de ganancia</dt>
+                  <dd>
+                    <b>{money(r.price - r.unitCost)}</b>
+                    <span>
+                      {pct(r.marginOnCost)} sobre {money(r.unitCost)}
+                    </span>
+                  </dd>
+                </div>
+              </dl>
+              <div className={styles.compCardResult}>
+                <span>Precio de venta</span>
+                <b>{money(r.price)}</b>
+                <small>
+                  {money(r.unitCost)} + {pct(r.marginOnCost)} = {money(r.unitCost)} × {num2(1 + r.marginOnCost)}. Sobre el precio, la ganancia es el {pct(r.marginOnPrice)}. Desde el año 2 costos y precio suben
+                  con el IPC.
+                </small>
               </div>
-              <div>
-                <dt>Precio de venta</dt>
-                <dd className={styles.figureAccent}>{money(r.price)}</dd>
-              </div>
-              <div>
-                <dt>Margen sobre el precio</dt>
-                <dd>{pct(r.marginOnPrice)}</dd>
-              </div>
-            </dl>
-            <p className={styles.formula}>
-              Precio = {money(r.unitCost)} × (1 + {pct(r.marginOnCost)}) = <strong>{money(r.price)}</strong>. Desde el año 2 el precio sube con el IPC, igual que los costos. El margen sobre el
-              precio ({pct(r.marginOnPrice)}) es solo informativo.
-            </p>
-          </Card>
+            </Card>
+          ) : null}
           <Card title="Costos por unidades vendidas" subtitle="Costo unitario = (fijos + variables) ÷ unidades vendidas. Tres años; los cinco están en Flujo de caja." flush>
             <DataTable columns={columns} rows={rows} rowKey={(row) => row.key} scroll />
           </Card>

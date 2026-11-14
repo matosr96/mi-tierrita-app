@@ -314,10 +314,16 @@
 }
 .listRow {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto;
-  gap: 8px;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 6px 8px;
   align-items: end;
   width: 100%;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--line);
+}
+/* El nombre ocupa su propia línea; debajo, el valor y «Quitar». */
+.listRow > :first-child {
+  grid-column: 1 / -1;
 }
 
 /* Barra deuda / patrimonio. */
@@ -512,4 +518,41 @@
   grid-column: 1 / -1;
   font-size: 12.5px;
   color: var(--ink-2);
+}
+
+/* Costos: totales bajo los supuestos. */
+.assumptionTotals {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 0 0 16px;
+  padding: 12px 14px;
+  border-radius: var(--radius-sm);
+  background: var(--sprout-soft);
+}
+.assumptionTotals div {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+}
+.assumptionTotals dt {
+  display: flex;
+  flex-direction: column;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--ink);
+}
+.assumptionTotals dt span {
+  font-size: 12.5px;
+  font-weight: 400;
+  color: var(--ink-2);
+}
+.assumptionTotals dd {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--ink);
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
 }
